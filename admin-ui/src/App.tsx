@@ -1,0 +1,57 @@
+import React from 'react';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect
+} from "react-router-dom";
+import './App.css';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import Locations from './pages/Locations';
+import EditLocation from './pages/EditLocation';
+import EditAuthProvider from './pages/EditAuthProvider';
+import LoginSuccess from './pages/LoginSuccess';
+import LoginFailed from './pages/LoginFailed';
+import ProtectedRoute from './pages/ProtectedRoute';
+import { Ajax } from 'flexspace-commons';
+import Users from './pages/Users';
+import EditUser from './pages/EditUser';
+import Settings from './pages/Settings';
+import Bookings from './pages/Bookings';
+import SearchResult from './pages/SearchResult';
+
+export default class App extends React.Component {
+  render() {
+    let jwt = window.sessionStorage.getItem("jwt");
+    if (jwt) {
+      Ajax.JWT = jwt;
+    }
+    if (window.location.href.indexOf("http://localhost") > -1 || window.location.href.indexOf("http://192.168.") > -1) {
+      Ajax.DEV_MODE = true;
+      Ajax.DEV_URL = "http://" + window.location.host.split(':').shift() + ":8090";
+    }
+    return (
+        <Router basename={process.env.PUBLIC_URL}>
+          <Switch>
+            <Route path="/login/success/:id" component={LoginSuccess} />
+            <Route path="/login/failed"><LoginFailed /></Route>
+            <Route path="/login"><Login /></Route>
+            <ProtectedRoute path="/dashboard" component={Dashboard} />
+            <ProtectedRoute path="/locations/add" component={EditLocation} />
+            <ProtectedRoute path="/locations/:id" component={EditLocation} />
+            <ProtectedRoute path="/locations" component={Locations} />
+            <ProtectedRoute path="/users/add" component={EditUser} />
+            <ProtectedRoute path="/users/:id" component={EditUser} />
+            <ProtectedRoute path="/users" component={Users} />
+            <ProtectedRoute path="/settings/auth-providers/add" component={EditAuthProvider} />
+            <ProtectedRoute path="/settings/auth-providers/:id" component={EditAuthProvider} />
+            <ProtectedRoute path="/settings" component={Settings} />
+            <ProtectedRoute path="/bookings" component={Bookings} />
+            <ProtectedRoute path="/search/:keyword" component={SearchResult} />
+            <Route path="/"><Redirect to="/login" /></Route>
+          </Switch>
+        </Router>
+    );
+  }
+}

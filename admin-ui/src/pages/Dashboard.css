@@ -1,0 +1,11 @@
+.dashboard-number {
+    font-size: 2.5rem;
+}
+
+.dashboard-card-clickable {
+    cursor: pointer;
+}
+
+.dashboard-card-clickable:hover {
+    background-color: #f8f9fa;
+}

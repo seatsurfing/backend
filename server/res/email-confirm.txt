@@ -1,0 +1,32 @@
+From: Seatsurfing <info@seatsurfing.de>
+To: {{recipientName}} <{{recipientEmail}}>
+Content-Type: text/plain; charset=UTF-8
+Subject: Ihr Seatsurfing-Account steht bereit
+
+Hallo {{recipientName}},
+
+wir haben Ihren Account erfolgreich eingerichtet. Jetzt kann es losgehen:
+Laden Sie Ihre Raumpläne hoch, richten Sie Sitzplätze ein und bieten Sie
+Ihren Mitarbeitern die Möglichkeit, flexibel Ihre Arbeitsplätze zu wählen.
+
+Als Administrator können Sie sich ab sofort hier einloggen:
+
+https://app.seatsurfing.de/admin/
+
+Verwenden Sie hierfür das von Ihnen gewählte Kennwort und den folgenden
+Benutzernamen:
+
+{{username}}
+
+Zur Platzbuchung nutzen Sie und Ihre Mitarbeiter bitte die Seatsurfing-
+Apps für Android und iOS.
+
+Viele Grüße
+Ihr Team von Seatsurfing.de
+
+-- 
+weweave UG (haftungsbeschränkt)
+Fichtenweg 8d, 65510 Idstein, Deutschland
+Geschäftsführer: Jan Jonas
+Amtsgericht Wiesbaden, HRB 30164
+www.seatsurfing.de

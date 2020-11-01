@@ -1,0 +1,13 @@
+.feather {
+    width: 16px;
+    height: 16px;
+    vertical-align: text-bottom;
+}
+
+.clickable-table tbody tr {
+    cursor: pointer;
+}
+
+h2 {
+    margin-top: 100px;
+}

@@ -1,0 +1,19 @@
+{
+  "name": "flexspace-commons",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "rm -rf ./dist && tsc && npm pack"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "~4.0.3"
+  },
+  "private": true,
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "typings": "dist/index.d.ts"
+}

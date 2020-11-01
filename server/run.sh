@@ -1,0 +1,2 @@
+#!/bin/sh
+DEV=1 PUBLIC_LISTEN_ADDR=0.0.0.0:8090 SMTP_HOST=192.168.40.31:25 STATIC_FILES_PATH=../admin-ui/build FASTSPRING_HASH=McvtGWR7zfQtvDgTH3bDc6K9FwAsFd5n PRINT_CONFIG=1 go run `ls *.go | grep -v _test.go`
