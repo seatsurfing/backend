@@ -1,4 +1,4 @@
-FROM node:14 AS admin-ui-builder
+FROM node:15 AS admin-ui-builder
 RUN mkdir -p /usr/src/app /usr/src/commons/ts/
 WORKDIR /usr/src/commons/ts/
 ADD commons/ts/ .
