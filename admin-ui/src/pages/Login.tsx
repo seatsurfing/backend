@@ -5,6 +5,8 @@ import {
 } from "react-router-dom";
 import './Login.css';
 import { Organization, AuthProvider, Ajax, JwtDecoder } from 'flexspace-commons';
+import { withTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 
 interface State {
   email: string
@@ -15,11 +17,16 @@ interface State {
   providers: AuthProvider[] | null
 }
 
-export default class Login extends React.Component<{}, State> {
+interface Props {
+  t: TFunction
+}
+
+class Login extends React.Component<Props, State> {
   org: Organization | null;
 
   constructor(props: any) {
     super(props);
+    console.log(this.props);
     this.org = null;
     this.state = {
       email: "",
@@ -112,11 +119,11 @@ export default class Login extends React.Component<{}, State> {
       return (
         <div className="container-signin">
           <Form className="form-signin" onSubmit={this.onPasswordSubmit}>
-            <p>Als {this.state.email} an {this.org?.name} anmelden:</p>
-            <Form.Control type="password" placeholder="Kennwort" value={this.state.password} onChange={(e: any) => this.setState({ password: e.target.value, invalid: false })} required={true} isInvalid={this.state.invalid} minLength={8} autoFocus={true} />
-            <Form.Control.Feedback type="invalid">Ungültiges Kennwort.</Form.Control.Feedback>
-            <p><Button variant="primary" type="submit" className="btn-auth-provider">Anmelden</Button></p>
-            <Button variant="secondary" className="btn-auth-provider" onClick={this.cancelPasswordLogin}>Zurück</Button>
+            <p>{this.props.t("signinAsAt", {user: this.state.email, org: this.org?.name})}</p>
+            <Form.Control type="password" placeholder={this.props.t("password")} value={this.state.password} onChange={(e: any) => this.setState({ password: e.target.value, invalid: false })} required={true} isInvalid={this.state.invalid} minLength={8} autoFocus={true} />
+            <Form.Control.Feedback type="invalid">{this.props.t("errorInvalidPassword")}</Form.Control.Feedback>
+            <p><Button variant="primary" type="submit" className="btn-auth-provider">{this.props.t("signin")}</Button></p>
+            <Button variant="secondary" className="btn-auth-provider" onClick={this.cancelPasswordLogin}>{this.props.t("back")}</Button>
           </Form>
         </div>
       );
@@ -124,16 +131,16 @@ export default class Login extends React.Component<{}, State> {
 
     if (this.state.providers != null) {
       let buttons = this.state.providers.map(provider => this.renderAuthProviderButton(provider));
-      let providerSelection = <p>Als {this.state.email} an {this.org?.name} anmelden mit:</p>;
+      let providerSelection = <p>{this.props.t("signinAsAt", {user: this.state.email, org: this.org?.name})}</p>;
       if (buttons.length === 0) {
-        providerSelection = <p>Für diesen Nutzer stehen keine Anmelde-Möglichkeiten zur Verfügung.</p>
+        providerSelection = <p>{this.props.t("errorNoAuthProviders")}</p>
       }
       return (
         <div className="container-signin">
           <Form className="form-signin">
             {providerSelection}
             {buttons}
-            <Button variant="secondary" className="btn-auth-provider" onClick={() => this.setState({ providers: null })}>Zurück</Button>
+            <Button variant="secondary" className="btn-auth-provider" onClick={() => this.setState({ providers: null })}>{this.props.t("back")}</Button>
           </Form>
         </div>
       );
@@ -143,12 +150,14 @@ export default class Login extends React.Component<{}, State> {
       <div className="container-signin">
         <Form className="form-signin" onSubmit={this.onSubmit}>
           <img src="./seatsurfing.svg" alt="Seatsurfing" className="logo" />
-          <h3>Organisation verwalten.</h3>
-          <Form.Control type="email" placeholder="E-Mail Adresse" value={this.state.email} onChange={(e: any) => this.setState({ email: e.target.value, invalid: false })} required={true} isInvalid={this.state.invalid} autoFocus={true} />
-          <Form.Control.Feedback type="invalid">Ungültige E-Mail-Adresse.</Form.Control.Feedback>
-          <Button variant="primary" type="submit">Anmelden</Button>
+          <h3>{this.props.t("mangageOrgHeadline")}</h3>
+          <Form.Control type="email" placeholder={this.props.t("emailAddress")} value={this.state.email} onChange={(e: any) => this.setState({ email: e.target.value, invalid: false })} required={true} isInvalid={this.state.invalid} autoFocus={true} />
+          <Form.Control.Feedback type="invalid">{this.props.t("errorInvalidEmail")}</Form.Control.Feedback>
+          <Button variant="primary" type="submit">{this.props.t("signin")}</Button>
         </Form>
       </div>
     );
   }
 }
+
+export default withTranslation()(Login as any);

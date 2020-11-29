@@ -5,7 +5,9 @@ import {
   Route,
   Redirect
 } from "react-router-dom";
+import './i18n';
 import './App.css';
+import { withTranslation } from 'react-i18next';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Locations from './pages/Locations';
@@ -21,7 +23,10 @@ import Settings from './pages/Settings';
 import Bookings from './pages/Bookings';
 import SearchResult from './pages/SearchResult';
 
-export default class App extends React.Component {
+interface Props {
+}
+
+class App extends React.Component<Props, {}> {
   render() {
     let jwt = window.sessionStorage.getItem("jwt");
     if (jwt) {
@@ -35,8 +40,8 @@ export default class App extends React.Component {
         <Router basename={process.env.PUBLIC_URL}>
           <Switch>
             <Route path="/login/success/:id" component={LoginSuccess} />
-            <Route path="/login/failed"><LoginFailed /></Route>
-            <Route path="/login"><Login /></Route>
+            <Route path="/login/failed" component={LoginFailed} />
+            <Route path="/login" component={Login} />
             <ProtectedRoute path="/dashboard" component={Dashboard} />
             <ProtectedRoute path="/locations/add" component={EditLocation} />
             <ProtectedRoute path="/locations/:id" component={EditLocation} />
@@ -55,3 +60,5 @@ export default class App extends React.Component {
     );
   }
 }
+
+export default withTranslation()(App as any);
