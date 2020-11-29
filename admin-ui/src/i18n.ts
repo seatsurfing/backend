@@ -5,6 +5,9 @@ import { initReactI18next } from 'react-i18next';
 const resources = {
     de: {
         translation: {
+            "weweaveUG": "weweave UG (haftungsbeschränkt)",
+            "privacy": "Datenschutz",
+            "imprint": "Impressum",
             "mangageOrgHeadline": "Organisation verwalten.",
             "emailAddress": "E-Mail Adresse",
             "errorInvalidEmail": "Ungültige E-Mail-Adresse.",
@@ -18,6 +21,9 @@ const resources = {
     },
     en: {
         translation: {
+            "weweaveUG": "weweave UG (limited liability)",
+            "privacy": "Privacy",
+            "imprint": "Imprint",
             "mangageOrgHeadline": "Manage organization.",
             "emailAddress": "Email address",
             "errorInvalidEmail": "Invalid email address.",
