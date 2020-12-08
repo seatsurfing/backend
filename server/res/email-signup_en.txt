@@ -1,0 +1,26 @@
+From: Seatsurfing <info@seatsurfing.de>
+To: {{recipientName}} <{{recipientEmail}}>
+Content-Type: text/plain; charset=UTF-8
+Subject: Your Seatsurfing registration
+
+Hello {{recipientName}},
+
+thanks for signing up with Seatsurfing!
+
+To confirm your registration, please click the following link within
+the next hour:
+
+https://seatsurfing.de/confirm.html?id={{confirmID}}
+
+If you did not place this registration, please ignore this email. We
+won't contact you again.
+
+Kind regards,
+Team Seatsurfing
+
+-- 
+weweave UG (limited liability)
+Fichtenweg 8d, 65510 Idstein, Germany
+Director: Jan Jonas
+Amtsgericht Wiesbaden, HRB 30164
+www.seatsurfing.de

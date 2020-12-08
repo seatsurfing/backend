@@ -1,0 +1,30 @@
+From: Seatsurfing <info@seatsurfing.de>
+To: {{recipientName}} <{{recipientEmail}}>
+Content-Type: text/plain; charset=UTF-8
+Subject: Your Seatsurfing account is ready to use
+
+Hello {{recipientName}},
+
+we've set up your account. Now you're ready to go:
+Upload your floorplans, place your seats and offer your employees the
+possibility to book their desks when they need it.
+
+As an administrator, you can log in here:
+
+https://app.seatsurfing.de/admin/
+
+Please use your chosen password and the following username:
+
+{{username}}
+
+To book your seats, use the Seatsurfing apps for Android and iOS.
+
+Kind regards,
+Team Seatsurfing
+
+-- 
+weweave UG (limited liability)
+Fichtenweg 8d, 65510 Idstein, Germany
+Director: Jan Jonas
+Amtsgericht Wiesbaden, HRB 30164
+www.seatsurfing.de

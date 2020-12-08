@@ -75,7 +75,7 @@ func (router *SignupRouter) signup(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	if err := router.sendDoubleOptInMail(signup); err != nil {
+	if err := router.sendDoubleOptInMail(signup, router.getLanguage(signup.Language)); err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -101,6 +101,8 @@ func (router *SignupRouter) confirm(w http.ResponseWriter, r *http.Request) {
 		ContactFirstname: e.Firstname,
 		ContactLastname:  e.Lastname,
 		ContactEmail:     e.Email,
+		Language:         e.Language,
+		Country:          e.Country,
 	}
 	if err := GetOrganizationRepository().Create(org); err != nil {
 		log.Println(err)
@@ -124,27 +126,37 @@ func (router *SignupRouter) confirm(w http.ResponseWriter, r *http.Request) {
 		SendInternalServerError(w)
 		return
 	}
-	router.sendConfirmMail(e)
+	router.sendConfirmMail(e, router.getLanguage(e.Language))
 	GetSignupRepository().Delete(e)
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (router *SignupRouter) sendDoubleOptInMail(signup *Signup) error {
+func (router *SignupRouter) sendDoubleOptInMail(signup *Signup, language string) error {
 	vars := map[string]string{
 		"recipientName":  signup.Firstname + " " + signup.Lastname,
 		"recipientEmail": signup.Email,
 		"confirmID":      signup.ID,
 	}
-	return sendEmail(signup.Email, "info@seatsurfing.de", EmailTemplateSignup, vars)
+	return sendEmail(signup.Email, "info@seatsurfing.de", EmailTemplateSignup, language, vars)
 }
 
-func (router *SignupRouter) sendConfirmMail(signup *Signup) error {
+func (router *SignupRouter) sendConfirmMail(signup *Signup, language string) error {
 	vars := map[string]string{
 		"recipientName":  signup.Firstname + " " + signup.Lastname,
 		"recipientEmail": signup.Email,
 		"username":       "admin@" + signup.Domain,
 	}
-	return sendEmail(signup.Email, "info@seatsurfing.de", EmailTemplateConfirm, vars)
+	return sendEmail(signup.Email, "info@seatsurfing.de", EmailTemplateConfirm, language, vars)
+}
+
+func (router *SignupRouter) getLanguage(language string) string {
+	lng := strings.ToLower(language)
+	switch lng {
+	case "de":
+		return lng
+	default:
+		return "en"
+	}
 }
 
 func (router *SignupRouter) isValidCountryCode(isoCountryCode string) bool {

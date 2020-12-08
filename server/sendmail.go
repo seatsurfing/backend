@@ -11,7 +11,8 @@ var EmailTemplateSignup, _ = filepath.Abs("./res/email-signup.txt")
 var EmailTemplateConfirm, _ = filepath.Abs("./res/email-confirm.txt")
 var SendMailMockContent = ""
 
-func sendEmail(recipient, sender, templateFile string, vars map[string]string) error {
+func sendEmail(recipient, sender, templateFile, language string, vars map[string]string) error {
+	templateFile = strings.ReplaceAll(templateFile, ".txt", "_"+language+".txt")
 	body, err := compileEmailTemplate(templateFile, vars)
 	if err != nil {
 		return err
