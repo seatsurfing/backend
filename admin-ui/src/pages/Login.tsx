@@ -26,7 +26,6 @@ class Login extends React.Component<Props, State> {
 
   constructor(props: any) {
     super(props);
-    console.log(this.props);
     this.org = null;
     this.state = {
       email: "",
