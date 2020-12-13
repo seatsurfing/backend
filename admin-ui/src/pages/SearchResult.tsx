@@ -4,16 +4,22 @@ import Loading from '../components/Loading';
 import { RouteChildrenProps, Link } from 'react-router-dom';
 import { Search } from 'flexspace-commons';
 import { Card, ListGroup, Col, Row } from 'react-bootstrap';
+import { withTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 
 interface State {
   loading: boolean
 }
 
-interface Props {
+interface RoutedProps {
   keyword: string
 }
 
-export default class SearchResult extends React.Component<RouteChildrenProps<Props>, State> {
+interface Props extends RouteChildrenProps<RoutedProps> {
+  t: TFunction
+}
+
+class SearchResult extends React.Component<Props, State> {
   data: Search;
 
   constructor(props: any) {
@@ -28,7 +34,7 @@ export default class SearchResult extends React.Component<RouteChildrenProps<Pro
     this.loadItems();
   }
 
-  componentDidUpdate = (prevProps: RouteChildrenProps<Props>) => {
+  componentDidUpdate = (prevProps: Props) => {
     if (this.props.match?.params.keyword !== prevProps.match?.params.keyword) {
       this.loadItems();
     }
@@ -43,14 +49,6 @@ export default class SearchResult extends React.Component<RouteChildrenProps<Pro
 
   escapeHTML = (s: string): string => {
     return s;
-    /*
-    return s
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-    */
   }
 
   renderUserResults = () => {
@@ -61,12 +59,12 @@ export default class SearchResult extends React.Component<RouteChildrenProps<Pro
       );
     });
     if (items.length === 0) {
-      items.push(<ListGroup.Item key="users-no-results">Keine Ergebnisse.</ListGroup.Item>);
+      items.push(<ListGroup.Item key="users-no-results">{this.props.t("noResults")}</ListGroup.Item>);
     }
     return (
       <Col sm="4" className="mb-4">
         <Card>
-          <Card.Header>Benutzer</Card.Header>
+          <Card.Header>{this.props.t("users")}</Card.Header>
           <ListGroup variant="flush">
             {items}
           </ListGroup>
@@ -83,12 +81,12 @@ export default class SearchResult extends React.Component<RouteChildrenProps<Pro
       );
     });
     if (items.length === 0) {
-      items.push(<ListGroup.Item key="locations-no-results">Keine Ergebnisse.</ListGroup.Item>);
+      items.push(<ListGroup.Item key="locations-no-results">{this.props.t("noResults")}</ListGroup.Item>);
     }
     return (
       <Col sm="4" className="mb-4">
         <Card>
-          <Card.Header>Bereiche</Card.Header>
+          <Card.Header>{this.props.t("areas")}</Card.Header>
           <ListGroup variant="flush">
             {items}
           </ListGroup>
@@ -105,12 +103,12 @@ export default class SearchResult extends React.Component<RouteChildrenProps<Pro
       );
     });
     if (items.length === 0) {
-      items.push(<ListGroup.Item key="spaces-no-results">Keine Ergebnisse.</ListGroup.Item>);
+      items.push(<ListGroup.Item key="spaces-no-results">{this.props.t("noResults")}</ListGroup.Item>);
     }
     return (
       <Col sm="4" className="mb-4">
         <Card>
-          <Card.Header>Plätze</Card.Header>
+          <Card.Header>{this.props.t("spaces")}</Card.Header>
           <ListGroup variant="flush">
             {items}
           </ListGroup>
@@ -120,7 +118,7 @@ export default class SearchResult extends React.Component<RouteChildrenProps<Pro
   }
 
   render() {
-    let headline = "Suche nach '" + this.escapeHTML(this.props.match ? this.props.match.params.keyword : "") + "'"
+    let headline = this.props.t("searchForX", {keyword: this.escapeHTML(this.props.match ? this.props.match.params.keyword : "")});
 
     if (this.state.loading) {
       return (
@@ -141,3 +139,5 @@ export default class SearchResult extends React.Component<RouteChildrenProps<Pro
     );
   }
 }
+
+export default withTranslation()(SearchResult as any);

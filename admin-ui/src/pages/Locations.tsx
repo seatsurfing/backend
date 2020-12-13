@@ -5,13 +5,19 @@ import { Plus as IconPlus } from 'react-feather';
 import { Link, Redirect } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { Location } from 'flexspace-commons';
+import { withTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 
 interface State {
   selectedItem: string
   loading: boolean
 }
 
-export default class Locations extends React.Component<{}, State> {
+interface Props {
+  t: TFunction
+}
+
+class Locations extends React.Component<Props, State> {
   data: Location[] = [];
 
   constructor(props: any) {
@@ -51,11 +57,11 @@ export default class Locations extends React.Component<{}, State> {
       return <Redirect to={`/locations/${this.state.selectedItem}`} />
     }
 
-    let buttons = <Link to="/locations/add" className="btn btn-sm btn-outline-secondary"><IconPlus className="feather" /> Neu</Link>;
+    let buttons = <Link to="/locations/add" className="btn btn-sm btn-outline-secondary"><IconPlus className="feather" /> {this.props.t("add")}</Link>;
 
     if (this.state.loading) {
       return (
-        <FullLayout headline="Bereiche" buttons={buttons}>
+        <FullLayout headline={this.props.t("areas")} buttons={buttons}>
           <Loading />
         </FullLayout>
       );
@@ -64,8 +70,8 @@ export default class Locations extends React.Component<{}, State> {
     let rows = this.data.map(item => this.renderItem(item));
     if (rows.length === 0) {
       return (
-        <FullLayout headline="Bereiche" buttons={buttons}>
-          <p>Keine Datensätze gefunden.</p>
+        <FullLayout headline={this.props.t("areas")} buttons={buttons}>
+          <p>{this.props.t("noRecords")}</p>
         </FullLayout>
       );
     }
@@ -74,8 +80,8 @@ export default class Locations extends React.Component<{}, State> {
         <Table striped={true} hover={true} className="clickable-table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Karte</th>
+              <th>{this.props.t("name")}</th>
+              <th>{this.props.t("map")}</th>
             </tr>
           </thead>
           <tbody>
@@ -86,3 +92,5 @@ export default class Locations extends React.Component<{}, State> {
     );
   }
 }
+
+export default withTranslation()(Locations as any);

@@ -4,6 +4,8 @@ import Loading from '../components/Loading';
 import { Booking, Formatting } from 'flexspace-commons';
 import { Table, Form, Col, Row, Button } from 'react-bootstrap';
 import { Search as IconSearch } from 'react-feather';
+import { withTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 
 interface State {
   loading: boolean
@@ -11,7 +13,11 @@ interface State {
   end: string
 }
 
-export default class Bookings extends React.Component<{}, State> {
+interface Props {
+  t: TFunction
+}
+
+class Bookings extends React.Component<Props, State> {
   data: Booking[];
 
   constructor(props: any) {
@@ -56,17 +62,17 @@ export default class Bookings extends React.Component<{}, State> {
   }
 
   render() {
-    let buttonSearch = <Button className="btn-sm" variant="outline-secondary" type="submit" form="form"><IconSearch className="feather" /> Suchen</Button>;
+    let buttonSearch = <Button className="btn-sm" variant="outline-secondary" type="submit" form="form"><IconSearch className="feather" /> {this.props.t("search")}</Button>;
     let form = (
       <Form onSubmit={this.onFilterSubmit} id="form">
         <Form.Group as={Row}>
-          <Form.Label column sm="2">Beginn</Form.Label>
+          <Form.Label column sm="2">{this.props.t("enter")}</Form.Label>
           <Col sm="4">
             <Form.Control type="date" value={this.state.start} onChange={(e: any) => this.setState({ start: e.target.value })} required={true} />
           </Col>
         </Form.Group>
         <Form.Group as={Row}>
-          <Form.Label column sm="2">Ende</Form.Label>
+          <Form.Label column sm="2">{this.props.t("leave")}</Form.Label>
           <Col sm="4">
             <Form.Control type="date" value={this.state.end} onChange={(e: any) => this.setState({ end: e.target.value })} required={true} />
           </Col>
@@ -76,7 +82,7 @@ export default class Bookings extends React.Component<{}, State> {
 
     if (this.state.loading) {
       return (
-        <FullLayout headline="Buchungen" buttons={buttonSearch}>
+        <FullLayout headline={this.props.t("bookings")} buttons={buttonSearch}>
           {form}
           <Loading />
         </FullLayout>
@@ -86,23 +92,23 @@ export default class Bookings extends React.Component<{}, State> {
     let rows = this.data.map(item => this.renderItem(item));
     if (rows.length === 0) {
       return (
-        <FullLayout headline="Buchungen" buttons={buttonSearch}>
+        <FullLayout headline={this.props.t("bookings")} buttons={buttonSearch}>
           {form}
-          <p>Keine Datensätze gefunden.</p>
+          <p>{this.props.t("noRecords")}</p>
         </FullLayout>
       );
     }
     return (
-      <FullLayout headline="Buchungen" buttons={buttonSearch}>
+      <FullLayout headline={this.props.t("bookings")} buttons={buttonSearch}>
         {form}
         <Table striped={true} hover={true} className="clickable-table">
           <thead>
             <tr>
-              <th>Benutzer</th>
-              <th>Bereich</th>
-              <th>Platz</th>
-              <th>Beginn</th>
-              <th>Ende</th>
+              <th>{this.props.t("user")}</th>
+              <th>{this.props.t("area")}</th>
+              <th>{this.props.t("space")}</th>
+              <th>{this.props.t("enter")}</th>
+              <th>{this.props.t("leave")}</th>
             </tr>
           </thead>
           <tbody>
@@ -113,3 +119,5 @@ export default class Bookings extends React.Component<{}, State> {
     );
   }
 }
+
+export default withTranslation()(Bookings as any);

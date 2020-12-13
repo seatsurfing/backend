@@ -5,6 +5,8 @@ import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete } from 
 import { Link, RouteChildrenProps, Redirect } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { AuthProvider } from 'flexspace-commons';
+import { withTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 
 interface State {
   loading: boolean
@@ -23,11 +25,15 @@ interface State {
   clientSecret: string;
 }
 
-interface Props {
+interface RoutedProps {
   id: string
 }
 
-export default class EditAuthProvider extends React.Component<RouteChildrenProps<Props>, State> {
+interface Props extends RouteChildrenProps<RoutedProps> {
+  t: TFunction
+}
+
+class EditAuthProvider extends React.Component<Props, State> {
   entity: AuthProvider = new AuthProvider();
 
   constructor(props: any) {
@@ -128,12 +134,12 @@ export default class EditAuthProvider extends React.Component<RouteChildrenProps
       return <Redirect to={`/settings`} />
     }
 
-    let backButton = <Link to="/settings" className="btn btn-sm btn-outline-secondary"><IconBack className="feather" /> Zurück</Link>;
+    let backButton = <Link to="/settings" className="btn btn-sm btn-outline-secondary"><IconBack className="feather" /> {this.props.t("back")}</Link>;
     let buttons = backButton;
 
     if (this.state.loading) {
       return (
-        <FullLayout headline="Auth Provider bearbeiten" buttons={buttons}>
+        <FullLayout headline={this.props.t("editAuthProvider")} buttons={buttons}>
           <Loading />
         </FullLayout>
       );
@@ -141,12 +147,12 @@ export default class EditAuthProvider extends React.Component<RouteChildrenProps
 
     let hint = <></>;
     if (this.state.saved) {
-      hint = <Alert variant="success">Eintrag wurde aktualisiert.</Alert>
+      hint = <Alert variant="success">{this.props.t("entryUpdated")}</Alert>
     }
     
     let urlInfo = <></>;
-    let buttonDelete = <Button className="btn-sm" variant="outline-secondary" onClick={this.deleteItem}><IconDelete className="feather" /> Löschen</Button>;
-    let buttonSave = <Button className="btn-sm" variant="outline-secondary" type="submit" form="form"><IconSave className="feather" /> Speichern</Button>;
+    let buttonDelete = <Button className="btn-sm" variant="outline-secondary" onClick={this.deleteItem}><IconDelete className="feather" /> {this.props.t("delete")}</Button>;
+    let buttonSave = <Button className="btn-sm" variant="outline-secondary" type="submit" form="form"><IconSave className="feather" /> {this.props.t("save")}</Button>;
     if (this.entity.id) {
       buttons = <>{backButton} {buttonDelete} {buttonSave}</>;
       urlInfo = (
@@ -161,20 +167,20 @@ export default class EditAuthProvider extends React.Component<RouteChildrenProps
       buttons = <>{backButton} {buttonSave}</>;
     }
     return (
-      <FullLayout headline="Auth Provider bearbeiten" buttons={buttons}>
+      <FullLayout headline={this.props.t("editAuthProvider")} buttons={buttons}>
         <Form onSubmit={this.onSubmit} id="form">
           {hint}
           <Form.Group as={Row}>
-            <Form.Label column sm="2">Name</Form.Label>
+            <Form.Label column sm="2">{this.props.t("name")}</Form.Label>
             <Col sm="4">
               <Form.Control type="text" placeholder="Name" value={this.state.name} onChange={(e: any) => this.setState({ name: e.target.value })} required={true} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
-            <Form.Label column sm="2">Typ</Form.Label>
+            <Form.Label column sm="2">{this.props.t("type")}</Form.Label>
             <Col sm="4">
               <Form.Control as="select" value={this.state.providerType} onChange={(e: any) => this.setState({ providerType: parseInt(e.target.value) })} required={true}>
-                <option value="0">(bitte auswählen)</option>
+                <option value="0">({this.props.t("pleaseSelect")})</option>
                 <option value="1">OAuth 2</option>
               </Form.Control>
             </Col>
@@ -195,7 +201,7 @@ export default class EditAuthProvider extends React.Component<RouteChildrenProps
             <Form.Label column sm="2">Auth Style</Form.Label>
             <Col sm="4">
               <Form.Control as="select" value={this.state.authStyle} onChange={(e: any) => this.setState({ authStyle: parseInt(e.target.value) })} required={true}>
-                <option value="0">Automatisch</option>
+                <option value="0">{this.props.t("automatic")}</option>
                 <option value="1">Parameter (HTTP POST body)</option>
                 <option value="2">Header (HTTP Basic Authorization)</option>
               </Form.Control>
@@ -226,14 +232,14 @@ export default class EditAuthProvider extends React.Component<RouteChildrenProps
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
-            <Form.Label column sm="2">Userinfo E-Mail-Feld</Form.Label>
+            <Form.Label column sm="2">{this.props.t("userinfoEmailField")}</Form.Label>
             <Col sm="4">
               <Form.Control type="text" placeholder="email" value={this.state.userInfoEmailField} onChange={(e: any) => this.setState({ userInfoEmailField: e.target.value })} required={true} />
             </Col>
           </Form.Group>
           {urlInfo}
           <Form.Group as={Row}>
-            <Form.Label column sm="2">Vorlagen</Form.Label>
+            <Form.Label column sm="2">{this.props.t("templates")}</Form.Label>
             <Col sm="4">
               <Button variant="outline-secondary" onClick={this.templateGoogle}>Google</Button>
             </Col>
@@ -243,3 +249,5 @@ export default class EditAuthProvider extends React.Component<RouteChildrenProps
     );
   }
 }
+
+export default withTranslation()(EditAuthProvider as any);

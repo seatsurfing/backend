@@ -5,13 +5,19 @@ import { Plus as IconPlus } from 'react-feather';
 import { Link, Redirect } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { User, AuthProvider } from 'flexspace-commons';
+import { withTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 
 interface State {
   selectedItem: string
   loading: boolean
 }
 
-export default class Users extends React.Component<{}, State> {
+interface Props {
+  t: TFunction
+}
+
+class Users extends React.Component<Props, State> {
   authProviders: { [key: string]: string } = {};
   data: User[] = [];
 
@@ -46,14 +52,14 @@ export default class Users extends React.Component<{}, State> {
   renderItem = (user: User) => {
     let authProvider = "";
     if (user.requirePassword) {
-      authProvider = "Kennwort";
+      authProvider = this.props.t("password");
     } else if (this.authProviders[user.authProviderId]) {
       authProvider = this.authProviders[user.authProviderId];
     }
     return (
       <tr key={user.id} onClick={() => this.onItemSelect(user)}>
         <td>{user.email}</td>
-        <td>{user.admin ? "Ja" : ""}</td>
+        <td>{user.admin ? this.props.t("yes") : ""}</td>
         <td>{authProvider}</td>
       </tr>
     );
@@ -64,11 +70,11 @@ export default class Users extends React.Component<{}, State> {
       return <Redirect to={`/users/${this.state.selectedItem}`} />
     }
 
-    let buttons = <Link to="/users/add" className="btn btn-sm btn-outline-secondary"><IconPlus className="feather" /> Neu</Link>;
+    let buttons = <Link to="/users/add" className="btn btn-sm btn-outline-secondary"><IconPlus className="feather" /> {this.props.t("add")}</Link>;
 
     if (this.state.loading) {
       return (
-        <FullLayout headline="Benutzer" buttons={buttons}>
+        <FullLayout headline={this.props.t("users")} buttons={buttons}>
           <Loading />
         </FullLayout>
       );
@@ -77,19 +83,19 @@ export default class Users extends React.Component<{}, State> {
     let rows = this.data.map(item => this.renderItem(item));
     if (rows.length === 0) {
       return (
-        <FullLayout headline="Benutzer" buttons={buttons}>
-          <p>Keine Datensätze gefunden.</p>
+        <FullLayout headline={this.props.t("users")} buttons={buttons}>
+          <p>{this.props.t("noRecords")}</p>
         </FullLayout>
       );
     }
     return (
-      <FullLayout headline="Benutzer" buttons={buttons}>
+      <FullLayout headline={this.props.t("users")} buttons={buttons}>
         <Table striped={true} hover={true} className="clickable-table">
           <thead>
             <tr>
-              <th>Benutzername</th>
-              <th>Admin</th>
-              <th>Anmeldung</th>
+              <th>{this.props.t("username")}</th>
+              <th>{this.props.t("admin")}</th>
+              <th>{this.props.t("loginMeans")}</th>
             </tr>
           </thead>
           <tbody>
@@ -100,3 +106,5 @@ export default class Users extends React.Component<{}, State> {
     );
   }
 }
+
+export default withTranslation()(Users as any);

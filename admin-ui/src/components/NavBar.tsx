@@ -3,13 +3,19 @@ import { Nav, Button, Form } from 'react-bootstrap';
 import './NavBar.css';
 import { Link, Redirect } from 'react-router-dom';
 import { Ajax } from 'flexspace-commons';
+import { withTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 
 interface State {
     search: string
     redirect: string | null
 }
 
-export default class NavBar extends React.Component<{}, State> {
+interface Props {
+    t: TFunction
+}
+
+class NavBar extends React.Component<Props, State> {
     constructor(props: any) {
         super(props);
         this.state = {
@@ -59,14 +65,16 @@ export default class NavBar extends React.Component<{}, State> {
                     <span className="navbar-toggler-icon"></span>
                 </button>
                 <Form onSubmit={this.submitSearchForm} className="w-100">
-                    <Form.Control type="text" className="form-control form-control-dark w-100" placeholder="Suchen" aria-label="Suchen" value={this.state.search} onChange={(e: any) => this.setState({ search: e.target.value })} required={true} />
+                    <Form.Control type="text" className="form-control form-control-dark w-100" placeholder={this.props.t("search")} aria-label="Suchen" value={this.state.search} onChange={(e: any) => this.setState({ search: e.target.value })} required={true} />
                 </Form>
                 <ul className="navbar-nav px-3">
                     <li className="nav-item text-nowrap">
-                        <Button variant="link" className="nav-link" onClick={this.logout}> Abmelden</Button>
+                        <Button variant="link" className="nav-link" onClick={this.logout}> {this.props.t("logout")}</Button>
                     </li>
                 </ul>
             </Nav>
         );
     }
 }
+
+export default withTranslation()(NavBar as any);

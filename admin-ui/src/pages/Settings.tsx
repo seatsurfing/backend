@@ -5,6 +5,8 @@ import { User, Organization, AuthProvider, Settings as OrgSettings, Domain, Ajax
 import { Form, Col, Row, Table, Button, Alert, InputGroup, Popover, OverlayTrigger } from 'react-bootstrap';
 import { Link, Redirect } from 'react-router-dom';
 import { Plus as IconPlus, Save as IconSave } from 'react-feather';
+import { withTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 
 interface State {
   allowAnyUser: boolean
@@ -23,7 +25,11 @@ interface State {
   userDomain: string
 }
 
-export default class Settings extends React.Component<{}, State> {
+interface Props {
+  t: TFunction
+}
+
+class Settings extends React.Component<Props, State> {
   org: Organization | null;
   authProviders: AuthProvider[];
 
@@ -144,7 +150,7 @@ export default class Settings extends React.Component<{}, State> {
         domain.verify().then(() => {
           Domain.list(domain.organizationId).then(domains => this.setState({ domains: domains }));
         }).catch(e => {
-          alert("Fehler beim Bestätigen der Domain " + domainName + ": Bitte stellen Sie sicher, dass der notwendige DNS-TXT-Record korrekt eingerichtet ist.");
+          alert(this.props.t("errorValidateDomain", {domain: domainName}));
         })
       }
     });
@@ -172,19 +178,19 @@ export default class Settings extends React.Component<{}, State> {
       Domain.list(this.org ? this.org.id : "").then(domains => this.setState({ domains: domains }));
       this.setState({ newDomain: "" });
     }).catch(() => {
-      alert("Fehler beim Hinzufügen der Domain.");
+      alert(this.props.t("errorAddDomain"));
     });
   }
 
   removeDomain = (domainName: string) => {
-    if (!window.confirm("Soll die Domain " + domainName + " wirklich entfernt werden?")) {
+    if (!window.confirm(this.props.t("confirmDeleteDomain", {domain: domainName}))) {
       return;
     }
     this.state.domains.forEach(domain => {
       if (domain.domain === domainName) {
         domain.delete().then(() => {
           Domain.list(this.org ? this.org.id : "").then(domains => this.setState({ domains: domains }));
-        }).catch(() => alert("Fehler beim Entfernen der Domain."));
+        }).catch(() => alert(this.props.t("errorDeleteDomain")));
       }
     });
   }
@@ -197,8 +203,8 @@ export default class Settings extends React.Component<{}, State> {
   }
 
   deleteOrg = () => {
-    if (window.confirm("Diese Organisation unwiederbringlich löschen?")) {
-      if (window.confirm("Sind Sie ganz sicher? Wenn Sie diese Organisation löschen, werden alle Buchungen, Bereiche, Plätze und Benutzer unwiederbringlich gelöscht. Eine Wiederherstellung ist nicht möglich.")) {
+    if (window.confirm(this.props.t("confirmDeleteOrg"))) {
+      if (window.confirm(this.props.t("confirmDeleteOrg2"))) {
         this.org?.delete().then(() => {
           Ajax.JWT = "";
           window.sessionStorage.removeItem("jwt");
@@ -218,7 +224,7 @@ export default class Settings extends React.Component<{}, State> {
       if (windowRef) {
         windowRef?.close();
       }
-      alert("Etwas ist schief gegangen. Bitte probieren Sie es später erneut.");
+      alert(this.props.t("errorTryAgain"));
     });
   }
 
@@ -229,7 +235,7 @@ export default class Settings extends React.Component<{}, State> {
 
     if (this.state.loading) {
       return (
-        <FullLayout headline="Einstellungen">
+        <FullLayout headline={this.props.t("settings")}>
           <Loading />
         </FullLayout>
       );
@@ -240,20 +246,20 @@ export default class Settings extends React.Component<{}, State> {
       let popoverId = "popover-domain-" + domain.domain;
       const popover = (
         <Popover id={popoverId}>
-          <Popover.Title as="h3">Domain bestätigen</Popover.Title>
+          <Popover.Title as="h3">{this.props.t("verifyDomain")}</Popover.Title>
           <Popover.Content>
-            <div>Um die Domain <strong>{domain.domain}</strong> zu bestätigen, fügen Sie im DNS-Server der Domain bitte folgenden TXT-Record hinzu:</div>
+            <div>{this.props.t("verifyDomainHowto", {domain: domain.domain})}</div>
             <div>&nbsp;</div>
             <div><strong>seatsurfing-verification={domain.verifyToken}</strong></div>
             <div>&nbsp;</div>
-            <Button variant="primary" size="sm" onClick={() => this.verifyDomain(domain.domain)}>Jetzt bestätigen</Button>
+            <Button variant="primary" size="sm" onClick={() => this.verifyDomain(domain.domain)}>{this.props.t("verifyNow")}</Button>
           </Popover.Content>
         </Popover>
       );
       if (!domain.active) {
         verify = (
-          <OverlayTrigger trigger="click" placement="auto" overlay={popover} rootClose={true}>
-            <Button variant="primary" size="sm">Bestätigen</Button>
+          <OverlayTrigger trigger="click" placement="auto" overlay={popover} rootClose={false}>
+            <Button variant="primary" size="sm">{this.props.t("verify")}</Button>
           </OverlayTrigger>
         );
       }
@@ -263,7 +269,7 @@ export default class Settings extends React.Component<{}, State> {
         <Form.Group key={key}>
           {domain.domain}
             &nbsp;
-          <Button variant="danger" size="sm" onClick={() => this.removeDomain(domain.domain)} disabled={!canDelete}>Entfernen</Button>
+          <Button variant="danger" size="sm" onClick={() => this.removeDomain(domain.domain)} disabled={!canDelete}>{this.props.t("remove")}</Button>
             &nbsp;
           {verify}
         </Form.Group>
@@ -271,14 +277,14 @@ export default class Settings extends React.Component<{}, State> {
     });
 
     let authProviderRows = this.authProviders.map(item => this.renderAuthProviderItem(item));
-    let authProviderTable = <p>Keine Datensätze gefunden.</p>;
+    let authProviderTable = <p>{this.props.t("noRecords")}</p>;
     if (authProviderRows.length > 0) {
       authProviderTable = (
         <Table striped={true} hover={true} className="clickable-table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Typ</th>
+              <th>{this.props.t("name")}</th>
+              <th>{this.props.t("type")}</th>
             </tr>
           </thead>
           <tbody>
@@ -292,118 +298,120 @@ export default class Settings extends React.Component<{}, State> {
     if (this.state.subscriptionActive) {
       subscription = (
         <>
-          <p>Sie haben ein aktives Abonnement von Seatsurfing mit bis zu {this.state.subscriptionMaxUsers} Benutzern.</p>
-          <p><Button variant="primary" onClick={this.manageSubscription}>Abonnement verwalten</Button></p>
+          <p>{this.props.t("subscriptionActive", {num: this.state.subscriptionMaxUsers})}</p>
+          <p><Button variant="primary" onClick={this.manageSubscription}>{this.props.t("subscriptionManage")}</Button></p>
         </>
       );
     } else {
       subscription = (
         <>
-          <p>Sie verwenden aktuell die kostenfreie Version von Seatsurfing mit bis zu {this.state.subscriptionMaxUsers} Benutzern.</p>
-          <p><Button variant="primary" onClick={this.manageSubscription}>Abonnement verwalten</Button></p>
+          <p>{this.props.t("subscriptionInactive", {num: this.state.subscriptionMaxUsers})}</p>
+          <p><Button variant="primary" onClick={this.manageSubscription}>{this.props.t("subscriptionManage")}</Button></p>
         </>
       );
     }
 
     let dangerZone = (
       <>
-        <Button className="btn btn-danger" onClick={this.deleteOrg}>Organisation löschen</Button>
+        <Button className="btn btn-danger" onClick={this.deleteOrg}>{this.props.t("deleteOrg")}</Button>
       </>
     );
 
     let hint = <></>;
     if (this.state.saved) {
-      hint = <Alert variant="success">Eintrag wurde aktualisiert.</Alert>
+      hint = <Alert variant="success">{this.props.t("entryUpdated")}</Alert>
     } else if (this.state.error) {
-      hint = <Alert variant="danger">Fehler beim Speichern, bitte kontrollieren Sie die Angaben.</Alert>
+      hint = <Alert variant="danger">{this.props.t("errorSave")}</Alert>
     }
 
-    let buttonSave = <Button className="btn-sm" variant="outline-secondary" type="submit" form="form"><IconSave className="feather" /> Speichern</Button>;
+    let buttonSave = <Button className="btn-sm" variant="outline-secondary" type="submit" form="form"><IconSave className="feather" /> {this.props.t("save")}</Button>;
     let contactName = "";
     if (this.org) {
       contactName = this.org.contactFirstname + " " + this.org.contactLastname + " ("+this.org.contactEmail+")";
     }
 
     return (
-      <FullLayout headline="Einstellungen" buttons={buttonSave}>
+      <FullLayout headline={this.props.t("settings")} buttons={buttonSave}>
         <Form onSubmit={this.onSubmit} id="form">
           {hint}
           <Form.Group as={Row}>
-            <Form.Label column sm="2">Organisation</Form.Label>
+            <Form.Label column sm="2">{this.props.t("org")}</Form.Label>
             <Col sm="4">
               <Form.Control plaintext={true} readOnly={true} defaultValue={this.org?.name} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
-            <Form.Label column sm="2">Primärkontakt</Form.Label>
+            <Form.Label column sm="2">{this.props.t("primaryContact")}</Form.Label>
             <Col sm="4">
               <Form.Control plaintext={true} readOnly={true} defaultValue={contactName} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
             <Col sm="6">
-              <Form.Check type="checkbox" id="check-allowAnyUser" label="Login aller authentifzierbaren Benutzer erlauben" checked={this.state.allowAnyUser} onChange={(e: any) => this.setState({ allowAnyUser: e.target.checked })} />
+              <Form.Check type="checkbox" id="check-allowAnyUser" label={this.props.t("allowAnyUser")} checked={this.state.allowAnyUser} onChange={(e: any) => this.setState({ allowAnyUser: e.target.checked })} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
-            <Form.Label column sm="2">Buchungen je Nutzer</Form.Label>
+            <Form.Label column sm="2">{this.props.t("maxBookingsPerUser")}</Form.Label>
             <Col sm="4">
               <Form.Control type="number" value={this.state.maxBookingsPerUser} onChange={(e: any) => this.setState({ maxBookingsPerUser: e.target.value })} min="1" max="9999" />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
-            <Form.Label column sm="2">Max. Buchungs-Vorlauf</Form.Label>
+            <Form.Label column sm="2">{this.props.t("maxDaysInAdvance")}</Form.Label>
             <Col sm="4">
               <InputGroup>
                 <Form.Control type="number" value={this.state.maxDaysInAdvance} onChange={(e: any) => this.setState({ maxDaysInAdvance: e.target.value })} min="0" max="9999" />
                 <InputGroup.Append>
-                  <InputGroup.Text>Tage</InputGroup.Text>
+                  <InputGroup.Text>{this.props.t("days")}</InputGroup.Text>
                 </InputGroup.Append>
               </InputGroup>
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
-            <Form.Label column sm="2">Max. Buchungs-Dauer</Form.Label>
+            <Form.Label column sm="2">{this.props.t("maxBookingDurationHours")}</Form.Label>
             <Col sm="4">
               <InputGroup>
                 <Form.Control type="number" value={this.state.maxBookingDurationHours} onChange={(e: any) => this.setState({ maxBookingDurationHours: e.target.value })} min="0" max="9999" />
                 <InputGroup.Append>
-                  <InputGroup.Text>Stunden</InputGroup.Text>
+                  <InputGroup.Text>{this.props.t("hours")}</InputGroup.Text>
                 </InputGroup.Append>
               </InputGroup>
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
-            <Form.Label column sm="2">Domains</Form.Label>
+            <Form.Label column sm="2">{this.props.t("domains")}</Form.Label>
             <Col sm="4">
               {domains}
               <InputGroup size="sm">
                 <Form.Control type="text" value={this.state.newDomain} onChange={(e: any) => this.setState({ newDomain: e.target.value })} placeholder="ihre-domain.de" onKeyDown={this.handleNewDomainKeyDown} />
                 <InputGroup.Append>
-                  <Button variant="outline-secondary" onClick={this.addDomain} disabled={!this.isValidDomain()}>Domain hinzufügen</Button>
+                  <Button variant="outline-secondary" onClick={this.addDomain} disabled={!this.isValidDomain()}>{this.props.t("addDomain")}</Button>
                 </InputGroup.Append>
               </InputGroup>
             </Col>
           </Form.Group>
         </Form>
         <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h1 className="h2">Abonnement</h1>
+          <h1 className="h2">{this.props.t("subscription")}</h1>
         </div>
         {subscription}
         <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h1 className="h2">Auth Providers</h1>
+          <h1 className="h2">{this.props.t("authProviders")}</h1>
           <div className="btn-toolbar mb-2 mb-md-0">
             <div className="btn-group mr-2">
-              <Link to="/settings/auth-providers/add" className="btn btn-sm btn-outline-secondary"><IconPlus className="feather" /> Neu</Link>
+              <Link to="/settings/auth-providers/add" className="btn btn-sm btn-outline-secondary"><IconPlus className="feather" /> {this.props.t("add")}</Link>
             </div>
           </div>
         </div>
         {authProviderTable}
         <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h1 className="h2">Kritische Funktionen</h1>
+          <h1 className="h2">{this.props.t("dangerZone")}</h1>
         </div>
         {dangerZone}
       </FullLayout>
     );
   }
 }
+
+export default withTranslation()(Settings as any);

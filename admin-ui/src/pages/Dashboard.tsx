@@ -5,13 +5,19 @@ import { Stats } from 'flexspace-commons';
 import { Card, Row, Col, ProgressBar } from 'react-bootstrap';
 import './Dashboard.css';
 import { Redirect } from 'react-router-dom';
+import { withTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 
 interface State {
   loading: boolean
   redirect: string
 }
 
-export default class Dashboard extends React.Component<{}, State> {
+interface Props {
+  t: TFunction
+}
+
+class Dashboard extends React.Component<Props, State> {
   stats: Stats | null;
 
   constructor(props: any) {
@@ -86,26 +92,26 @@ export default class Dashboard extends React.Component<{}, State> {
     return (
       <FullLayout headline="Dashboard">
         <Row className="mb-4">
-          {this.renderStatsCard(this.stats?.numUsers, "Benutzer", "/users/")}
-          {this.renderStatsCard(this.stats?.numLocations, "Bereiche", "/locations/")}
-          {this.renderStatsCard(this.stats?.numSpaces, "Plätze", "/locations/")}
-          {this.renderStatsCard(this.stats?.numBookings, "Buchungen", "/bookings/")}
+          {this.renderStatsCard(this.stats?.numUsers, this.props.t("users"), "/users/")}
+          {this.renderStatsCard(this.stats?.numLocations, this.props.t("areas"), "/locations/")}
+          {this.renderStatsCard(this.stats?.numSpaces, this.props.t("spaces"), "/locations/")}
+          {this.renderStatsCard(this.stats?.numBookings, this.props.t("bookings"), "/bookings/")}
         </Row>
         <Row className="mb-4">
-        {this.renderStatsCard(this.stats?.numBookingsToday, "Heute", "/bookings/")}
-          {this.renderStatsCard(this.stats?.numBookingsYesterday, "Gestern", "/bookings/")}
-          {this.renderStatsCard(this.stats?.numBookingsThisWeek, "Diese Woche", "/bookings/")}
-          {this.renderStatsCard(this.stats?.numBookingsLastWeek, "Letzte Woche", "/bookings/")}
+        {this.renderStatsCard(this.stats?.numBookingsToday, this.props.t("today"), "/bookings/")}
+          {this.renderStatsCard(this.stats?.numBookingsYesterday, this.props.t("yesterday"), "/bookings/")}
+          {this.renderStatsCard(this.stats?.numBookingsThisWeek, this.props.t("thisWeek"), "/bookings/")}
+          {this.renderStatsCard(this.stats?.numBookingsLastWeek, this.props.t("lastWeek"), "/bookings/")}
         </Row>
         <Row className="mb-4">
           <Col sm="8">
             <Card>
               <Card.Body>
-                <Card.Title>Auslastung</Card.Title>
-                  {this.renderProgressBar(this.stats?.spaceLoadToday, "Heute")}
-                  {this.renderProgressBar(this.stats?.spaceLoadYesterday, "Gestern")}
-                  {this.renderProgressBar(this.stats?.spaceLoadThisWeek, "Diese Woche")}
-                  {this.renderProgressBar(this.stats?.spaceLoadLastWeek, "Letzte Woche")}
+                <Card.Title>{this.props.t("utilization")}</Card.Title>
+                  {this.renderProgressBar(this.stats?.spaceLoadToday, this.props.t("today"))}
+                  {this.renderProgressBar(this.stats?.spaceLoadYesterday, this.props.t("yesterday"))}
+                  {this.renderProgressBar(this.stats?.spaceLoadThisWeek, this.props.t("thisWeek"))}
+                  {this.renderProgressBar(this.stats?.spaceLoadLastWeek, this.props.t("lastWeek"))}
               </Card.Body>
             </Card>
           </Col>
@@ -114,3 +120,5 @@ export default class Dashboard extends React.Component<{}, State> {
     );
   }
 }
+
+export default withTranslation()(Dashboard as any);

@@ -1,12 +1,14 @@
 import React from 'react';
 import FullLayout from '../components/FullLayout';
 import { Form, Col, Row, Button, Alert } from 'react-bootstrap';
-import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete, MapPin as IconMap, Copy as IconCopy } from 'react-feather';
+import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete, MapPin as IconMap, Copy as IconCopy, Loader as IconLoad } from 'react-feather';
 import { Link, RouteChildrenProps, Redirect } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { Location, Space } from 'flexspace-commons';
 import { Rnd } from 'react-rnd';
 import './EditLocation.css';
+import { withTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 
 interface SpaceState {
   id: string
@@ -32,11 +34,15 @@ interface State {
   changed: boolean
 }
 
-interface Props {
+interface RoutedProps {
   id: string
 }
 
-export default class EditLocation extends React.Component<RouteChildrenProps<Props>, State> {
+interface Props extends RouteChildrenProps<RoutedProps> {
+  t: TFunction
+}
+
+class EditLocation extends React.Component<Props, State> {
   entity: Location = new Location();
   mapData: any = null;
 
@@ -48,7 +54,7 @@ export default class EditLocation extends React.Component<RouteChildrenProps<Pro
       saved: false,
       goBack: false,
       name: "",
-      fileLabel: "PNG, JPEG oder GIF",
+      fileLabel: this.props.t("mapFileTypes"),
       files: null,
       spaces: [],
       selectedSpace: null,
@@ -115,6 +121,7 @@ export default class EditLocation extends React.Component<RouteChildrenProps<Pro
 
   onSubmit = (e: any) => {
     e.preventDefault();
+    this.setState({submitting: true});
     this.entity.name = this.state.name;
     this.entity.save().then(() => {
       this.saveSpaces().then(() => {
@@ -123,14 +130,17 @@ export default class EditLocation extends React.Component<RouteChildrenProps<Pro
             this.loadData(this.entity.id);
             this.props.history.push("/locations/" + this.entity.id);
             this.setState({
+              files: null,
               saved: true,
-              changed: false
+              changed: false,
+              submitting: false
             });
           });
         } else {
           this.setState({
             saved: true,
-            changed: false
+            changed: false,
+            submitting: false
           });
         }
       });
@@ -138,7 +148,7 @@ export default class EditLocation extends React.Component<RouteChildrenProps<Pro
   }
 
   deleteItem = () => {
-    if (window.confirm("Bereich löschen? Alle Plätze und Buchungen gehen verloren!")) {
+    if (window.confirm(this.props.t("confirmDeleteArea"))) {
       this.entity.delete().then(() => {
         this.setState({ goBack: true });
       });
@@ -149,7 +159,7 @@ export default class EditLocation extends React.Component<RouteChildrenProps<Pro
     let spaces = [...this.state.spaces];
     let space: SpaceState = {
       id: (e ? e.id : ""),
-      name: (e ? e.name : "Unbenannt"),
+      name: (e ? e.name : this.props.t("unnamed")),
       x: (e ? e.x : 10),
       y: (e ? e.y : 10),
       width: (e ? e.width + "px" : "100px"),
@@ -222,7 +232,7 @@ export default class EditLocation extends React.Component<RouteChildrenProps<Pro
 
   onBackButtonClick = (e: any) => {
     if (this.state.changed) {
-      if (!window.confirm("Es gibt ungespeicherte Änderungen! Wirklich verwerfen?")) {
+      if (!window.confirm(this.props.t("confirmDiscard"))) {
         e.preventDefault();
       }
     }
@@ -255,17 +265,25 @@ export default class EditLocation extends React.Component<RouteChildrenProps<Pro
     </Rnd>;
   }
 
+  getSaveButton = () => {
+    if (this.state.submitting) {
+      return <Button className="btn-sm" variant="outline-secondary" type="submit" form="form" disabled={true}><IconLoad className="feather loader" /> {this.props.t("save")}</Button>;
+    } else {
+      return <Button className="btn-sm" variant="outline-secondary" type="submit" form="form"><IconSave className="feather" /> {this.props.t("save")}</Button>;
+    }
+  }
+
   render() {
     if (this.state.goBack) {
       return <Redirect to={`/locations`} />
     }
 
-    let backButton = <Link to="/locations" onClick={this.onBackButtonClick} className="btn btn-sm btn-outline-secondary"><IconBack className="feather" /> Zurück</Link>;
+    let backButton = <Link to="/locations" onClick={this.onBackButtonClick} className="btn btn-sm btn-outline-secondary"><IconBack className="feather" /> {this.props.t("back")}</Link>;
     let buttons = backButton;
 
     if (this.state.loading) {
       return (
-        <FullLayout headline="Bereich bearbeiten" buttons={buttons}>
+        <FullLayout headline={this.props.t("editArea")} buttons={buttons}>
           <Loading />
         </FullLayout>
       );
@@ -273,11 +291,11 @@ export default class EditLocation extends React.Component<RouteChildrenProps<Pro
 
     let hint = <></>;
     if (this.state.saved) {
-      hint = <Alert variant="success">Eintrag wurde aktualisiert.</Alert>
+      hint = <Alert variant="success">{this.props.t("entryUpdated")}</Alert>
     }
 
-    let buttonDelete = <Button className="btn-sm" variant="outline-secondary" onClick={this.deleteItem}><IconDelete className="feather" /> Löschen</Button>;
-    let buttonSave = <Button className="btn-sm" variant="outline-secondary" type="submit" form="form"><IconSave className="feather" /> Speichern</Button>;
+    let buttonDelete = <Button className="btn-sm" variant="outline-secondary" onClick={this.deleteItem}><IconDelete className="feather" /> {this.props.t("delete")}</Button>;
+    let buttonSave = this.getSaveButton();
     let floorPlan = <></>
     if (this.entity.id) {
       buttons = <>{backButton} {buttonDelete} {buttonSave}</>;
@@ -293,17 +311,17 @@ export default class EditLocation extends React.Component<RouteChildrenProps<Pro
       let buttonCopySpace = <></>;
       let buttonDeleteSpace = <></>;
       if (this.state.selectedSpace != null) {
-        buttonCopySpace = <Button className="btn-sm" variant="outline-secondary" onClick={this.copySpace}><IconCopy className="feather" /> Duplizieren</Button>;
-        buttonDeleteSpace = <Button className="btn-sm" variant="outline-secondary" onClick={this.deleteSpace}><IconDelete className="feather" /> Platz löschen</Button>;
+        buttonCopySpace = <Button className="btn-sm" variant="outline-secondary" onClick={this.copySpace}><IconCopy className="feather" /> {this.props.t("duplicate")}</Button>;
+        buttonDeleteSpace = <Button className="btn-sm" variant="outline-secondary" onClick={this.deleteSpace}><IconDelete className="feather" /> {this.props.t("deleteSpace")}</Button>;
       }
       floorPlan = (
         <>
           <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 className="h2">Raumplan</h1>
+            <h1 className="h2">{this.props.t("floorplan")}</h1>
             <div className="btn-toolbar mb-2 mb-md-0">
               <div className="btn-group mr-2">
                 {buttonCopySpace} {buttonDeleteSpace}
-                <Button className="btn-sm" variant="outline-secondary" onClick={() => this.addRect()}><IconMap className="feather" /> Platz hinzufügen</Button>
+                <Button className="btn-sm" variant="outline-secondary" onClick={() => this.addRect()}><IconMap className="feather" /> {this.props.t("addSpace")}</Button>
               </div>
             </div>
           </div>
@@ -318,17 +336,17 @@ export default class EditLocation extends React.Component<RouteChildrenProps<Pro
       buttons = <>{backButton} {buttonSave}</>;
     }
     return (
-      <FullLayout headline="Bereich bearbeiten" buttons={buttons}>
+      <FullLayout headline={this.props.t("editArea")} buttons={buttons}>
         <Form onSubmit={this.onSubmit} id="form">
           {hint}
           <Form.Group as={Row}>
-            <Form.Label column sm="2">Name</Form.Label>
+            <Form.Label column sm="2">{this.props.t("name")}</Form.Label>
             <Col sm="4">
-              <Form.Control type="text" placeholder="Name" value={this.state.name} onChange={(e: any) => this.setState({ name: e.target.value })} required={true} />
+              <Form.Control type="text" placeholder={this.props.t("name")} value={this.state.name} onChange={(e: any) => this.setState({ name: e.target.value })} required={true} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
-            <Form.Label column sm="2">Raumplan</Form.Label>
+            <Form.Label column sm="2">{this.props.t("floorplan")}</Form.Label>
             <Col sm="4">
               <Form.File label={this.state.fileLabel} custom={true} accept="image/png, image/jpeg, image/gif" onChange={(e: any) => this.setState({ files: e.target.files, fileLabel: e.target.files.item(0).name })} required={!this.entity.id} />
             </Col>
@@ -339,3 +357,5 @@ export default class EditLocation extends React.Component<RouteChildrenProps<Pro
     );
   }
 }
+
+export default withTranslation()(EditLocation as any);

@@ -5,6 +5,8 @@ import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete } from 
 import { Link, RouteChildrenProps, Redirect } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { User, Settings as OrgSettings, Domain } from 'flexspace-commons';
+import { withTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 
 interface State {
   loading: boolean
@@ -20,11 +22,15 @@ interface State {
   domain: string
 }
 
-interface Props {
+interface RoutedProps {
   id: string
 }
 
-export default class EditUser extends React.Component<RouteChildrenProps<Props>, State> {
+interface Props extends RouteChildrenProps<RoutedProps> {
+  t: TFunction
+}
+
+class EditUser extends React.Component<Props, State> {
   entity: User = new User();
   usersMax: number = 0;
   usersCur: number = -1;
@@ -117,7 +123,7 @@ export default class EditUser extends React.Component<RouteChildrenProps<Props>,
   }
 
   deleteItem = () => {
-    if (window.confirm("Benutzer löschen?")) {
+    if (window.confirm(this.props.t("confirmDeleteUser"))) {
       this.entity.delete().then(() => {
         this.setState({ goBack: true });
       });
@@ -129,12 +135,12 @@ export default class EditUser extends React.Component<RouteChildrenProps<Props>,
       return <Redirect to={`/users`} />
     }
 
-    let backButton = <Link to="/users" className="btn btn-sm btn-outline-secondary"><IconBack className="feather" /> Zurück</Link>;
+    let backButton = <Link to="/users" className="btn btn-sm btn-outline-secondary"><IconBack className="feather" /> {this.props.t("back")}</Link>;
     let buttons = backButton;
 
     if (this.state.loading) {
       return (
-        <FullLayout headline="Benutzer bearbeiten" buttons={buttons}>
+        <FullLayout headline={this.props.t("editUser")} buttons={buttons}>
           <Loading />
         </FullLayout>
       );
@@ -142,34 +148,34 @@ export default class EditUser extends React.Component<RouteChildrenProps<Props>,
 
     if (this.usersCur >= this.usersMax && !this.entity.id) {
       return (
-        <FullLayout headline="Benutzer bearbeiten" buttons={buttons}>
-          <p>Sie haben die maximale Anzahl von Benutzern erreicht.</p>
-          <Link to="/settings" className="btn btn-primary">Abonnement verwalten</Link>
+        <FullLayout headline={this.props.t("editUser")} buttons={buttons}>
+          <p>{this.props.t("errorSubscriptionLimit")}</p>
+          <Link to="/settings" className="btn btn-primary">{this.props.t("subscriptionManage")}</Link>
         </FullLayout>
       );
     }
 
     let hint = <></>;
     if (this.state.saved) {
-      hint = <Alert variant="success">Eintrag wurde aktualisiert.</Alert>
+      hint = <Alert variant="success">{this.props.t("entryUpdated")}</Alert>
     } else if (this.state.error) {
-      hint = <Alert variant="danger">Fehler beim Speichern, bitte kontrollieren Sie die Angaben.</Alert>
+      hint = <Alert variant="danger">{this.props.t("errorSave")}</Alert>
     }
 
     let domainOptions = this.domains.map(domain => {
       return <option key={domain.domain} value={domain.domain} disabled={!domain.active}>@{domain.domain.toLowerCase()}</option>;
     });
 
-    let buttonDelete = <Button className="btn-sm" variant="outline-secondary" onClick={this.deleteItem} disabled={false}><IconDelete className="feather" /> Löschen</Button>;
-    let buttonSave = <Button className="btn-sm" variant="outline-secondary" type="submit" form="form"><IconSave className="feather" /> Speichern</Button>;
+    let buttonDelete = <Button className="btn-sm" variant="outline-secondary" onClick={this.deleteItem} disabled={false}><IconDelete className="feather" /> {this.props.t("delete")}</Button>;
+    let buttonSave = <Button className="btn-sm" variant="outline-secondary" type="submit" form="form"><IconSave className="feather" /> {this.props.t("save")}</Button>;
     if (this.entity.id) {
       buttons = <>{backButton} {buttonDelete} {buttonSave}</>;
     } else {
       buttons = <>{backButton} {buttonSave}</>;
     }
-    let changePasswordLabel = "Login mit Kennwort";
+    let changePasswordLabel = this.props.t("passwordLogin");
     if (this.entity.id) {
-      changePasswordLabel = "Kennwort ändern";
+      changePasswordLabel = this.props.t("passwordChange");
     }
     let changePassword = (
       <Form.Group as={Row}>
@@ -179,11 +185,11 @@ export default class EditUser extends React.Component<RouteChildrenProps<Props>,
       </Form.Group>
     );
     return (
-      <FullLayout headline="Benutzer bearbeiten" buttons={buttons}>
+      <FullLayout headline={this.props.t("editUser")} buttons={buttons}>
         <Form onSubmit={this.onSubmit} id="form">
           {hint}
           <Form.Group as={Row}>
-            <Form.Label column sm="2">E-Mail</Form.Label>
+            <Form.Label column sm="2">{this.props.t("emailAddress")}</Form.Label>
             <Col sm="4">
               <InputGroup>
                 <Form.Control type="text" placeholder="max.mustermann" value={this.state.email} onChange={(e: any) => this.setState({ email: e.target.value })} required={true} />
@@ -197,14 +203,14 @@ export default class EditUser extends React.Component<RouteChildrenProps<Props>,
           </Form.Group>
           {changePassword}
           <Form.Group as={Row}>
-            <Form.Label column sm="2">Kennwort</Form.Label>
+            <Form.Label column sm="2">{this.props.t("password")}</Form.Label>
             <Col sm="4">
               <Form.Control type="password" value={this.state.password} onChange={(e: any) => this.setState({ password: e.target.value })} required={!this.entity.id || this.state.changePassword} disabled={!this.state.changePassword} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
             <Col sm="6">
-              <Form.Check type="checkbox" id="check-admin" label="Administrator" checked={this.state.admin} onChange={(e: any) => this.setState({ admin: e.target.checked })} />
+              <Form.Check type="checkbox" id="check-admin" label={this.props.t("admin")} checked={this.state.admin} onChange={(e: any) => this.setState({ admin: e.target.checked })} />
             </Col>
           </Form.Group>
         </Form>
@@ -212,3 +218,5 @@ export default class EditUser extends React.Component<RouteChildrenProps<Props>,
     );
   }
 }
+
+export default withTranslation()(EditUser as any);
