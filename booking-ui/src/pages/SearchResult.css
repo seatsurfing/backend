@@ -1,0 +1,29 @@
+.container-map {
+    margin-top: 100px;
+    margin-bottom: 100px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+.mapScrollContainer {
+    max-width: 100%;
+    overflow-y: scroll;
+}
+
+.mapScrollContainer::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 7px;
+}
+
+.mapScrollContainer::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, .5);
+    -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+}
+
+.space-box-vertical {
+    writing-mode: vertical-rl;
+    text-orientation: sideways;
+}

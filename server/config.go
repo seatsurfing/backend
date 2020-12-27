@@ -8,21 +8,22 @@ import (
 )
 
 type Config struct {
-	PublicListenAddr   string
-	PublicURL          string
-	FrontendURL        string
-	AppURL             string
-	PostgresURL        string
-	JwtSigningKey      string
-	StaticFilesPath    string
-	SMTPHost           string
-	MockSendmail       bool
-	FastSpringUsername string
-	FastSpringPassword string
-	FastSpringHash     string
-	FastSpringValidate bool
-	PrintConfig        bool
-	Development        bool
+	PublicListenAddr    string
+	PublicURL           string
+	FrontendURL         string
+	AppURL              string
+	PostgresURL         string
+	JwtSigningKey       string
+	StaticAdminUiPath   string
+	StaticBookingUiPath string
+	SMTPHost            string
+	MockSendmail        bool
+	FastSpringUsername  string
+	FastSpringPassword  string
+	FastSpringHash      string
+	FastSpringValidate  bool
+	PrintConfig         bool
+	Development         bool
 }
 
 var _configInstance *Config
@@ -51,9 +52,13 @@ func (c *Config) ReadConfig() {
 	if c.AppURL[len(c.AppURL)-1] != '/' {
 		c.AppURL += "/"
 	}
-	c.StaticFilesPath = c._GetEnv("STATIC_FILES_PATH", "/app/adminui")
-	if c.StaticFilesPath[len(c.StaticFilesPath)-1] != '/' {
-		c.StaticFilesPath += "/"
+	c.StaticAdminUiPath = c._GetEnv("STATIC_ADMIN_UI_PATH", "/app/adminui")
+	if c.StaticAdminUiPath[len(c.StaticAdminUiPath)-1] != '/' {
+		c.StaticAdminUiPath += "/"
+	}
+	c.StaticBookingUiPath = c._GetEnv("STATIC_BOOKING_UI_PATH", "/app/bookingui")
+	if c.StaticBookingUiPath[len(c.StaticBookingUiPath)-1] != '/' {
+		c.StaticBookingUiPath += "/"
 	}
 	c.PostgresURL = c._GetEnv("POSTGRES_URL", "postgres://postgres:root@localhost/flexspace?sslmode=disable")
 	c.JwtSigningKey = c._GetEnv("JWT_SIGNING_KEY", "cX32hEwZDCLZ6bCR")

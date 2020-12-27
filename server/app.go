@@ -52,7 +52,8 @@ func (a *App) InitializeRouter() {
 		subRouter := a.Router.PathPrefix(route).Subrouter()
 		router.setupRoutes(subRouter)
 	}
-	a.setupStaticRoutes(a.Router)
+	a.setupStaticAdminRoutes(a.Router)
+	a.setupStaticUserRoutes(a.Router)
 	a.Router.PathPrefix("/").Methods("OPTIONS").HandlerFunc(CorsHandler)
 	a.Router.Use(CorsMiddleware)
 	a.Router.Use(VerifyAuthMiddleware)
@@ -76,7 +77,19 @@ func (a *App) InitializeTimers() {
 	}()
 }
 
-func (a *App) setupStaticRoutes(router *mux.Router) {
+func (a *App) stripStaticPrefix(fs http.Handler, prefix string) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r2 := new(http.Request)
+		*r2 = *r
+		r2.URL = new(url.URL)
+		*r2.URL = *r.URL
+		r2.URL.Path = "/"
+		fs.ServeHTTP(w, r2)
+	})
+}
+
+func (a *App) setupStaticAdminRoutes(router *mux.Router) {
+	const basePath = "/admin"
 	paths := []string{
 		"/login",
 		"/dashboard",
@@ -86,23 +99,29 @@ func (a *App) setupStaticRoutes(router *mux.Router) {
 		"/bookings",
 		"/search",
 	}
-	fs := http.FileServer(http.Dir(GetConfig().StaticFilesPath))
-	stripPrefix := func(prefix string) http.HandlerFunc {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			r2 := new(http.Request)
-			*r2 = *r
-			r2.URL = new(url.URL)
-			*r2.URL = *r.URL
-			r2.URL.Path = "/"
-			fs.ServeHTTP(w, r2)
-		})
-	}
+	fs := http.FileServer(http.Dir(GetConfig().StaticAdminUiPath))
 	for _, path := range paths {
-		path = "/admin" + path
-		router.PathPrefix(path).Handler(stripPrefix(path))
+		path = basePath + path
+		router.PathPrefix(path).Handler(a.stripStaticPrefix(fs, path))
 	}
-	router.Path("/admin/").Handler(stripPrefix("/admin/"))
-	router.PathPrefix("/admin/").Handler(http.StripPrefix("/admin/", fs))
+	router.Path(basePath + "/").Handler(a.stripStaticPrefix(fs, basePath+"/"))
+	router.PathPrefix(basePath + "/").Handler(http.StripPrefix(basePath+"/", fs))
+}
+
+func (a *App) setupStaticUserRoutes(router *mux.Router) {
+	const basePath = "/ui"
+	paths := []string{
+		"/login",
+		"/search",
+		"/bookings",
+	}
+	fs := http.FileServer(http.Dir(GetConfig().StaticBookingUiPath))
+	for _, path := range paths {
+		path = basePath + path
+		router.PathPrefix(path).Handler(a.stripStaticPrefix(fs, path))
+	}
+	router.Path(basePath + "/").Handler(a.stripStaticPrefix(fs, basePath+"/"))
+	router.PathPrefix(basePath + "/").Handler(http.StripPrefix(basePath+"/", fs))
 }
 
 func (a *App) Run(publicListenAddr string) {
