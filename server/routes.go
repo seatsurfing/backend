@@ -270,5 +270,6 @@ var unauthorizedRoutes = [...]string{
 	"/auth-provider/org/",
 	"/signup/",
 	"/admin/",
+	"/ui/",
 	"/fastspring/webhook",
 }
