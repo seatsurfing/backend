@@ -21,7 +21,7 @@ RUN npm install --legacy-peer-deps
 RUN npm run build
 
 FROM golang:1.15-alpine AS server-builder
-RUN apk --update add --no-cache git
+RUN apk --update add --no-cache git gcc g++
 RUN export GOBIN=$HOME/work/bin
 WORKDIR /go/src/app
 ADD server/ .
