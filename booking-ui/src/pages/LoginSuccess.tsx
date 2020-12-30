@@ -5,7 +5,7 @@ import {
 import './Login.css';
 import Loading from '../components/Loading';
 import { Form } from 'react-bootstrap';
-import { Ajax, JwtDecoder } from 'flexspace-commons';
+import { Ajax } from 'flexspace-commons';
 
 interface State {
   redirect: string | null
@@ -31,13 +31,6 @@ export default class LoginSuccess extends React.Component<RouteChildrenProps<Pro
     if (this.props.match?.params.id) {
       return Ajax.get("/auth/verify/" + this.props.match.params.id).then(result => {
         if (result.json && result.json.jwt) {
-          let jwtPayload = JwtDecoder.getPayload(result.json.jwt);
-          if (!jwtPayload.admin) {
-            this.setState({
-              redirect: "/login/failed"
-            });
-            return;
-          }
           Ajax.JWT = result.json.jwt;
           window.sessionStorage.setItem("jwt", result.json.jwt);
           this.setState({

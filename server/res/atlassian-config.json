@@ -1,0 +1,22 @@
+{
+  "profiles": {
+      "dev": {
+          "baseUrl": "https://seatsurfing.loca.lt/confluence",
+          "port": 443,
+          "store": {
+              "type": "sqlite3",
+              "databaseUrl": ":memory:"
+          },
+          "validateDescriptor": true
+      },
+      "prod": {
+          "baseUrl": "https://app.seatsurfing.de/confluence",
+          "port": 443,
+          "store": {
+              "type": "sqlite3",
+              "databaseUrl": ":memory:"
+          }
+      }
+  },
+  "product": "confluence"
+}

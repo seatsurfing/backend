@@ -11,6 +11,7 @@ func main() {
 	a := GetApp()
 	a.InitializeDatabases()
 	a.InitializeRouter()
+	a.InitializeAtlassianConnect()
 	a.InitializeTimers()
 	if GetConfig().PrintConfig {
 		GetConfig().Print()

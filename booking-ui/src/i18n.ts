@@ -42,6 +42,12 @@ const resources = {
             "cancelBooking": "Buchung stornieren",
             "confirmCancelBooking": "Buchung für {{enter}} stornieren?",
             "noBookings": "Keine Buchungen gefunden.",
+            "createAccount": "Kostenlosen Account erstellen",
+            "errorConfluenceClientIdUnknown": "Unbekannte Confluence-Instanz",
+            "confluenceClientIdHint": "Wir kennen diese Confluence-Instanz noch nicht. Bitte melde Dich in der Seatsurfing-Administration an, gehe zu 'Einstellungen' und trage die folgende Confluence Client ID ein:",
+            "confluenceClientIdHint2": "Du hast noch kein Seatsurfing-Konto?",
+            "errorLoginFailed": "Login fehlgeschlagen.",
+            "loginFailedDescription": "Möglicherweise ist das verwendete Konto nicht für diese Organisation freigeschaltet.",
         }
     },
     en: {
@@ -82,6 +88,12 @@ const resources = {
             "cancelBooking": "Cancel booking",
             "confirmCancelBooking": "Cancel your upcoming booking for {{enter}}?",
             "noBookings": "No bookings.",
+            "createAccount": "Create free account",
+            "errorConfluenceClientIdUnknown": "Unknown Confluence Instance",
+            "confluenceClientIdHint": "We don't know your Confluence instance yet. Please log in with your Seatsurfing administrator account, navigate to 'Settings' and set the follow Confluence Client ID:",
+            "confluenceClientIdHint2": "You don't have a Seatsurfing account yet?",
+            "errorLoginFailed": "Login failed.",
+            "loginFailedDescription": "Possibly your account is not activated in this organization.",
         }
     }
 };

@@ -1,0 +1,48 @@
+    {
+      "key": "confluence-seatsurfing-addon",
+      "name": "Seatsurfing",
+      "description": "Free seating and co-working for your employees. Book a seat using this Confluence plug in. Any time, any place.",
+      "vendor": {
+        "name": "weweave UG (limited liability)",
+        "url": "https://seatsurfing.de/"
+      },
+      "baseUrl": "{{.BaseUrl}}",
+      "links": {
+        "self": "{{.BaseUrl}}/atlassian-connect.json",
+        "homepage": "{{.BaseUrl}}/atlassian-connect.json"
+      },
+      "authentication": {
+        "type": "jwt"
+      },
+      "lifecycle": {
+        "installed": "/installed"
+      },
+      "scopes": [
+        "READ"
+      ],
+      "modules": {
+        "dynamicContentMacros": [
+          {
+            "key": "seatsurfing-marco",
+            "name": {
+              "value": "Seatsurfing"
+            },
+            "url": "/macro",
+            "description": {
+              "value": "Displays the Seatsurfing.de Booking UI."
+            },
+            "outputType": "block",
+            "bodyType": "none",
+            "width": "100%",
+            "height": "500px"
+          }
+        ]
+      }
+    }
+
+
+
+
+
+
+

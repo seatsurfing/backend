@@ -272,4 +272,5 @@ var unauthorizedRoutes = [...]string{
 	"/admin/",
 	"/ui/",
 	"/fastspring/webhook",
+	"/confluence",
 }

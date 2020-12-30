@@ -14,6 +14,7 @@ type User struct {
 	ID             string
 	OrganizationID string
 	Email          string
+	AtlassianID    NullString
 	HashedPassword NullString
 	AuthProviderID NullString
 	OrgAdmin       bool
@@ -58,15 +59,24 @@ func (r *UserRepository) RunSchemaUpgrade(curVersion, targetVersion int) {
 			panic(err)
 		}
 	}
+	if curVersion < 7 {
+		if _, err := GetDatabase().DB().Exec("ALTER TABLE users " +
+			"ADD COLUMN atlassian_id VARCHAR"); err != nil {
+			panic(err)
+		}
+		if _, err := GetDatabase().DB().Exec("CREATE INDEX IF NOT EXISTS users_atlassian_id ON users(atlassian_id)"); err != nil {
+			panic(err)
+		}
+	}
 }
 
 func (r *UserRepository) Create(e *User) error {
 	var id string
 	err := GetDatabase().DB().QueryRow("INSERT INTO users "+
-		"(organization_id, email, org_admin, super_admin, password, auth_provider_id) "+
-		"VALUES ($1, $2, $3, $4, $5, $6) "+
+		"(organization_id, email, org_admin, super_admin, password, auth_provider_id, atlassian_id) "+
+		"VALUES ($1, $2, $3, $4, $5, $6, $7) "+
 		"RETURNING id",
-		e.OrganizationID, strings.ToLower(e.Email), e.OrgAdmin, e.SuperAdmin, CheckNullString(e.HashedPassword), CheckNullString(e.AuthProviderID)).Scan(&id)
+		e.OrganizationID, strings.ToLower(e.Email), e.OrgAdmin, e.SuperAdmin, CheckNullString(e.HashedPassword), CheckNullString(e.AuthProviderID), CheckNullString(e.AtlassianID)).Scan(&id)
 	if err != nil {
 		return err
 	}
@@ -76,10 +86,10 @@ func (r *UserRepository) Create(e *User) error {
 
 func (r *UserRepository) GetOne(id string) (*User, error) {
 	e := &User{}
-	err := GetDatabase().DB().QueryRow("SELECT id, organization_id, email, org_admin, super_admin, password, auth_provider_id "+
+	err := GetDatabase().DB().QueryRow("SELECT id, organization_id, email, org_admin, super_admin, password, auth_provider_id, atlassian_id "+
 		"FROM users "+
 		"WHERE id = $1",
-		id).Scan(&e.ID, &e.OrganizationID, &e.Email, &e.OrgAdmin, &e.SuperAdmin, &e.HashedPassword, &e.AuthProviderID)
+		id).Scan(&e.ID, &e.OrganizationID, &e.Email, &e.OrgAdmin, &e.SuperAdmin, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
 	if err != nil {
 		return nil, err
 	}
@@ -88,10 +98,21 @@ func (r *UserRepository) GetOne(id string) (*User, error) {
 
 func (r *UserRepository) GetByEmail(email string) (*User, error) {
 	e := &User{}
-	err := GetDatabase().DB().QueryRow("SELECT id, organization_id, email, org_admin, super_admin, password, auth_provider_id "+
+	err := GetDatabase().DB().QueryRow("SELECT id, organization_id, email, org_admin, super_admin, password, auth_provider_id, atlassian_id "+
 		"FROM users "+
 		"WHERE LOWER(email) = $1",
-		strings.ToLower(email)).Scan(&e.ID, &e.OrganizationID, &e.Email, &e.OrgAdmin, &e.SuperAdmin, &e.HashedPassword, &e.AuthProviderID)
+		strings.ToLower(email)).Scan(&e.ID, &e.OrganizationID, &e.Email, &e.OrgAdmin, &e.SuperAdmin, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
+	if err != nil {
+		return nil, err
+	}
+	return e, nil
+}
+func (r *UserRepository) GetByAtlassianID(atlassianID string) (*User, error) {
+	e := &User{}
+	err := GetDatabase().DB().QueryRow("SELECT id, organization_id, email, org_admin, super_admin, password, auth_provider_id, atlassian_id "+
+		"FROM users "+
+		"WHERE LOWER(atlassian_id) = $1",
+		strings.ToLower(atlassianID)).Scan(&e.ID, &e.OrganizationID, &e.Email, &e.OrgAdmin, &e.SuperAdmin, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +121,7 @@ func (r *UserRepository) GetByEmail(email string) (*User, error) {
 
 func (r *UserRepository) GetByKeyword(organizationID string, keyword string) ([]*User, error) {
 	var result []*User
-	rows, err := GetDatabase().DB().Query("SELECT id, organization_id, email, org_admin, super_admin, password, auth_provider_id "+
+	rows, err := GetDatabase().DB().Query("SELECT id, organization_id, email, org_admin, super_admin, password, auth_provider_id, atlassian_id "+
 		"FROM users "+
 		"WHERE organization_id = $1 AND LOWER(email) LIKE '%' || $2 || '%' "+
 		"ORDER BY email", organizationID, strings.ToLower(keyword))
@@ -110,7 +131,7 @@ func (r *UserRepository) GetByKeyword(organizationID string, keyword string) ([]
 	defer rows.Close()
 	for rows.Next() {
 		e := &User{}
-		err = rows.Scan(&e.ID, &e.OrganizationID, &e.Email, &e.OrgAdmin, &e.SuperAdmin, &e.HashedPassword, &e.AuthProviderID)
+		err = rows.Scan(&e.ID, &e.OrganizationID, &e.Email, &e.OrgAdmin, &e.SuperAdmin, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
 		if err != nil {
 			return nil, err
 		}
@@ -121,7 +142,7 @@ func (r *UserRepository) GetByKeyword(organizationID string, keyword string) ([]
 
 func (r *UserRepository) GetAll(organizationID string, maxResults int, offset int) ([]*User, error) {
 	var result []*User
-	rows, err := GetDatabase().DB().Query("SELECT id, organization_id, email, org_admin, super_admin, password, auth_provider_id "+
+	rows, err := GetDatabase().DB().Query("SELECT id, organization_id, email, org_admin, super_admin, password, auth_provider_id, atlassian_id "+
 		"FROM users "+
 		"WHERE organization_id = $1 "+
 		"ORDER BY email "+
@@ -132,7 +153,7 @@ func (r *UserRepository) GetAll(organizationID string, maxResults int, offset in
 	defer rows.Close()
 	for rows.Next() {
 		e := &User{}
-		err = rows.Scan(&e.ID, &e.OrganizationID, &e.Email, &e.OrgAdmin, &e.SuperAdmin, &e.HashedPassword, &e.AuthProviderID)
+		err = rows.Scan(&e.ID, &e.OrganizationID, &e.Email, &e.OrgAdmin, &e.SuperAdmin, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
 		if err != nil {
 			return nil, err
 		}
@@ -148,9 +169,10 @@ func (r *UserRepository) Update(e *User) error {
 		"org_admin = $3, "+
 		"super_admin = $4, "+
 		"password = $5, "+
-		"auth_provider_id = $6 "+
-		"WHERE id = $7",
-		e.OrganizationID, strings.ToLower(e.Email), e.OrgAdmin, e.SuperAdmin, CheckNullString(e.HashedPassword), CheckNullString(e.AuthProviderID), e.ID)
+		"auth_provider_id = $6, "+
+		"atlassian_id = $7 "+
+		"WHERE id = $8",
+		e.OrganizationID, strings.ToLower(e.Email), e.OrgAdmin, e.SuperAdmin, CheckNullString(e.HashedPassword), CheckNullString(e.AuthProviderID), CheckNullString(e.AtlassianID), e.ID)
 	return err
 }
 

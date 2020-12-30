@@ -13,6 +13,7 @@ type AuthStateType int
 const (
 	AuthRequestState  AuthStateType = 1
 	AuthResponseCache AuthStateType = 2
+	AuthAtlassian     AuthStateType = 3
 )
 
 type AuthState struct {

@@ -99,6 +99,7 @@ const resources = {
             "deleteSpace": "Platz löschen",
             "addPlace": "Platz hinzufügen",
             "floorplan": "Raumplan",
+            "confluenceClientId": "Confluence Client ID",
         }
     },
     en: {
@@ -197,6 +198,7 @@ const resources = {
             "deleteSpace": "Delete space",
             "addSpace": "Add space",
             "floorplan": "Floorplan",
+            "confluenceClientId": "Confluence Client ID",
         }
     }
 };

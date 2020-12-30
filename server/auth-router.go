@@ -64,6 +64,7 @@ func (router *AuthRouter) preflight(w http.ResponseWriter, r *http.Request) {
 	}
 	user, err := GetUserRepository().GetByEmail(m.Email)
 	if err != nil {
+		log.Println(err)
 		SendJSON(w, res)
 		return
 	}
@@ -98,11 +99,30 @@ func (router *AuthRouter) loginPassword(w http.ResponseWriter, r *http.Request) 
 	SendJSON(w, res)
 }
 
+func (router *AuthRouter) handleAtlassianVerify(authState *AuthState, w http.ResponseWriter) {
+	user, err := GetUserRepository().GetByAtlassianID(authState.Payload)
+	if err != nil {
+		SendNotFound(w)
+		return
+	}
+	GetAuthStateRepository().Delete(authState)
+	claims := router.createClaims(user)
+	jwt := router.createJWT(claims)
+	res := &JWTResponse{
+		JWT: jwt,
+	}
+	SendJSON(w, res)
+}
+
 func (router *AuthRouter) verify(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	authState, err := GetAuthStateRepository().GetOne(vars["id"])
 	if err != nil {
 		SendNotFound(w)
+		return
+	}
+	if authState.AuthStateType == AuthAtlassian {
+		router.handleAtlassianVerify(authState, w)
 		return
 	}
 	if authState.AuthStateType != AuthResponseCache {
@@ -141,7 +161,7 @@ func (router *AuthRouter) verify(w http.ResponseWriter, r *http.Request) {
 func (router *AuthRouter) login(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	loginType := vars["type"]
-	if loginType != "web" && loginType != "app" {
+	if loginType != "web" && loginType != "app" && loginType != "ui" {
 		SendBadRequest(w)
 		return
 	}
@@ -169,7 +189,7 @@ func (router *AuthRouter) callback(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	provider, err := GetAuthProviderRepository().GetOne(vars["id"])
 	if err != nil {
-		SendTemporaryRedirect(w, router.getRedirectFailedUrl("web"))
+		SendTemporaryRedirect(w, router.getRedirectFailedUrl("ui"))
 		return
 	}
 	claims, loginType, err := router.getUserInfo(provider, r.FormValue("state"), r.FormValue("code"))
@@ -206,16 +226,20 @@ func (router *AuthRouter) callback(w http.ResponseWriter, r *http.Request) {
 func (router *AuthRouter) getRedirectSuccessUrl(loginType string, authState *AuthState) string {
 	if loginType == "app" {
 		return GetConfig().AppURL + "login/success/" + authState.ID
+	} else if loginType == "ui" {
+		return GetConfig().FrontendURL + "ui/login/success/" + authState.ID
 	} else {
-		return GetConfig().FrontendURL + "login/success/" + authState.ID
+		return GetConfig().FrontendURL + "admin/login/success/" + authState.ID
 	}
 }
 
 func (router *AuthRouter) getRedirectFailedUrl(loginType string) string {
 	if loginType == "app" {
 		return GetConfig().AppURL + "login/failed"
+	} else if loginType == "ui" {
+		return GetConfig().FrontendURL + "ui/login/failed"
 	} else {
-		return GetConfig().FrontendURL + "login/failed"
+		return GetConfig().FrontendURL + "admin/login/failed"
 	}
 }
 

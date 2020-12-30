@@ -1,2 +1,3 @@
 #!/bin/sh
-DEV=1 PUBLIC_LISTEN_ADDR=0.0.0.0:8090 SMTP_HOST=192.168.40.31:25 STATIC_FILES_PATH=../admin-ui/build FASTSPRING_HASH=McvtGWR7zfQtvDgTH3bDc6K9FwAsFd5n PRINT_CONFIG=1 go run `ls *.go | grep -v _test.go`
+DEV=1 FRONTEND_URL=https://seatsurfing2.loca.lt PUBLIC_LISTEN_ADDR=0.0.0.0:8090 PUBLIC_URL=http://localhost:8090 SMTP_HOST=192.168.40.31:25 STATIC_ADMIN_UI_PATH=../admin-ui/build STATIC_BOOKING_UI_PATH=../booking-ui/build FASTSPRING_HASH=McvtGWR7zfQtvDgTH3bDc6K9FwAsFd5n PRINT_CONFIG=1 go run `ls *.go | grep -v _test.go`
+#DEV=1 FRONTEND_URL=http://localhost:3001 PUBLIC_LISTEN_ADDR=0.0.0.0:8090 PUBLIC_URL=http://localhost:8090 SMTP_HOST=192.168.40.31:25 STATIC_ADMIN_UI_PATH=../admin-ui/build STATIC_BOOKING_UI_PATH=../booking-ui/build FASTSPRING_HASH=McvtGWR7zfQtvDgTH3bDc6K9FwAsFd5n PRINT_CONFIG=1 go run `ls *.go | grep -v _test.go`
