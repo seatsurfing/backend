@@ -26,7 +26,7 @@ RUN export GOBIN=$HOME/work/bin
 WORKDIR /go/src/app
 ADD server/ .
 RUN go get -d -v ./...
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main .
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o main .
 
 FROM alpine
 COPY --from=server-builder /go/src/app/main /app/
