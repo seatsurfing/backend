@@ -14,6 +14,7 @@ const (
 	AuthRequestState  AuthStateType = 1
 	AuthResponseCache AuthStateType = 2
 	AuthAtlassian     AuthStateType = 3
+	AuthMergeRequest  AuthStateType = 4
 )
 
 type AuthState struct {
@@ -83,4 +84,25 @@ func (r *AuthStateRepository) DeleteExpired() error {
 	now := time.Now()
 	_, err := GetDatabase().DB().Exec("DELETE FROM auth_states WHERE expiry < $1", now)
 	return err
+}
+
+func (r *AuthStateRepository) GetByAuthProviderID(authProviderID string) ([]*AuthState, error) {
+	var result []*AuthState
+	rows, err := GetDatabase().DB().Query("SELECT id, auth_provider_id, expiry, auth_state_type, payload "+
+		"FROM auth_states "+
+		"WHERE auth_provider_id = $1",
+		authProviderID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		e := &AuthState{}
+		err = rows.Scan(&e.ID, &e.AuthProviderID, &e.Expiry, &e.AuthStateType, &e.Payload)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, e)
+	}
+	return result, nil
 }

@@ -139,4 +139,56 @@ func TestUserGetCount(t *testing.T) {
 	checkTestInt(t, 1, resBody.Count)
 }
 
+func TestUserMergeUsers(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	source := createTestUserInOrg(org)
+	target := createTestUserInOrg(org)
+
+	// Prepare source
+	source.AtlassianID = NullString(source.Email)
+	GetUserRepository().Update(source)
+
+	// Init from source
+	loginResponseSource := loginTestUser(source.ID)
+	payload := "{\"email\": \"" + target.Email + "\"}"
+	req := newHTTPRequest("POST", "/user/merge/init", loginResponseSource.UserID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+
+	// Get merge request list from target
+	loginResponseTarget := loginTestUser(target.ID)
+	req = newHTTPRequest("GET", "/user/merge", loginResponseTarget.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusOK, res.Code)
+	var resBody []GetMergeRequestResponse
+	json.Unmarshal(res.Body.Bytes(), &resBody)
+	checkTestInt(t, 1, len(resBody))
+	checkTestString(t, source.ID, resBody[0].UserID)
+	checkTestString(t, source.Email, resBody[0].Email)
+
+	// Complete from target
+	req = newHTTPRequest("POST", "/user/merge/finish/"+resBody[0].ID, loginResponseTarget.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+
+	// Check if source user is gone
+	user, err := GetUserRepository().GetOne(source.ID)
+	if err == nil || user != nil {
+		t.Fatal("Expected source user to be deleted")
+	}
+
+	// Check if target user has inherited source user's properties
+	user, err = GetUserRepository().GetOne(target.ID)
+	if err != nil || user == nil {
+		t.Fatal("Expected source user to be deleted")
+	}
+	checkTestString(t, string(source.AtlassianID), string(user.AtlassianID))
+
+	// Check if request is invalid now
+	req = newHTTPRequest("POST", "/user/merge/finish/"+resBody[0].ID, loginResponseTarget.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNotFound, res.Code)
+}
+
 // TODO test domain in org!

@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -26,6 +27,12 @@ type GetUserResponse struct {
 	CreateUserRequest
 }
 
+type GetMergeRequestResponse struct {
+	ID     string `json:"id"`
+	UserID string `json:"userId"`
+	Email  string `json:"email"`
+}
+
 type GetUserCountResponse struct {
 	Count int `json:"count"`
 }
@@ -34,7 +41,14 @@ type SetPasswordRequest struct {
 	Password string `json:"password"`
 }
 
+type InitMergeUsersRequest struct {
+	Email string `json:"email"`
+}
+
 func (router *UserRouter) setupRoutes(s *mux.Router) {
+	s.HandleFunc("/merge/init", router.mergeInit).Methods("POST")
+	s.HandleFunc("/merge/finish/{id}", router.mergeFinish).Methods("POST")
+	s.HandleFunc("/merge", router.getMergeRequests).Methods("GET")
 	s.HandleFunc("/count", router.getCount).Methods("GET")
 	s.HandleFunc("/me", router.getSelf).Methods("GET")
 	s.HandleFunc("/{id}", router.getOne).Methods("GET")
@@ -43,6 +57,75 @@ func (router *UserRouter) setupRoutes(s *mux.Router) {
 	s.HandleFunc("/{id}", router.delete).Methods("DELETE")
 	s.HandleFunc("/", router.create).Methods("POST")
 	s.HandleFunc("/", router.getAll).Methods("GET")
+}
+
+func (router *UserRouter) getMergeRequests(w http.ResponseWriter, r *http.Request) {
+	target := GetRequestUser(r)
+	list, err := GetAuthStateRepository().GetByAuthProviderID(target.ID)
+	if err != nil {
+		log.Println(err)
+		SendInternalServerError(w)
+		return
+	}
+	res := []*GetMergeRequestResponse{}
+	for _, e := range list {
+		source, err := GetUserRepository().GetOne(e.Payload)
+		if err == nil && source != nil {
+			m := &GetMergeRequestResponse{
+				ID:     e.ID,
+				UserID: source.ID,
+				Email:  source.Email,
+			}
+			res = append(res, m)
+		}
+	}
+	SendJSON(w, res)
+}
+
+func (router *UserRouter) mergeInit(w http.ResponseWriter, r *http.Request) {
+	var m InitMergeUsersRequest
+	if UnmarshalValidateBody(r, &m) != nil {
+		SendBadRequest(w)
+		return
+	}
+	source := GetRequestUser(r)
+	target, err := GetUserRepository().GetByEmail(m.Email)
+	if err != nil || target == nil {
+		SendNotFound(w)
+		return
+	}
+	authState := &AuthState{
+		AuthProviderID: target.ID,
+		Expiry:         time.Now().Add(time.Minute * 60),
+		AuthStateType:  AuthMergeRequest,
+		Payload:        source.ID,
+	}
+	if err := GetAuthStateRepository().Create(authState); err != nil {
+		SendInternalServerError(w)
+		return
+	}
+	SendUpdated(w)
+}
+
+func (router *UserRouter) mergeFinish(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	target := GetRequestUser(r)
+	authState, err := GetAuthStateRepository().GetOne(vars["id"])
+	if err != nil || authState == nil || authState.AuthProviderID != target.ID {
+		SendNotFound(w)
+		return
+	}
+	source, err := GetUserRepository().GetOne(authState.Payload)
+	if err != nil || source == nil {
+		SendBadRequest(w)
+		return
+	}
+	if err := GetUserRepository().mergeUsers(source, target); err != nil {
+		SendInternalServerError(w)
+		return
+	}
+	GetAuthStateRepository().Delete(authState)
+	SendUpdated(w)
 }
 
 func (router *UserRouter) getCount(w http.ResponseWriter, r *http.Request) {

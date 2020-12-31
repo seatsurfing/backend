@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"strings"
 	"sync"
 
@@ -203,4 +204,25 @@ func (r *UserRepository) GetHashedPassword(password string) string {
 func (r *UserRepository) CheckPassword(hashedPassword, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 	return err == nil
+}
+
+func (r *UserRepository) mergeUsers(source, target *User) error {
+	if source.OrganizationID != target.OrganizationID {
+		return errors.New("Organization ID of source and target users don't match")
+	}
+	if _, err := GetDatabase().DB().Exec("UPDATE bookings SET user_id = $2 WHERE user_id = $1", source.ID, target.ID); err != nil {
+		return err
+	}
+	if target.AtlassianID == "" {
+		target.AtlassianID = source.AtlassianID
+	}
+	target.OrgAdmin = target.OrgAdmin || source.OrgAdmin
+	target.SuperAdmin = target.SuperAdmin || source.SuperAdmin
+	if err := r.Delete(source); err != nil {
+		return err
+	}
+	if err := r.Update(target); err != nil {
+		return err
+	}
+	return nil
 }
