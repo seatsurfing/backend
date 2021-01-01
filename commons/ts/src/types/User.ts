@@ -6,6 +6,7 @@ import MergeRequest from "./MergeRequest";
 export default class User extends Entity {
     id: string;
     email: string;
+    atlassianId: string;
     organizationId: string;
     organization: Organization;
     authProviderId: string;
@@ -18,6 +19,7 @@ export default class User extends Entity {
         super();
         this.id = "";
         this.email = "";
+        this.atlassianId = "";
         this.organizationId = "";
         this.organization = new Organization();
         this.authProviderId = "";
@@ -42,6 +44,9 @@ export default class User extends Entity {
         this.organizationId = input.organizationId;
         if (input.organization) {
             this.organization.deserialize(input.organization);
+        }
+        if (input.atlassianId) {
+            this.atlassianId = input.atlassianId;
         }
         if (input.authProviderId) {
             this.authProviderId = input.authProviderId;

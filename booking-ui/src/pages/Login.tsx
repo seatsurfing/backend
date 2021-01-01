@@ -4,7 +4,7 @@ import {
   Redirect
 } from "react-router-dom";
 import './Login.css';
-import { Organization, AuthProvider, Ajax, JwtDecoder } from 'flexspace-commons';
+import { Organization, AuthProvider, Ajax } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 
@@ -54,7 +54,7 @@ class Login extends React.Component<Props, State> {
         providers: res.json.authProviders,
         requirePassword: res.json.requirePassword
       });
-    }).catch((e) => {
+    }).catch(() => {
       this.setState({
         invalid: true
       });
@@ -68,19 +68,12 @@ class Login extends React.Component<Props, State> {
       password: this.state.password
     };
     Ajax.postData("/auth/login", payload).then((res) => {
-      let jwtPayload = JwtDecoder.getPayload(res.json.jwt);
-      if (!jwtPayload.admin) {
-        this.setState({
-          invalid: true
-        });
-        return;
-      }
       Ajax.JWT = res.json.jwt;
       window.sessionStorage.setItem("jwt", res.json.jwt);
       this.setState({
         redirect: "/search"
       });
-    }).catch((e) => {
+    }).catch(() => {
       this.setState({
         invalid: true
       });

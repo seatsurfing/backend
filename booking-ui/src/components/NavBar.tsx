@@ -15,7 +15,8 @@ interface State {
     showMergeRequests: boolean
     targetUserEmail: string
     invalidTargetUserEmail: boolean
-    mergeRequests: MergeRequest[];
+    mergeRequests: MergeRequest[]
+    allowMergeInit: boolean
 }
 
 interface Props {
@@ -32,7 +33,8 @@ class NavBar extends React.Component<Props, State> {
             showMergeRequests: false,
             targetUserEmail: "",
             invalidTargetUserEmail: false,
-            mergeRequests: []
+            mergeRequests: [],
+            allowMergeInit: false
         };
     }
 
@@ -43,6 +45,11 @@ class NavBar extends React.Component<Props, State> {
     loadData = () => {
         User.getMergeRequests().then(list => {
             this.setState({ mergeRequests: list });
+        });
+        User.getSelf().then(user => {
+            if (user.email === user.atlassianId) {
+                this.setState({ allowMergeInit: true });
+            }
         });
     }
 
@@ -121,10 +128,12 @@ class NavBar extends React.Component<Props, State> {
             signOffButton = <Nav.Link onClick={this.logOut}>{this.props.t("signout")}</Nav.Link>;
             userInfo = <Navbar.Text>{username}</Navbar.Text>;
             if (this.state.mergeRequests.length > 0) {
-                mergeRequestsButton = <Nav.Link onClick={this.showMergeRequestsModal}><IconAlert className="feather feather-lg" /><Badge pill={true} variant="light" className="badge-top">{this.state.mergeRequests.length}</Badge></Nav.Link>;
+                mergeRequestsButton = <Nav.Link onClick={this.showMergeRequestsModal} className="icon-link"><IconAlert className="feather feather-lg" /><Badge pill={true} variant="light" className="badge-top">{this.state.mergeRequests.length}</Badge></Nav.Link>;
             }
         } else {
-            initMergeButton = <Nav.Link onClick={this.showMergeModal}><IconMerge className="feather feather-lg" /></Nav.Link>;
+            if (this.state.allowMergeInit) {
+                initMergeButton = <Nav.Link onClick={this.showMergeModal} className="icon-link"><IconMerge className="feather feather-lg" /></Nav.Link>;
+            }
         }
 
         collapsable = (

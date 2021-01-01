@@ -13,6 +13,7 @@ type UserRouter struct {
 
 type CreateUserRequest struct {
 	Email          string `json:"email" validate:"required"`
+	AtlassianID    string `json:"atlassianId"`
 	OrgAdmin       bool   `json:"admin"`
 	SuperAdmin     bool   `json:"superAdmin"`
 	AuthProviderID string `json:"authProviderId"`
@@ -349,6 +350,7 @@ func (router *UserRouter) copyToRestModel(e *User, admin bool) *GetUserResponse 
 	m.ID = e.ID
 	m.OrganizationID = e.OrganizationID
 	m.Email = e.Email
+	m.AtlassianID = string(e.AtlassianID)
 	m.OrgAdmin = e.OrgAdmin
 	m.SuperAdmin = e.SuperAdmin
 	m.RequirePassword = (e.HashedPassword != "")
