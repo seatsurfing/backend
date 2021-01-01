@@ -48,6 +48,13 @@ const resources = {
             "confluenceClientIdHint2": "Du hast noch kein Seatsurfing-Konto?",
             "errorLoginFailed": "Login fehlgeschlagen.",
             "loginFailedDescription": "Möglicherweise ist das verwendete Konto nicht für diese Organisation freigeschaltet.",
+            "mergeUserAccounts": "Konten zusammenführen",
+            "mergeUserAccountsHint": "Du kannst diesen Seatsurfing Benutzer-Account für Deinen Confluence-User mit deinem regulären Seatsurfing-Konto zusammenführen. Das ermöglicht es Dir, die mobile App und die Confluence-Integration gleichermaßen zur Verwaltung Deiner Buchungen zu nutzen. Gib die E-Mail-Adresse Deines regulären Benutzerkontos ein, um loszulegen.",
+            "requestMerge": "Zusammenführen anfragen",
+            "mergeUserAccountsNextStepHint": "Geschafft! Noch ein Schritt: Melde Dich mit Deinem regulären Seatsurfing-Benutzerkonto in der Web-App an und bestätige binnen einer Stunde die Anfrage zum Zusammenführen Deiner Accounts.",
+            "openWebUI": "Web-App öffnen",
+            "accept": "Annehmen",
+            "introIncomingMergeRequests": "Du hast eingehende Anfragen zum Zusammenführen von Benutzerkonten. Nimm sie nur an, wenn Du die Anfrage initiiert hast.",
         }
     },
     en: {
@@ -94,6 +101,13 @@ const resources = {
             "confluenceClientIdHint2": "You don't have a Seatsurfing account yet?",
             "errorLoginFailed": "Login failed.",
             "loginFailedDescription": "Possibly your account is not activated in this organization.",
+            "mergeUserAccounts": "Merge accounts",
+            "mergeUserAccountsHint": "You can easily merge this Seatsurfing user account for your Confluence user with your regular Seatsurfing user account. This enables you to use both the mobile app and the Confluence integration to manage your bookings. Enter the email address of your regular Seatsurfing account to get started.",
+            "requestMerge": "Request merge",
+            "mergeUserAccountsNextStepHint": "Great! One step left: Log in with your regular Seatsurfing user account using the web app to confirm this merge request within the next hour.",
+            "openWebUI": "Open Web App",
+            "accept": "Accept",
+            "introIncomingMergeRequests": "You have incoming account merge request. Accept them only if you initiated these.",
         }
     }
 };

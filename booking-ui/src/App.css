@@ -4,6 +4,16 @@
     vertical-align: text-bottom;
 }
 
+.feather-lg {
+    width: 24px;
+    height: 24px;
+}
+
+.badge-top {
+    vertical-align: top;
+    margin-left: -3px;
+}
+
 .clickable-table tbody tr {
     cursor: pointer;
 }

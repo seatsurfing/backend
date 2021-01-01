@@ -1,6 +1,7 @@
 import { Entity } from "./Entity";
 import Ajax from "../util/Ajax";
 import Organization from "./Organization";
+import MergeRequest from "./MergeRequest";
 
 export default class User extends Entity {
     id: string;
@@ -67,6 +68,26 @@ export default class User extends Entity {
     async setPassword(password: string): Promise<void> {
         let payload = {password: password};
         return Ajax.putData(this.getBackendUrl() + this.id + "/password", payload).then(() => undefined);
+    }
+
+    static async initMerge(targetUserEmail: string): Promise<void> {
+        let payload = {email: targetUserEmail};
+        return Ajax.postData("/user/merge/init", payload).then(() => undefined);
+    }
+
+    static async finishMerge(actionId: string): Promise<void> {
+        return Ajax.postData("/user/merge/finish/" + actionId, null).then(() => undefined);
+    }
+
+    static async getMergeRequests(): Promise<MergeRequest[]> {
+        return Ajax.get("/user/merge").then(result => {
+            let list: MergeRequest[] = [];
+            (result.json as []).forEach((item: any) => {
+                let e: MergeRequest = new MergeRequest(item.id, item.email, item.userId);
+                list.push(e);
+            });
+            return list;
+        });
     }
 
     static async getCount(): Promise<number> { 

@@ -83,7 +83,6 @@ class Search extends React.Component<Props, State> {
   }
 
   updateCanSearch = () => {
-    console.log("updating");
     let res = true;
     let hint = "";
     if (this.curBookingCount >= this.context.maxBookingsPerUser) {

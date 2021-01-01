@@ -346,7 +346,6 @@ func (router *AuthRouter) getPreflightResponse(req *AuthPreflightRequest) *AuthP
 	}
 	list, err := GetAuthProviderRepository().GetAll(org.ID)
 	if err != nil {
-		log.Println(err)
 		return nil
 	}
 	res := &AuthPreflightResponse{
