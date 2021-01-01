@@ -226,3 +226,9 @@ func (r *UserRepository) mergeUsers(source, target *User) error {
 	}
 	return nil
 }
+
+func (r *UserRepository) canCreateUser(org *Organization) bool {
+	maxUsers, _ := GetSettingsRepository().GetInt(org.ID, SettingSubscriptionMaxUsers.Name)
+	curUsers, _ := GetUserRepository().GetCount(org.ID)
+	return curUsers < maxUsers
+}

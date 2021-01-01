@@ -137,9 +137,18 @@ func (router *AuthRouter) verify(w http.ResponseWriter, r *http.Request) {
 	user, err := GetUserRepository().GetByEmail(authState.Payload)
 	// TODO Change email to auth server ID???
 	if err != nil {
+		org, err := GetOrganizationRepository().GetOne(provider.OrganizationID)
+		if err != nil {
+			SendInternalServerError(w)
+			return
+		}
+		if !GetUserRepository().canCreateUser(org) {
+			SendPaymentRequired(w)
+			return
+		}
 		user := &User{
 			Email:          authState.Payload,
-			OrganizationID: provider.OrganizationID,
+			OrganizationID: org.ID,
 			OrgAdmin:       false,
 			SuperAdmin:     false,
 		}

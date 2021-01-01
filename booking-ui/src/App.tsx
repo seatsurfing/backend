@@ -23,7 +23,7 @@ interface Props {
 }
 
 class App extends React.Component<Props, {}> {
-  componentDidMount = () => {
+  render() {
     if (window !== window.parent) {
       // Add Confluence JS
       const script = document.createElement("script");
@@ -31,9 +31,6 @@ class App extends React.Component<Props, {}> {
       document.head.appendChild(script);
       RuntimeConfig.EMBEDDED = true;
     }
-  }
-
-  render() {
     let jwt = window.sessionStorage.getItem("jwt");
     if (jwt) {
       Ajax.JWT = jwt;

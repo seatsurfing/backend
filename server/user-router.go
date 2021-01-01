@@ -309,7 +309,7 @@ func (router *UserRouter) create(w http.ResponseWriter, r *http.Request) {
 		SendInternalServerError(w)
 		return
 	}
-	if !router.canCreateUser(org) {
+	if !GetUserRepository().canCreateUser(org) {
 		SendPaymentRequired(w)
 		return
 	}
@@ -323,12 +323,6 @@ func (router *UserRouter) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	SendCreated(w, e.ID)
-}
-
-func (router *UserRouter) canCreateUser(org *Organization) bool {
-	maxUsers, _ := GetSettingsRepository().GetInt(org.ID, SettingSubscriptionMaxUsers.Name)
-	curUsers, _ := GetUserRepository().GetCount(org.ID)
-	return curUsers < maxUsers
 }
 
 func (router *UserRouter) copyFromRestModel(m *CreateUserRequest) *User {

@@ -32,10 +32,18 @@ func (router *ConfluenceRouter) macro(w http.ResponseWriter, r *http.Request) {
 		SendTemporaryRedirect(w, GetConfig().FrontendURL+"ui/login/confluence/"+clientID)
 		return
 	}
-	// TODO Auth user
 	userID := router.getUserEmail(r)
 	user, err := GetUserRepository().GetByAtlassianID(userID)
 	if err != nil {
+		org, err := GetOrganizationRepository().GetOne(orgIDs[0])
+		if err != nil {
+			SendInternalServerError(w)
+			return
+		}
+		if !GetUserRepository().canCreateUser(org) {
+			SendTemporaryRedirect(w, GetConfig().FrontendURL+"ui/login/failed")
+			return
+		}
 		user = &User{
 			Email:          userID,
 			AtlassianID:    NullString(userID),
@@ -56,43 +64,10 @@ func (router *ConfluenceRouter) macro(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	SendTemporaryRedirect(w, GetConfig().FrontendURL+"ui/login/success/"+authState.ID)
-	/*
-		log.Println("Confluence plugin request for user " + r.Context().Value("userAccountId").(string))
-		log.Println("Client key " + r.Context().Value("clientKey").(string))
-		SendTemporaryRedirect(w, GetConfig().FrontendURL+"ui/")
-	*/
 }
 
 func (router *ConfluenceRouter) getUserEmail(r *http.Request) string {
 	userAccountID := r.Context().Value("userAccountId").(string)
 	clientKey := r.Context().Value("clientKey").(string)
 	return userAccountID + "@" + clientKey
-	/*
-		httpClient, err := hostrequest.FromRequest(router.Addon, r)
-		if err != nil {
-			log.Println("1")
-			return "", err
-		}
-		log.Println(httpClient)
-		//request, err := http.NewRequest("GET", "https://team-1609087764900.atlassian.net/wiki/rest/api/user/current", http.NoBody)
-		request, err := http.NewRequest("GET", "https://team-1609087764900.atlassian.net/wiki/rest/api/user/email?accountId="+r.Context().Value("userAccountId").(string), http.NoBody)
-		if err != nil {
-			log.Println("2")
-			return "", err
-		}
-		request, err = httpClient.AsAddon(request)
-		//request, err = httpClient.AsUser(request, r.Context().Value("userAccountId").(string))
-		if err != nil {
-			log.Println("2.5")
-			return "", err
-		}
-		log.Println(request)
-		response, err := http.DefaultClient.Do(request)
-		if err != nil {
-			log.Println("3")
-			return "", err
-		}
-		log.Println(response)
-		return "", nil
-	*/
 }
