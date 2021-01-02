@@ -1,6 +1,6 @@
     {
-      "key": "confluence-seatsurfing-addon",
-      "name": "Seatsurfing",
+      "key": "confluence-seatsurfing",
+      "name": "Seatsurfing for Confluence",
       "description": "Free seating and co-working for your employees. Book a seat using this Confluence plug in. Any time, any place.",
       "vendor": {
         "name": "weweave UG (limited liability)",
