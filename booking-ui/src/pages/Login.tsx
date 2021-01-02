@@ -7,6 +7,8 @@ import './Login.css';
 import { Organization, AuthProvider, Ajax } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
+import RuntimeConfig from '../components/RuntimeConfig';
+import { AuthContext } from '../AuthContextData';
 
 interface State {
   email: string
@@ -22,6 +24,7 @@ interface Props {
 }
 
 class Login extends React.Component<Props, State> {
+  static contextType = AuthContext;
   org: Organization | null;
 
   constructor(props: any) {
@@ -68,10 +71,10 @@ class Login extends React.Component<Props, State> {
       password: this.state.password
     };
     Ajax.postData("/auth/login", payload).then((res) => {
-      Ajax.JWT = res.json.jwt;
-      window.sessionStorage.setItem("jwt", res.json.jwt);
-      this.setState({
-        redirect: "/search"
+      RuntimeConfig.setLoginDetails(res.json.jwt, this.context).then(() => {
+        this.setState({
+          redirect: "/search"
+        });
       });
     }).catch(() => {
       this.setState({

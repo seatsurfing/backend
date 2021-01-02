@@ -9,6 +9,7 @@ import DateTimePicker from 'react-datetime-picker';
 import './Search.css';
 import { Redirect } from 'react-router-dom';
 import { SearchResultRouteParams } from './SearchResult';
+import { AuthContext } from '../AuthContextData';
 
 interface State {
   enter: Date
@@ -24,6 +25,7 @@ interface Props {
   t: TFunction
 }
 class Search extends React.Component<Props, State> {
+  static contextType = AuthContext;
   curBookingCount: number = 0;
 
   constructor(props: any) {
@@ -111,6 +113,8 @@ class Search extends React.Component<Props, State> {
       hint = this.props.t("errorDaysAdvance", { "num": this.context.maxDaysInAdvance });
     }
     let bookingDurationHours = Math.floor((this.state.leave.getTime() - this.state.enter.getTime()) / MS_PER_MINUTE) / 60;
+    console.log("duration: " + bookingDurationHours);
+    console.log("max dur: " + this.context.maxBookingDurationHours);
     if (bookingDurationHours > this.context.maxBookingDurationHours) {
       res = false;
       hint = this.props.t("errorBookingDuration", { "num": this.context.maxBookingDurationHours });

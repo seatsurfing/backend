@@ -6,6 +6,8 @@ import './Login.css';
 import Loading from '../components/Loading';
 import { Form } from 'react-bootstrap';
 import { Ajax } from 'flexspace-commons';
+import RuntimeConfig from '../components/RuntimeConfig';
+import { AuthContext } from '../AuthContextData';
 
 interface State {
   redirect: string | null
@@ -16,6 +18,8 @@ interface Props {
 }
 
 export default class LoginSuccess extends React.Component<RouteChildrenProps<Props>, State> {
+  static contextType = AuthContext;
+  
   constructor(props: any) {
     super(props);
     this.state = {
@@ -31,10 +35,10 @@ export default class LoginSuccess extends React.Component<RouteChildrenProps<Pro
     if (this.props.match?.params.id) {
       return Ajax.get("/auth/verify/" + this.props.match.params.id).then(result => {
         if (result.json && result.json.jwt) {
-          Ajax.JWT = result.json.jwt;
-          window.sessionStorage.setItem("jwt", result.json.jwt);
-          this.setState({
-            redirect: "/search"
+          RuntimeConfig.setLoginDetails(result.json.jwt, this.context).then(() => {
+            this.setState({
+              redirect: "/search"
+            });
           });
         } else {
           this.setState({

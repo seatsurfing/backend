@@ -1,12 +1,13 @@
 import React from 'react';
 import { Navbar, Nav, Modal, Button, Form, Badge } from 'react-bootstrap';
 import { NavLink, Redirect } from 'react-router-dom';
-import { Ajax, JwtDecoder, User, MergeRequest } from 'flexspace-commons';
+import { Ajax, User, MergeRequest } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 import './NavBar.css';
 import RuntimeConfig from './RuntimeConfig';
 import { Users as IconMerge, Bell as IconAlert } from 'react-feather';
+import { AuthContext } from '../AuthContextData';
 
 interface State {
     redirect: string | null
@@ -24,6 +25,8 @@ interface Props {
 }
 
 class NavBar extends React.Component<Props, State> {
+    static contextType = AuthContext;
+    
     constructor(props: any) {
         super(props);
         this.state = {
@@ -113,9 +116,6 @@ class NavBar extends React.Component<Props, State> {
             return <Redirect to={target} />
         }
 
-        let jwt = JwtDecoder.getPayload(Ajax.JWT);
-        let username = jwt.email;
-
         let signOffButton = <></>;
         let initMergeButton = <></>;
         let mergeRequestsButton = <></>;
@@ -126,7 +126,7 @@ class NavBar extends React.Component<Props, State> {
         if (!RuntimeConfig.EMBEDDED) {
             navClass = "";
             signOffButton = <Nav.Link onClick={this.logOut}>{this.props.t("signout")}</Nav.Link>;
-            userInfo = <Navbar.Text>{username}</Navbar.Text>;
+            userInfo = <Navbar.Text>{this.context.username}</Navbar.Text>;
             if (this.state.mergeRequests.length > 0) {
                 mergeRequestsButton = <Nav.Link onClick={this.showMergeRequestsModal} className="icon-link"><IconAlert className="feather feather-lg" /><Badge pill={true} variant="light" className="badge-top">{this.state.mergeRequests.length}</Badge></Nav.Link>;
             }
