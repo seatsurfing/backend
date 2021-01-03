@@ -5,7 +5,13 @@ import NavBar from '../components/NavBar';
 
 export default class ProtectedRoute extends Route {
   render() {
-    if (!window.sessionStorage.getItem("jwt")) {
+    let token: string | null = null;
+    try {
+      token = window.sessionStorage.getItem("jwt");
+    } catch (e) {
+      // Do nothing
+    }
+    if (!token) {
         return (
             <Redirect to="/login" />
         );

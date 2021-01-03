@@ -50,7 +50,12 @@ class App extends React.Component<Props, AuthContextData> {
   }
 
   verifyToken = async () => {
-    let token = window.sessionStorage.getItem("jwt");
+    let token: string | null = null;
+    try {
+      token = window.sessionStorage.getItem("jwt");
+    } catch (e) {
+      // Do nothing
+    }
     if (token != null) {
       Ajax.JWT = token;
       User.getSelf().then(user => {

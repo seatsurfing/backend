@@ -113,8 +113,6 @@ class Search extends React.Component<Props, State> {
       hint = this.props.t("errorDaysAdvance", { "num": this.context.maxDaysInAdvance });
     }
     let bookingDurationHours = Math.floor((this.state.leave.getTime() - this.state.enter.getTime()) / MS_PER_MINUTE) / 60;
-    console.log("duration: " + bookingDurationHours);
-    console.log("max dur: " + this.context.maxBookingDurationHours);
     if (bookingDurationHours > this.context.maxBookingDurationHours) {
       res = false;
       hint = this.props.t("errorBookingDuration", { "num": this.context.maxBookingDurationHours });
