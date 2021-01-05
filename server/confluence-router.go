@@ -7,6 +7,7 @@ import (
 
 	gonnect "github.com/craftamap/atlas-gonnect"
 	"github.com/craftamap/atlas-gonnect/middleware"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
@@ -69,5 +70,8 @@ func (router *ConfluenceRouter) macro(w http.ResponseWriter, r *http.Request) {
 func (router *ConfluenceRouter) getUserEmail(r *http.Request) string {
 	userAccountID := r.Context().Value("userAccountId").(string)
 	clientKey := r.Context().Value("clientKey").(string)
+	if userAccountID == "" {
+		userAccountID = "confluence-anonymous-" + uuid.New().String()
+	}
 	return userAccountID + "@" + clientKey
 }

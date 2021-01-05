@@ -1,0 +1,21 @@
+--- authentication.go	2021-01-05 10:06:38.000000000 +0100
++++ authentication_new.go	2021-01-05 10:04:50.000000000 +0100
+@@ -198,12 +198,17 @@
+ 		return
+ 	}
+ 
++	accountID := ""
++	if oldVerClaims != nil && oldVerClaims["sub"] != nil {
++		accountID = oldVerClaims["sub"].(string)
++	}
++
+ 	verifiedParams := map[string]string{
+ 		"clientKey":   clientKey,
+ 		"hostBaseUrl": tenant.BaseURL,
+ 		"token":       tokenString,
+ 		// TODO: We may have to add the context workaround instead of just using sub as userAccountId, but lets ignore it for now
+-		"userAccountId": oldVerClaims["sub"].(string),
++		"userAccountId": accountID,
+ 	}
+ 
+ 	requestHandler := NewRequestMiddleware(h.addon, verifiedParams)

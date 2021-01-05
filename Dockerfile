@@ -21,11 +21,15 @@ RUN npm install --legacy-peer-deps
 RUN npm run build
 
 FROM golang:1.15-alpine AS server-builder
-RUN apk --update add --no-cache git gcc g++
+RUN apk --update add --no-cache git gcc g++ patch
 RUN export GOBIN=$HOME/work/bin
 WORKDIR /go/src/app
 ADD server/ .
 RUN go get -d -v ./...
+COPY _fixes/authentication.patch /go/src/github.com/craftamap/atlas-gonnect/middleware/
+RUN cd /go/src/github.com/craftamap/atlas-gonnect/middleware && \
+    patch authentication.go authentication.patch && \
+    rm -f authentication.patch
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o main .
 
 FROM alpine
