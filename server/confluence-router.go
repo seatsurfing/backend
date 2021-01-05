@@ -33,14 +33,19 @@ func (router *ConfluenceRouter) macro(w http.ResponseWriter, r *http.Request) {
 		SendTemporaryRedirect(w, GetConfig().FrontendURL+"ui/login/confluence/"+clientID)
 		return
 	}
-	userID := router.getUserEmail(r)
+	org, err := GetOrganizationRepository().GetOne(orgIDs[0])
+	if err != nil {
+		SendInternalServerError(w)
+		return
+	}
+	allowAnonymous, _ := GetSettingsRepository().GetBool(org.ID, SettingConfluenceAnonymous.Name)
+	userID := router.getUserEmail(r, allowAnonymous)
+	if userID == "" {
+		SendTemporaryRedirect(w, GetConfig().FrontendURL+"ui/login/confluence/anonymous")
+		return
+	}
 	user, err := GetUserRepository().GetByAtlassianID(userID)
 	if err != nil {
-		org, err := GetOrganizationRepository().GetOne(orgIDs[0])
-		if err != nil {
-			SendInternalServerError(w)
-			return
-		}
 		if !GetUserRepository().canCreateUser(org) {
 			SendTemporaryRedirect(w, GetConfig().FrontendURL+"ui/login/failed")
 			return
@@ -67,10 +72,13 @@ func (router *ConfluenceRouter) macro(w http.ResponseWriter, r *http.Request) {
 	SendTemporaryRedirect(w, GetConfig().FrontendURL+"ui/login/success/"+authState.ID)
 }
 
-func (router *ConfluenceRouter) getUserEmail(r *http.Request) string {
+func (router *ConfluenceRouter) getUserEmail(r *http.Request, allowAnonymous bool) string {
 	userAccountID := r.Context().Value("userAccountId").(string)
 	clientKey := r.Context().Value("clientKey").(string)
 	if userAccountID == "" {
+		if !allowAnonymous {
+			return ""
+		}
 		userAccountID = "confluence-anonymous-" + uuid.New().String()
 	}
 	return userAccountID + "@" + clientKey

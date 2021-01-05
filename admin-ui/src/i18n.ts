@@ -100,6 +100,7 @@ const resources = {
             "addPlace": "Platz hinzufügen",
             "floorplan": "Raumplan",
             "confluenceClientId": "Confluence Client ID",
+            "confluenceAnonymous": "Anonyme Confluence-Benutzer zulassen (nur zu Demo-Zwecken)",
         }
     },
     en: {
@@ -199,6 +200,7 @@ const resources = {
             "addSpace": "Add space",
             "floorplan": "Floorplan",
             "confluenceClientId": "Confluence Client ID",
+            "confluenceAnonymous": "Allow anonymous Confluence users (for demonstration purposes only)",
         }
     }
 };

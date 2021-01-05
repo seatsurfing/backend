@@ -31,6 +31,7 @@ var (
 	SettingDatabaseVersion          SettingName = SettingName{Name: "db_version", Type: SettingTypeInt}
 	SettingAllowAnyUser             SettingName = SettingName{Name: "allow_any_user", Type: SettingTypeBool}
 	SettingConfluenceClientID       SettingName = SettingName{Name: "confluence_client_id", Type: SettingTypeString}
+	SettingConfluenceAnonymous      SettingName = SettingName{Name: "confluence_anonymous", Type: SettingTypeBool}
 	SettingMaxBookingsPerUser       SettingName = SettingName{Name: "max_bookings_per_user", Type: SettingTypeInt}
 	SettingMaxDaysInAdvance         SettingName = SettingName{Name: "max_days_in_advance", Type: SettingTypeInt}
 	SettingMaxBookingDurationHours  SettingName = SettingName{Name: "max_booking_duration_hours", Type: SettingTypeInt}
@@ -185,6 +186,7 @@ func (r *SettingsRepository) InitDefaultSettingsForOrg(organizationID string) er
 		"($1, '"+SettingSubscriptionMaxUsers.Name+"', '"+strconv.Itoa(SettingDefaultSubscriptionMaxUsers)+"'), "+
 		"($1, '"+SettingAllowAnyUser.Name+"', '1'), "+
 		"($1, '"+SettingConfluenceClientID.Name+"', ''), "+
+		"($1, '"+SettingConfluenceAnonymous.Name+"', '0'), "+
 		"($1, '"+SettingMaxBookingsPerUser.Name+"', '10'), "+
 		"($1, '"+SettingMaxDaysInAdvance.Name+"', '14'), "+
 		"($1, '"+SettingMaxBookingDurationHours.Name+"', '12'), "+

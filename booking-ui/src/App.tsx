@@ -20,6 +20,7 @@ import ConfluenceHint from './pages/ConfluenceHint';
 import RuntimeConfig from './components/RuntimeConfig';
 import { AuthContext, AuthContextData } from './AuthContextData';
 import Loading from './components/Loading';
+import ConfluenceAnonymous from './pages/ConfluenceAnonymous';
 
 interface Props {
 }
@@ -114,6 +115,7 @@ class App extends React.Component<Props, AuthContextData> {
       <Router basename={process.env.PUBLIC_URL}>
         <AuthContext.Provider value={this.state}>
           <Switch>
+            <Route path="/login/confluence/anonymous" component={ConfluenceAnonymous} />
             <Route path="/login/confluence/:id" component={ConfluenceHint} />
             <Route path="/login/success/:id" component={LoginSuccess} />
             <Route path="/login/failed" component={LoginFailed} />

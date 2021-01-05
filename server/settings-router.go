@@ -158,6 +158,7 @@ func (router *SettingsRouter) isValidSettingNameReadAdmin(name string) bool {
 func (router *SettingsRouter) isValidSettingNameWrite(name string) bool {
 	if name == SettingAllowAnyUser.Name ||
 		name == SettingConfluenceClientID.Name ||
+		name == SettingConfluenceAnonymous.Name ||
 		name == SettingMaxBookingsPerUser.Name ||
 		name == SettingMaxDaysInAdvance.Name ||
 		name == SettingMaxBookingDurationHours.Name {
@@ -172,6 +173,9 @@ func (router *SettingsRouter) getSettingType(name string) SettingType {
 	}
 	if name == SettingConfluenceClientID.Name {
 		return SettingConfluenceClientID.Type
+	}
+	if name == SettingConfluenceAnonymous.Name {
+		return SettingConfluenceAnonymous.Type
 	}
 	if name == SettingMaxBookingsPerUser.Name {
 		return SettingMaxBookingsPerUser.Type
