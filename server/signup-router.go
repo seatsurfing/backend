@@ -171,7 +171,7 @@ func (router *SignupRouter) isValidCountryCode(isoCountryCode string) bool {
 }
 
 func (router *SignupRouter) isValidLanguageCode(isoLanguageCode string) bool {
-	validLanguageCodes := []string{"de"}
+	validLanguageCodes := []string{"de", "en"}
 	lc := strings.ToLower(isoLanguageCode)
 	for _, s := range validLanguageCodes {
 		if lc == s {
