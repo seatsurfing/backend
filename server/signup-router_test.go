@@ -57,6 +57,54 @@ func TestSignup(t *testing.T) {
 	checkTestResponseCode(t, http.StatusNotFound, res.Code)
 }
 
+func TestSignupLanguageEN(t *testing.T) {
+	clearTestDB()
+
+	// Perform Signup
+	payload := `{
+		"firstname": "",
+		"lastname": "",
+		"email": "foo@bar.com", 
+		"organization": "Test Org", 
+		"domain": "testorg", 
+		"contactFirstname": "Foo", 
+		"contactLastname": "Bar", 
+		"password": "12345678", 
+		"country": "DE",
+		"language": "en",
+		"acceptTerms": true
+		}`
+	req := newHTTPRequest("POST", "/signup/", "", bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+	checkTestBool(t, true, strings.Contains(SendMailMockContent, "Hello Foo Bar,"))
+	checkTestBool(t, true, strings.Contains(SendMailMockContent, "To: Foo Bar <foo@bar.com>"))
+}
+
+func TestSignupCountryES(t *testing.T) {
+	clearTestDB()
+
+	// Perform Signup
+	payload := `{
+		"firstname": "",
+		"lastname": "",
+		"email": "foo@bar.com", 
+		"organization": "Test Org", 
+		"domain": "testorg", 
+		"contactFirstname": "Foo", 
+		"contactLastname": "Bar", 
+		"password": "12345678", 
+		"country": "ES",
+		"language": "en",
+		"acceptTerms": true
+		}`
+	req := newHTTPRequest("POST", "/signup/", "", bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+	checkTestBool(t, true, strings.Contains(SendMailMockContent, "Hello Foo Bar,"))
+	checkTestBool(t, true, strings.Contains(SendMailMockContent, "To: Foo Bar <foo@bar.com>"))
+}
+
 func TestSignupNotAcceptTerms(t *testing.T) {
 	clearTestDB()
 
