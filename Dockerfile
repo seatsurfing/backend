@@ -6,7 +6,7 @@ RUN npm install
 RUN npm run build
 WORKDIR /usr/src/app
 ADD admin-ui/ .
-RUN npm install --legacy-peer-deps
+RUN npm install
 RUN npm run build
 
 FROM node:15 AS booking-ui-builder
@@ -17,7 +17,7 @@ RUN npm install
 RUN npm run build
 WORKDIR /usr/src/app
 ADD booking-ui/ .
-RUN npm install --legacy-peer-deps
+RUN npm install
 RUN npm run build
 
 FROM golang:1.16-alpine AS server-builder
