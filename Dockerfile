@@ -25,7 +25,8 @@ RUN apk --update add --no-cache git gcc g++ patch
 RUN export GOBIN=$HOME/work/bin
 WORKDIR /go/src/app
 ADD server/ server/
-ADD go.* .
+ADD go.mod .
+ADD go.sum .
 WORKDIR /go/src/app/server
 RUN go get -d -v ./...
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o main .
