@@ -20,16 +20,18 @@ ADD booking-ui/ .
 RUN npm install --legacy-peer-deps
 RUN npm run build
 
-FROM golang:1.15-alpine AS server-builder
+FROM golang:1.16-alpine AS server-builder
 RUN apk --update add --no-cache git gcc g++ patch
 RUN export GOBIN=$HOME/work/bin
 WORKDIR /go/src/app
-ADD server/ .
+ADD server/ server/
+ADD go.* .
+WORKDIR /go/src/app/server
 RUN go get -d -v ./...
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o main .
 
 FROM alpine
-COPY --from=server-builder /go/src/app/main /app/
+COPY --from=server-builder /go/src/app/server/main /app/
 COPY --from=admin-ui-builder /usr/src/app/build/ /app/adminui/
 COPY --from=booking-ui-builder /usr/src/app/build/ /app/bookingui/
 ADD server/res/ /app/res
