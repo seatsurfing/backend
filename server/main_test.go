@@ -96,6 +96,7 @@ func createTestOrg(orgDomain string) *Organization {
 		ContactLastname:  "Bar",
 		Country:          "DE",
 		Language:         "de",
+		SignupDate:       time.Now(),
 	}
 	if err := GetOrganizationRepository().Create(org); err != nil {
 		panic(err)

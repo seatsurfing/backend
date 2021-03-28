@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -355,6 +356,7 @@ func (router *OrganizationRouter) create(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	e := router.copyFromRestModel(&m)
+	e.SignupDate = time.Now()
 	if err := GetOrganizationRepository().Create(e); err != nil {
 		log.Println(err)
 		SendInternalServerError(w)

@@ -3,6 +3,7 @@ package main
 import (
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -18,6 +19,7 @@ type Organization struct {
 	ContactEmail     string
 	Country          string
 	Language         string
+	SignupDate       time.Time
 }
 
 type Domain struct {
@@ -90,15 +92,25 @@ func (r *OrganizationRepository) RunSchemaUpgrade(curVersion, targetVersion int)
 			panic(err)
 		}
 	}
+	if curVersion < 8 {
+		if _, err := GetDatabase().DB().Exec("ALTER TABLE organizations " +
+			"ADD COLUMN signup_date TIMESTAMP NOT NULL DEFAULT '2021-03-28 16:00:00'"); err != nil {
+			panic(err)
+		}
+		if _, err := GetDatabase().DB().Exec("ALTER TABLE organizations " +
+			"ALTER COLUMN signup_date DROP DEFAULT"); err != nil {
+			panic(err)
+		}
+	}
 }
 
 func (r *OrganizationRepository) Create(e *Organization) error {
 	var id string
 	err := GetDatabase().DB().QueryRow("INSERT INTO organizations "+
-		"(name, contact_firstname, contact_lastname, contact_email, country, language) "+
-		"VALUES ($1, $2, $3, $4, $5, $6) "+
+		"(name, contact_firstname, contact_lastname, contact_email, country, language, signup_date) "+
+		"VALUES ($1, $2, $3, $4, $5, $6, $7) "+
 		"RETURNING id",
-		e.Name, e.ContactFirstname, e.ContactLastname, e.ContactEmail, e.Country, e.Language).Scan(&id)
+		e.Name, e.ContactFirstname, e.ContactLastname, e.ContactEmail, e.Country, e.Language, e.SignupDate).Scan(&id)
 	if err != nil {
 		return err
 	}
@@ -109,11 +121,11 @@ func (r *OrganizationRepository) Create(e *Organization) error {
 
 func (r *OrganizationRepository) GetOneByDomain(domain string) (*Organization, error) {
 	e := &Organization{}
-	err := GetDatabase().DB().QueryRow("SELECT organizations.id, organizations.name, organizations.contact_firstname, organizations.contact_lastname, organizations.contact_email, organizations.country, organizations.language "+
+	err := GetDatabase().DB().QueryRow("SELECT organizations.id, organizations.name, organizations.contact_firstname, organizations.contact_lastname, organizations.contact_email, organizations.country, organizations.language, organizations.signup_date "+
 		"FROM organizations_domains "+
 		"INNER JOIN organizations ON organizations.id = organizations_domains.organization_id "+
 		"WHERE LOWER(organizations_domains.domain) = $1 AND organizations_domains.active = TRUE",
-		strings.ToLower(domain)).Scan(&e.ID, &e.Name, &e.ContactFirstname, &e.ContactLastname, &e.ContactEmail, &e.Country, &e.Language)
+		strings.ToLower(domain)).Scan(&e.ID, &e.Name, &e.ContactFirstname, &e.ContactLastname, &e.ContactEmail, &e.Country, &e.Language, &e.SignupDate)
 	if err != nil {
 		return nil, err
 	}
@@ -122,10 +134,10 @@ func (r *OrganizationRepository) GetOneByDomain(domain string) (*Organization, e
 
 func (r *OrganizationRepository) GetOne(id string) (*Organization, error) {
 	e := &Organization{}
-	err := GetDatabase().DB().QueryRow("SELECT id, name, contact_firstname, contact_lastname, contact_email, country, language "+
+	err := GetDatabase().DB().QueryRow("SELECT id, name, contact_firstname, contact_lastname, contact_email, country, language, signup_date "+
 		"FROM organizations "+
 		"WHERE id = $1",
-		id).Scan(&e.ID, &e.Name, &e.ContactFirstname, &e.ContactLastname, &e.ContactEmail, &e.Country, &e.Language)
+		id).Scan(&e.ID, &e.Name, &e.ContactFirstname, &e.ContactLastname, &e.ContactEmail, &e.Country, &e.Language, &e.SignupDate)
 	if err != nil {
 		return nil, err
 	}
@@ -134,10 +146,10 @@ func (r *OrganizationRepository) GetOne(id string) (*Organization, error) {
 
 func (r *OrganizationRepository) GetByEmail(email string) (*Organization, error) {
 	e := &Organization{}
-	err := GetDatabase().DB().QueryRow("SELECT id, name, contact_firstname, contact_lastname, contact_email, country, language "+
+	err := GetDatabase().DB().QueryRow("SELECT id, name, contact_firstname, contact_lastname, contact_email, country, language, signup_date "+
 		"FROM organizations "+
 		"WHERE LOWER(contact_email) = $1",
-		strings.ToLower(email)).Scan(&e.ID, &e.Name, &e.ContactFirstname, &e.ContactLastname, &e.ContactEmail, &e.Country, &e.Language)
+		strings.ToLower(email)).Scan(&e.ID, &e.Name, &e.ContactFirstname, &e.ContactLastname, &e.ContactEmail, &e.Country, &e.Language, &e.SignupDate)
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +158,7 @@ func (r *OrganizationRepository) GetByEmail(email string) (*Organization, error)
 
 func (r *OrganizationRepository) GetAll() ([]*Organization, error) {
 	var result []*Organization
-	rows, err := GetDatabase().DB().Query("SELECT id, name, contact_firstname, contact_lastname, contact_email, country, language " +
+	rows, err := GetDatabase().DB().Query("SELECT id, name, contact_firstname, contact_lastname, contact_email, country, language, signup_date " +
 		"FROM organizations ORDER BY name")
 	if err != nil {
 		return nil, err
@@ -154,7 +166,7 @@ func (r *OrganizationRepository) GetAll() ([]*Organization, error) {
 	defer rows.Close()
 	for rows.Next() {
 		e := &Organization{}
-		err = rows.Scan(&e.ID, &e.Name, &e.ContactFirstname, &e.ContactLastname, &e.ContactEmail, &e.Country, &e.Language)
+		err = rows.Scan(&e.ID, &e.Name, &e.ContactFirstname, &e.ContactLastname, &e.ContactEmail, &e.Country, &e.Language, &e.SignupDate)
 		if err != nil {
 			return nil, err
 		}
@@ -184,9 +196,9 @@ func (r *OrganizationRepository) GetAllIDs() ([]string, error) {
 
 func (r *OrganizationRepository) Update(e *Organization) error {
 	_, err := GetDatabase().DB().Exec("UPDATE organizations SET "+
-		"name = $1, contact_firstname = $2, contact_lastname = $3, contact_email = $4, country = $5, language = $6 "+
-		"WHERE id = $7",
-		e.Name, e.ContactFirstname, e.ContactLastname, e.ContactEmail, e.Country, e.Language, e.ID)
+		"name = $1, contact_firstname = $2, contact_lastname = $3, contact_email = $4, country = $5, language = $6, signup_date = $7 "+
+		"WHERE id = $8",
+		e.Name, e.ContactFirstname, e.ContactLastname, e.ContactEmail, e.Country, e.Language, e.SignupDate, e.ID)
 	return err
 }
 

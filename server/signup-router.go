@@ -103,6 +103,7 @@ func (router *SignupRouter) confirm(w http.ResponseWriter, r *http.Request) {
 		ContactEmail:     e.Email,
 		Language:         e.Language,
 		Country:          e.Country,
+		SignupDate:       e.Date,
 	}
 	if err := GetOrganizationRepository().Create(org); err != nil {
 		log.Println(err)
