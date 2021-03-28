@@ -9,6 +9,15 @@
     height: 24px;
 }
 
+.button-link {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    display: inline;
+    vertical-align: baseline;
+    line-height: 1;
+}
+
 .badge-top {
     vertical-align: top;
     margin-left: -3px;

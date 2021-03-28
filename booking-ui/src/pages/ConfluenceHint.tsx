@@ -55,8 +55,8 @@ class ConfluenceHint extends React.Component<Props, State> {
           <h1>{this.props.t("errorConfluenceClientIdUnknown")}</h1>
           <p>{this.props.t("confluenceClientIdHint")}</p>
           <ol>
-            <li><a href="#" onClick={this.onCreateAccountClick}>{this.props.t("confluenceClientIdStep1")}</a></li>
-            <li><a href="#" onClick={this.onAdminClick}>{this.props.t("confluenceClientIdStep2")}</a></li>
+            <li><Button variant="link" className="button-link" onClick={this.onCreateAccountClick}>{this.props.t("confluenceClientIdStep1")}</Button></li>
+            <li><Button variant="link" className="button-link" onClick={this.onAdminClick}>{this.props.t("confluenceClientIdStep2")}</Button></li>
             <li>{this.props.t("confluenceClientIdStep3")}</li>
             <li>
               {this.props.t("confluenceClientIdStep4")}
@@ -67,7 +67,7 @@ class ConfluenceHint extends React.Component<Props, State> {
             <li>{this.props.t("confluenceClientIdStep5")}</li>
             <li>{this.props.t("confluenceClientIdStep6")}</li>
           </ol>
-          <p>{this.props.t("confluenceClientIdHint2")} <a href="#" onClick={this.onHelpClick}>{this.props.t("confluenceClientIdHint3")}</a></p>
+          <p>{this.props.t("confluenceClientIdHint2")} <Button variant="link" className="button-link" onClick={this.onHelpClick}>{this.props.t("confluenceClientIdHint3")}</Button></p>
       </div>
     )
   }
