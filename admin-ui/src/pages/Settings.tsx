@@ -403,7 +403,7 @@ class Settings extends React.Component<Props, State> {
             <Col sm="4">
               {domains}
               <InputGroup size="sm">
-                <Form.Control type="text" value={this.state.newDomain} onChange={(e: any) => this.setState({ newDomain: e.target.value })} placeholder="ihre-domain.de" onKeyDown={this.handleNewDomainKeyDown} />
+                <Form.Control type="text" value={this.state.newDomain} onChange={(e: any) => this.setState({ newDomain: e.target.value })} placeholder={this.props.t("yourDomainPlaceholder")} onKeyDown={this.handleNewDomainKeyDown} />
                 <InputGroup.Append>
                   <Button variant="outline-secondary" onClick={this.addDomain} disabled={!this.isValidDomain()}>{this.props.t("addDomain")}</Button>
                 </InputGroup.Append>
