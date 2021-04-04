@@ -107,9 +107,9 @@ func createTestOrg(orgDomain string) *Organization {
 	return org
 }
 
-func createTestUserInOrg(org *Organization) *User {
+func createTestUserInOrgDomain(org *Organization, domain string) *User {
 	user := &User{
-		Email:          uuid.New().String() + "@test.com",
+		Email:          uuid.New().String() + "@" + domain,
 		OrganizationID: org.ID,
 		OrgAdmin:       false,
 		SuperAdmin:     false,
@@ -118,6 +118,10 @@ func createTestUserInOrg(org *Organization) *User {
 		panic(err)
 	}
 	return user
+}
+
+func createTestUserInOrg(org *Organization) *User {
+	return createTestUserInOrgDomain(org, "test.com")
 }
 
 func createTestUserOrgAdminDomain(org *Organization, domain string) *User {

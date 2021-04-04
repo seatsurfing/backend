@@ -1,9 +1,11 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -19,6 +21,10 @@ type GetSettingsResponse struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
+
+var (
+	ErrAlreadyExists = errors.New("resource already exists")
+)
 
 func (router *SettingsRouter) setupRoutes(s *mux.Router) {
 	s.HandleFunc("/{name}", router.getSetting).Methods("GET")
@@ -67,10 +73,14 @@ func (router *SettingsRouter) setSetting(w http.ResponseWriter, r *http.Request)
 		SendBadRequest(w)
 		return
 	}
-	err := GetSettingsRepository().Set(user.OrganizationID, vars["name"], value.Value)
+	err := router.doSetOne(user.OrganizationID, vars["name"], value.Value)
 	if err != nil {
 		log.Println(err)
-		SendInternalServerError(w)
+		if errors.Is(err, ErrAlreadyExists) {
+			SendAleadyExists(w)
+		} else {
+			SendInternalServerError(w)
+		}
 		return
 	}
 	SendUpdated(w)
@@ -120,14 +130,66 @@ func (router *SettingsRouter) setAll(w http.ResponseWriter, r *http.Request) {
 			SendBadRequest(w)
 			return
 		}
-		err := GetSettingsRepository().Set(user.OrganizationID, e.Name, e.Value)
+		err := router.doSetOne(user.OrganizationID, e.Name, e.Value)
 		if err != nil {
 			log.Println(err)
-			SendInternalServerError(w)
+			if errors.Is(err, ErrAlreadyExists) {
+				SendAleadyExists(w)
+			} else {
+				SendInternalServerError(w)
+			}
 			return
 		}
 	}
 	SendUpdated(w)
+}
+
+func (router *SettingsRouter) doSetOne(organizationID, name, value string) error {
+	if name == SettingConfluenceClientID.Name {
+		currentClientID, err := GetSettingsRepository().Get(organizationID, name)
+		if err != nil {
+			return err
+		}
+		value = strings.TrimSpace(value)
+		if currentClientID == value {
+			// Nothing to changge
+			return nil
+		}
+		if value != "" {
+			// Check if any other org has this Client ID
+			orgIDs, err := GetSettingsRepository().GetOrganizationIDsByValue(name, value)
+			if err != nil {
+				return err
+			}
+			if len(orgIDs) > 0 {
+				return ErrAlreadyExists
+			}
+		}
+		if currentClientID != "" {
+			if value == "" {
+				// If Client ID is removed: Delete all Confluence users
+				users, err := GetUserRepository().GetUsersWithAtlassianID(organizationID)
+				if err != nil {
+					return err
+				}
+				for _, user := range users {
+					if user.Email == string(user.AtlassianID) {
+						GetUserRepository().Delete(user)
+					} else {
+						user.AtlassianID = ""
+						GetUserRepository().Update(user)
+					}
+				}
+			} else {
+				// Else, change User IDs
+				if err := GetUserRepository().UpdateAtlassianClientID(organizationID, currentClientID, value); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	err := GetSettingsRepository().Set(organizationID, name, value)
+	return err
 }
 
 func (router *SettingsRouter) copyToRestModel(e *OrgSetting) *GetSettingsResponse {

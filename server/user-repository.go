@@ -120,6 +120,36 @@ func (r *UserRepository) GetByAtlassianID(atlassianID string) (*User, error) {
 	return e, nil
 }
 
+func (r *UserRepository) GetUsersWithAtlassianID(organizationID string) ([]*User, error) {
+	var result []*User
+	rows, err := GetDatabase().DB().Query("SELECT id, organization_id, email, org_admin, super_admin, password, auth_provider_id, atlassian_id "+
+		"FROM users "+
+		"WHERE organization_id = $1 AND (atlassian_id IS NOT NULL OR atlassian_id != '') "+
+		"ORDER BY email", organizationID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		e := &User{}
+		err = rows.Scan(&e.ID, &e.OrganizationID, &e.Email, &e.OrgAdmin, &e.SuperAdmin, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, e)
+	}
+	return result, nil
+}
+
+func (r *UserRepository) UpdateAtlassianClientID(organizationID, oldClientID, newClientID string) error {
+	_, err := GetDatabase().DB().Exec("UPDATE users SET "+
+		"atlassian_id = REPLACE(atlassian_id, '@"+oldClientID+"', '@"+newClientID+"') ,"+
+		"email = REPLACE(email, '@"+oldClientID+"', '@"+newClientID+"')"+
+		"WHERE organization_id = $1 AND (atlassian_id IS NOT NULL OR atlassian_id != '')",
+		organizationID)
+	return err
+}
+
 func (r *UserRepository) GetByKeyword(organizationID string, keyword string) ([]*User, error) {
 	var result []*User
 	rows, err := GetDatabase().DB().Query("SELECT id, organization_id, email, org_admin, super_admin, password, auth_provider_id, atlassian_id "+
@@ -178,6 +208,10 @@ func (r *UserRepository) Update(e *User) error {
 }
 
 func (r *UserRepository) Delete(e *User) error {
+	if _, err := GetDatabase().DB().Exec("DELETE FROM bookings WHERE "+
+		"bookings.user_id = $1", e.ID); err != nil {
+		return err
+	}
 	_, err := GetDatabase().DB().Exec("DELETE FROM users WHERE id = $1", e.ID)
 	return err
 }
