@@ -76,7 +76,7 @@ class Locations extends React.Component<Props, State> {
       );
     }
     return (
-      <FullLayout headline="Bereiche" buttons={buttons}>
+      <FullLayout headline={this.props.t("areas")} buttons={buttons}>
         <Table striped={true} hover={true} className="clickable-table">
           <thead>
             <tr>
