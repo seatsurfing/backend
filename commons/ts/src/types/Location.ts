@@ -3,6 +3,7 @@ import Ajax from "../util/Ajax";
 
 export default class Location extends Entity {
     name: string;
+    description: string;
     mapWidth: number;
 	mapHeight: number;
 	mapMimeType: string;
@@ -10,6 +11,7 @@ export default class Location extends Entity {
     constructor() {
         super();
         this.name = "";
+        this.description = "";
         this.mapWidth = 0;
 	    this.mapHeight = 0;
 	    this.mapMimeType = "";
@@ -18,12 +20,14 @@ export default class Location extends Entity {
     serialize(): Object {
         return Object.assign(super.serialize(), {
             "name": this.name,
+            "description": this.description,
         });
     }
 
     deserialize(input: any): void {
         super.deserialize(input);
         this.name = input.name;
+        this.description = input.description;
         this.mapWidth = input.mapWidth;
         this.mapHeight = input.mapHeight;
         this.mapMimeType = input.mapMimeType;

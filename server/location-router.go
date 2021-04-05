@@ -19,7 +19,8 @@ type LocationRouter struct {
 }
 
 type CreateLocationRequest struct {
-	Name string `json:"name" validate:"required"`
+	Name        string `json:"name" validate:"required"`
+	Description string `json:"description"`
 }
 
 type GetLocationResponse struct {
@@ -39,6 +40,7 @@ type GetMapResponse struct {
 }
 
 func (router *LocationRouter) setupRoutes(s *mux.Router) {
+	s.HandleFunc("/loadsampledata", router.loadSampleData).Methods("POST")
 	s.HandleFunc("/{id}/map", router.getMap).Methods("GET")
 	s.HandleFunc("/{id}/map", router.setMap).Methods("POST")
 	s.HandleFunc("/{id}", router.getOne).Methods("GET")
@@ -217,9 +219,24 @@ func (router *LocationRouter) setMap(w http.ResponseWriter, r *http.Request) {
 	SendUpdated(w)
 }
 
+func (router *LocationRouter) loadSampleData(w http.ResponseWriter, r *http.Request) {
+	user := GetRequestUser(r)
+	if !CanAdminOrg(user, user.OrganizationID) {
+		SendForbidden(w)
+		return
+	}
+	org, err := GetOrganizationRepository().GetOne(user.OrganizationID)
+	if err != nil {
+		SendInternalServerError(w)
+		return
+	}
+	GetOrganizationRepository().createSampleData(org)
+}
+
 func (router *LocationRouter) copyFromRestModel(m *CreateLocationRequest) *Location {
 	e := &Location{}
 	e.Name = m.Name
+	e.Description = m.Description
 	return e
 }
 
@@ -231,5 +248,6 @@ func (router *LocationRouter) copyToRestModel(e *Location) *GetLocationResponse 
 	m.MapMimeType = e.MapMimeType
 	m.MapWidth = e.MapWidth
 	m.MapHeight = e.MapHeight
+	m.Description = e.Description
 	return m
 }

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"io/ioutil"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -300,4 +302,54 @@ func (r *OrganizationRepository) isValidEmailForOrg(email string, org *Organizat
 	}
 	return false
 
+}
+
+func (r *OrganizationRepository) createSampleData(org *Organization) error {
+	location := &Location{
+		OrganizationID: org.ID,
+		Name:           "Sample Floor",
+		Description:    "Sample Map provided by Marco Garbelini under the Creative Commons Attribution 2.0 Generic (CC BY 2.0) License: https://www.flickr.com/photos/garbelini/300134781",
+	}
+	if err := GetLocationRepository().Create(location); err != nil {
+		return err
+	}
+	mapFile, _ := filepath.Abs("./res/floorplan.jpg")
+	mapData, err := ioutil.ReadFile(mapFile)
+	if err != nil {
+		return err
+	}
+	locationMap := &LocationMap{
+		MimeType: "jpeg",
+		Width:    2047,
+		Height:   802,
+		Data:     mapData,
+	}
+	if err := GetLocationRepository().SetMap(location, locationMap); err != nil {
+		return err
+	}
+	spaces := []*Space{
+		{LocationID: location.ID, Name: "Conference 1", X: 990, Y: 76, Width: 204, Height: 70, Rotation: 0},
+		{LocationID: location.ID, Name: "Desk 1", X: 755, Y: 60, Width: 120, Height: 55, Rotation: 0},
+		{LocationID: location.ID, Name: "Desk 2", X: 843, Y: 337, Width: 108, Height: 53, Rotation: 0},
+		{LocationID: location.ID, Name: "Desk 3", X: 624, Y: 518, Width: 104, Height: 52, Rotation: 0},
+		{LocationID: location.ID, Name: "Desk 4", X: 625, Y: 571, Width: 104, Height: 52, Rotation: 0},
+		{LocationID: location.ID, Name: "Desk 5", X: 729, Y: 518, Width: 47, Height: 105, Rotation: 0},
+		{LocationID: location.ID, Name: "Desk 9", X: 896, Y: 569, Width: 51, Height: 104, Rotation: 0},
+		{LocationID: location.ID, Name: "Desk 10", X: 948, Y: 569, Width: 51, Height: 104, Rotation: 0},
+		{LocationID: location.ID, Name: "Desk 7", X: 1057, Y: 382, Width: 51, Height: 104, Rotation: 0},
+		{LocationID: location.ID, Name: "Desk 8", X: 1110, Y: 382, Width: 51, Height: 104, Rotation: 0},
+		{LocationID: location.ID, Name: "Desk 6", X: 898, Y: 390, Width: 51, Height: 104, Rotation: 0},
+		{LocationID: location.ID, Name: "Desk 11", X: 1103, Y: 570, Width: 51, Height: 104, Rotation: 0},
+		{LocationID: location.ID, Name: "Desk 12", X: 1155, Y: 570, Width: 51, Height: 104, Rotation: 0},
+		{LocationID: location.ID, Name: "Desk 13", X: 1815, Y: 353, Width: 51, Height: 104, Rotation: 0},
+		{LocationID: location.ID, Name: "Desk 14", X: 1985, Y: 435, Width: 51, Height: 104, Rotation: 0},
+		{LocationID: location.ID, Name: "Desk 15", X: 1933, Y: 541, Width: 104, Height: 52, Rotation: 0},
+		{LocationID: location.ID, Name: "Desk 16", X: 1933, Y: 626, Width: 104, Height: 52, Rotation: 0},
+	}
+	for _, space := range spaces {
+		if err := GetSpaceRepository().Create(space); err != nil {
+			return err
+		}
+	}
+	return nil
 }

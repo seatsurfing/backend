@@ -127,6 +127,9 @@ func (router *SignupRouter) confirm(w http.ResponseWriter, r *http.Request) {
 		SendInternalServerError(w)
 		return
 	}
+	if err := GetOrganizationRepository().createSampleData(org); err != nil {
+		log.Println(err)
+	}
 	router.sendConfirmMail(e, router.getLanguage(e.Language))
 	GetSignupRepository().Delete(e)
 	w.WriteHeader(http.StatusNoContent)

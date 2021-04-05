@@ -102,6 +102,7 @@ const resources = {
             "floorplan": "Raumplan",
             "confluenceClientId": "Confluence Client ID",
             "confluenceAnonymous": "Anonyme Confluence-Benutzer zulassen (nur zu Demo-Zwecken)",
+            "description": "Beschreibung",
         }
     },
     en: {
@@ -203,6 +204,7 @@ const resources = {
             "floorplan": "Floorplan",
             "confluenceClientId": "Confluence Client ID",
             "confluenceAnonymous": "Allow anonymous Confluence users (for demonstration purposes only)",
+            "description": "Description",
         }
     }
 };

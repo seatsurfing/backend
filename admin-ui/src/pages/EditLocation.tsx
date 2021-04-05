@@ -26,6 +26,7 @@ interface State {
   saved: boolean
   goBack: boolean
   name: string
+  description: string
   fileLabel: string
   files: FileList | null
   spaces: SpaceState[]
@@ -54,6 +55,7 @@ class EditLocation extends React.Component<Props, State> {
       saved: false,
       goBack: false,
       name: "",
+      description: "",
       fileLabel: this.props.t("mapFileTypes"),
       files: null,
       spaces: [],
@@ -82,6 +84,7 @@ class EditLocation extends React.Component<Props, State> {
             this.mapData = mapData;
             this.setState({
               name: location.name,
+              description: location.description,
               loading: false
             });
           });
@@ -123,6 +126,7 @@ class EditLocation extends React.Component<Props, State> {
     e.preventDefault();
     this.setState({submitting: true});
     this.entity.name = this.state.name;
+    this.entity.description = this.state.description;
     this.entity.save().then(() => {
       this.saveSpaces().then(() => {
         if (this.state.files && this.state.files.length > 0) {
@@ -343,6 +347,12 @@ class EditLocation extends React.Component<Props, State> {
             <Form.Label column sm="2">{this.props.t("name")}</Form.Label>
             <Col sm="4">
               <Form.Control type="text" placeholder={this.props.t("name")} value={this.state.name} onChange={(e: any) => this.setState({ name: e.target.value })} required={true} />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row}>
+            <Form.Label column sm="2">{this.props.t("description")}</Form.Label>
+            <Col sm="4">
+              <Form.Control type="text" placeholder={this.props.t("description")} value={this.state.description} onChange={(e: any) => this.setState({ description: e.target.value })} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
