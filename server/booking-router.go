@@ -249,10 +249,7 @@ func (router *BookingRouter) isValidBookingAdvance(m *CreateBookingRequest, orgI
 func (router *BookingRouter) isValidMaxUpcomingBookings(orgID string, userID string) bool {
 	maxUpcoming, _ := GetSettingsRepository().GetInt(orgID, SettingMaxBookingsPerUser.Name)
 	curUpcoming, _ := GetBookingRepository().GetAllByUser(userID, time.Now().UTC())
-	if len(curUpcoming) >= maxUpcoming {
-		return false
-	}
-	return true
+	return len(curUpcoming) < maxUpcoming
 }
 
 func (router *BookingRouter) isValidBookingRequest(m *CreateBookingRequest, userID string, orgID string, isUpdate bool) bool {

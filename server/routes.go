@@ -88,7 +88,7 @@ func SendJSON(w http.ResponseWriter, v interface{}) {
 
 func UnmarshalBody(r *http.Request, o interface{}) error {
 	if r.Body == nil {
-		return errors.New("Body is NIL")
+		return errors.New("body is NIL")
 	}
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -131,7 +131,7 @@ func ExtractClaimsFromRequest(r *http.Request) (*Claims, string, error) {
 	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(authHeader, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(GetConfig().JwtSigningKey), nil
 	})

@@ -103,9 +103,9 @@ func (router *FastSpringRouter) processEvent(event FastSpringSubscriptionEvent) 
 	if err != nil {
 		return err
 	}
-	existingEvent, err := GetSubscriptionRepository().GetProcessedByBrokerEventID(persistEvent.BrokerEventID)
+	existingEvent, _ := GetSubscriptionRepository().GetProcessedByBrokerEventID(persistEvent.BrokerEventID)
 	if existingEvent != nil {
-		return fmt.Errorf("Event with ID %s already processed", persistEvent.BrokerEventID)
+		return fmt.Errorf("event with id %s already processed", persistEvent.BrokerEventID)
 	}
 	defer GetSubscriptionRepository().Create(persistEvent)
 	switch eventType := strings.ToLower(event.Type); eventType {
@@ -148,10 +148,10 @@ func (router *FastSpringRouter) processUpdateEvent(event *SubscriptionEvent) err
 func (router *FastSpringRouter) prepareSubscriptionEvent(event FastSpringSubscriptionEvent) (*SubscriptionEvent, error) {
 	org := router.getOrgByAccountID(event.Data.Account.AccountID)
 	if org == nil {
-		return nil, fmt.Errorf("Organization not found for account with FastSpring Account ID %s", event.Data.Account.AccountID)
+		return nil, fmt.Errorf("organization not found for account with fastspring account ID %s", event.Data.Account.AccountID)
 	}
 	if event.Data.Product.ProductID != FastSpringProduct50Users {
-		return nil, fmt.Errorf("Invalid product ID %s", event.Data.Product.ProductID)
+		return nil, fmt.Errorf("invalid product ID %s", event.Data.Product.ProductID)
 	}
 	e := &SubscriptionEvent{
 		OrganizationID:       org.ID,
@@ -197,7 +197,7 @@ func (router *FastSpringRouter) validMAC(message, messageMAC, key []byte) bool {
 
 func (router *FastSpringRouter) getValidateRequest(r *http.Request) (*FastSpringWebhookRequest, error) {
 	if r.Body == nil {
-		return nil, errors.New("Body is nil")
+		return nil, errors.New("body is nil")
 	}
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {

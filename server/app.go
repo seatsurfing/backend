@@ -116,15 +116,13 @@ func (a *App) InitializeTimers() {
 	a.CleanupTicker = time.NewTicker(time.Minute * 5)
 	go func() {
 		for {
-			select {
-			case <-a.CleanupTicker.C:
-				log.Println("Cleaning up expired database entries...")
-				if err := GetAuthStateRepository().DeleteExpired(); err != nil {
-					log.Println(err)
-				}
-				if err := GetSignupRepository().DeleteExpired(); err != nil {
-					log.Println(err)
-				}
+			<-a.CleanupTicker.C
+			log.Println("Cleaning up expired database entries...")
+			if err := GetAuthStateRepository().DeleteExpired(); err != nil {
+				log.Println(err)
+			}
+			if err := GetSignupRepository().DeleteExpired(); err != nil {
+				log.Println(err)
 			}
 		}
 	}()

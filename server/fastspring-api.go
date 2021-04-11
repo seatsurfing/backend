@@ -103,7 +103,7 @@ func (api *FastSpringAPI) CreateAccount(request *FastSpringCreateAccountRequest)
 
 func (api *FastSpringAPI) Authenticate(accountID string) (string, error) {
 	if accountID == "" {
-		return "", errors.New("Empty account ID")
+		return "", errors.New("empty account ID")
 	}
 	res, err := api.getAPIResponse("GET", "/accounts/"+accountID+"/authenticate", nil)
 	if err != nil {
@@ -122,11 +122,11 @@ func (api *FastSpringAPI) Authenticate(accountID string) (string, error) {
 		return "", err
 	}
 	if len(resBody.Accounts) != 1 {
-		return "", errors.New("Got invalid account count")
+		return "", errors.New("got invalid account count")
 	}
 	account := resBody.Accounts[0]
 	if strings.ToLower(account.Result) != FastSpringAPISuccess {
-		return "", errors.New("Got result string " + account.Result)
+		return "", errors.New("got result string " + account.Result)
 	}
 	return account.URL + "#/subscriptions", nil
 }

@@ -11,10 +11,11 @@ type AuthStateRepository struct {
 type AuthStateType int
 
 const (
-	AuthRequestState  AuthStateType = 1
-	AuthResponseCache AuthStateType = 2
-	AuthAtlassian     AuthStateType = 3
-	AuthMergeRequest  AuthStateType = 4
+	AuthRequestState         AuthStateType = 1
+	AuthResponseCache        AuthStateType = 2
+	AuthAtlassian            AuthStateType = 3
+	AuthMergeRequest         AuthStateType = 4
+	AuthResetPasswordRequest AuthStateType = 5
 )
 
 type AuthState struct {

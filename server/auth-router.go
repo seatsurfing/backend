@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -49,6 +50,14 @@ func (router *AuthRouter) setupRoutes(s *mux.Router) {
 	s.HandleFunc("/{id}/callback", router.callback).Methods("GET")
 	s.HandleFunc("/preflight", router.preflight).Methods("POST")
 	s.HandleFunc("/login", router.loginPassword).Methods("POST")
+	s.HandleFunc("/initpwreset", router.initPasswordReset).Methods("POST")
+	s.HandleFunc("/pwreset/{id}", router.completePasswordReset).Methods("POST")
+}
+
+func (router *AuthRouter) initPasswordReset(w http.ResponseWriter, r *http.Request) {
+}
+
+func (router *AuthRouter) completePasswordReset(w http.ResponseWriter, r *http.Request) {
 }
 
 func (router *AuthRouter) preflight(w http.ResponseWriter, r *http.Request) {
@@ -272,13 +281,16 @@ func (router *AuthRouter) getUserInfo(provider *AuthProvider, state string, code
 	defer GetAuthStateRepository().Delete(authState)
 	// Exchange authorization code for an access token
 	config := router.getConfig(provider)
-	token, err := config.Exchange(oauth2.NoContext, code)
+	token, err := config.Exchange(context.Background(), code)
 	if err != nil {
 		return nil, "", fmt.Errorf("code exchange failed: %s", err.Error())
 	}
 	// Get user info from resource server
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", provider.UserInfoURL, nil)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed creating http request: %s", err.Error())
+	}
 	req.Header.Add("Authorization", "Bearer "+token.AccessToken)
 	response, err := client.Do(req)
 	if err != nil {

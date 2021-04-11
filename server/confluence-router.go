@@ -44,13 +44,13 @@ func (router *ConfluenceRouter) macro(w http.ResponseWriter, r *http.Request) {
 		SendTemporaryRedirect(w, GetConfig().FrontendURL+"ui/login/confluence/anonymous")
 		return
 	}
-	user, err := GetUserRepository().GetByAtlassianID(userID)
+	_, err = GetUserRepository().GetByAtlassianID(userID)
 	if err != nil {
 		if !GetUserRepository().canCreateUser(org) {
 			SendTemporaryRedirect(w, GetConfig().FrontendURL+"ui/login/failed")
 			return
 		}
-		user = &User{
+		user := &User{
 			Email:          userID,
 			AtlassianID:    NullString(userID),
 			OrganizationID: orgIDs[0],
