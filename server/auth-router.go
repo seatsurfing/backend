@@ -30,6 +30,14 @@ type AuthPreflightRequest struct {
 	Email string `json:"email" validate:"required,email"`
 }
 
+type InitPasswordResetRequest struct {
+	Email string `json:"email" validate:"required,email"`
+}
+
+type CompletePasswordResetRequest struct {
+	Password string `json:"password" validate:"required,min=8"`
+}
+
 type AuthPreflightResponse struct {
 	Organization    *GetOrganizationResponse         `json:"organization"`
 	AuthProviders   []*GetAuthProviderPublicResponse `json:"authProviders"`
@@ -55,9 +63,64 @@ func (router *AuthRouter) setupRoutes(s *mux.Router) {
 }
 
 func (router *AuthRouter) initPasswordReset(w http.ResponseWriter, r *http.Request) {
+	var m InitPasswordResetRequest
+	if UnmarshalValidateBody(r, &m) != nil {
+		SendBadRequest(w)
+		return
+	}
+	user, err := GetUserRepository().GetByEmail(m.Email)
+	if user == nil || err != nil {
+		SendNotFound(w)
+		return
+	}
+	if user.HashedPassword == "" {
+		SendNotFound(w)
+		return
+	}
+	org, err := GetOrganizationRepository().GetOne(user.OrganizationID)
+	if org == nil || err != nil {
+		SendNotFound(w)
+		return
+	}
+	authState := &AuthState{
+		AuthProviderID: GetSettingsRepository().getNullUUID(),
+		Expiry:         time.Now().Add(time.Hour * 1),
+		AuthStateType:  AuthResetPasswordRequest,
+		Payload:        user.ID,
+	}
+	GetAuthStateRepository().Create(authState)
+	router.SendPasswordResetEmail(user, authState.ID, org.Language)
+	SendUpdated(w)
 }
 
 func (router *AuthRouter) completePasswordReset(w http.ResponseWriter, r *http.Request) {
+	var m CompletePasswordResetRequest
+	if UnmarshalValidateBody(r, &m) != nil {
+		SendBadRequest(w)
+		return
+	}
+	vars := mux.Vars(r)
+	authState, err := GetAuthStateRepository().GetOne(vars["id"])
+	if err != nil {
+		SendNotFound(w)
+		return
+	}
+	if authState.AuthStateType != AuthResetPasswordRequest {
+		SendNotFound(w)
+		return
+	}
+	user, err := GetUserRepository().GetOne(authState.Payload)
+	if user == nil || err != nil {
+		SendNotFound(w)
+		return
+	}
+	if user.HashedPassword == "" {
+		SendNotFound(w)
+		return
+	}
+	user.HashedPassword = NullString(GetUserRepository().GetHashedPassword(m.Password))
+	GetUserRepository().Update(user)
+	SendUpdated(w)
 }
 
 func (router *AuthRouter) preflight(w http.ResponseWriter, r *http.Request) {
@@ -308,6 +371,15 @@ func (router *AuthRouter) getUserInfo(provider *AuthProvider, state string, code
 		Email: result[provider.UserInfoEmailField].(string),
 	}
 	return claims, authState.Payload, nil
+}
+
+func (router *AuthRouter) SendPasswordResetEmail(user *User, ID string, language string) error {
+	vars := map[string]string{
+		"recipientName":  user.Email,
+		"recipientEmail": user.Email,
+		"confirmID":      ID,
+	}
+	return sendEmail(user.Email, "info@seatsurfing.de", EmailTemplateResetpassword, language, vars)
 }
 
 func (router *AuthRouter) getConfig(provider *AuthProvider) *oauth2.Config {

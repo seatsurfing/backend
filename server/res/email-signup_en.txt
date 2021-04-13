@@ -10,7 +10,7 @@ thanks for signing up with Seatsurfing!
 To confirm your registration, please click the following link within
 the next hour:
 
-https://seatsurfing.de/confirm.html?id={{confirmID}}
+https://seatsurfing.de/confirm/?id={{confirmID}}
 
 If you did not place this registration, please ignore this email. We
 won't contact you again.

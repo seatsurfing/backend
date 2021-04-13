@@ -135,7 +135,7 @@ func (api *FastSpringAPI) StartCheckoutSession(accountID, productID string, quan
 	request := &FastSpringSessionRequest{
 		AccountID: accountID,
 		Items: []FastSpringItem{
-			FastSpringItem{
+			{
 				ProductID: productID,
 				Quantity:  quantity,
 			},

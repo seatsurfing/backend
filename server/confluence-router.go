@@ -60,7 +60,7 @@ func (router *ConfluenceRouter) macro(w http.ResponseWriter, r *http.Request) {
 		GetUserRepository().Create(user)
 	}
 	authState := &AuthState{
-		AuthProviderID: "00000000-0000-0000-0000-000000000000",
+		AuthProviderID: GetSettingsRepository().getNullUUID(),
 		Expiry:         time.Now().Add(time.Minute * 5),
 		AuthStateType:  AuthAtlassian,
 		Payload:        userID,

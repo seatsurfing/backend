@@ -1,0 +1,26 @@
+From: Seatsurfing <info@seatsurfing.de>
+To: {{recipientName}} <{{recipientEmail}}>
+Content-Type: text/plain; charset=UTF-8
+Subject: Reset your Seatsurfing password
+
+Hello {{recipientName}},
+
+we've received a request to reset your password.
+
+If this request was yours, you can change your password here:
+
+https://seatsurfing.de/resetpw/?id={{confirmID}}
+
+If you did not initiate a password reset for your Seatsurfing account,
+you can safely ignore this email. We won't change your password if you
+don't click the link above.
+
+Kind regards,
+Team Seatsurfing
+
+-- 
+weweave UG (limited liability)
+Fichtenweg 8d, 65510 Idstein, Germany
+Director: Jan Jonas
+Amtsgericht Wiesbaden, HRB 30164
+www.seatsurfing.de

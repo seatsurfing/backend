@@ -1,0 +1,26 @@
+From: Seatsurfing <info@seatsurfing.de>
+To: {{recipientName}} <{{recipientEmail}}>
+Content-Type: text/plain; charset=UTF-8
+Subject: Zurücksetzen Ihres Seatsurfing-Kennworts
+
+Hallo {{recipientName}},
+
+wir haben eine Anfrage zum Zurücksetzen Ihres Kennworts erhalten.
+
+Wenn diese Anfrage von Ihnen stammt, können Sie Ihr Kennwort hier ändern:
+
+https://seatsurfing.de/resetpw/?id={{confirmID}}
+
+Wenn Sie keine Anfrage zur Änderung Ihres Kennworts initiiert haben,
+können Sie diese Mail gefahrlos ignorieren. Wir werden Ihr Kennwort
+nicht ändern, wenn Sie den oben stehenden Link nicht anklicken.
+
+Viele Grüße
+Ihr Team von Seatsurfing.de
+
+-- 
+weweave UG (haftungsbeschränkt)
+Fichtenweg 8d, 65510 Idstein, Deutschland
+Geschäftsführer: Jan Jonas
+Amtsgericht Wiesbaden, HRB 30164
+www.seatsurfing.de
