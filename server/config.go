@@ -24,6 +24,8 @@ type Config struct {
 	FastSpringValidate  bool
 	PrintConfig         bool
 	Development         bool
+	SignupDomain        string
+	SignupAdmin         string
 }
 
 var _configInstance *Config
@@ -70,6 +72,8 @@ func (c *Config) ReadConfig() {
 	c.FastSpringValidate = (c._GetEnv("FASTSPRING_VALIDATE", "1") == "1")
 	c.PrintConfig = (c._GetEnv("PRINT_CONFIG", "0") == "1")
 	c.Development = (c._GetEnv("DEV", "0") == "1")
+	c.SignupDomain = c._GetEnv("SIGNUP_DOMAIN", ".on.seatsurfing.de")
+	c.SignupAdmin = c._GetEnv("SIGNUP_ADMIN", "admin")
 }
 
 func (c *Config) Print() {

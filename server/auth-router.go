@@ -89,7 +89,7 @@ func (router *AuthRouter) initPasswordReset(w http.ResponseWriter, r *http.Reque
 		Payload:        user.ID,
 	}
 	GetAuthStateRepository().Create(authState)
-	router.SendPasswordResetEmail(user, authState.ID, org.Language)
+	router.SendPasswordResetEmail(user, authState.ID, org)
 	SendUpdated(w)
 }
 
@@ -373,13 +373,17 @@ func (router *AuthRouter) getUserInfo(provider *AuthProvider, state string, code
 	return claims, authState.Payload, nil
 }
 
-func (router *AuthRouter) SendPasswordResetEmail(user *User, ID string, language string) error {
+func (router *AuthRouter) SendPasswordResetEmail(user *User, ID string, org *Organization) error {
+	email := user.Email
+	if strings.Contains(email, GetConfig().SignupAdmin+"@") && strings.Contains(email, GetConfig().SignupDomain) {
+		email = org.ContactEmail
+	}
 	vars := map[string]string{
 		"recipientName":  user.Email,
-		"recipientEmail": user.Email,
+		"recipientEmail": email,
 		"confirmID":      ID,
 	}
-	return sendEmail(user.Email, "info@seatsurfing.de", EmailTemplateResetpassword, language, vars)
+	return sendEmail(user.Email, "info@seatsurfing.de", EmailTemplateResetpassword, org.Language, vars)
 }
 
 func (router *AuthRouter) getConfig(provider *AuthProvider) *oauth2.Config {

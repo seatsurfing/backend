@@ -42,7 +42,7 @@ func (router *SignupRouter) signup(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
-	domain := strings.ToLower(m.Domain) + ".on.seatsurfing.de"
+	domain := strings.ToLower(m.Domain) + GetConfig().SignupDomain
 	if !router.isDomainAvailable(domain) {
 		w.WriteHeader(http.StatusConflict)
 		return
@@ -116,7 +116,7 @@ func (router *SignupRouter) confirm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user := &User{
-		Email:          "admin@" + e.Domain,
+		Email:          GetConfig().SignupAdmin + "@" + e.Domain,
 		HashedPassword: NullString(e.Password),
 		OrganizationID: org.ID,
 		OrgAdmin:       true,
@@ -148,7 +148,7 @@ func (router *SignupRouter) sendConfirmMail(signup *Signup, language string) err
 	vars := map[string]string{
 		"recipientName":  signup.Firstname + " " + signup.Lastname,
 		"recipientEmail": signup.Email,
-		"username":       "admin@" + signup.Domain,
+		"username":       GetConfig().SignupAdmin + "@" + signup.Domain,
 	}
 	return sendEmail(signup.Email, "info@seatsurfing.de", EmailTemplateConfirm, language, vars)
 }

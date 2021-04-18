@@ -49,3 +49,29 @@ func TestPasswordReset(t *testing.T) {
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusOK, res.Code)
 }
+
+func TestPasswordResetAdminHandling(t *testing.T) {
+	clearTestDB()
+
+	org := createTestOrg("test" + GetConfig().SignupDomain)
+	org.ContactEmail = "test-mailer@seatsurfing.de"
+	GetOrganizationRepository().Update(org)
+	user := &User{
+		Email:          GetConfig().SignupAdmin + "@test" + GetConfig().SignupDomain,
+		OrganizationID: org.ID,
+		OrgAdmin:       true,
+		SuperAdmin:     false,
+		HashedPassword: NullString(GetUserRepository().GetHashedPassword("12345678")),
+	}
+	if err := GetUserRepository().Create(user); err != nil {
+		panic(err)
+	}
+
+	// Init password reset
+	payload := "{ \"email\": \"" + user.Email + "\" }"
+	req := newHTTPRequest("POST", "/auth/initpwreset", "", bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+	checkTestBool(t, true, strings.Contains(SendMailMockContent, "Hallo "+user.Email+","))
+	checkTestBool(t, true, strings.Contains(SendMailMockContent, "To: "+user.Email+" <"+org.ContactEmail+">"))
+}
