@@ -120,6 +120,7 @@ func (router *AuthRouter) completePasswordReset(w http.ResponseWriter, r *http.R
 	}
 	user.HashedPassword = NullString(GetUserRepository().GetHashedPassword(m.Password))
 	GetUserRepository().Update(user)
+	GetAuthStateRepository().Delete(authState)
 	SendUpdated(w)
 }
 
