@@ -73,5 +73,5 @@ func TestPasswordResetAdminHandling(t *testing.T) {
 	res := executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusNoContent, res.Code)
 	checkTestBool(t, true, strings.Contains(SendMailMockContent, "Hallo "+user.Email+","))
-	checkTestBool(t, true, strings.Contains(SendMailMockContent, "To: "+org.ContactEmail+" <"+org.ContactEmail+">"))
+	checkTestBool(t, true, strings.Contains(SendMailMockContent, "To: "+org.ContactEmail))
 }

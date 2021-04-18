@@ -379,11 +379,11 @@ func (router *AuthRouter) SendPasswordResetEmail(user *User, ID string, org *Org
 		email = org.ContactEmail
 	}
 	vars := map[string]string{
-		"recipientName":  email,
+		"recipientName":  user.Email,
 		"recipientEmail": email,
 		"confirmID":      ID,
 	}
-	return sendEmail(user.Email, "info@seatsurfing.de", EmailTemplateResetpassword, org.Language, vars)
+	return sendEmail(email, "info@seatsurfing.de", EmailTemplateResetpassword, org.Language, vars)
 }
 
 func (router *AuthRouter) getConfig(provider *AuthProvider) *oauth2.Config {
