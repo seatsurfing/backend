@@ -18,6 +18,10 @@ h2 {
     animation: spin 4s linear infinite;
 }
 
+main {
+    padding-bottom: 50px;
+}
+
 @-moz-keyframes spin {
     100% {
         -moz-transform: rotate(360deg);
