@@ -11,6 +11,7 @@ import { TFunction } from 'i18next';
 interface State {
   allowAnyUser: boolean
   confluenceClientId: string
+  confluenceServerSharedSecret: string
   confluenceAnonymous: boolean
   maxBookingsPerUser: number
   maxDaysInAdvance: number
@@ -42,6 +43,7 @@ class Settings extends React.Component<Props, State> {
     this.state = {
       allowAnyUser: true,
       confluenceClientId: "",
+      confluenceServerSharedSecret: "",
       confluenceAnonymous: false,
       maxBookingsPerUser: 0,
       maxBookingDurationHours: 0,
@@ -89,6 +91,7 @@ class Settings extends React.Component<Props, State> {
       settings.forEach(s => {
         if (s.name === "allow_any_user") state.allowAnyUser = (s.value === "1");
         if (s.name === "confluence_client_id") state.confluenceClientId = s.value;
+        if (s.name === "confluence_server_shared_secret") state.confluenceServerSharedSecret = s.value;
         if (s.name === "confluence_anonymous") state.confluenceAnonymous = (s.value === "1");
         if (s.name === "max_bookings_per_user") state.maxBookingsPerUser = window.parseInt(s.value);
         if (s.name === "max_days_in_advance") state.maxDaysInAdvance = window.parseInt(s.value);
@@ -112,6 +115,7 @@ class Settings extends React.Component<Props, State> {
     });
     let payload = [
       new OrgSettings("allow_any_user", this.state.allowAnyUser ? "1" : "0"),
+      new OrgSettings("confluence_server_shared_secret", this.state.confluenceServerSharedSecret),
       new OrgSettings("confluence_client_id", this.state.confluenceClientId),
       new OrgSettings("confluence_anonymous", this.state.confluenceAnonymous ? "1" : "0"),
       new OrgSettings("max_bookings_per_user", this.state.maxBookingsPerUser.toString()),
@@ -349,6 +353,12 @@ class Settings extends React.Component<Props, State> {
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
+            <Form.Label column sm="2">{this.props.t("orgId")}</Form.Label>
+            <Col sm="4">
+              <Form.Control plaintext={true} readOnly={true} defaultValue={this.org?.id} />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("primaryContact")}</Form.Label>
             <Col sm="4">
               <Form.Control plaintext={true} readOnly={true} defaultValue={contactName} />
@@ -391,6 +401,12 @@ class Settings extends React.Component<Props, State> {
             <Form.Label column sm="2">{this.props.t("confluenceClientId")}</Form.Label>
             <Col sm="4">
               <Form.Control type="text" value={this.state.confluenceClientId} onChange={(e: any) => this.setState({ confluenceClientId: e.target.value })} />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row}>
+            <Form.Label column sm="2">{this.props.t("confluenceServerSharedSecret")}</Form.Label>
+            <Col sm="4">
+              <Form.Control type="text" value={this.state.confluenceServerSharedSecret} onChange={(e: any) => this.setState({ confluenceServerSharedSecret: e.target.value })} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>

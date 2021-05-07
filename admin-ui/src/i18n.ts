@@ -100,9 +100,11 @@ const resources = {
             "deleteSpace": "Platz löschen",
             "addPlace": "Platz hinzufügen",
             "floorplan": "Raumplan",
-            "confluenceClientId": "Confluence Client ID",
+            "confluenceClientId": "Confluence Cloud Client ID",
+            "confluenceServerSharedSecret": "Confluence Server Shared Secret",
             "confluenceAnonymous": "Anonyme Confluence-Benutzer zulassen (nur zu Demo-Zwecken)",
             "description": "Beschreibung",
+            "orgId": "Instanz ID"
         }
     },
     en: {
@@ -202,9 +204,11 @@ const resources = {
             "deleteSpace": "Delete space",
             "addSpace": "Add space",
             "floorplan": "Floorplan",
-            "confluenceClientId": "Confluence Client ID",
+            "confluenceClientId": "Confluence Cloud Client ID",
+            "confluenceServerSharedSecret": "Confluence Server Shared Secret",
             "confluenceAnonymous": "Allow anonymous Confluence users (for demonstration purposes only)",
             "description": "Description",
+            "orgId": "Instance ID"
         }
     }
 };

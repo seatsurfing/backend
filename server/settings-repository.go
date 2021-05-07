@@ -28,17 +28,18 @@ type SettingName struct {
 }
 
 var (
-	SettingDatabaseVersion          SettingName = SettingName{Name: "db_version", Type: SettingTypeInt}
-	SettingAllowAnyUser             SettingName = SettingName{Name: "allow_any_user", Type: SettingTypeBool}
-	SettingConfluenceClientID       SettingName = SettingName{Name: "confluence_client_id", Type: SettingTypeString}
-	SettingConfluenceAnonymous      SettingName = SettingName{Name: "confluence_anonymous", Type: SettingTypeBool}
-	SettingMaxBookingsPerUser       SettingName = SettingName{Name: "max_bookings_per_user", Type: SettingTypeInt}
-	SettingMaxDaysInAdvance         SettingName = SettingName{Name: "max_days_in_advance", Type: SettingTypeInt}
-	SettingMaxBookingDurationHours  SettingName = SettingName{Name: "max_booking_duration_hours", Type: SettingTypeInt}
-	SettingActiveSubscription       SettingName = SettingName{Name: "subscription_active", Type: SettingTypeBool}
-	SettingSubscriptionMaxUsers     SettingName = SettingName{Name: "subscription_max_users", Type: SettingTypeInt}
-	SettingFastSpringAccountID      SettingName = SettingName{Name: "fastspring_account_id", Type: SettingTypeString}
-	SettingFastSpringSubscriptionID SettingName = SettingName{Name: "fastspring_subscription_id", Type: SettingTypeString}
+	SettingDatabaseVersion              SettingName = SettingName{Name: "db_version", Type: SettingTypeInt}
+	SettingAllowAnyUser                 SettingName = SettingName{Name: "allow_any_user", Type: SettingTypeBool}
+	SettingConfluenceServerSharedSecret SettingName = SettingName{Name: "confluence_server_shared_secret", Type: SettingTypeString}
+	SettingConfluenceClientID           SettingName = SettingName{Name: "confluence_client_id", Type: SettingTypeString}
+	SettingConfluenceAnonymous          SettingName = SettingName{Name: "confluence_anonymous", Type: SettingTypeBool}
+	SettingMaxBookingsPerUser           SettingName = SettingName{Name: "max_bookings_per_user", Type: SettingTypeInt}
+	SettingMaxDaysInAdvance             SettingName = SettingName{Name: "max_days_in_advance", Type: SettingTypeInt}
+	SettingMaxBookingDurationHours      SettingName = SettingName{Name: "max_booking_duration_hours", Type: SettingTypeInt}
+	SettingActiveSubscription           SettingName = SettingName{Name: "subscription_active", Type: SettingTypeBool}
+	SettingSubscriptionMaxUsers         SettingName = SettingName{Name: "subscription_max_users", Type: SettingTypeInt}
+	SettingFastSpringAccountID          SettingName = SettingName{Name: "fastspring_account_id", Type: SettingTypeString}
+	SettingFastSpringSubscriptionID     SettingName = SettingName{Name: "fastspring_subscription_id", Type: SettingTypeString}
 )
 
 const (
@@ -185,6 +186,7 @@ func (r *SettingsRepository) InitDefaultSettingsForOrg(organizationID string) er
 		"($1, '"+SettingActiveSubscription.Name+"', '0'), "+
 		"($1, '"+SettingSubscriptionMaxUsers.Name+"', '"+strconv.Itoa(SettingDefaultSubscriptionMaxUsers)+"'), "+
 		"($1, '"+SettingAllowAnyUser.Name+"', '1'), "+
+		"($1, '"+SettingConfluenceServerSharedSecret.Name+"', ''), "+
 		"($1, '"+SettingConfluenceClientID.Name+"', ''), "+
 		"($1, '"+SettingConfluenceAnonymous.Name+"', '0'), "+
 		"($1, '"+SettingMaxBookingsPerUser.Name+"', '10'), "+
