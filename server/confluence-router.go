@@ -65,7 +65,6 @@ func (router *ConfluenceRouter) serverLogin(w http.ResponseWriter, r *http.Reque
 		SendTemporaryRedirect(w, GetConfig().FrontendURL+"ui/login/confluence/anonymous")
 		return
 	}
-	log.Println("user ID == " + userID)
 	_, err = GetUserRepository().GetByAtlassianID(userID)
 	if err != nil {
 		if !GetUserRepository().canCreateUser(org) {
