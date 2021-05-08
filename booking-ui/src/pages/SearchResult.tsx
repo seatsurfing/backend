@@ -91,15 +91,15 @@ class SearchResult extends React.Component<Props, State> {
       width: item.width,
       height: item.height,
       transform: "rotate: " + item.rotation + "deg",
-      cursor: item.available ? "pointer" : ""
+      cursor: item.available ? "pointer" : "default"
     };
     const textStyle: React.CSSProperties = {
       textAlign: "center"
     };
-    const textClass = (item.width < item.height) ? "space-box-vertical" : "";
+    const className = (item.width < item.height) ? "space-box space-box-vertical" : "space-box";
     return (
-      <div key={item.id} style={boxStyle} onClick={() => this.onSpaceSelect(item)}>
-        <p style={textStyle} className={textClass}>{item.name}</p>
+      <div key={item.id} style={boxStyle} className={className} onClick={() => this.onSpaceSelect(item)}>
+        <p style={textStyle}>{item.name}</p>
       </div>
     );
   }

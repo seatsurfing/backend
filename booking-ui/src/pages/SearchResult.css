@@ -23,7 +23,26 @@
     -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, .5);
 }
 
-.space-box-vertical {
+.space-box {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+}
+
+.space-box p {
+    width: 100%;
+    height: auto;
+    font-size: 12px;
+    color: white;
+    text-align: center;
+    margin: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.space-box-vertical p {
     writing-mode: vertical-rl;
     text-orientation: sideways;
+    width: auto;
+    height: 100%;
 }
