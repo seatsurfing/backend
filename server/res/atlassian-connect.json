@@ -14,6 +14,9 @@
       "authentication": {
         "type": "jwt"
       },
+      "apiMigrations": {
+        "context-qsh": true
+      },
       "lifecycle": {
         "installed": "/installed"
       },
