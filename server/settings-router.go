@@ -35,13 +35,10 @@ func (router *SettingsRouter) setupRoutes(s *mux.Router) {
 
 func (router *SettingsRouter) getSetting(w http.ResponseWriter, r *http.Request) {
 	user := GetRequestUser(r)
-	if !CanAdminOrg(user, user.OrganizationID) {
-		SendForbidden(w)
-		return
-	}
 	vars := mux.Vars(r)
-	if !router.isValidSettingNameReadAdmin(vars["name"]) {
-		SendNotFound(w)
+	orgAdmin := CanAdminOrg(user, user.OrganizationID)
+	if !((orgAdmin && router.isValidSettingNameReadAdmin(vars["name"])) || (router.isValidSettingNameReadPublic(vars["name"]))) {
+		SendForbidden(w)
 		return
 	}
 	value, err := GetSettingsRepository().Get(user.OrganizationID, vars["name"])
@@ -200,9 +197,10 @@ func (router *SettingsRouter) copyToRestModel(e *OrgSetting) *GetSettingsRespons
 }
 
 func (router *SettingsRouter) isValidSettingNameReadPublic(name string) bool {
-	if router.isValidSettingNameWrite(name) ||
-		name == SettingSubscriptionMaxUsers.Name ||
-		name == SettingActiveSubscription.Name {
+	if name == SettingMaxBookingsPerUser.Name ||
+		name == SettingMaxDaysInAdvance.Name ||
+		name == SettingMaxBookingDurationHours.Name ||
+		name == SettingDailyBasisBooking.Name {
 		return true
 	}
 	return false
@@ -210,6 +208,12 @@ func (router *SettingsRouter) isValidSettingNameReadPublic(name string) bool {
 
 func (router *SettingsRouter) isValidSettingNameReadAdmin(name string) bool {
 	if router.isValidSettingNameReadPublic(name) ||
+		name == SettingAllowAnyUser.Name ||
+		name == SettingActiveSubscription.Name ||
+		name == SettingSubscriptionMaxUsers.Name ||
+		name == SettingConfluenceServerSharedSecret.Name ||
+		name == SettingConfluenceClientID.Name ||
+		name == SettingConfluenceAnonymous.Name ||
 		name == SettingFastSpringAccountID.Name ||
 		name == SettingFastSpringSubscriptionID.Name {
 		return true
@@ -224,6 +228,7 @@ func (router *SettingsRouter) isValidSettingNameWrite(name string) bool {
 		name == SettingConfluenceAnonymous.Name ||
 		name == SettingMaxBookingsPerUser.Name ||
 		name == SettingMaxDaysInAdvance.Name ||
+		name == SettingDailyBasisBooking.Name ||
 		name == SettingMaxBookingDurationHours.Name {
 		return true
 	}
@@ -251,6 +256,9 @@ func (router *SettingsRouter) getSettingType(name string) SettingType {
 	}
 	if name == SettingMaxBookingDurationHours.Name {
 		return SettingMaxBookingDurationHours.Type
+	}
+	if name == SettingDailyBasisBooking.Name {
+		return SettingDailyBasisBooking.Type
 	}
 	return 0
 }

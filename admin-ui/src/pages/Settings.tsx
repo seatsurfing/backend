@@ -16,6 +16,7 @@ interface State {
   maxBookingsPerUser: number
   maxDaysInAdvance: number
   maxBookingDurationHours: number
+  dailyBasisBooking: boolean
   subscriptionActive: boolean
   subscriptionMaxUsers: number
   selectedAuthProvider: string
@@ -48,6 +49,7 @@ class Settings extends React.Component<Props, State> {
       maxBookingsPerUser: 0,
       maxBookingDurationHours: 0,
       maxDaysInAdvance: 0,
+      dailyBasisBooking: false,
       subscriptionActive: false,
       subscriptionMaxUsers: 0,
       selectedAuthProvider: "",
@@ -96,6 +98,7 @@ class Settings extends React.Component<Props, State> {
         if (s.name === "max_bookings_per_user") state.maxBookingsPerUser = window.parseInt(s.value);
         if (s.name === "max_days_in_advance") state.maxDaysInAdvance = window.parseInt(s.value);
         if (s.name === "max_booking_duration_hours") state.maxBookingDurationHours = window.parseInt(s.value);
+        if (s.name === "daily_basis_booking") state.dailyBasisBooking = (s.value === "1");
         if (s.name === "subscription_active") state.subscriptionActive = (s.value === "1");
         if (s.name === "subscription_max_users") state.subscriptionMaxUsers = window.parseInt(s.value);
       });
@@ -118,6 +121,7 @@ class Settings extends React.Component<Props, State> {
       new OrgSettings("confluence_server_shared_secret", this.state.confluenceServerSharedSecret),
       new OrgSettings("confluence_client_id", this.state.confluenceClientId),
       new OrgSettings("confluence_anonymous", this.state.confluenceAnonymous ? "1" : "0"),
+      new OrgSettings("daily_basis_booking", this.state.dailyBasisBooking ? "1" : "0"),
       new OrgSettings("max_bookings_per_user", this.state.maxBookingsPerUser.toString()),
       new OrgSettings("max_days_in_advance", this.state.maxDaysInAdvance.toString()),
       new OrgSettings("max_booking_duration_hours", this.state.maxBookingDurationHours.toString())
@@ -387,10 +391,15 @@ class Settings extends React.Component<Props, State> {
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
+            <Col sm="6">
+              <Form.Check type="checkbox" id="check-dailyBasisBooking" label={this.props.t("dailyBasisBooking")} checked={this.state.dailyBasisBooking} onChange={(e: any) => this.setState({ dailyBasisBooking: e.target.checked })} />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("maxBookingDurationHours")}</Form.Label>
             <Col sm="4">
               <InputGroup>
-                <Form.Control type="number" value={this.state.maxBookingDurationHours} onChange={(e: any) => this.setState({ maxBookingDurationHours: e.target.value })} min="0" max="9999" />
+                <Form.Control type="number" value={this.state.maxBookingDurationHours} onChange={(e: any) => this.setState({ maxBookingDurationHours: e.target.value })} min="0" max="9999" disabled={this.state.dailyBasisBooking} />
                 <InputGroup.Append>
                   <InputGroup.Text>{this.props.t("hours")}</InputGroup.Text>
                 </InputGroup.Append>

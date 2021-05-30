@@ -25,6 +25,10 @@ func TestSettingsForbidden(t *testing.T) {
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusForbidden, res.Code)
 
+	req = newHTTPRequest("GET", "/setting/"+SettingConfluenceServerSharedSecret.Name, loginResponse.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusForbidden, res.Code)
+
 	req = newHTTPRequest("GET", "/setting/", loginResponse.UserID, nil)
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusOK, res.Code)
@@ -33,6 +37,112 @@ func TestSettingsForbidden(t *testing.T) {
 	req = newHTTPRequest("PUT", "/setting/", loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusForbidden, res.Code)
+}
+
+func TestSettingsReadPublic(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	user := createTestUserInOrg(org)
+	loginResponse := loginTestUser(user.ID)
+
+	allowedSettings := []string{
+		SettingMaxBookingsPerUser.Name,
+		SettingMaxDaysInAdvance.Name,
+		SettingMaxBookingDurationHours.Name,
+		SettingDailyBasisBooking.Name,
+	}
+	forbiddenSettings := []string{
+		SettingDatabaseVersion.Name,
+		SettingAllowAnyUser.Name,
+		SettingConfluenceServerSharedSecret.Name,
+		SettingConfluenceClientID.Name,
+		SettingConfluenceAnonymous.Name,
+		SettingActiveSubscription.Name,
+		SettingSubscriptionMaxUsers.Name,
+		SettingFastSpringAccountID.Name,
+		SettingFastSpringSubscriptionID.Name,
+	}
+
+	for _, name := range allowedSettings {
+		req := newHTTPRequest("GET", "/setting/"+name, loginResponse.UserID, nil)
+		res := executeTestRequest(req)
+		checkTestResponseCode(t, http.StatusOK, res.Code)
+	}
+
+	for _, name := range forbiddenSettings {
+		req := newHTTPRequest("GET", "/setting/"+name, loginResponse.UserID, nil)
+		res := executeTestRequest(req)
+		checkTestResponseCode(t, http.StatusForbidden, res.Code)
+	}
+
+	req := newHTTPRequest("GET", "/setting/", loginResponse.UserID, nil)
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusOK, res.Code)
+	var resBody []GetSettingsResponse
+	json.Unmarshal(res.Body.Bytes(), &resBody)
+	checkTestInt(t, len(allowedSettings), len(resBody))
+	found := 0
+	for _, name := range allowedSettings {
+		for _, cur := range resBody {
+			if name == cur.Name {
+				found++
+			}
+		}
+	}
+	checkTestInt(t, len(allowedSettings), found)
+}
+
+func TestSettingsReadAdmin(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	user := createTestUserOrgAdmin(org)
+	loginResponse := loginTestUser(user.ID)
+
+	allowedSettings := []string{
+		SettingMaxBookingsPerUser.Name,
+		SettingMaxDaysInAdvance.Name,
+		SettingMaxBookingDurationHours.Name,
+		SettingDailyBasisBooking.Name,
+		SettingAllowAnyUser.Name,
+		SettingConfluenceServerSharedSecret.Name,
+		SettingConfluenceClientID.Name,
+		SettingConfluenceAnonymous.Name,
+		SettingFastSpringAccountID.Name,
+		SettingFastSpringSubscriptionID.Name,
+		SettingActiveSubscription.Name,
+		SettingSubscriptionMaxUsers.Name,
+	}
+	forbiddenSettings := []string{
+		SettingDatabaseVersion.Name,
+	}
+
+	for _, name := range allowedSettings {
+		req := newHTTPRequest("GET", "/setting/"+name, loginResponse.UserID, nil)
+		res := executeTestRequest(req)
+		checkTestResponseCode(t, http.StatusOK, res.Code)
+	}
+
+	for _, name := range forbiddenSettings {
+		req := newHTTPRequest("GET", "/setting/"+name, loginResponse.UserID, nil)
+		res := executeTestRequest(req)
+		checkTestResponseCode(t, http.StatusForbidden, res.Code)
+	}
+
+	req := newHTTPRequest("GET", "/setting/", loginResponse.UserID, nil)
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusOK, res.Code)
+	var resBody []GetSettingsResponse
+	json.Unmarshal(res.Body.Bytes(), &resBody)
+	checkTestInt(t, len(allowedSettings), len(resBody))
+	found := 0
+	for _, name := range allowedSettings {
+		for _, cur := range resBody {
+			if name == cur.Name {
+				found++
+			}
+		}
+	}
+	checkTestInt(t, len(allowedSettings), found)
 }
 
 func TestSettingsCRUD(t *testing.T) {

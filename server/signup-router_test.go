@@ -42,7 +42,7 @@ func TestSignup(t *testing.T) {
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusNoContent, res.Code)
 	checkTestBool(t, true, strings.Contains(SendMailMockContent, "Hallo Foo Bar,"))
-	checkTestBool(t, true, strings.Contains(SendMailMockContent, "To: Foo Bar <foo@bar.com>"))
+	checkTestBool(t, true, strings.Contains(SendMailMockContent, "To: foo@bar.com"))
 	checkTestBool(t, true, strings.Contains(SendMailMockContent, "admin@testorg.on.seatsurfing.de"))
 
 	// Check if login works
