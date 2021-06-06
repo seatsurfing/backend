@@ -6,6 +6,7 @@ import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 // @ts-ignore
 import DateTimePicker from 'react-datetime-picker';
+import DatePicker from 'react-date-picker';
 import './Search.css';
 import { Redirect } from 'react-router-dom';
 import { SearchResultRouteParams } from './SearchResult';
@@ -61,26 +62,45 @@ class Search extends React.Component<Props, State> {
     if (now.getHours() > 17) {
       let enter = new Date();
       enter.setDate(enter.getDate() + 1);
-      enter.setHours(9, 0, 0);
-      let leave = new Date(enter);
-      leave.setHours(17, 0, 0);
-      this.setState({
-        enter: enter,
-        leave: leave
-      });
-    } else {
-      let enter = new Date();
-      enter.setHours(enter.getHours() + 1, 0, 0);
-      let leave = new Date(enter);
-      if (leave.getHours() < 17) {
-        leave.setHours(17, 0, 0);
+      if (this.context.dailyBasisBooking) {
+        enter.setHours(0, 0, 0);
       } else {
-        leave.setHours(leave.getHours() + 1, 0, 0);
+        enter.setHours(9, 0, 0);
+      }
+      let leave = new Date(enter);
+      if (this.context.dailyBasisBooking) {
+        leave.setHours(23, 59, 59);
+      } else {
+        leave.setHours(17, 0, 0);
       }
       this.setState({
         enter: enter,
         leave: leave
       });
+    } else {
+      if (this.context.dailyBasisBooking) {
+        let enter = new Date();
+        enter.setHours(0, 0, 0);
+        let leave = new Date(enter);
+        leave.setHours(23, 59, 59);
+        this.setState({
+          enter: enter,
+          leave: leave
+        });
+      } else {
+        let enter = new Date();
+        enter.setHours(enter.getHours() + 1, 0, 0);
+        let leave = new Date(enter);
+        if (leave.getHours() < 17) {
+          leave.setHours(17, 0, 0);
+        } else {
+          leave.setHours(leave.getHours() + 1, 0, 0);
+        }
+        this.setState({
+          enter: enter,
+          leave: leave
+        });
+      }
     }
   }
 
@@ -96,7 +116,11 @@ class Search extends React.Component<Props, State> {
       hint = this.props.t("errorPickArea");
     }
     let now = new Date();
-    if (this.state.enter.getTime() <= now.getTime()) {
+    let enterTime = new Date(this.state.enter);
+    if (this.context.dailyBasisBooking) {
+      enterTime.setHours(23, 59, 59);
+    }
+    if (enterTime.getTime() <= now.getTime()) {
       res = false;
       hint = this.props.t("errorEnterFuture");
     }
@@ -129,12 +153,20 @@ class Search extends React.Component<Props, State> {
     });
   }
 
-  setEnterDate = (value: Date) => {
-    this.setState({ enter: value }, this.updateCanSearch);
+  setEnterDate = (value: Date | Date[]) => {
+    let date = (value instanceof Date) ? value : value[0];
+    if (this.context.dailyBasisBooking) {
+      date.setHours(0, 0, 0);
+    }
+    this.setState({ enter: date }, this.updateCanSearch);
   }
 
-  setLeaveDate = (value: Date) => {
-    this.setState({ leave: value }, this.updateCanSearch);
+  setLeaveDate = (value: Date | Date[]) => {
+    let date = (value instanceof Date) ? value : value[0];
+    if (this.context.dailyBasisBooking) {
+      date.setHours(23, 59, 59);
+    }
+    this.setState({ leave: date }, this.updateCanSearch);
   }
 
   setLocationId = (value: string) => {
@@ -169,16 +201,24 @@ class Search extends React.Component<Props, State> {
         </Form.Group>
       );
     }
+    let enterDatePicker = <DateTimePicker value={this.state.enter} onChange={(value: Date) => this.setEnterDate(value)} clearIcon={null} required={true} />;
+    if (this.context.dailyBasisBooking) {
+      enterDatePicker = <DatePicker value={this.state.enter} onChange={(value: Date | Date[]) => this.setEnterDate(value)} clearIcon={null} required={true} />;
+    }
+    let leaveDatePicker = <DateTimePicker value={this.state.leave} onChange={(value: Date) => this.setLeaveDate(value)} clearIcon={null} required={true} />;
+    if (this.context.dailyBasisBooking) {
+      leaveDatePicker = <DatePicker value={this.state.leave} onChange={(value: Date | Date[]) => this.setLeaveDate(value)} clearIcon={null} required={true} />;
+    }
     return (
       <div className="container-signin">
         <Form className="form-signin" onSubmit={this.onSubmit}>
           <Form.Group>
             <Form.Label>{this.props.t("enter")}</Form.Label>
-            <DateTimePicker value={this.state.enter} onChange={(value: Date) => this.setEnterDate(value)} clearIcon={null} required={true} />
+            {enterDatePicker}
           </Form.Group>
           <Form.Group>
             <Form.Label>{this.props.t("leave")}</Form.Label>
-            <DateTimePicker value={this.state.leave} onChange={(value: Date) => this.setLeaveDate(value)} clearIcon={null} required={true} />
+            {leaveDatePicker}
           </Form.Group>
           <Form.Group>
             <Form.Label>{this.props.t("area")}</Form.Label>

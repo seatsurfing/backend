@@ -589,6 +589,96 @@ func TestBookingsInvalidBookingDuration(t *testing.T) {
 	checkTestBool(t, false, res)
 }
 
+func TestBookingsDailyBasisBookingValid(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	GetSettingsRepository().Set(org.ID, SettingMaxBookingDurationHours.Name, "24")
+	GetSettingsRepository().Set(org.ID, SettingDailyBasisBooking.Name, "1")
+	tm := time.Now().Add(time.Hour * 24).UTC()
+
+	m := &CreateBookingRequest{
+		Enter:   time.Date(tm.Year(), tm.Month(), tm.Day(), 0, 0, 0, 0, tm.Location()),
+		Leave:   time.Date(tm.Year(), tm.Month(), tm.Day(), 23, 59, 59, 0, tm.Location()),
+		SpaceID: "",
+	}
+
+	router := &BookingRouter{}
+	res := router.isValidBookingDuration(m, org.ID)
+	checkTestBool(t, true, res)
+}
+
+func TestBookingsDailyBasisBookingSameDayValid(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	GetSettingsRepository().Set(org.ID, SettingMaxBookingDurationHours.Name, "24")
+	GetSettingsRepository().Set(org.ID, SettingDailyBasisBooking.Name, "1")
+	tm := time.Now().UTC()
+
+	m := &CreateBookingRequest{
+		Enter:   time.Date(tm.Year(), tm.Month(), tm.Day(), 0, 0, 0, 0, tm.Location()),
+		Leave:   time.Date(tm.Year(), tm.Month(), tm.Day(), 23, 59, 59, 0, tm.Location()),
+		SpaceID: "",
+	}
+
+	router := &BookingRouter{}
+	res := router.isValidBookingAdvance(m, org.ID)
+	checkTestBool(t, true, res)
+}
+
+func TestBookingsDailyBasisBookingInvalidEnter(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	GetSettingsRepository().Set(org.ID, SettingMaxBookingDurationHours.Name, "24")
+	GetSettingsRepository().Set(org.ID, SettingDailyBasisBooking.Name, "1")
+	tm := time.Now().Add(time.Hour * 24).UTC()
+
+	m := &CreateBookingRequest{
+		Enter:   time.Date(tm.Year(), tm.Month(), tm.Day(), 0, 1, 0, 0, tm.Location()),
+		Leave:   time.Date(tm.Year(), tm.Month(), tm.Day(), 23, 59, 59, 0, tm.Location()),
+		SpaceID: "",
+	}
+
+	router := &BookingRouter{}
+	res := router.isValidBookingDuration(m, org.ID)
+	checkTestBool(t, false, res)
+}
+
+func TestBookingsDailyBasisBookingInvalidLeave(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	GetSettingsRepository().Set(org.ID, SettingMaxBookingDurationHours.Name, "24")
+	GetSettingsRepository().Set(org.ID, SettingDailyBasisBooking.Name, "1")
+	tm := time.Now().Add(time.Hour * 24).UTC()
+
+	m := &CreateBookingRequest{
+		Enter:   time.Date(tm.Year(), tm.Month(), tm.Day(), 0, 0, 0, 0, tm.Location()),
+		Leave:   time.Date(tm.Year(), tm.Month(), tm.Day(), 23, 50, 59, 0, tm.Location()),
+		SpaceID: "",
+	}
+
+	router := &BookingRouter{}
+	res := router.isValidBookingDuration(m, org.ID)
+	checkTestBool(t, false, res)
+}
+
+func TestBookingsDailyBasisBookingRoundBookingDurationUp(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	GetSettingsRepository().Set(org.ID, SettingMaxBookingDurationHours.Name, "12")
+	GetSettingsRepository().Set(org.ID, SettingDailyBasisBooking.Name, "1")
+	tm := time.Now().Add(time.Hour * 24).UTC()
+
+	m := &CreateBookingRequest{
+		Enter:   time.Date(tm.Year(), tm.Month(), tm.Day(), 0, 0, 0, 0, tm.Location()),
+		Leave:   time.Date(tm.Year(), tm.Month(), tm.Day(), 23, 59, 59, 0, tm.Location()),
+		SpaceID: "",
+	}
+
+	router := &BookingRouter{}
+	res := router.isValidBookingDuration(m, org.ID)
+	checkTestBool(t, true, res)
+}
+
 func TestBookingsValidBorderBookingDuration(t *testing.T) {
 	clearTestDB()
 	org := createTestOrg("test.com")

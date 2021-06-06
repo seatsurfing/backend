@@ -35,6 +35,7 @@ class App extends React.Component<Props, AuthContextData> {
       maxBookingsPerUser: 0,
       maxDaysInAdvance: 0,
       maxBookingDurationHours: 0,
+      dailyBasisBooking: false,
       setDetails: this.setDetails
     };
     if (window.location.href.indexOf("http://localhost") > -1 || window.location.href.indexOf("http://192.168.") > -1) {
@@ -81,6 +82,7 @@ class App extends React.Component<Props, AuthContextData> {
         if (s.name === "max_bookings_per_user") state.maxBookingsPerUser = window.parseInt(s.value);
         if (s.name === "max_days_in_advance") state.maxDaysInAdvance = window.parseInt(s.value);
         if (s.name === "max_booking_duration_hours") state.maxBookingDurationHours = window.parseInt(s.value);
+        if (s.name === "daily_basis_booking") state.dailyBasisBooking = (s.value === "1");
       });
       this.setState({
         ...this.state,

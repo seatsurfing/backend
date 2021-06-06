@@ -228,9 +228,17 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (router *BookingRouter) isValidBookingDuration(m *CreateBookingRequest, orgID string) bool {
+	dailyBasisBooking, _ := GetSettingsRepository().GetBool(orgID, SettingDailyBasisBooking.Name)
 	maxDurationHours, _ := GetSettingsRepository().GetInt(orgID, SettingMaxBookingDurationHours.Name)
+	if dailyBasisBooking && (maxDurationHours%24 != 0) {
+		maxDurationHours += (24 - (maxDurationHours % 24))
+	}
 	duration := math.Floor(m.Leave.Sub(m.Enter).Minutes()) / 60
 	if duration < 0 || duration > float64(maxDurationHours) {
+		return false
+	}
+	durationNotRounded := int(math.Round(m.Leave.Sub(m.Enter).Minutes()) / 60)
+	if dailyBasisBooking && (durationNotRounded%24 != 0) {
 		return false
 	}
 	return true
@@ -239,6 +247,11 @@ func (router *BookingRouter) isValidBookingDuration(m *CreateBookingRequest, org
 func (router *BookingRouter) isValidBookingAdvance(m *CreateBookingRequest, orgID string) bool {
 	maxAdvanceDays, _ := GetSettingsRepository().GetInt(orgID, SettingMaxDaysInAdvance.Name)
 	now := time.Now().UTC()
+	dailyBasisBooking, _ := GetSettingsRepository().GetBool(orgID, SettingDailyBasisBooking.Name)
+	if dailyBasisBooking {
+		now = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+		now = now.Add(-12 * time.Hour)
+	}
 	advanceDays := math.Floor(m.Enter.Sub(now).Hours() / 24)
 	if advanceDays < 0 || advanceDays > float64(maxAdvanceDays) {
 		return false

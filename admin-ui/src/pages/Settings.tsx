@@ -102,6 +102,9 @@ class Settings extends React.Component<Props, State> {
         if (s.name === "subscription_active") state.subscriptionActive = (s.value === "1");
         if (s.name === "subscription_max_users") state.subscriptionMaxUsers = window.parseInt(s.value);
       });
+      if (state.maxBookingDurationHours && (state.maxBookingDurationHours%24 !== 0)) {
+        state.maxBookingDurationHours += state.maxBookingDurationHours%24;
+      }
       this.setState({
         ...this.state,
         ...state
@@ -241,6 +244,17 @@ class Settings extends React.Component<Props, State> {
         windowRef?.close();
       }
       alert(this.props.t("errorTryAgain"));
+    });
+  }
+
+  onDailyBasisBookingChange = (enabled: boolean) => {
+    let maxBookingDurationHours: number = Number(this.state.maxBookingDurationHours);
+    if (enabled && (maxBookingDurationHours%24 !== 0)) {
+      maxBookingDurationHours += (24-maxBookingDurationHours%24);
+    }
+    this.setState({
+      maxBookingDurationHours: maxBookingDurationHours,
+      dailyBasisBooking: enabled
     });
   }
 
@@ -392,14 +406,14 @@ class Settings extends React.Component<Props, State> {
           </Form.Group>
           <Form.Group as={Row}>
             <Col sm="6">
-              <Form.Check type="checkbox" id="check-dailyBasisBooking" label={this.props.t("dailyBasisBooking")} checked={this.state.dailyBasisBooking} onChange={(e: any) => this.setState({ dailyBasisBooking: e.target.checked })} />
+              <Form.Check type="checkbox" id="check-dailyBasisBooking" label={this.props.t("dailyBasisBooking")} checked={this.state.dailyBasisBooking} onChange={(e: any) => this.onDailyBasisBookingChange(e.target.checked)} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("maxBookingDurationHours")}</Form.Label>
             <Col sm="4">
               <InputGroup>
-                <Form.Control type="number" value={this.state.maxBookingDurationHours} onChange={(e: any) => this.setState({ maxBookingDurationHours: e.target.value })} min="0" max="9999" disabled={this.state.dailyBasisBooking} />
+                <Form.Control type="number" value={this.state.maxBookingDurationHours} onChange={(e: any) => this.setState({ maxBookingDurationHours: e.target.value })} min="0" max="9999" />
                 <InputGroup.Append>
                   <InputGroup.Text>{this.props.t("hours")}</InputGroup.Text>
                 </InputGroup.Append>
