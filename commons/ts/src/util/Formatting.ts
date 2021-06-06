@@ -39,6 +39,16 @@ export default class Formatting {
         return formatter;
     }
 
+    static getFormatterNoTime(): Intl.DateTimeFormat {
+        let formatter = new Intl.DateTimeFormat(Formatting.Language, {
+            weekday: 'long',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          });
+        return formatter;
+    }
+
     static getFormatterShort(): Intl.DateTimeFormat {
         let formatter = new Intl.DateTimeFormat(Formatting.Language, {
             year: 'numeric',
