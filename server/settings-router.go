@@ -200,6 +200,7 @@ func (router *SettingsRouter) isValidSettingNameReadPublic(name string) bool {
 	if name == SettingMaxBookingsPerUser.Name ||
 		name == SettingMaxDaysInAdvance.Name ||
 		name == SettingMaxBookingDurationHours.Name ||
+		name == SettingShowNames.Name ||
 		name == SettingDailyBasisBooking.Name {
 		return true
 	}
@@ -229,6 +230,7 @@ func (router *SettingsRouter) isValidSettingNameWrite(name string) bool {
 		name == SettingMaxBookingsPerUser.Name ||
 		name == SettingMaxDaysInAdvance.Name ||
 		name == SettingDailyBasisBooking.Name ||
+		name == SettingShowNames.Name ||
 		name == SettingMaxBookingDurationHours.Name {
 		return true
 	}
@@ -259,6 +261,9 @@ func (router *SettingsRouter) getSettingType(name string) SettingType {
 	}
 	if name == SettingDailyBasisBooking.Name {
 		return SettingDailyBasisBooking.Type
+	}
+	if name == SettingShowNames.Name {
+		return SettingShowNames.Type
 	}
 	return 0
 }

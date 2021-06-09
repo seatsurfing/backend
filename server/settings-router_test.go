@@ -50,6 +50,7 @@ func TestSettingsReadPublic(t *testing.T) {
 		SettingMaxDaysInAdvance.Name,
 		SettingMaxBookingDurationHours.Name,
 		SettingDailyBasisBooking.Name,
+		SettingShowNames.Name,
 	}
 	forbiddenSettings := []string{
 		SettingDatabaseVersion.Name,
@@ -103,6 +104,7 @@ func TestSettingsReadAdmin(t *testing.T) {
 		SettingMaxDaysInAdvance.Name,
 		SettingMaxBookingDurationHours.Name,
 		SettingDailyBasisBooking.Name,
+		SettingShowNames.Name,
 		SettingAllowAnyUser.Name,
 		SettingConfluenceServerSharedSecret.Name,
 		SettingConfluenceClientID.Name,

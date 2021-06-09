@@ -38,6 +38,7 @@ var (
 	SettingMaxBookingDurationHours      SettingName = SettingName{Name: "max_booking_duration_hours", Type: SettingTypeInt}
 	SettingActiveSubscription           SettingName = SettingName{Name: "subscription_active", Type: SettingTypeBool}
 	SettingDailyBasisBooking            SettingName = SettingName{Name: "daily_basis_booking", Type: SettingTypeBool}
+	SettingShowNames                    SettingName = SettingName{Name: "show_names", Type: SettingTypeBool}
 	SettingSubscriptionMaxUsers         SettingName = SettingName{Name: "subscription_max_users", Type: SettingTypeInt}
 	SettingFastSpringAccountID          SettingName = SettingName{Name: "fastspring_account_id", Type: SettingTypeString}
 	SettingFastSpringSubscriptionID     SettingName = SettingName{Name: "fastspring_subscription_id", Type: SettingTypeString}
@@ -188,6 +189,7 @@ func (r *SettingsRepository) InitDefaultSettingsForOrg(organizationID string) er
 		"($1, '"+SettingSubscriptionMaxUsers.Name+"', '"+strconv.Itoa(SettingDefaultSubscriptionMaxUsers)+"'), "+
 		"($1, '"+SettingAllowAnyUser.Name+"', '1'), "+
 		"($1, '"+SettingDailyBasisBooking.Name+"', '0'), "+
+		"($1, '"+SettingShowNames.Name+"', '0'), "+
 		"($1, '"+SettingConfluenceServerSharedSecret.Name+"', ''), "+
 		"($1, '"+SettingConfluenceClientID.Name+"', ''), "+
 		"($1, '"+SettingConfluenceAnonymous.Name+"', '0'), "+

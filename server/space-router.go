@@ -28,6 +28,18 @@ type GetSpaceResponse struct {
 	CreateSpaceRequest
 }
 
+type GetSpaceAvailabilityBookingsResponse struct {
+	UserID    string    `json:"userId"`
+	UserEmail string    `json:"userEmail"`
+	Enter     time.Time `json:"enter"`
+	Leave     time.Time `json:"leave"`
+}
+
+type GetSpaceAvailabilityResponse struct {
+	GetSpaceResponse
+	Bookings []*GetSpaceAvailabilityBookingsResponse `json:"bookings"`
+}
+
 type GetSpaceAvailabilityRequest struct {
 	Enter time.Time `json:"enter" validate:"required"`
 	Leave time.Time `json:"leave" validate:"required"`
@@ -81,15 +93,16 @@ func (router *SpaceRouter) getAvailability(w http.ResponseWriter, r *http.Reques
 		SendForbidden(w)
 		return
 	}
+	showNames, _ := GetSettingsRepository().GetBool(location.OrganizationID, SettingShowNames.Name)
 	list, err := GetSpaceRepository().GetAllInTime(location.ID, m.Enter, m.Leave)
 	if err != nil {
 		log.Println(err)
 		SendInternalServerError(w)
 		return
 	}
-	res := []*GetSpaceResponse{}
+	res := []*GetSpaceAvailabilityResponse{}
 	for _, e := range list {
-		m := &GetSpaceResponse{}
+		m := &GetSpaceAvailabilityResponse{}
 		m.ID = e.ID
 		m.LocationID = e.LocationID
 		m.Name = e.Name
@@ -99,6 +112,18 @@ func (router *SpaceRouter) getAvailability(w http.ResponseWriter, r *http.Reques
 		m.Height = e.Height
 		m.Rotation = e.Rotation
 		m.Available = e.Available
+		m.Bookings = []*GetSpaceAvailabilityBookingsResponse{}
+		if showNames {
+			for _, booking := range e.Bookings {
+				entry := &GetSpaceAvailabilityBookingsResponse{
+					UserID:    booking.UserID,
+					UserEmail: booking.UserEmail,
+					Enter:     booking.Enter,
+					Leave:     booking.Leave,
+				}
+				m.Bookings = append(m.Bookings, entry)
+			}
+		}
 		res = append(res, m)
 	}
 	SendJSON(w, res)

@@ -4,6 +4,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 type SpaceRepository struct {
@@ -20,9 +22,17 @@ type Space struct {
 	Rotation   uint
 }
 
+type SpaceAvailabilityBookingEntry struct {
+	UserID    string
+	UserEmail string
+	Enter     time.Time
+	Leave     time.Time
+}
+
 type SpaceAvailability struct {
 	Space
 	Available bool
+	Bookings  []*SpaceAvailabilityBookingEntry
 }
 
 type SpaceDetails struct {
@@ -89,17 +99,15 @@ func (r *SpaceRepository) GetOne(id string) (*Space, error) {
 
 func (r *SpaceRepository) GetAllInTime(locationID string, enter, leave time.Time) ([]*SpaceAvailability, error) {
 	var result []*SpaceAvailability
+	subQueryWhere := "bookings.space_id = spaces.id AND (" +
+		"($1 BETWEEN bookings.enter_time AND bookings.leave_time) OR " +
+		"($2 BETWEEN bookings.enter_time AND bookings.leave_time) OR " +
+		"(bookings.enter_time BETWEEN $1 AND $2) OR " +
+		"(bookings.leave_time BETWEEN $1 AND $2)" +
+		")"
 	rows, err := GetDatabase().DB().Query("SELECT id, location_id, name, x, y, width, height, rotation, "+
-		"NOT EXISTS("+
-		"SELECT id "+
-		"FROM bookings "+
-		"WHERE bookings.space_id = spaces.id AND ("+
-		"($1 BETWEEN bookings.enter_time AND bookings.leave_time) OR "+
-		"($2 BETWEEN bookings.enter_time AND bookings.leave_time) OR "+
-		"(bookings.enter_time BETWEEN $1 AND $2) OR "+
-		"(bookings.leave_time BETWEEN $1 AND $2)"+
-		") "+
-		") "+
+		"NOT EXISTS(SELECT id FROM bookings WHERE "+subQueryWhere+"), "+
+		"ARRAY(SELECT CONCAT(users.id, '@@@', users.email, '@@@', bookings.enter_time, '@@@', bookings.leave_time) FROM bookings INNER JOIN users ON users.id = bookings.user_id WHERE "+subQueryWhere+" ORDER BY bookings.enter_time ASC) "+
 		"FROM spaces "+
 		"WHERE location_id = $3 "+
 		"ORDER BY name", enter, leave, locationID)
@@ -109,7 +117,21 @@ func (r *SpaceRepository) GetAllInTime(locationID string, enter, leave time.Time
 	defer rows.Close()
 	for rows.Next() {
 		e := &SpaceAvailability{}
-		err = rows.Scan(&e.ID, &e.LocationID, &e.Name, &e.X, &e.Y, &e.Width, &e.Height, &e.Rotation, &e.Available)
+		var bookingUserNames []string
+		err = rows.Scan(&e.ID, &e.LocationID, &e.Name, &e.X, &e.Y, &e.Width, &e.Height, &e.Rotation, &e.Available, pq.Array(&bookingUserNames))
+		for _, bookingUserName := range bookingUserNames {
+			tokens := strings.Split(bookingUserName, "@@@")
+			timeFormat := "2006-01-02 15:04:05.000"
+			enter, _ := time.Parse(timeFormat, tokens[2])
+			leave, _ := time.Parse(timeFormat, tokens[3])
+			entry := &SpaceAvailabilityBookingEntry{
+				UserID:    tokens[0],
+				UserEmail: tokens[1],
+				Enter:     enter,
+				Leave:     leave,
+			}
+			e.Bookings = append(e.Bookings, entry)
+		}
 		if err != nil {
 			return nil, err
 		}
