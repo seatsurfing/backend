@@ -17,6 +17,7 @@ interface State {
   maxDaysInAdvance: number
   maxBookingDurationHours: number
   dailyBasisBooking: boolean
+  showNames: boolean
   subscriptionActive: boolean
   subscriptionMaxUsers: number
   selectedAuthProvider: string
@@ -50,6 +51,7 @@ class Settings extends React.Component<Props, State> {
       maxBookingDurationHours: 0,
       maxDaysInAdvance: 0,
       dailyBasisBooking: false,
+      showNames: false,
       subscriptionActive: false,
       subscriptionMaxUsers: 0,
       selectedAuthProvider: "",
@@ -99,6 +101,7 @@ class Settings extends React.Component<Props, State> {
         if (s.name === "max_days_in_advance") state.maxDaysInAdvance = window.parseInt(s.value);
         if (s.name === "max_booking_duration_hours") state.maxBookingDurationHours = window.parseInt(s.value);
         if (s.name === "daily_basis_booking") state.dailyBasisBooking = (s.value === "1");
+        if (s.name === "show_names") state.showNames = (s.value === "1");
         if (s.name === "subscription_active") state.subscriptionActive = (s.value === "1");
         if (s.name === "subscription_max_users") state.subscriptionMaxUsers = window.parseInt(s.value);
       });
@@ -125,6 +128,7 @@ class Settings extends React.Component<Props, State> {
       new OrgSettings("confluence_client_id", this.state.confluenceClientId),
       new OrgSettings("confluence_anonymous", this.state.confluenceAnonymous ? "1" : "0"),
       new OrgSettings("daily_basis_booking", this.state.dailyBasisBooking ? "1" : "0"),
+      new OrgSettings("show_names", this.state.showNames ? "1" : "0"),
       new OrgSettings("max_bookings_per_user", this.state.maxBookingsPerUser.toString()),
       new OrgSettings("max_days_in_advance", this.state.maxDaysInAdvance.toString()),
       new OrgSettings("max_booking_duration_hours", this.state.maxBookingDurationHours.toString())
@@ -418,6 +422,11 @@ class Settings extends React.Component<Props, State> {
                   <InputGroup.Text>{this.props.t("hours")}</InputGroup.Text>
                 </InputGroup.Append>
               </InputGroup>
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row}>
+            <Col sm="6">
+              <Form.Check type="checkbox" id="check-showNames" label={this.props.t("showNames")} checked={this.state.showNames} onChange={(e: any) => this.setState({ showNames: e.target.checked })} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>

@@ -8,6 +8,7 @@ export interface AuthContextData {
     maxDaysInAdvance: number;
     maxBookingDurationHours: number;
     dailyBasisBooking: boolean;
+    showNames: boolean;
     setDetails: (token: string, username: string) => void;
 };
 
@@ -19,5 +20,6 @@ export const AuthContext = React.createContext<AuthContextData>({
     maxDaysInAdvance: 0,
     maxBookingDurationHours: 0,
     dailyBasisBooking: false,
+    showNames: false,
     setDetails: (token: string, username: string) => {},
 });

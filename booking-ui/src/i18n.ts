@@ -64,6 +64,7 @@ const resources = {
             "introIncomingMergeRequests": "Du hast eingehende Anfragen zum Zusammenführen von Benutzerkonten. Nimm sie nur an, wenn Du die Anfrage initiiert hast.",
             "errorConfluenceAnonymous": "Nicht autorisiert.",
             "confluenceAnonymousHint": "Bitte logge Dich in Confluence ein, um die Seatsurfing für Confluence zu nutzen.",
+            "ok": "OK",
         }
     },
     en: {
@@ -126,6 +127,7 @@ const resources = {
             "introIncomingMergeRequests": "You have incoming account merge request. Accept them only if you initiated these.",
             "errorConfluenceAnonymous": "Unauthorized.",
             "confluenceAnonymousHint": "Please log in with Confluence to use the Seatsurfing for Confluence App.",
+            "ok": "OK",
         }
     }
 };

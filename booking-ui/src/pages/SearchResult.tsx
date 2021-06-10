@@ -15,6 +15,7 @@ interface State {
   name: string
   showConfirm: boolean
   showSuccess: boolean
+  showBookingNames: boolean
   selectedSpace: Space
 }
 
@@ -43,6 +44,7 @@ class SearchResult extends React.Component<Props, State> {
       name: "",
       showConfirm: false,
       showSuccess: false,
+      showBookingNames: false,
       selectedSpace: new Space()
     };
   }
@@ -79,10 +81,16 @@ class SearchResult extends React.Component<Props, State> {
         showConfirm: true,
         selectedSpace: item
       });
+    } else if (!item.available && item.bookings && item.bookings.length > 0) {
+      this.setState({
+        showBookingNames: true,
+        selectedSpace: item
+      });
     }
   }
 
   renderItem = (item: Space) => {
+    console.log(this.context.showNames);
     const boxStyle: React.CSSProperties = {
       backgroundColor: item.available ? "rgba(48, 209, 88, 0.9)" : "rgba(255, 69, 58, 0.9)",
       position: "absolute",
@@ -91,7 +99,7 @@ class SearchResult extends React.Component<Props, State> {
       width: item.width,
       height: item.height,
       transform: "rotate: " + item.rotation + "deg",
-      cursor: item.available ? "pointer" : "default"
+      cursor: (item.available || (item.bookings && item.bookings.length > 0)) ? "pointer" : "default"
     };
     const textStyle: React.CSSProperties = {
       textAlign: "center"
@@ -123,6 +131,17 @@ class SearchResult extends React.Component<Props, State> {
     this.setState({ showConfirm: false });
   }
 
+  renderBookingNameRow = (booking: Booking) => {
+    return (
+      <p>
+        {booking.user.email}<br />
+        {Formatting.getFormatterShort().format(new Date(booking.enter))}
+        &nbsp;&mdash;&nbsp;
+        {Formatting.getFormatterShort().format(new Date(booking.leave))}
+      </p>
+    );
+  }
+
   render() {
     if (this.state.loading) {
       return <Loading />;
@@ -147,6 +166,19 @@ class SearchResult extends React.Component<Props, State> {
             </div>
           </div>
         </div>
+        <Modal show={this.state.showBookingNames} onHide={() => this.setState({ showBookingNames: false })}>
+          <Modal.Header closeButton>
+            <Modal.Title>{this.state.selectedSpace?.name}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {this.state.selectedSpace?.bookings.map(item => this.renderBookingNameRow(item))}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="primary" onClick={() => this.setState({ showBookingNames: false })}>
+              {this.props.t("ok")}
+            </Button>
+          </Modal.Footer>
+        </Modal>
         <Modal show={this.state.showConfirm} onHide={() => this.setState({ showConfirm: false })}>
           <Modal.Header closeButton>
             <Modal.Title>{this.props.t("bookSeat")}</Modal.Title>
