@@ -133,7 +133,7 @@ class SearchResult extends React.Component<Props, State> {
 
   renderBookingNameRow = (booking: Booking) => {
     return (
-      <p>
+      <p key={booking.id}>
         {booking.user.email}<br />
         {Formatting.getFormatterShort().format(new Date(booking.enter))}
         &nbsp;&mdash;&nbsp;
