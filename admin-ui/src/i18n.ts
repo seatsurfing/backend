@@ -106,7 +106,8 @@ const resources = {
             "confluenceServerSharedSecret": "Confluence Server Shared Secret",
             "confluenceAnonymous": "Anonyme Confluence-Benutzer zulassen (nur zu Demo-Zwecken)",
             "description": "Beschreibung",
-            "orgId": "Instanz ID"
+            "orgId": "Instanz ID",
+            "featureCurrentlyUnavailable": "Diese Funktion steht aktuell nicht zur Verfügung.",
         }
     },
     en: {
@@ -212,7 +213,8 @@ const resources = {
             "confluenceServerSharedSecret": "Confluence Server Shared Secret",
             "confluenceAnonymous": "Allow anonymous Confluence users (for demonstration purposes only)",
             "description": "Description",
-            "orgId": "Instance ID"
+            "orgId": "Instance ID",
+            "featureCurrentlyUnavailable": "This feature is currently unavailable.",
         }
     }
 };

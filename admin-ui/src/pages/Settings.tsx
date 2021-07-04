@@ -329,6 +329,7 @@ class Settings extends React.Component<Props, State> {
     }
 
     let subscription = <></>;
+    {/*
     if (this.state.subscriptionActive) {
       subscription = (
         <>
@@ -344,6 +345,8 @@ class Settings extends React.Component<Props, State> {
         </>
       );
     }
+    */}
+    subscription = <p>{this.props.t("featureCurrentlyUnavailable")}</p>
 
     let dangerZone = (
       <>
