@@ -6,16 +6,15 @@ interface AjaxResult {
 }
 
 export default class Ajax {
-  static DEV_MODE: boolean = false;
-  static DEV_URL: string = "http://127.0.0.1:8080";
-  static PROD_URL: string = "https://app.seatsurfing.de";
+  static URL: string = "";
   static JWT: string = "";
 
   static getBackendUrl(): string {
-    if (Ajax.DEV_MODE) {
-      return Ajax.DEV_URL;
+    let url = Ajax.URL.trim();
+    if (url.endsWith("/")) {
+      url = url.substring(0, url.length-1);
     }
-    return Ajax.PROD_URL;
+    return url;
   }
 
   static async query(method: string, url: string, data?: any): Promise<AjaxResult> {
