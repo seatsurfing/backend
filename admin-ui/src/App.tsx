@@ -33,8 +33,7 @@ class App extends React.Component<Props, {}> {
       Ajax.JWT = jwt;
     }
     if (window.location.href.indexOf("http://localhost") > -1 || window.location.href.indexOf("http://192.168.") > -1) {
-      Ajax.DEV_MODE = true;
-      Ajax.DEV_URL = "http://" + window.location.host.split(':').shift() + ":8090";
+      Ajax.URL = "http://" + window.location.host.split(':').shift() + ":8090";
     }
     return (
         <Router basename={process.env.PUBLIC_URL}>

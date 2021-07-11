@@ -40,12 +40,10 @@ class App extends React.Component<Props, AuthContextData> {
       setDetails: this.setDetails
     };
     if (window.location.href.indexOf("http://localhost") > -1 || window.location.href.indexOf("http://192.168.") > -1) {
-      Ajax.DEV_MODE = true;
-      Ajax.DEV_URL = "http://" + window.location.host.split(':').shift() + ":8090";
+      Ajax.URL = "http://" + window.location.host.split(':').shift() + ":8090";
     }
     if (window.location.href.indexOf(".loca.lt/") > -1) {
-      Ajax.DEV_MODE = true;
-      Ajax.DEV_URL = "https://" + window.location.host.split(':').shift();
+      Ajax.URL = "https://" + window.location.host.split(':').shift();
     }
     setTimeout(() => {
       this.verifyToken();

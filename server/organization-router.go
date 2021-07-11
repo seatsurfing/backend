@@ -39,7 +39,6 @@ type GetManageSubscriptionURLResponse struct {
 
 func (router *OrganizationRouter) setupRoutes(s *mux.Router) {
 	s.HandleFunc("/domain/{domain}", router.getOrgForDomain).Methods("GET")
-	s.HandleFunc("/{id}/subscription/manage", router.getManageSubscriptionURL).Methods("GET")
 	s.HandleFunc("/{id}/domain/", router.getDomains).Methods("GET")
 	s.HandleFunc("/{id}/domain/{domain}/verify", router.verifyDomain).Methods("POST")
 	s.HandleFunc("/{id}/domain/{domain}", router.removeDomain).Methods("DELETE")
@@ -49,69 +48,6 @@ func (router *OrganizationRouter) setupRoutes(s *mux.Router) {
 	s.HandleFunc("/{id}", router.delete).Methods("DELETE")
 	s.HandleFunc("/", router.create).Methods("POST")
 	s.HandleFunc("/", router.getAll).Methods("GET")
-}
-
-func (router *OrganizationRouter) getManageSubscriptionURL(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	org, err := GetOrganizationRepository().GetOne(vars["id"])
-	if err != nil {
-		log.Println(err)
-		SendNotFound(w)
-		return
-	}
-	user := GetRequestUser(r)
-	if !(user.SuperAdmin || CanAdminOrg(user, org.ID)) {
-		SendForbidden(w)
-		return
-	}
-	api := &FastSpringAPI{}
-	accountID, err := router.getCreateFastSpringAccountID(api, org)
-	if err != nil {
-		log.Println(err)
-		SendInternalServerError(w)
-		return
-	}
-	subscriptionID, _ := GetSettingsRepository().Get(org.ID, SettingFastSpringSubscriptionID.Name)
-	var url string
-	if subscriptionID == "" {
-		url, err = api.StartCheckoutSession(accountID, FastSpringProduct50Users, 1, !GetConfig().Development)
-	} else {
-		url, err = api.Authenticate(accountID)
-	}
-	if err != nil {
-		log.Println(err)
-		SendInternalServerError(w)
-		return
-	}
-	res := &GetManageSubscriptionURLResponse{
-		URL: url,
-	}
-	SendJSON(w, res)
-}
-
-func (router *OrganizationRouter) getCreateFastSpringAccountID(api *FastSpringAPI, org *Organization) (string, error) {
-	accountID, err := GetSettingsRepository().Get(org.ID, SettingFastSpringAccountID.Name)
-	if (err != nil) || accountID == "" {
-		req := &FastSpringCreateAccountRequest{
-			Contact: FastSpringContact{
-				Company:   org.Name,
-				Firstname: org.ContactFirstname,
-				Lastname:  org.ContactLastname,
-				Email:     org.ContactEmail,
-			},
-			Country:  org.Country,
-			Language: org.Language,
-			Lookup: FastSpringLookup{
-				CustomID: org.ID,
-			},
-		}
-		accountID, err = api.CreateAccount(req)
-		if err != nil {
-			return "", err
-		}
-		GetSettingsRepository().Set(org.ID, SettingFastSpringAccountID.Name, accountID)
-	}
-	return accountID, nil
 }
 
 func (router *OrganizationRouter) getOrgForDomain(w http.ResponseWriter, r *http.Request) {

@@ -18,14 +18,8 @@ type Config struct {
 	StaticBookingUiPath string
 	SMTPHost            string
 	MockSendmail        bool
-	FastSpringUsername  string
-	FastSpringPassword  string
-	FastSpringHash      string
-	FastSpringValidate  bool
 	PrintConfig         bool
 	Development         bool
-	SignupDomain        string
-	SignupAdmin         string
 }
 
 var _configInstance *Config
@@ -66,14 +60,8 @@ func (c *Config) ReadConfig() {
 	c.JwtSigningKey = c._GetEnv("JWT_SIGNING_KEY", "cX32hEwZDCLZ6bCR")
 	c.SMTPHost = c._GetEnv("SMTP_HOST", "192.168.40.31:25")
 	c.MockSendmail = (c._GetEnv("MOCK_SENDMAIL", "0") == "1")
-	c.FastSpringUsername = c._GetEnv("FASTSPRING_USER", "")
-	c.FastSpringPassword = c._GetEnv("FASTSPRING_PASS", "")
-	c.FastSpringHash = c._GetEnv("FASTSPRING_HASH", "")
-	c.FastSpringValidate = (c._GetEnv("FASTSPRING_VALIDATE", "1") == "1")
 	c.PrintConfig = (c._GetEnv("PRINT_CONFIG", "0") == "1")
 	c.Development = (c._GetEnv("DEV", "0") == "1")
-	c.SignupDomain = c._GetEnv("SIGNUP_DOMAIN", ".on.seatsurfing.de")
-	c.SignupAdmin = c._GetEnv("SIGNUP_ADMIN", "admin")
 }
 
 func (c *Config) Print() {

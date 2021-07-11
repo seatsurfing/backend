@@ -21,7 +21,6 @@ func RunDBSchemaUpdates() {
 		GetSpaceRepository(),
 		GetUserRepository(),
 		GetSettingsRepository(),
-		GetSignupRepository(),
 		GetSubscriptionRepository(),
 	}
 	for _, repository := range repositories {
