@@ -20,6 +20,12 @@ type Config struct {
 	MockSendmail        bool
 	PrintConfig         bool
 	Development         bool
+	InitOrgName         string
+	InitOrgDomain       string
+	InitOrgUser         string
+	InitOrgPass         string
+	InitOrgCountry      string
+	InitOrgLanguage     string
 }
 
 var _configInstance *Config
@@ -62,6 +68,12 @@ func (c *Config) ReadConfig() {
 	c.MockSendmail = (c._GetEnv("MOCK_SENDMAIL", "0") == "1")
 	c.PrintConfig = (c._GetEnv("PRINT_CONFIG", "0") == "1")
 	c.Development = (c._GetEnv("DEV", "0") == "1")
+	c.InitOrgName = c._GetEnv("INIT_ORG_NAME", "Sample Company")
+	c.InitOrgDomain = c._GetEnv("INIT_ORG_DOMAIN", "seatsurfing.de")
+	c.InitOrgUser = c._GetEnv("INIT_ORG_USER", "admin")
+	c.InitOrgPass = c._GetEnv("INIT_ORG_PASS", "12345678")
+	c.InitOrgCountry = c._GetEnv("INIT_ORG_COUNTRY", "DE")
+	c.InitOrgLanguage = c._GetEnv("INIT_ORG_LANGUAGE", "de")
 }
 
 func (c *Config) Print() {

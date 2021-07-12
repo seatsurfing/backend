@@ -328,32 +328,6 @@ class Settings extends React.Component<Props, State> {
       );
     }
 
-    let subscription = <></>;
-    {/*
-    if (this.state.subscriptionActive) {
-      subscription = (
-        <>
-          <p>{this.props.t("subscriptionActive", {num: this.state.subscriptionMaxUsers})}</p>
-          <p><Button variant="primary" onClick={this.manageSubscription}>{this.props.t("subscriptionManage")}</Button></p>
-        </>
-      );
-    } else {
-      subscription = (
-        <>
-          <p>{this.props.t("subscriptionInactive", {num: this.state.subscriptionMaxUsers})}</p>
-          <p><Button variant="primary" onClick={this.manageSubscription}>{this.props.t("subscriptionManage")}</Button></p>
-        </>
-      );
-    }
-    */}
-    subscription = <p>{this.props.t("featureCurrentlyUnavailable")}</p>
-
-    let dangerZone = (
-      <>
-        <Button className="btn btn-danger" onClick={this.deleteOrg}>{this.props.t("deleteOrg")}</Button>
-      </>
-    );
-
     let hint = <></>;
     if (this.state.saved) {
       hint = <Alert variant="success">{this.props.t("entryUpdated")}</Alert>
@@ -362,10 +336,6 @@ class Settings extends React.Component<Props, State> {
     }
 
     let buttonSave = <Button className="btn-sm" variant="outline-secondary" type="submit" form="form"><IconSave className="feather" /> {this.props.t("save")}</Button>;
-    let contactName = "";
-    if (this.org) {
-      contactName = this.org.contactFirstname + " " + this.org.contactLastname + " ("+this.org.contactEmail+")";
-    }
 
     return (
       <FullLayout headline={this.props.t("settings")} buttons={buttonSave}>
@@ -381,12 +351,6 @@ class Settings extends React.Component<Props, State> {
             <Form.Label column sm="2">{this.props.t("orgId")}</Form.Label>
             <Col sm="4">
               <Form.Control plaintext={true} readOnly={true} defaultValue={this.org?.id} />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row}>
-            <Form.Label column sm="2">{this.props.t("primaryContact")}</Form.Label>
-            <Col sm="4">
-              <Form.Control plaintext={true} readOnly={true} defaultValue={contactName} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
@@ -463,10 +427,6 @@ class Settings extends React.Component<Props, State> {
           </Form.Group>
         </Form>
         <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h1 className="h2">{this.props.t("subscription")}</h1>
-        </div>
-        {subscription}
-        <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
           <h1 className="h2">{this.props.t("authProviders")}</h1>
           <div className="btn-toolbar mb-2 mb-md-0">
             <div className="btn-group mr-2">
@@ -475,10 +435,6 @@ class Settings extends React.Component<Props, State> {
           </div>
         </div>
         {authProviderTable}
-        <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h1 className="h2">{this.props.t("dangerZone")}</h1>
-        </div>
-        {dangerZone}
       </FullLayout>
     );
   }

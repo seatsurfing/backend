@@ -141,7 +141,6 @@ func ExtractClaimsFromRequest(r *http.Request) (*Claims, string, error) {
 	if !token.Valid {
 		return nil, "", errors.New("JWT header verification failed: invalid JWT")
 	}
-	//log.Println("Successfully verified JWT header for UserID", claims.UserID)
 	return claims, authHeader, nil
 }
 

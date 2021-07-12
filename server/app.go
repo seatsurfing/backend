@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -60,6 +61,30 @@ func (a *App) InitializeRouter() {
 	a.Router.PathPrefix("/").Methods("OPTIONS").HandlerFunc(CorsHandler)
 	a.Router.Use(CorsMiddleware)
 	a.Router.Use(VerifyAuthMiddleware)
+}
+
+func (a *App) InitializeDefaultOrg() {
+	ids, err := GetOrganizationRepository().GetAllIDs()
+	if err == nil && len(ids) == 0 {
+		config := GetConfig()
+		org := &Organization{
+			Name:       config.InitOrgName,
+			Language:   strings.ToLower(config.InitOrgLanguage),
+			Country:    strings.ToUpper(config.InitOrgCountry),
+			SignupDate: time.Now().UTC(),
+		}
+		GetOrganizationRepository().Create(org)
+		GetOrganizationRepository().AddDomain(org, config.InitOrgDomain, true)
+		user := &User{
+			OrganizationID: org.ID,
+			Email:          config.InitOrgUser + "@" + config.InitOrgDomain,
+			HashedPassword: NullString(GetUserRepository().GetHashedPassword(config.InitOrgPass)),
+			OrgAdmin:       true,
+			SuperAdmin:     false,
+		}
+		GetUserRepository().Create(user)
+		GetOrganizationRepository().createSampleData(org)
+	}
 }
 
 func (a *App) InitializeAtlassianConnect() {

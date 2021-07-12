@@ -10,6 +10,7 @@ func main() {
 	db := GetDatabase()
 	a := GetApp()
 	a.InitializeDatabases()
+	a.InitializeDefaultOrg()
 	a.InitializeRouter()
 	a.InitializeAtlassianConnect()
 	a.InitializeTimers()
