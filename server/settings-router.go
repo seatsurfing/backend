@@ -214,9 +214,7 @@ func (router *SettingsRouter) isValidSettingNameReadAdmin(name string) bool {
 		name == SettingSubscriptionMaxUsers.Name ||
 		name == SettingConfluenceServerSharedSecret.Name ||
 		name == SettingConfluenceClientID.Name ||
-		name == SettingConfluenceAnonymous.Name ||
-		name == SettingFastSpringAccountID.Name ||
-		name == SettingFastSpringSubscriptionID.Name {
+		name == SettingConfluenceAnonymous.Name {
 		return true
 	}
 	return false

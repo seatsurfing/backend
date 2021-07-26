@@ -52,6 +52,7 @@ func (a *App) InitializeRouter() {
 	routers["/stats/"] = &StatsRouter{}
 	routers["/search/"] = &SearchRouter{}
 	routers["/setting/"] = &SettingsRouter{}
+	routers["/signup/"] = &SignupRouter{}
 	for route, router := range routers {
 		subRouter := a.Router.PathPrefix(route).Subrouter()
 		router.setupRoutes(subRouter)
@@ -142,6 +143,9 @@ func (a *App) InitializeTimers() {
 			<-a.CleanupTicker.C
 			log.Println("Cleaning up expired database entries...")
 			if err := GetAuthStateRepository().DeleteExpired(); err != nil {
+				log.Println(err)
+			}
+			if err := GetSignupRepository().DeleteExpired(); err != nil {
 				log.Println(err)
 			}
 		}

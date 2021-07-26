@@ -60,8 +60,6 @@ func TestSettingsReadPublic(t *testing.T) {
 		SettingConfluenceAnonymous.Name,
 		SettingActiveSubscription.Name,
 		SettingSubscriptionMaxUsers.Name,
-		SettingFastSpringAccountID.Name,
-		SettingFastSpringSubscriptionID.Name,
 	}
 
 	for _, name := range allowedSettings {
@@ -109,8 +107,6 @@ func TestSettingsReadAdmin(t *testing.T) {
 		SettingConfluenceServerSharedSecret.Name,
 		SettingConfluenceClientID.Name,
 		SettingConfluenceAnonymous.Name,
-		SettingFastSpringAccountID.Name,
-		SettingFastSpringSubscriptionID.Name,
 		SettingActiveSubscription.Name,
 		SettingSubscriptionMaxUsers.Name,
 	}

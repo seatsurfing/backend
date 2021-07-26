@@ -40,8 +40,6 @@ var (
 	SettingDailyBasisBooking            SettingName = SettingName{Name: "daily_basis_booking", Type: SettingTypeBool}
 	SettingShowNames                    SettingName = SettingName{Name: "show_names", Type: SettingTypeBool}
 	SettingSubscriptionMaxUsers         SettingName = SettingName{Name: "subscription_max_users", Type: SettingTypeInt}
-	SettingFastSpringAccountID          SettingName = SettingName{Name: "fastspring_account_id", Type: SettingTypeString}
-	SettingFastSpringSubscriptionID     SettingName = SettingName{Name: "fastspring_subscription_id", Type: SettingTypeString}
 )
 
 const (
@@ -195,9 +193,7 @@ func (r *SettingsRepository) InitDefaultSettingsForOrg(organizationID string) er
 		"($1, '"+SettingConfluenceAnonymous.Name+"', '0'), "+
 		"($1, '"+SettingMaxBookingsPerUser.Name+"', '10'), "+
 		"($1, '"+SettingMaxDaysInAdvance.Name+"', '14'), "+
-		"($1, '"+SettingMaxBookingDurationHours.Name+"', '12'), "+
-		"($1, '"+SettingFastSpringAccountID.Name+"', ''), "+
-		"($1, '"+SettingFastSpringSubscriptionID.Name+"', '') "+
+		"($1, '"+SettingMaxBookingDurationHours.Name+"', '12') "+
 		"ON CONFLICT (organization_id, name) DO NOTHING",
 		organizationID)
 	return err

@@ -26,6 +26,8 @@ type Config struct {
 	InitOrgPass         string
 	InitOrgCountry      string
 	InitOrgLanguage     string
+	SignupDomain        string
+	SignupAdmin         string
 }
 
 var _configInstance *Config
@@ -74,6 +76,8 @@ func (c *Config) ReadConfig() {
 	c.InitOrgPass = c._GetEnv("INIT_ORG_PASS", "12345678")
 	c.InitOrgCountry = c._GetEnv("INIT_ORG_COUNTRY", "DE")
 	c.InitOrgLanguage = c._GetEnv("INIT_ORG_LANGUAGE", "de")
+	c.SignupDomain = c._GetEnv("SIGNUP_DOMAIN", ".on.seatsurfing.de")
+	c.SignupAdmin = c._GetEnv("SIGNUP_ADMIN", "admin")
 }
 
 func (c *Config) Print() {
