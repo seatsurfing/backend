@@ -39,8 +39,8 @@ class App extends React.Component<Props, AuthContextData> {
       showNames: false,
       setDetails: this.setDetails
     };
-    if (window.location.href.indexOf("http://localhost") > -1 || window.location.href.indexOf("http://192.168.") > -1) {
-      Ajax.URL = "http://" + window.location.host.split(':').shift() + ":8090";
+    if (process.env.NODE_ENV.toLowerCase() === "development") {
+      Ajax.URL = "http://" + window.location.host.split(':').shift() + ":8080";
     }
     if (window.location.href.indexOf(".loca.lt/") > -1) {
       Ajax.URL = "https://" + window.location.host.split(':').shift();

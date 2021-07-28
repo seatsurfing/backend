@@ -43,16 +43,25 @@ func GetConfig() *Config {
 
 func (c *Config) ReadConfig() {
 	log.Println("Reading config...")
+	c.Development = (c._GetEnv("DEV", "0") == "1")
 	c.PublicListenAddr = c._GetEnv("PUBLIC_LISTEN_ADDR", "0.0.0.0:8080")
 	c.PublicURL = c._GetEnv("PUBLIC_URL", "http://localhost:8080")
 	if c.PublicURL[len(c.PublicURL)-1] != '/' {
 		c.PublicURL += "/"
 	}
-	c.FrontendURL = c._GetEnv("FRONTEND_URL", "http://localhost:3000")
+	if c.Development {
+		c.FrontendURL = c._GetEnv("FRONTEND_URL", "http://localhost:3000")
+	} else {
+		c.FrontendURL = c._GetEnv("FRONTEND_URL", "http://localhost:8080")
+	}
 	if c.FrontendURL[len(c.FrontendURL)-1] != '/' {
 		c.FrontendURL += "/"
 	}
-	c.AppURL = c._GetEnv("APP_URL", "exp://localhost:19000")
+	if c.Development {
+		c.AppURL = c._GetEnv("APP_URL", "exp://localhost:19000")
+	} else {
+		c.AppURL = c._GetEnv("APP_URL", "seatsurfing:///")
+	}
 	if c.AppURL[len(c.AppURL)-1] != '/' {
 		c.AppURL += "/"
 	}
@@ -64,12 +73,11 @@ func (c *Config) ReadConfig() {
 	if c.StaticBookingUiPath[len(c.StaticBookingUiPath)-1] != '/' {
 		c.StaticBookingUiPath += "/"
 	}
-	c.PostgresURL = c._GetEnv("POSTGRES_URL", "postgres://postgres:root@localhost/flexspace?sslmode=disable")
+	c.PostgresURL = c._GetEnv("POSTGRES_URL", "postgres://postgres:root@localhost/seatsurfing?sslmode=disable")
 	c.JwtSigningKey = c._GetEnv("JWT_SIGNING_KEY", "cX32hEwZDCLZ6bCR")
-	c.SMTPHost = c._GetEnv("SMTP_HOST", "192.168.40.31:25")
+	c.SMTPHost = c._GetEnv("SMTP_HOST", "127.0.0.1:25")
 	c.MockSendmail = (c._GetEnv("MOCK_SENDMAIL", "0") == "1")
 	c.PrintConfig = (c._GetEnv("PRINT_CONFIG", "0") == "1")
-	c.Development = (c._GetEnv("DEV", "0") == "1")
 	c.InitOrgName = c._GetEnv("INIT_ORG_NAME", "Sample Company")
 	c.InitOrgDomain = c._GetEnv("INIT_ORG_DOMAIN", "seatsurfing.de")
 	c.InitOrgUser = c._GetEnv("INIT_ORG_USER", "admin")
