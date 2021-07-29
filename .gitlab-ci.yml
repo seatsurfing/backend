@@ -1,8 +1,8 @@
 docker-build:
   image: docker:20
   stage: build
-#  services:
-#    - docker:dind
+  services:
+    - docker:dind
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - export CI_VERSION=$(cat server/res/version.txt | awk NF)
