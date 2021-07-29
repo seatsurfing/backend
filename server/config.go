@@ -26,6 +26,7 @@ type Config struct {
 	InitOrgPass         string
 	InitOrgCountry      string
 	InitOrgLanguage     string
+	SignupEnabled       bool
 	SignupDomain        string
 	SignupAdmin         string
 }
@@ -79,12 +80,13 @@ func (c *Config) ReadConfig() {
 	c.MockSendmail = (c._GetEnv("MOCK_SENDMAIL", "0") == "1")
 	c.PrintConfig = (c._GetEnv("PRINT_CONFIG", "0") == "1")
 	c.InitOrgName = c._GetEnv("INIT_ORG_NAME", "Sample Company")
-	c.InitOrgDomain = c._GetEnv("INIT_ORG_DOMAIN", "seatsurfing.de")
+	c.InitOrgDomain = c._GetEnv("INIT_ORG_DOMAIN", "seatsurfing.local")
 	c.InitOrgUser = c._GetEnv("INIT_ORG_USER", "admin")
 	c.InitOrgPass = c._GetEnv("INIT_ORG_PASS", "12345678")
 	c.InitOrgCountry = c._GetEnv("INIT_ORG_COUNTRY", "DE")
 	c.InitOrgLanguage = c._GetEnv("INIT_ORG_LANGUAGE", "de")
-	c.SignupDomain = c._GetEnv("SIGNUP_DOMAIN", ".on.seatsurfing.de")
+	c.SignupEnabled = (c._GetEnv("SIGNUP_ENABLED", "0") == "1")
+	c.SignupDomain = c._GetEnv("SIGNUP_DOMAIN", ".on.seatsurfing.local")
 	c.SignupAdmin = c._GetEnv("SIGNUP_ADMIN", "admin")
 }
 

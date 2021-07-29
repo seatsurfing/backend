@@ -40,6 +40,7 @@ func (a *App) InitializeDatabases() {
 }
 
 func (a *App) InitializeRouter() {
+	config := GetConfig()
 	a.Router = mux.NewRouter()
 	routers := make(map[string]Route)
 	routers["/location/{locationId}/space/"] = &SpaceRouter{}
@@ -52,7 +53,9 @@ func (a *App) InitializeRouter() {
 	routers["/stats/"] = &StatsRouter{}
 	routers["/search/"] = &SearchRouter{}
 	routers["/setting/"] = &SettingsRouter{}
-	routers["/signup/"] = &SignupRouter{}
+	if config.SignupEnabled {
+		routers["/signup/"] = &SignupRouter{}
+	}
 	for route, router := range routers {
 		subRouter := a.Router.PathPrefix(route).Subrouter()
 		router.setupRoutes(subRouter)
