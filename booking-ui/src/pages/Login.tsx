@@ -150,7 +150,7 @@ class Login extends React.Component<Props, State> {
           <Form.Control.Feedback type="invalid">{this.props.t("errorInvalidEmail")}</Form.Control.Feedback>
           <Button variant="primary" type="submit">{this.props.t("getStarted")}</Button>
         </Form>
-        <p className="copyright-footer">&copy; {this.props.t("weweaveUG")} &#183; <a href="https://seatsurfing.de/privacy.html" target="_blank" rel="noreferrer">{this.props.t("privacy")}</a> &#183; <a href="https://seatsurfing.de/imprint.html" target="_blank" rel="noreferrer">{this.props.t("imprint")}</a></p>
+        <p className="copyright-footer">&copy; Seatsurfing &#183; Version {process.env.REACT_APP_PRODUCT_VERSION}</p>
       </div>
     );
   }

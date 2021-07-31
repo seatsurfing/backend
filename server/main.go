@@ -1,12 +1,30 @@
 package main
 
 import (
+	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 )
+
+var _productVersion = ""
+
+func GetProductVersion() string {
+	if _productVersion == "" {
+		path, _ := filepath.Abs("./res/version.txt")
+		data, err := ioutil.ReadFile(path)
+		if err != nil {
+			return "UNKNOWN"
+		}
+		_productVersion = string(data)
+		os.Setenv("REACT_APP_PRODUCT_VERSION", _productVersion)
+	}
+	return _productVersion
+}
 
 func main() {
 	log.Println("Starting...")
+	log.Println("Seatsurfing Backend Version " + GetProductVersion())
 	db := GetDatabase()
 	a := GetApp()
 	a.InitializeDatabases()

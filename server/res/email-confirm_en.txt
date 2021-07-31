@@ -11,7 +11,7 @@ possibility to book their desks when they need it.
 
 As an administrator, you can log in here:
 
-https://app.seatsurfing.de/admin/
+{{frontendUrl}}admin/
 
 Please use your chosen password and the following username:
 
@@ -23,8 +23,4 @@ Kind regards,
 Team Seatsurfing
 
 -- 
-weweave UG (limited liability)
-Fichtenweg 8d, 65510 Idstein, Germany
-Director: Jan Jonas
-Amtsgericht Wiesbaden, HRB 30164
 www.seatsurfing.de

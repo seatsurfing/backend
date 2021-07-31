@@ -6,7 +6,6 @@ import { initReactI18next } from 'react-i18next';
 const resources = {
     de: {
         translation: {
-            "weweaveUG": "weweave UG (haftungsbeschränkt)",
             "privacy": "Datenschutz",
             "imprint": "Impressum",
             "findYourPlace": "Finde Deinen Platz.",
@@ -69,7 +68,6 @@ const resources = {
     },
     en: {
         translation: {
-            "weweaveUG": "weweave UG (limited liability)",
             "privacy": "Privacy",
             "imprint": "Imprint",
             "findYourPlace": "Find your space.",

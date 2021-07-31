@@ -11,7 +11,7 @@ Ihren Mitarbeitern die Möglichkeit, flexibel Ihre Arbeitsplätze zu wählen.
 
 Als Administrator können Sie sich ab sofort hier einloggen:
 
-https://app.seatsurfing.de/admin/
+{{frontendUrl}}admin/
 
 Verwenden Sie hierfür das von Ihnen gewählte Kennwort und den folgenden
 Benutzernamen:
@@ -25,8 +25,4 @@ Viele Grüße
 Ihr Team von Seatsurfing.de
 
 -- 
-weweave UG (haftungsbeschränkt)
-Fichtenweg 8d, 65510 Idstein, Deutschland
-Geschäftsführer: Jan Jonas
-Amtsgericht Wiesbaden, HRB 30164
 www.seatsurfing.de
