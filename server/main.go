@@ -17,7 +17,6 @@ func GetProductVersion() string {
 			return "UNKNOWN"
 		}
 		_productVersion = string(data)
-		os.Setenv("REACT_APP_PRODUCT_VERSION", _productVersion)
 	}
 	return _productVersion
 }
