@@ -1,6 +1,7 @@
 import React from 'react';
 import { Form, Button } from 'react-bootstrap';
 import {
+  Link,
   Redirect
 } from "react-router-dom";
 import './Login.css';
@@ -149,6 +150,7 @@ class Login extends React.Component<Props, State> {
           <Form.Control type="email" placeholder={this.props.t("emailPlaceholder")} value={this.state.email} onChange={(e: any) => this.setState({ email: e.target.value, invalid: false })} required={true} isInvalid={this.state.invalid} autoFocus={true} />
           <Form.Control.Feedback type="invalid">{this.props.t("errorInvalidEmail")}</Form.Control.Feedback>
           <Button variant="primary" type="submit">{this.props.t("getStarted")}</Button>
+          <p className="margin-top-50"><Link to="/resetpw">{this.props.t("forgotPassword")}</Link></p>
         </Form>
         <p className="copyright-footer">&copy; Seatsurfing &#183; Version {process.env.REACT_APP_PRODUCT_VERSION}</p>
       </div>

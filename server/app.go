@@ -53,7 +53,7 @@ func (a *App) InitializeRouter() {
 	routers["/stats/"] = &StatsRouter{}
 	routers["/search/"] = &SearchRouter{}
 	routers["/setting/"] = &SettingsRouter{}
-	if config.SignupEnabled {
+	if config.OrgSignupEnabled {
 		routers["/signup/"] = &SignupRouter{}
 	}
 	for route, router := range routers {

@@ -64,6 +64,13 @@ const resources = {
             "errorConfluenceAnonymous": "Nicht autorisiert.",
             "confluenceAnonymousHint": "Bitte logge Dich in Confluence ein, um die Seatsurfing für Confluence zu nutzen.",
             "ok": "OK",
+            "newPassword": "Neues Kennwort",
+            "changePassword": "Kennwort ändern",
+            "forgotPassword": "Kennwort vergessen?",
+            "initPasswordResetEmail": "Du erhältst per E-Mail Informationen zum Zurücksetzen Deines Kennworts.",
+            "initPasswordResetFailed": "Das hat leider nicht geklappt! Bitte versuche es später noch einmal.",
+            "passwordChanged": "Dein Kennwort wurde erfolgreich geändert.",
+            "proceedToLogin": "Zum Login",
         }
     },
     en: {
@@ -126,6 +133,13 @@ const resources = {
             "errorConfluenceAnonymous": "Unauthorized.",
             "confluenceAnonymousHint": "Please log in with Confluence to use the Seatsurfing for Confluence App.",
             "ok": "OK",
+            "newPassword": "New password",
+            "changePassword": "Change password",
+            "forgotPassword": "Forgot your password?",
+            "initPasswordResetEmail": "Please check your emails to reset your password.",
+            "initPasswordResetFailed": "That didn't work! Please try again later.",
+            "passwordChanged": "Your password has been changed.",
+            "proceedToLogin": "Log in",
         }
     }
 };

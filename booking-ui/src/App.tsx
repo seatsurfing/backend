@@ -21,6 +21,8 @@ import RuntimeConfig from './components/RuntimeConfig';
 import { AuthContext, AuthContextData } from './AuthContextData';
 import Loading from './components/Loading';
 import ConfluenceAnonymous from './pages/ConfluenceAnonymous';
+import CompletePasswordReset from './pages/CompletePasswordReset';
+import InitPasswordReset from './pages/InitPasswordReset';
 
 interface Props {
 }
@@ -122,6 +124,8 @@ class App extends React.Component<Props, AuthContextData> {
             <Route path="/login/success/:id" component={LoginSuccess} />
             <Route path="/login/failed" component={LoginFailed} />
             <Route path="/login" component={Login} />
+            <Route path="/resetpw/:id" component={CompletePasswordReset} />
+            <Route path="/resetpw" component={InitPasswordReset} />
             <ProtectedRoute path="/search/result" component={SearchResult} />
             <ProtectedRoute path="/search" component={Search} />
             <ProtectedRoute path="/bookings" component={Bookings} />

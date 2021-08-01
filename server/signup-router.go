@@ -42,7 +42,7 @@ func (router *SignupRouter) signup(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
-	domain := strings.ToLower(m.Domain) + GetConfig().SignupDomain
+	domain := strings.ToLower(m.Domain) + GetConfig().OrgSignupDomain
 	if !router.isDomainAvailable(domain) {
 		w.WriteHeader(http.StatusConflict)
 		return
@@ -116,7 +116,7 @@ func (router *SignupRouter) confirm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user := &User{
-		Email:          GetConfig().SignupAdmin + "@" + e.Domain,
+		Email:          GetConfig().OrgSignupAdmin + "@" + e.Domain,
 		HashedPassword: NullString(e.Password),
 		OrganizationID: org.ID,
 		OrgAdmin:       true,
@@ -148,7 +148,7 @@ func (router *SignupRouter) sendConfirmMail(signup *Signup, language string) err
 	vars := map[string]string{
 		"recipientName":  signup.Firstname + " " + signup.Lastname,
 		"recipientEmail": signup.Email,
-		"username":       GetConfig().SignupAdmin + "@" + signup.Domain,
+		"username":       GetConfig().OrgSignupAdmin + "@" + signup.Domain,
 	}
 	return sendEmail(signup.Email, GetConfig().SMTPSenderAddress, EmailTemplateConfirm, language, vars)
 }

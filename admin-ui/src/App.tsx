@@ -22,6 +22,7 @@ import EditUser from './pages/EditUser';
 import Settings from './pages/Settings';
 import Bookings from './pages/Bookings';
 import SearchResult from './pages/SearchResult';
+import ConfirmSignup from './pages/ConfirmSignup';
 
 interface Props {
 }
@@ -41,6 +42,7 @@ class App extends React.Component<Props, {}> {
             <Route path="/login/success/:id" component={LoginSuccess} />
             <Route path="/login/failed" component={LoginFailed} />
             <Route path="/login" component={Login} />
+            <Route path="/confirm/:id" component={ConfirmSignup} />
             <ProtectedRoute path="/dashboard" component={Dashboard} />
             <ProtectedRoute path="/locations/add" component={EditLocation} />
             <ProtectedRoute path="/locations/:id" component={EditLocation} />

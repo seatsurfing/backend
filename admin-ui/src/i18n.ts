@@ -107,6 +107,9 @@ const resources = {
             "description": "Beschreibung",
             "orgId": "Instanz ID",
             "featureCurrentlyUnavailable": "Diese Funktion steht aktuell nicht zur Verfügung.",
+            "orgSignupSuccess": "Es kann losgehen! Deine Seatsurfing-Organisation ist eingerichtet.",
+            "orgSignupGoToLogin": "Zum Admin-Interface",
+            "orgSignupFailed": "Das hat leider nicht geklappt! Möglicherweise ist Deine Registrierung bereits abgelaufen.",
         }
     },
     en: {
@@ -213,6 +216,9 @@ const resources = {
             "description": "Description",
             "orgId": "Instance ID",
             "featureCurrentlyUnavailable": "This feature is currently unavailable.",
+            "orgSignupSuccess": "You're ready to go! Your Seatsurfing organisation has been set up.",
+            "orgSignupGoToLogin": "Continue to the admin panel",
+            "orgSignupFailed": "That didn't work as expected! Maybe your registration has timed out.",
         }
     }
 };
