@@ -17,6 +17,7 @@ type Config struct {
 	StaticAdminUiPath   string
 	StaticBookingUiPath string
 	SMTPHost            string
+	SMTPSenderAddress   string
 	MockSendmail        bool
 	PrintConfig         bool
 	Development         bool
@@ -77,6 +78,7 @@ func (c *Config) ReadConfig() {
 	c.PostgresURL = c._GetEnv("POSTGRES_URL", "postgres://postgres:root@localhost/seatsurfing?sslmode=disable")
 	c.JwtSigningKey = c._GetEnv("JWT_SIGNING_KEY", "cX32hEwZDCLZ6bCR")
 	c.SMTPHost = c._GetEnv("SMTP_HOST", "127.0.0.1:25")
+	c.SMTPSenderAddress = c._GetEnv("SMTP_SENDER_ADDRESS", "no-reply@seatsurfing.local")
 	c.MockSendmail = (c._GetEnv("MOCK_SENDMAIL", "0") == "1")
 	c.PrintConfig = (c._GetEnv("PRINT_CONFIG", "0") == "1")
 	c.InitOrgName = c._GetEnv("INIT_ORG_NAME", "Sample Company")

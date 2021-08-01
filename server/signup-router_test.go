@@ -43,10 +43,10 @@ func TestSignup(t *testing.T) {
 	checkTestResponseCode(t, http.StatusNoContent, res.Code)
 	checkTestBool(t, true, strings.Contains(SendMailMockContent, "Hallo Foo Bar,"))
 	checkTestBool(t, true, strings.Contains(SendMailMockContent, "To: foo@bar.com"))
-	checkTestBool(t, true, strings.Contains(SendMailMockContent, "admin@testorg.on.seatsurfing.de"))
+	checkTestBool(t, true, strings.Contains(SendMailMockContent, "admin@testorg.on.seatsurfing.local"))
 
 	// Check if login works
-	payload = `{"email": "admin@testorg.on.seatsurfing.de", "password": "12345678"}`
+	payload = `{"email": "admin@testorg.on.seatsurfing.local", "password": "12345678"}`
 	req = newHTTPRequest("POST", "/auth/login", "", bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusOK, res.Code)
@@ -174,7 +174,7 @@ func TestSignupShortPassword(t *testing.T) {
 func TestSignupDomainConflict(t *testing.T) {
 	clearTestDB()
 
-	createTestOrg("testorg.on.seatsurfing.de")
+	createTestOrg("testorg.on.seatsurfing.local")
 
 	// Perform Signup
 	payload := `{

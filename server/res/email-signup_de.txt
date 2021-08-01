@@ -1,4 +1,4 @@
-From: Seatsurfing <info@seatsurfing.de>
+From: Seatsurfing <{{senderAddress}}>
 To: {{recipientName}} <{{recipientEmail}}>
 Content-Type: text/plain; charset=UTF-8
 Subject: Ihre Registrierung bei Seatsurfing

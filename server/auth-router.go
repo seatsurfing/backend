@@ -376,7 +376,8 @@ func (router *AuthRouter) getUserInfo(provider *AuthProvider, state string, code
 
 func (router *AuthRouter) SendPasswordResetEmail(user *User, ID string, org *Organization) error {
 	email := user.Email
-	if strings.Contains(email, GetConfig().SignupAdmin+"@") && strings.Contains(email, GetConfig().SignupDomain) {
+	c := GetConfig()
+	if strings.Contains(email, c.SignupAdmin+"@") && strings.Contains(email, GetConfig().SignupDomain) {
 		email = org.ContactEmail
 	}
 	vars := map[string]string{
@@ -384,7 +385,7 @@ func (router *AuthRouter) SendPasswordResetEmail(user *User, ID string, org *Org
 		"recipientEmail": email,
 		"confirmID":      ID,
 	}
-	return sendEmail(email, "info@seatsurfing.de", EmailTemplateResetpassword, org.Language, vars)
+	return sendEmail(email, c.SMTPSenderAddress, EmailTemplateResetpassword, org.Language, vars)
 }
 
 func (router *AuthRouter) getConfig(provider *AuthProvider) *oauth2.Config {

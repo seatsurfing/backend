@@ -36,6 +36,7 @@ func compileEmailTemplate(templateFile string, vars map[string]string) (string, 
 	s := string(data)
 	c := GetConfig()
 	vars["frontendUrl"] = c.FrontendURL
+	vars["senderAddress"] = c.SMTPSenderAddress
 	for key, val := range vars {
 		s = strings.ReplaceAll(s, "{{"+key+"}}", val)
 	}

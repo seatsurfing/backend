@@ -141,7 +141,7 @@ func (router *SignupRouter) sendDoubleOptInMail(signup *Signup, language string)
 		"recipientEmail": signup.Email,
 		"confirmID":      signup.ID,
 	}
-	return sendEmail(signup.Email, "info@seatsurfing.de", EmailTemplateSignup, language, vars)
+	return sendEmail(signup.Email, GetConfig().SMTPSenderAddress, EmailTemplateSignup, language, vars)
 }
 
 func (router *SignupRouter) sendConfirmMail(signup *Signup, language string) error {
@@ -150,7 +150,7 @@ func (router *SignupRouter) sendConfirmMail(signup *Signup, language string) err
 		"recipientEmail": signup.Email,
 		"username":       GetConfig().SignupAdmin + "@" + signup.Domain,
 	}
-	return sendEmail(signup.Email, "info@seatsurfing.de", EmailTemplateConfirm, language, vars)
+	return sendEmail(signup.Email, GetConfig().SMTPSenderAddress, EmailTemplateConfirm, language, vars)
 }
 
 func (router *SignupRouter) getLanguage(language string) string {

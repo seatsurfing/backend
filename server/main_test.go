@@ -23,7 +23,7 @@ type LoginResponse struct {
 func TestMain(m *testing.M) {
 	os.Setenv("POSTGRES_URL", "postgres://postgres:root@localhost/flexspace_test?sslmode=disable")
 	os.Setenv("MOCK_SENDMAIL", "1")
-	os.Setenv("FASTSPRING_VALIDATE", "0")
+	os.Setenv("SIGNUP_ENABLED", "1")
 	GetConfig().ReadConfig()
 	db := GetDatabase()
 	dropTestDB()

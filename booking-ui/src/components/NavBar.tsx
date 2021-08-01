@@ -89,7 +89,7 @@ class NavBar extends React.Component<Props, State> {
     }
 
     openWebUI = () => {
-        window.open("https://app.seatsurfing.de/ui/");
+        window.open(process.env.PUBLIC_URL);
     }
 
     acceptMergeRequest = (id: string) => {
