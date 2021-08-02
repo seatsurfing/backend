@@ -62,9 +62,15 @@ func (a *App) InitializeRouter() {
 	}
 	a.setupStaticAdminRoutes(a.Router)
 	a.setupStaticUserRoutes(a.Router)
+	a.Router.Path("/").Methods("GET").HandlerFunc(a.RedirectRootPath)
 	a.Router.PathPrefix("/").Methods("OPTIONS").HandlerFunc(CorsHandler)
 	a.Router.Use(CorsMiddleware)
 	a.Router.Use(VerifyAuthMiddleware)
+}
+
+func (a *App) RedirectRootPath(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Location", "/ui/")
+	w.WriteHeader(http.StatusTemporaryRedirect)
 }
 
 func (a *App) InitializeDefaultOrg() {
