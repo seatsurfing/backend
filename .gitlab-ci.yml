@@ -12,4 +12,4 @@ docker-build:
     - docker build --pull --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_VERSION --tag $CI_REGISTRY_IMAGE:latest .
     - docker push $CI_REGISTRY_IMAGE:$CI_VERSION
     - docker push $CI_REGISTRY_IMAGE:latest
-    - docker run --rm -v $PWD/docker-readme-modified.md:/workspace/README.md:ro -e DOCKERHUB_USERNAME="$CI_REGISTRY_USER" -e DOCKERHUB_PASSWORD="$CI_REGISTRY_PASSWORD" -e DOCKERHUB_REPOSITORY="$CI_REGISTRY_IMAGE" -e README_FILEPATH='/workspace/README.md' peterevans/dockerhub-description:2
+    - docker run --rm -v $PWD/docker-readme-modified.md:/workspace/README.md:ro -e DOCKERHUB_USERNAME="$CI_REGISTRY_USER" -e DOCKERHUB_PASSWORD="$CI_REGISTRY_PASSWORD" -e DOCKERHUB_REPOSITORY='seatsurfing/backend' -e README_FILEPATH='/workspace/README.md' peterevans/dockerhub-description:2
