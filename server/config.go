@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"strconv"
 	"sync"
 )
 
@@ -30,6 +31,7 @@ type Config struct {
 	OrgSignupEnabled    bool
 	OrgSignupDomain     string
 	OrgSignupAdmin      string
+	OrgSignupMaxUsers   int
 }
 
 var _configInstance *Config
@@ -90,6 +92,11 @@ func (c *Config) ReadConfig() {
 	c.OrgSignupEnabled = (c._GetEnv("ORG_SIGNUP_ENABLED", "0") == "1")
 	c.OrgSignupDomain = c._GetEnv("ORG_SIGNUP_DOMAIN", ".on.seatsurfing.local")
 	c.OrgSignupAdmin = c._GetEnv("ORG_SIGNUP_ADMIN", "admin")
+	maxUsers, err := strconv.Atoi(c._GetEnv("ORG_SIGNUP_MAX_USERS", "50"))
+	if err != nil {
+		log.Fatal("Could not parse ORG_SIGNUP_MAX_USERS to int")
+	}
+	c.OrgSignupMaxUsers = maxUsers
 }
 
 func (c *Config) Print() {

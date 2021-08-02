@@ -78,6 +78,7 @@ func (a *App) InitializeDefaultOrg() {
 			SignupDate: time.Now().UTC(),
 		}
 		GetOrganizationRepository().Create(org)
+		GetSettingsRepository().Set(org.ID, SettingSubscriptionMaxUsers.Name, "10000")
 		GetOrganizationRepository().AddDomain(org, config.InitOrgDomain, true)
 		user := &User{
 			OrganizationID: org.ID,

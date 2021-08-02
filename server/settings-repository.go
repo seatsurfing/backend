@@ -42,10 +42,6 @@ var (
 	SettingSubscriptionMaxUsers         SettingName = SettingName{Name: "subscription_max_users", Type: SettingTypeInt}
 )
 
-const (
-	SettingDefaultSubscriptionMaxUsers = 50
-)
-
 var settingsRepository *SettingsRepository
 var settingsRepositoryOnce sync.Once
 
@@ -184,7 +180,7 @@ func (r *SettingsRepository) InitDefaultSettingsForOrg(organizationID string) er
 	_, err := GetDatabase().DB().Exec("INSERT INTO settings (organization_id, name, value) "+
 		"VALUES "+
 		"($1, '"+SettingActiveSubscription.Name+"', '0'), "+
-		"($1, '"+SettingSubscriptionMaxUsers.Name+"', '"+strconv.Itoa(SettingDefaultSubscriptionMaxUsers)+"'), "+
+		"($1, '"+SettingSubscriptionMaxUsers.Name+"', '"+strconv.Itoa(GetConfig().OrgSignupMaxUsers)+"'), "+
 		"($1, '"+SettingAllowAnyUser.Name+"', '1'), "+
 		"($1, '"+SettingDailyBasisBooking.Name+"', '0'), "+
 		"($1, '"+SettingShowNames.Name+"', '0'), "+
