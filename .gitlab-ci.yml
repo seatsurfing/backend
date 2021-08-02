@@ -3,6 +3,8 @@ docker-build:
   stage: build
   services:
     - docker:dind
+  variables:
+    MOUNT_POINT: /builds/$CI_PROJECT_PATH/mnt
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - export CI_VERSION=$(cat server/res/version.txt | awk NF)
@@ -12,5 +14,7 @@ docker-build:
 #    - docker build --pull --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_VERSION --tag $CI_REGISTRY_IMAGE:latest .
 #    - docker push $CI_REGISTRY_IMAGE:$CI_VERSION
 #    - docker push $CI_REGISTRY_IMAGE:latest
-    - export cfgpath=$(mktemp -p $(pwd) -d)
-    - docker run --rm -v $cfgpath/docker-readme-modified.md:/workspace/README.md:ro -e DOCKERHUB_USERNAME="$CI_REGISTRY_USER" -e DOCKERHUB_PASSWORD="$CI_REGISTRY_PASSWORD" -e DOCKERHUB_REPOSITORY='seatsurfing/backend' -e README_FILEPATH='/workspace/README.md' peterevans/dockerhub-description:2
+    - mkdir -p "$MOUNT_POINT"
+    - cp docker-readme-modified.md "$MOUNT_POINT"
+    - ls -hals "$MOUNT_POINT"
+    - docker run --rm -v "$MOUNT_POINT:/workspace" -e DOCKERHUB_USERNAME="$CI_REGISTRY_USER" -e DOCKERHUB_PASSWORD="$CI_REGISTRY_PASSWORD" -e DOCKERHUB_REPOSITORY='seatsurfing/backend' -e README_FILEPATH='/workspace/docker-readme-modified.md' peterevans/dockerhub-description:2
