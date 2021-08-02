@@ -3,6 +3,8 @@ docker-build:
   stage: build
   services:
     - docker:dind
+  variables:
+    SHARED_PATH: /builds/shared/$CI_PROJECT_PATH
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - export CI_VERSION=$(cat server/res/version.txt | awk NF)
@@ -14,4 +16,5 @@ docker-build:
 #    - docker push $CI_REGISTRY_IMAGE:latest
     - echo $PWD/docker-readme-modified.md
     - cat $PWD/docker-readme-modified.md
-    - docker run --rm -v $PWD/docker-readme-modified.md:/workspace/README.md:ro -e DOCKERHUB_USERNAME="$CI_REGISTRY_USER" -e DOCKERHUB_PASSWORD="$CI_REGISTRY_PASSWORD" -e DOCKERHUB_REPOSITORY='seatsurfing/backend' -e README_FILEPATH='/workspace/README.md' peterevans/dockerhub-description:2
+    - mkdir -p ${SHARED_PATH} && cp $PWD/docker-readme-modified.md ${SHARED_PATH}/README.md
+    - docker run --rm -v ${SHARED_PATH}:/workspace -e DOCKERHUB_USERNAME="$CI_REGISTRY_USER" -e DOCKERHUB_PASSWORD="$CI_REGISTRY_PASSWORD" -e DOCKERHUB_REPOSITORY='seatsurfing/backend' -e README_FILEPATH='/workspace/README.md' peterevans/dockerhub-description:2
