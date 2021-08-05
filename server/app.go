@@ -76,6 +76,7 @@ func (a *App) RedirectRootPath(w http.ResponseWriter, r *http.Request) {
 func (a *App) InitializeDefaultOrg() {
 	ids, err := GetOrganizationRepository().GetAllIDs()
 	if err == nil && len(ids) == 0 {
+		log.Println("Creating first organization...")
 		config := GetConfig()
 		org := &Organization{
 			Name:       config.InitOrgName,
@@ -91,7 +92,7 @@ func (a *App) InitializeDefaultOrg() {
 			Email:          config.InitOrgUser + "@" + config.InitOrgDomain,
 			HashedPassword: NullString(GetUserRepository().GetHashedPassword(config.InitOrgPass)),
 			OrgAdmin:       true,
-			SuperAdmin:     false,
+			SuperAdmin:     true,
 		}
 		GetUserRepository().Create(user)
 		GetOrganizationRepository().createSampleData(org)

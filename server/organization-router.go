@@ -157,7 +157,7 @@ func (router *OrganizationRouter) addDomain(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	// Add domain
-	err = GetOrganizationRepository().AddDomain(e, vars["domain"], false)
+	err = GetOrganizationRepository().AddDomain(e, vars["domain"], user.SuperAdmin)
 	if err != nil {
 		log.Println(err)
 		SendAleadyExists(w)

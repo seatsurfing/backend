@@ -192,3 +192,30 @@ func TestUserMergeUsers(t *testing.T) {
 }
 
 // TODO test domain in org!
+
+func TestUserCreateForeignOrgSuperAdmin(t *testing.T) {
+	clearTestDB()
+	superAdmin := createTestUserSuperAdmin()
+	org2 := createTestOrg("test2.com")
+	loginResponse := loginTestUser(superAdmin.ID)
+
+	username := uuid.New().String() + "@test2.com"
+	payload := "{\"email\": \"" + username + "\", \"password\": \"12345678\", \"organizationId\": \"" + org2.ID + "\"}"
+	req := newHTTPRequest("POST", "/user/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+}
+
+func TestUserCreateForeignOrgOrgAdmin(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test1.com")
+	admin := createTestUserOrgAdmin(org)
+	org2 := createTestOrg("test2.com")
+	loginResponse := loginTestUser(admin.ID)
+
+	username := uuid.New().String() + "@test.com"
+	payload := "{\"email\": \"" + username + "\", \"password\": \"12345678\", \"organizationId\": \"" + org2.ID + "\"}"
+	req := newHTTPRequest("POST", "/user/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusForbidden, res.Code)
+}

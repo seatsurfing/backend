@@ -146,10 +146,10 @@ func TestOrganizationsGetByDomain(t *testing.T) {
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
 
-	// Get by domain 1 (while not verified)
+	// Get by domain 1 (created by super admin, so it's verified from the start)
 	req = newHTTPRequest("GET", "/organization/domain/test1.com", loginResponse.UserID, nil)
 	res = executeTestRequest(req)
-	checkTestResponseCode(t, http.StatusNotFound, res.Code)
+	checkTestResponseCode(t, http.StatusOK, res.Code)
 
 	// Verify both domains
 	org, _ := GetOrganizationRepository().GetOne(id)
@@ -224,9 +224,9 @@ func TestOrganizationsDomainsCRUD(t *testing.T) {
 	checkTestString(t, "abc.com", resBody[0].DomainName)
 	checkTestString(t, "test1.com", resBody[1].DomainName)
 	checkTestString(t, "test2.com", resBody[2].DomainName)
-	checkTestBool(t, false, resBody[0].Active)
-	checkTestBool(t, false, resBody[1].Active)
-	checkTestBool(t, false, resBody[2].Active)
+	checkTestBool(t, true, resBody[0].Active)
+	checkTestBool(t, true, resBody[1].Active)
+	checkTestBool(t, true, resBody[2].Active)
 
 	// Remove 2
 	req = newHTTPRequest("DELETE", "/organization/"+id+"/domain/test2.com", loginResponse.UserID, nil)
@@ -244,8 +244,8 @@ func TestOrganizationsDomainsCRUD(t *testing.T) {
 	}
 	checkTestString(t, "abc.com", resBody[0].DomainName)
 	checkTestString(t, "test1.com", resBody[1].DomainName)
-	checkTestBool(t, false, resBody[0].Active)
-	checkTestBool(t, false, resBody[1].Active)
+	checkTestBool(t, true, resBody[0].Active)
+	checkTestBool(t, true, resBody[1].Active)
 }
 
 func TestOrganizationsDomainsPreventAdminDomainDelete(t *testing.T) {
@@ -278,8 +278,12 @@ func TestOrganizationsVerifyDNS(t *testing.T) {
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
 	id := res.Header().Get("X-Object-Id")
 
+	org, _ := GetOrganizationRepository().GetOne(id)
+	adminUser := createTestUserOrgAdmin(org)
+	adminLoginResponse := loginTestUser(adminUser.ID)
+
 	// Add domain
-	req = newHTTPRequest("POST", "/organization/"+id+"/domain/testcase.seatsurfing.de", loginResponse.UserID, nil)
+	req = newHTTPRequest("POST", "/organization/"+id+"/domain/testcase.seatsurfing.de", adminLoginResponse.UserID, nil)
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
 
@@ -290,12 +294,12 @@ func TestOrganizationsVerifyDNS(t *testing.T) {
 		"testcase.seatsurfing.de", id)
 
 	// Verify domain
-	req = newHTTPRequest("POST", "/organization/"+id+"/domain/testcase.seatsurfing.de/verify", loginResponse.UserID, nil)
+	req = newHTTPRequest("POST", "/organization/"+id+"/domain/testcase.seatsurfing.de/verify", adminLoginResponse.UserID, nil)
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusNoContent, res.Code)
 
 	// Get domain list
-	req = newHTTPRequest("GET", "/organization/"+id+"/domain/", loginResponse.UserID, nil)
+	req = newHTTPRequest("GET", "/organization/"+id+"/domain/", adminLoginResponse.UserID, nil)
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusOK, res.Code)
 	var resBody []*GetDomainResponse
@@ -386,13 +390,21 @@ func TestOrganizationsAddDomainNoConflictBecauseInactive(t *testing.T) {
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
 	id2 := res.Header().Get("X-Object-Id")
 
+	org1, _ := GetOrganizationRepository().GetOne(id1)
+	adminUser1 := createTestUserOrgAdmin(org1)
+	adminLoginResponse1 := loginTestUser(adminUser1.ID)
+
+	org2, _ := GetOrganizationRepository().GetOne(id2)
+	adminUser2 := createTestUserOrgAdmin(org2)
+	adminLoginResponse2 := loginTestUser(adminUser2.ID)
+
 	// Add domain to org 1
-	req = newHTTPRequest("POST", "/organization/"+id1+"/domain/test1.com", loginResponse.UserID, nil)
+	req = newHTTPRequest("POST", "/organization/"+id1+"/domain/test1.com", adminLoginResponse1.UserID, nil)
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
 
 	// Add same domain to org 2
-	req = newHTTPRequest("POST", "/organization/"+id2+"/domain/test1.com", loginResponse.UserID, nil)
+	req = newHTTPRequest("POST", "/organization/"+id2+"/domain/test1.com", adminLoginResponse2.UserID, nil)
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
 }
@@ -430,13 +442,21 @@ func TestOrganizationsAddDomainActivateConflicting(t *testing.T) {
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
 	id2 := res.Header().Get("X-Object-Id")
 
+	org1, _ := GetOrganizationRepository().GetOne(id1)
+	adminUser1 := createTestUserOrgAdmin(org1)
+	adminLoginResponse1 := loginTestUser(adminUser1.ID)
+
+	org2, _ := GetOrganizationRepository().GetOne(id2)
+	adminUser2 := createTestUserOrgAdmin(org2)
+	adminLoginResponse2 := loginTestUser(adminUser2.ID)
+
 	// Add domain to org 1
-	req = newHTTPRequest("POST", "/organization/"+id1+"/domain/testcase.seatsurfing.de", loginResponse.UserID, nil)
+	req = newHTTPRequest("POST", "/organization/"+id1+"/domain/testcase.seatsurfing.de", adminLoginResponse1.UserID, nil)
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
 
 	// Add same domain to org 2
-	req = newHTTPRequest("POST", "/organization/"+id2+"/domain/testcase.seatsurfing.de", loginResponse.UserID, nil)
+	req = newHTTPRequest("POST", "/organization/"+id2+"/domain/testcase.seatsurfing.de", adminLoginResponse2.UserID, nil)
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
 
@@ -450,12 +470,12 @@ func TestOrganizationsAddDomainActivateConflicting(t *testing.T) {
 	}
 
 	// Activate domain in org 1
-	req = newHTTPRequest("POST", "/organization/"+id1+"/domain/testcase.seatsurfing.de/verify", loginResponse.UserID, nil)
+	req = newHTTPRequest("POST", "/organization/"+id1+"/domain/testcase.seatsurfing.de/verify", adminLoginResponse1.UserID, nil)
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusNoContent, res.Code)
 
 	// Try to activate same domain in org 2
-	req = newHTTPRequest("POST", "/organization/"+id2+"/domain/testcase.seatsurfing.de/verify", loginResponse.UserID, nil)
+	req = newHTTPRequest("POST", "/organization/"+id2+"/domain/testcase.seatsurfing.de/verify", adminLoginResponse2.UserID, nil)
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusConflict, res.Code)
 }

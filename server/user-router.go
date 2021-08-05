@@ -18,11 +18,11 @@ type CreateUserRequest struct {
 	SuperAdmin     bool   `json:"superAdmin"`
 	AuthProviderID string `json:"authProviderId"`
 	Password       string `json:"password"`
+	OrganizationID string `json:"organizationId"`
 }
 
 type GetUserResponse struct {
 	ID              string                  `json:"id"`
-	OrganizationID  string                  `json:"organizationId"`
 	Organization    GetOrganizationResponse `json:"organization"`
 	RequirePassword bool                    `json:"requirePassword"`
 	CreateUserRequest
@@ -301,8 +301,14 @@ func (router *UserRouter) create(w http.ResponseWriter, r *http.Request) {
 		SendBadRequest(w)
 		return
 	}
+	if m.OrganizationID != "" && m.OrganizationID != user.OrganizationID && !user.SuperAdmin {
+		SendForbidden(w)
+		return
+	}
 	e := router.copyFromRestModel(&m)
-	e.OrganizationID = user.OrganizationID
+	if e.OrganizationID == "" || !user.SuperAdmin {
+		e.OrganizationID = user.OrganizationID
+	}
 	org, err := GetOrganizationRepository().GetOne(e.OrganizationID)
 	if err != nil {
 		log.Println(err)
@@ -336,6 +342,7 @@ func (router *UserRouter) copyFromRestModel(m *CreateUserRequest) *User {
 	} else {
 		e.AuthProviderID = NullString(m.AuthProviderID)
 	}
+	e.OrganizationID = m.OrganizationID
 	return e
 }
 

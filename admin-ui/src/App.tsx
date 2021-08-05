@@ -23,6 +23,8 @@ import Settings from './pages/Settings';
 import Bookings from './pages/Bookings';
 import SearchResult from './pages/SearchResult';
 import ConfirmSignup from './pages/ConfirmSignup';
+import Organizations from './pages/Organizations';
+import EditOrganization from './pages/EditOrganization';
 
 interface Props {
 }
@@ -54,6 +56,9 @@ class App extends React.Component<Props, {}> {
             <ProtectedRoute path="/settings/auth-providers/:id" component={EditAuthProvider} />
             <ProtectedRoute path="/settings" component={Settings} />
             <ProtectedRoute path="/bookings" component={Bookings} />
+            <ProtectedRoute path="/organizations/add" component={EditOrganization} />
+            <ProtectedRoute path="/organizations/:id" component={EditOrganization} />
+            <ProtectedRoute path="/organizations" component={Organizations} />
             <ProtectedRoute path="/search/:keyword" component={SearchResult} />
             <Route path="/"><Redirect to="/login" /></Route>
           </Switch>

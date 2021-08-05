@@ -34,7 +34,8 @@ export default class User extends Entity {
             "email": this.email,
             "admin": this.admin,
             "superAdmin": this.superAdmin,
-            "password": this.password
+            "password": this.password,
+            "organizationId": this.organizationId
         });
     }
 

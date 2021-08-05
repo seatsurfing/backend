@@ -32,7 +32,7 @@ func TestSignup(t *testing.T) {
 	checkTestBool(t, true, strings.Contains(SendMailMockContent, "To: Foo Bar <foo@bar.com>"))
 
 	// Extract Confirm ID from email
-	rx := regexp.MustCompile(`\\?id=(.*)?\n`)
+	rx := regexp.MustCompile(`/confirm/(.*)?\n`)
 	confirmTokens := rx.FindStringSubmatch(SendMailMockContent)
 	checkTestInt(t, 2, len(confirmTokens))
 	confirmID := confirmTokens[1]

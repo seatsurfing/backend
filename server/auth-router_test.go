@@ -24,7 +24,7 @@ func TestPasswordReset(t *testing.T) {
 	checkTestBool(t, true, strings.Contains(SendMailMockContent, "Hallo "+user.Email+","))
 
 	// Extract Confirm ID from email
-	rx := regexp.MustCompile(`\\?id=(.*)?\n`)
+	rx := regexp.MustCompile(`/resetpw/(.*)?\n`)
 	confirmTokens := rx.FindStringSubmatch(SendMailMockContent)
 	checkTestInt(t, 2, len(confirmTokens))
 	confirmID := confirmTokens[1]
