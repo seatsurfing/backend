@@ -105,9 +105,12 @@ class App extends React.Component<Props, AuthContextData> {
   render() {
     if (window !== window.parent) {
       // Add Confluence JS
-      const script = document.createElement("script");
-      script.src = "https://connect-cdn.atl-paas.net/all.js";
-      document.head.appendChild(script);
+      if (!document.getElementById("confluence-js")) {
+        const script = document.createElement("script");
+        script.id = "confluence-js";
+        script.src = "https://connect-cdn.atl-paas.net/all.js";
+        document.head.appendChild(script);
+      }
       RuntimeConfig.EMBEDDED = true;
     }
 
