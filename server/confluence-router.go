@@ -87,18 +87,6 @@ func (router *ConfluenceRouter) serverLogin(w http.ResponseWriter, r *http.Reque
 	SendTemporaryRedirect(w, GetConfig().FrontendURL+"ui/login/success/"+authState.ID)
 }
 
-func (router *ConfluenceRouter) getUserEmail(r *http.Request, allowAnonymous bool) string {
-	userAccountID := r.Context().Value("userAccountId").(string)
-	clientKey := r.Context().Value("clientKey").(string)
-	if userAccountID == "" {
-		if !allowAnonymous {
-			return ""
-		}
-		userAccountID = "confluence-anonymous-" + uuid.New().String()
-	}
-	return userAccountID + "@" + clientKey
-}
-
 func (router *ConfluenceRouter) getUserEmailServer(org *Organization, claims *ConfluenceServerClaims, allowAnonymous bool) string {
 	userAccountID := "confluence-" + claims.UserName
 	if claims.UserName == "" {

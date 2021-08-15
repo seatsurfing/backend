@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -94,30 +93,6 @@ func (a *App) InitializeDefaultOrg() {
 		GetUserRepository().Create(user)
 		GetOrganizationRepository().createSampleData(org)
 	}
-}
-
-func (a *App) getAtlassianConfig() *os.File {
-	path, err := filepath.Abs("./res/atlassian-config.json")
-	if err != nil {
-		panic(err)
-	}
-	config, err := os.Open(path)
-	if err != nil {
-		panic(err)
-	}
-	return config
-}
-
-func (a *App) getAtlassianDescriptor() *os.File {
-	path, err := filepath.Abs("./res/atlassian-connect.json")
-	if err != nil {
-		panic(err)
-	}
-	config, err := os.Open(path)
-	if err != nil {
-		panic(err)
-	}
-	return config
 }
 
 func (a *App) InitializeTimers() {

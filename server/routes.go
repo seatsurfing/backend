@@ -147,9 +147,7 @@ func ExtractClaimsFromRequest(r *http.Request) (*Claims, string, error) {
 func VerifyAuthMiddleware(next http.Handler) http.Handler {
 	var isWhitelistMatch = func(url string, whitelistedURL string) bool {
 		whitelistedURL = strings.TrimSpace(whitelistedURL)
-		if strings.HasSuffix(whitelistedURL, "/") {
-			whitelistedURL = whitelistedURL[:len(whitelistedURL)-1]
-		}
+		whitelistedURL = strings.TrimSuffix(whitelistedURL, "/")
 		if whitelistedURL != "" && (url == whitelistedURL || strings.HasPrefix(url, whitelistedURL+"/")) {
 			return true
 		}
