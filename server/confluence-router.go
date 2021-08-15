@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	gonnect "github.com/craftamap/atlas-gonnect"
-	"github.com/craftamap/atlas-gonnect/middleware"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -20,13 +18,9 @@ type ConfluenceServerClaims struct {
 }
 
 type ConfluenceRouter struct {
-	Addon *gonnect.Addon
 }
 
 func (router *ConfluenceRouter) setupRoutes(s *mux.Router) {
-	s.Handle("/macro", middleware.NewAuthenticationMiddleware(router.Addon, false)(
-		http.HandlerFunc(router.macro),
-	))
 	s.HandleFunc("/{orgID}/{jwt}", router.serverLogin).Methods("GET")
 }
 
@@ -75,57 +69,6 @@ func (router *ConfluenceRouter) serverLogin(w http.ResponseWriter, r *http.Reque
 			Email:          userID,
 			AtlassianID:    NullString(userID),
 			OrganizationID: org.ID,
-			OrgAdmin:       false,
-			SuperAdmin:     false,
-		}
-		GetUserRepository().Create(user)
-	}
-	authState := &AuthState{
-		AuthProviderID: GetSettingsRepository().getNullUUID(),
-		Expiry:         time.Now().Add(time.Minute * 5),
-		AuthStateType:  AuthAtlassian,
-		Payload:        userID,
-	}
-	if err := GetAuthStateRepository().Create(authState); err != nil {
-		SendInternalServerError(w)
-		return
-	}
-	SendTemporaryRedirect(w, GetConfig().FrontendURL+"ui/login/success/"+authState.ID)
-}
-
-func (router *ConfluenceRouter) macro(w http.ResponseWriter, r *http.Request) {
-	clientID := r.Context().Value("clientKey").(string)
-	orgIDs, err := GetSettingsRepository().GetOrganizationIDsByValue(SettingConfluenceClientID.Name, clientID)
-	if (err != nil) || (len(orgIDs) > 1) {
-		log.Println(err)
-		SendInternalServerError(w)
-		return
-	}
-	if len(orgIDs) == 0 {
-		SendTemporaryRedirect(w, GetConfig().FrontendURL+"ui/login/confluence/"+clientID)
-		return
-	}
-	org, err := GetOrganizationRepository().GetOne(orgIDs[0])
-	if err != nil {
-		SendInternalServerError(w)
-		return
-	}
-	allowAnonymous, _ := GetSettingsRepository().GetBool(org.ID, SettingConfluenceAnonymous.Name)
-	userID := router.getUserEmail(r, allowAnonymous)
-	if userID == "" {
-		SendTemporaryRedirect(w, GetConfig().FrontendURL+"ui/login/confluence/anonymous")
-		return
-	}
-	_, err = GetUserRepository().GetByAtlassianID(userID)
-	if err != nil {
-		if !GetUserRepository().canCreateUser(org) {
-			SendTemporaryRedirect(w, GetConfig().FrontendURL+"ui/login/failed")
-			return
-		}
-		user := &User{
-			Email:          userID,
-			AtlassianID:    NullString(userID),
-			OrganizationID: orgIDs[0],
 			OrgAdmin:       false,
 			SuperAdmin:     false,
 		}

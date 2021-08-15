@@ -12,10 +12,6 @@ import (
 	"sync"
 	"time"
 
-	gonnect "github.com/craftamap/atlas-gonnect"
-	"github.com/craftamap/atlas-gonnect/middleware"
-	"github.com/craftamap/atlas-gonnect/routes"
-	"github.com/craftamap/atlas-gonnect/store"
 	"github.com/gorilla/mux"
 )
 
@@ -53,6 +49,7 @@ func (a *App) InitializeRouter() {
 	routers["/stats/"] = &StatsRouter{}
 	routers["/search/"] = &SearchRouter{}
 	routers["/setting/"] = &SettingsRouter{}
+	routers["/confluence/"] = &ConfluenceRouter{}
 	if config.OrgSignupEnabled {
 		routers["/signup/"] = &SignupRouter{}
 	}
@@ -97,30 +94,6 @@ func (a *App) InitializeDefaultOrg() {
 		GetUserRepository().Create(user)
 		GetOrganizationRepository().createSampleData(org)
 	}
-}
-
-func (a *App) InitializeAtlassianConnect() {
-	if !GetConfig().Development {
-		os.Setenv("GONNECT_PROFILE", "prod")
-	}
-	config := a.getAtlassianConfig()
-	descriptor := a.getAtlassianDescriptor()
-	addon, err := gonnect.NewAddon(config, descriptor)
-	if err != nil {
-		panic(err)
-	}
-	store, err := store.New("postgres", GetConfig().PostgresURL)
-	if err != nil {
-		panic(err)
-	}
-	addon.Store = store
-	subRouter := a.Router.PathPrefix("/confluence/").Subrouter()
-	subRouter.Use(middleware.NewRequestMiddleware(addon, make(map[string]string)))
-	routes.RegisterRoutes(addon, subRouter)
-	router := &ConfluenceRouter{
-		Addon: addon,
-	}
-	router.setupRoutes(subRouter)
 }
 
 func (a *App) getAtlassianConfig() *os.File {

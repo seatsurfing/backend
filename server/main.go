@@ -29,7 +29,6 @@ func main() {
 	a.InitializeDatabases()
 	a.InitializeDefaultOrg()
 	a.InitializeRouter()
-	a.InitializeAtlassianConnect()
 	a.InitializeTimers()
 	if GetConfig().PrintConfig {
 		GetConfig().Print()

@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -142,49 +141,6 @@ func (router *SettingsRouter) setAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (router *SettingsRouter) doSetOne(organizationID, name, value string) error {
-	if name == SettingConfluenceClientID.Name {
-		currentClientID, err := GetSettingsRepository().Get(organizationID, name)
-		if err != nil {
-			return err
-		}
-		value = strings.TrimSpace(value)
-		if currentClientID == value {
-			// Nothing to changge
-			return nil
-		}
-		if value != "" {
-			// Check if any other org has this Client ID
-			orgIDs, err := GetSettingsRepository().GetOrganizationIDsByValue(name, value)
-			if err != nil {
-				return err
-			}
-			if len(orgIDs) > 0 {
-				return ErrAlreadyExists
-			}
-		}
-		if currentClientID != "" {
-			if value == "" {
-				// If Client ID is removed: Delete all Confluence users
-				users, err := GetUserRepository().GetUsersWithAtlassianID(organizationID)
-				if err != nil {
-					return err
-				}
-				for _, user := range users {
-					if user.Email == string(user.AtlassianID) {
-						GetUserRepository().Delete(user)
-					} else {
-						user.AtlassianID = ""
-						GetUserRepository().Update(user)
-					}
-				}
-			} else {
-				// Else, change User IDs
-				if err := GetUserRepository().UpdateAtlassianClientID(organizationID, currentClientID, value); err != nil {
-					return err
-				}
-			}
-		}
-	}
 	err := GetSettingsRepository().Set(organizationID, name, value)
 	return err
 }
@@ -213,7 +169,6 @@ func (router *SettingsRouter) isValidSettingNameReadAdmin(name string) bool {
 		name == SettingActiveSubscription.Name ||
 		name == SettingSubscriptionMaxUsers.Name ||
 		name == SettingConfluenceServerSharedSecret.Name ||
-		name == SettingConfluenceClientID.Name ||
 		name == SettingConfluenceAnonymous.Name {
 		return true
 	}
@@ -223,7 +178,6 @@ func (router *SettingsRouter) isValidSettingNameReadAdmin(name string) bool {
 func (router *SettingsRouter) isValidSettingNameWrite(name string) bool {
 	if name == SettingAllowAnyUser.Name ||
 		name == SettingConfluenceServerSharedSecret.Name ||
-		name == SettingConfluenceClientID.Name ||
 		name == SettingConfluenceAnonymous.Name ||
 		name == SettingMaxBookingsPerUser.Name ||
 		name == SettingMaxDaysInAdvance.Name ||
@@ -238,9 +192,6 @@ func (router *SettingsRouter) isValidSettingNameWrite(name string) bool {
 func (router *SettingsRouter) getSettingType(name string) SettingType {
 	if name == SettingAllowAnyUser.Name {
 		return SettingAllowAnyUser.Type
-	}
-	if name == SettingConfluenceClientID.Name {
-		return SettingConfluenceClientID.Type
 	}
 	if name == SettingConfluenceServerSharedSecret.Name {
 		return SettingConfluenceServerSharedSecret.Type
