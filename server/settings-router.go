@@ -22,7 +22,8 @@ type GetSettingsResponse struct {
 }
 
 var (
-	ErrAlreadyExists = errors.New("resource already exists")
+	ErrAlreadyExists          = errors.New("resource already exists")
+	SysSettingOrgSignupDelete = "_sys_org_signup_delete"
 )
 
 func (router *SettingsRouter) setupRoutes(s *mux.Router) {
@@ -38,6 +39,10 @@ func (router *SettingsRouter) getSetting(w http.ResponseWriter, r *http.Request)
 	orgAdmin := CanAdminOrg(user, user.OrganizationID)
 	if !((orgAdmin && router.isValidSettingNameReadAdmin(vars["name"])) || (router.isValidSettingNameReadPublic(vars["name"]))) {
 		SendForbidden(w)
+		return
+	}
+	if (vars["name"] == SysSettingOrgSignupDelete) && orgAdmin {
+		SendJSON(w, router.getSysSettingOrgSignupDelete())
 		return
 	}
 	value, err := GetSettingsRepository().Get(user.OrganizationID, vars["name"])
@@ -101,6 +106,9 @@ func (router *SettingsRouter) getAll(w http.ResponseWriter, r *http.Request) {
 			m := router.copyToRestModel(e)
 			res = append(res, m)
 		}
+	}
+	if orgAdmin {
+		res = append(res, router.getSysSettingOrgSignupDelete())
 	}
 	SendJSON(w, res)
 }
@@ -169,7 +177,8 @@ func (router *SettingsRouter) isValidSettingNameReadAdmin(name string) bool {
 		name == SettingActiveSubscription.Name ||
 		name == SettingSubscriptionMaxUsers.Name ||
 		name == SettingConfluenceServerSharedSecret.Name ||
-		name == SettingConfluenceAnonymous.Name {
+		name == SettingConfluenceAnonymous.Name ||
+		name == SysSettingOrgSignupDelete {
 		return true
 	}
 	return false
@@ -234,4 +243,15 @@ func (router *SettingsRouter) isValidSettingType(name string, value string) bool
 		}
 	}
 	return false
+}
+
+func (router *SettingsRouter) getSysSettingOrgSignupDelete() *GetSettingsResponse {
+	boolVal := "0"
+	if GetConfig().OrgSignupDelete {
+		boolVal = "1"
+	}
+	return &GetSettingsResponse{
+		Name:  SysSettingOrgSignupDelete,
+		Value: boolVal,
+	}
 }

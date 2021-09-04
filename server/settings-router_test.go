@@ -104,6 +104,7 @@ func TestSettingsReadAdmin(t *testing.T) {
 		SettingConfluenceAnonymous.Name,
 		SettingActiveSubscription.Name,
 		SettingSubscriptionMaxUsers.Name,
+		SysSettingOrgSignupDelete,
 	}
 	forbiddenSettings := []string{
 		SettingDatabaseVersion.Name,
@@ -186,9 +187,10 @@ func TestSettingsCRUDMany(t *testing.T) {
 	checkTestResponseCode(t, http.StatusOK, res.Code)
 	var resBody []GetSettingsResponse
 	json.Unmarshal(res.Body.Bytes(), &resBody)
-	checkTestInt(t, 2, len(resBody))
+	checkTestInt(t, 3, len(resBody))
 	checkTestString(t, SettingAllowAnyUser.Name, resBody[0].Name)
 	checkTestString(t, SettingMaxBookingsPerUser.Name, resBody[1].Name)
+	checkTestString(t, SysSettingOrgSignupDelete, resBody[2].Name)
 	checkTestString(t, "1", resBody[0].Value)
 	checkTestString(t, "5", resBody[1].Value)
 
@@ -202,9 +204,10 @@ func TestSettingsCRUDMany(t *testing.T) {
 	checkTestResponseCode(t, http.StatusOK, res.Code)
 	var resBody2 []GetSettingsResponse
 	json.Unmarshal(res.Body.Bytes(), &resBody2)
-	checkTestInt(t, 2, len(resBody2))
+	checkTestInt(t, 3, len(resBody2))
 	checkTestString(t, SettingAllowAnyUser.Name, resBody2[0].Name)
 	checkTestString(t, SettingMaxBookingsPerUser.Name, resBody2[1].Name)
+	checkTestString(t, SysSettingOrgSignupDelete, resBody2[2].Name)
 	checkTestString(t, "0", resBody2[0].Value)
 	checkTestString(t, "3", resBody2[1].Value)
 }

@@ -32,6 +32,7 @@ type Config struct {
 	OrgSignupDomain     string
 	OrgSignupAdmin      string
 	OrgSignupMaxUsers   int
+	OrgSignupDelete     bool
 }
 
 var _configInstance *Config
@@ -97,6 +98,7 @@ func (c *Config) ReadConfig() {
 		log.Fatal("Could not parse ORG_SIGNUP_MAX_USERS to int")
 	}
 	c.OrgSignupMaxUsers = maxUsers
+	c.OrgSignupDelete = (c._GetEnv("ORG_SIGNUP_DELETE", "0") == "1")
 }
 
 func (c *Config) Print() {

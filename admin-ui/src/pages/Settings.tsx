@@ -18,6 +18,7 @@ interface State {
   showNames: boolean
   subscriptionActive: boolean
   subscriptionMaxUsers: number
+  allowOrgDelete: boolean
   selectedAuthProvider: string
   loading: boolean
   submitting: boolean
@@ -50,6 +51,7 @@ class Settings extends React.Component<Props, State> {
       showNames: false,
       subscriptionActive: false,
       subscriptionMaxUsers: 0,
+      allowOrgDelete: false,
       selectedAuthProvider: "",
       loading: true,
       submitting: false,
@@ -98,6 +100,7 @@ class Settings extends React.Component<Props, State> {
         if (s.name === "show_names") state.showNames = (s.value === "1");
         if (s.name === "subscription_active") state.subscriptionActive = (s.value === "1");
         if (s.name === "subscription_max_users") state.subscriptionMaxUsers = window.parseInt(s.value);
+        if (s.name === "_sys_org_signup_delete") state.allowOrgDelete = (s.value === "1");
       });
       if (state.maxBookingDurationHours && (state.maxBookingDurationHours%24 !== 0)) {
         state.maxBookingDurationHours += state.maxBookingDurationHours%24;
@@ -320,6 +323,20 @@ class Settings extends React.Component<Props, State> {
       );
     }
 
+    let dangerZone = (
+      <></>
+    );
+    if (this.state.allowOrgDelete) {
+      dangerZone = (
+        <>
+          <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 className="h2">{this.props.t("dangerZone")}</h1>
+          </div>
+          <Button className="btn btn-danger" onClick={this.deleteOrg}>{this.props.t("deleteOrg")}</Button>
+        </>
+      );
+    }
+
     let hint = <></>;
     if (this.state.saved) {
       hint = <Alert variant="success">{this.props.t("entryUpdated")}</Alert>
@@ -416,6 +433,7 @@ class Settings extends React.Component<Props, State> {
           </div>
         </div>
         {authProviderTable}
+        {dangerZone}
       </FullLayout>
     );
   }

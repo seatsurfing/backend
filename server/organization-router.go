@@ -267,6 +267,11 @@ func (router *OrganizationRouter) delete(w http.ResponseWriter, r *http.Request)
 		SendForbidden(w)
 		return
 	}
+	if !user.SuperAdmin && CanAdminOrg(user, user.OrganizationID) {
+		if !GetConfig().OrgSignupDelete {
+			SendForbidden(w)
+		}
+	}
 	vars := mux.Vars(r)
 	e, err := GetOrganizationRepository().GetOne(vars["id"])
 	if err != nil {
