@@ -92,7 +92,7 @@ func (c *Config) ReadConfig() {
 	c.OrgSignupEnabled = (c._GetEnv("ORG_SIGNUP_ENABLED", "0") == "1")
 	c.OrgSignupDomain = c._GetEnv("ORG_SIGNUP_DOMAIN", ".on.seatsurfing.local")
 	c.OrgSignupAdmin = c._GetEnv("ORG_SIGNUP_ADMIN", "admin")
-	maxUsers, err := strconv.Atoi(c._GetEnv("ORG_SIGNUP_MAX_USERS", "50"))
+	maxUsers, err := strconv.Atoi(c._GetEnv("ORG_SIGNUP_MAX_USERS", "10"))
 	if err != nil {
 		log.Fatal("Could not parse ORG_SIGNUP_MAX_USERS to int")
 	}
