@@ -132,6 +132,8 @@ func (a *App) setupStaticAdminRoutes(router *mux.Router) {
 		"/settings",
 		"/bookings",
 		"/search",
+		"/confirm",
+		"/organizations",
 	}
 	fs := http.FileServer(http.Dir(GetConfig().StaticAdminUiPath))
 	for _, path := range paths {
@@ -148,6 +150,7 @@ func (a *App) setupStaticUserRoutes(router *mux.Router) {
 		"/login",
 		"/search",
 		"/bookings",
+		"/resetpw",
 	}
 	fs := http.FileServer(http.Dir(GetConfig().StaticBookingUiPath))
 	for _, path := range paths {
