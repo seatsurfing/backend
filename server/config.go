@@ -9,30 +9,36 @@ import (
 )
 
 type Config struct {
-	PublicListenAddr    string
-	PublicURL           string
-	FrontendURL         string
-	AppURL              string
-	PostgresURL         string
-	JwtSigningKey       string
-	StaticAdminUiPath   string
-	StaticBookingUiPath string
-	SMTPHost            string
-	SMTPSenderAddress   string
-	MockSendmail        bool
-	PrintConfig         bool
-	Development         bool
-	InitOrgName         string
-	InitOrgDomain       string
-	InitOrgUser         string
-	InitOrgPass         string
-	InitOrgCountry      string
-	InitOrgLanguage     string
-	OrgSignupEnabled    bool
-	OrgSignupDomain     string
-	OrgSignupAdmin      string
-	OrgSignupMaxUsers   int
-	OrgSignupDelete     bool
+	PublicListenAddr       string
+	PublicURL              string
+	FrontendURL            string
+	AppURL                 string
+	PostgresURL            string
+	JwtSigningKey          string
+	StaticAdminUiPath      string
+	StaticBookingUiPath    string
+	SMTPHost               string
+	SMTPPort               int
+	SMTPSenderAddress      string
+	SMTPStartTLS           bool
+	SMTPInsecureSkipVerify bool
+	SMTPAuth               bool
+	SMTPAuthUser           string
+	SMTPAuthPass           string
+	MockSendmail           bool
+	PrintConfig            bool
+	Development            bool
+	InitOrgName            string
+	InitOrgDomain          string
+	InitOrgUser            string
+	InitOrgPass            string
+	InitOrgCountry         string
+	InitOrgLanguage        string
+	OrgSignupEnabled       bool
+	OrgSignupDomain        string
+	OrgSignupAdmin         string
+	OrgSignupMaxUsers      int
+	OrgSignupDelete        bool
 }
 
 var _configInstance *Config
@@ -80,7 +86,17 @@ func (c *Config) ReadConfig() {
 	}
 	c.PostgresURL = c._GetEnv("POSTGRES_URL", "postgres://postgres:root@localhost/seatsurfing?sslmode=disable")
 	c.JwtSigningKey = c._GetEnv("JWT_SIGNING_KEY", "cX32hEwZDCLZ6bCR")
-	c.SMTPHost = c._GetEnv("SMTP_HOST", "127.0.0.1:25")
+	c.SMTPHost = c._GetEnv("SMTP_HOST", "127.0.0.1")
+	smtpPort, err := strconv.Atoi(c._GetEnv("SMTP_PORT", "25"))
+	if err != nil {
+		log.Fatal("Could not parse SMTP_PORT to int")
+	}
+	c.SMTPPort = smtpPort
+	c.SMTPStartTLS = (c._GetEnv("SMTP_START_TLS", "0") == "1")
+	c.SMTPInsecureSkipVerify = (c._GetEnv("SMTP_INSECURE_SKIP_VERIFY", "0") == "1")
+	c.SMTPAuth = (c._GetEnv("SMTP_AUTH", "0") == "1")
+	c.SMTPAuthUser = c._GetEnv("SMTP_AUTH_USER", "")
+	c.SMTPAuthPass = c._GetEnv("SMTP_AUTH_PASS", "")
 	c.SMTPSenderAddress = c._GetEnv("SMTP_SENDER_ADDRESS", "no-reply@seatsurfing.local")
 	c.MockSendmail = (c._GetEnv("MOCK_SENDMAIL", "0") == "1")
 	c.PrintConfig = (c._GetEnv("PRINT_CONFIG", "0") == "1")
