@@ -219,7 +219,7 @@ func (router *AuthRouter) verify(w http.ResponseWriter, r *http.Request) {
 			SendPaymentRequired(w)
 			return
 		}
-		user := &User{
+		user = &User{
 			Email:          authState.Payload,
 			OrganizationID: org.ID,
 			OrgAdmin:       false,
@@ -276,6 +276,7 @@ func (router *AuthRouter) callback(w http.ResponseWriter, r *http.Request) {
 	}
 	claims, loginType, err := router.getUserInfo(provider, r.FormValue("state"), r.FormValue("code"))
 	if err != nil {
+		log.Println(err)
 		SendTemporaryRedirect(w, router.getRedirectFailedUrl(loginType))
 		return
 	}
@@ -283,8 +284,8 @@ func (router *AuthRouter) callback(w http.ResponseWriter, r *http.Request) {
 		SendTemporaryRedirect(w, router.getRedirectFailedUrl(loginType))
 		return
 	}
-	allowAnyUser, _ := GetSettingsRepository().Get(provider.OrganizationID, SettingAllowAnyUser.Name)
-	if allowAnyUser != "1" {
+	allowAnyUser, _ := GetSettingsRepository().GetBool(provider.OrganizationID, SettingAllowAnyUser.Name)
+	if !allowAnyUser {
 		_, err := GetUserRepository().GetByEmail(claims.Email)
 		if err != nil {
 			SendTemporaryRedirect(w, router.getRedirectFailedUrl(loginType))
@@ -302,7 +303,8 @@ func (router *AuthRouter) callback(w http.ResponseWriter, r *http.Request) {
 		SendTemporaryRedirect(w, router.getRedirectFailedUrl(loginType))
 		return
 	}
-	SendTemporaryRedirect(w, router.getRedirectSuccessUrl(loginType, authState))
+	redirectUrl := router.getRedirectSuccessUrl(loginType, authState)
+	SendTemporaryRedirect(w, redirectUrl)
 }
 
 func (router *AuthRouter) getRedirectSuccessUrl(loginType string, authState *AuthState) string {
@@ -368,6 +370,9 @@ func (router *AuthRouter) getUserInfo(provider *AuthProvider, state string, code
 	// Extract email address from JSON response
 	var result map[string]interface{}
 	json.Unmarshal([]byte(contents), &result)
+	if (result[provider.UserInfoEmailField] == nil) || (strings.TrimSpace(result[provider.UserInfoEmailField].(string)) == "") {
+		return nil, "", fmt.Errorf("could not read email address from field: %s", provider.UserInfoEmailField)
+	}
 	claims := &Claims{
 		Email: result[provider.UserInfoEmailField].(string),
 	}

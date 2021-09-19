@@ -1,6 +1,6 @@
 import React from 'react';
 import FullLayout from '../components/FullLayout';
-import { Form, Col, Row, Button, Alert } from 'react-bootstrap';
+import { Form, Col, Row, Button, Alert, ButtonGroup } from 'react-bootstrap';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete } from 'react-feather';
 import { Link, RouteChildrenProps, Redirect } from 'react-router-dom';
 import Loading from '../components/Loading';
@@ -109,7 +109,7 @@ class EditAuthProvider extends React.Component<Props, State> {
   }
 
   deleteItem = () => {
-    if (window.confirm("Provider löschen? Logins über diesen Provider sind dann nicht mehr möglich!")) {
+    if (window.confirm(this.props.t("confirmDeleteAuthProvider"))) {
       this.entity.delete().then(() => {
         this.setState({ goBack: true });
       });
@@ -125,6 +125,19 @@ class EditAuthProvider extends React.Component<Props, State> {
       authStyle: 1,
       scopes: "https://www.googleapis.com/auth/userinfo.email",
       userInfoUrl: "https://www.googleapis.com/oauth2/v3/userinfo",
+      userInfoEmailField: "email"
+    });
+  }
+
+  templateMicrosoft = () => {
+    this.setState({
+      name: "Microsoft",
+      providerType: 1,
+      authUrl: "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+      tokenUrl: "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+      authStyle: 1,
+      scopes: "openid,email",
+      userInfoUrl: "https://graph.microsoft.com/oidc/userinfo",
       userInfoEmailField: "email"
     });
   }
@@ -241,7 +254,10 @@ class EditAuthProvider extends React.Component<Props, State> {
           <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("templates")}</Form.Label>
             <Col sm="4">
-              <Button variant="outline-secondary" onClick={this.templateGoogle}>Google</Button>
+              <ButtonGroup>
+                <Button variant="outline-secondary" onClick={this.templateGoogle}>Google</Button>
+                <Button variant="outline-secondary" onClick={this.templateMicrosoft}>Microsoft</Button>
+              </ButtonGroup>
             </Col>
           </Form.Group>
         </Form>
