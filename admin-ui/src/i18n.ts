@@ -116,6 +116,7 @@ const resources = {
             "lastname": "Nachname",
             "country": "Land",
             "language": "Sprache",
+            "maxConcurrentBookings": "Max. Buchungen",
         }
     },
     en: {
@@ -231,6 +232,7 @@ const resources = {
             "lastname": "Lastname",
             "country": "Country",
             "language": "Language",
+            "maxConcurrentBookings": "Max. bookings",
         }
     }
 };

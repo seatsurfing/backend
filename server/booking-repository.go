@@ -212,6 +212,8 @@ func (r *BookingRepository) GetLoad(organizationID string, enter, leave time.Tim
 	return int(math.RoundToEven(res)), nil
 }
 
+// GetConflicts returns bookings for a specific space which overlap
+// with the specified enter and leave times.
 func (r *BookingRepository) GetConflicts(spaceID string, enter time.Time, leave time.Time, excludeBookingID string) ([]*Booking, error) {
 	var result []*Booking
 	rows, err := GetDatabase().DB().Query("SELECT id, user_id, space_id, enter_time, leave_time "+
@@ -223,6 +225,34 @@ func (r *BookingRepository) GetConflicts(spaceID string, enter time.Time, leave 
 		"(leave_time BETWEEN $3 AND $4)"+
 		") "+
 		"ORDER BY enter_time", excludeBookingID, spaceID, enter, leave)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		e := &Booking{}
+		err = rows.Scan(&e.ID, &e.UserID, &e.SpaceID, &e.Enter, &e.Leave)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, e)
+	}
+	return result, nil
+}
+
+// GetConcurrent returns concurrent bookings for a specific location
+// within the specified enter and leave times.
+func (r *BookingRepository) GetConcurrent(locationID string, enter time.Time, leave time.Time, excludeBookingID string) ([]*Booking, error) {
+	var result []*Booking
+	rows, err := GetDatabase().DB().Query("SELECT id, user_id, space_id, enter_time, leave_time "+
+		"FROM bookings "+
+		"WHERE id::text != $1 AND space_id IN (SELECT id FROM spaces WHERE location_id = $2) AND ("+
+		"($3 BETWEEN enter_time AND leave_time) OR "+
+		"($4 BETWEEN enter_time AND leave_time) OR "+
+		"(enter_time BETWEEN $3 AND $4) OR "+
+		"(leave_time BETWEEN $3 AND $4)"+
+		") "+
+		"ORDER BY enter_time", excludeBookingID, locationID, enter, leave)
 	if err != nil {
 		return nil, err
 	}

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -547,10 +548,9 @@ func TestBookingsNegativeBookingDuration(t *testing.T) {
 	clearTestDB()
 	org := createTestOrg("test.com")
 
-	m := &CreateBookingRequest{
-		Enter:   time.Now().Add(time.Hour * 1).UTC(),
-		Leave:   time.Now().Add(time.Hour * -2).UTC(),
-		SpaceID: "",
+	m := &BookingRequest{
+		Enter: time.Now().Add(time.Hour * 1).UTC(),
+		Leave: time.Now().Add(time.Hour * -2).UTC(),
 	}
 
 	router := &BookingRouter{}
@@ -562,10 +562,9 @@ func TestBookingsValidBookingDuration(t *testing.T) {
 	clearTestDB()
 	org := createTestOrg("test.com")
 
-	m := &CreateBookingRequest{
-		Enter:   time.Now().Add(time.Hour * 1).UTC(),
-		Leave:   time.Now().Add(time.Hour * 8).UTC(),
-		SpaceID: "",
+	m := &BookingRequest{
+		Enter: time.Now().Add(time.Hour * 1).UTC(),
+		Leave: time.Now().Add(time.Hour * 8).UTC(),
 	}
 
 	router := &BookingRouter{}
@@ -578,10 +577,9 @@ func TestBookingsInvalidBookingDuration(t *testing.T) {
 	org := createTestOrg("test.com")
 	GetSettingsRepository().Set(org.ID, SettingMaxBookingDurationHours.Name, "12")
 
-	m := &CreateBookingRequest{
-		Enter:   time.Now().Add(time.Hour * 1).UTC(),
-		Leave:   time.Now().Add(time.Hour * 14).UTC(),
-		SpaceID: "",
+	m := &BookingRequest{
+		Enter: time.Now().Add(time.Hour * 1).UTC(),
+		Leave: time.Now().Add(time.Hour * 14).UTC(),
 	}
 
 	router := &BookingRouter{}
@@ -596,10 +594,9 @@ func TestBookingsDailyBasisBookingValid(t *testing.T) {
 	GetSettingsRepository().Set(org.ID, SettingDailyBasisBooking.Name, "1")
 	tm := time.Now().Add(time.Hour * 24).UTC()
 
-	m := &CreateBookingRequest{
-		Enter:   time.Date(tm.Year(), tm.Month(), tm.Day(), 0, 0, 0, 0, tm.Location()),
-		Leave:   time.Date(tm.Year(), tm.Month(), tm.Day(), 23, 59, 59, 0, tm.Location()),
-		SpaceID: "",
+	m := &BookingRequest{
+		Enter: time.Date(tm.Year(), tm.Month(), tm.Day(), 0, 0, 0, 0, tm.Location()),
+		Leave: time.Date(tm.Year(), tm.Month(), tm.Day(), 23, 59, 59, 0, tm.Location()),
 	}
 
 	router := &BookingRouter{}
@@ -614,10 +611,9 @@ func TestBookingsDailyBasisBookingSameDayValid(t *testing.T) {
 	GetSettingsRepository().Set(org.ID, SettingDailyBasisBooking.Name, "1")
 	tm := time.Now().UTC()
 
-	m := &CreateBookingRequest{
-		Enter:   time.Date(tm.Year(), tm.Month(), tm.Day(), 0, 0, 0, 0, tm.Location()),
-		Leave:   time.Date(tm.Year(), tm.Month(), tm.Day(), 23, 59, 59, 0, tm.Location()),
-		SpaceID: "",
+	m := &BookingRequest{
+		Enter: time.Date(tm.Year(), tm.Month(), tm.Day(), 0, 0, 0, 0, tm.Location()),
+		Leave: time.Date(tm.Year(), tm.Month(), tm.Day(), 23, 59, 59, 0, tm.Location()),
 	}
 
 	router := &BookingRouter{}
@@ -632,10 +628,9 @@ func TestBookingsDailyBasisBookingInvalidEnter(t *testing.T) {
 	GetSettingsRepository().Set(org.ID, SettingDailyBasisBooking.Name, "1")
 	tm := time.Now().Add(time.Hour * 24).UTC()
 
-	m := &CreateBookingRequest{
-		Enter:   time.Date(tm.Year(), tm.Month(), tm.Day(), 0, 1, 0, 0, tm.Location()),
-		Leave:   time.Date(tm.Year(), tm.Month(), tm.Day(), 23, 59, 59, 0, tm.Location()),
-		SpaceID: "",
+	m := &BookingRequest{
+		Enter: time.Date(tm.Year(), tm.Month(), tm.Day(), 0, 1, 0, 0, tm.Location()),
+		Leave: time.Date(tm.Year(), tm.Month(), tm.Day(), 23, 59, 59, 0, tm.Location()),
 	}
 
 	router := &BookingRouter{}
@@ -650,10 +645,9 @@ func TestBookingsDailyBasisBookingInvalidLeave(t *testing.T) {
 	GetSettingsRepository().Set(org.ID, SettingDailyBasisBooking.Name, "1")
 	tm := time.Now().Add(time.Hour * 24).UTC()
 
-	m := &CreateBookingRequest{
-		Enter:   time.Date(tm.Year(), tm.Month(), tm.Day(), 0, 0, 0, 0, tm.Location()),
-		Leave:   time.Date(tm.Year(), tm.Month(), tm.Day(), 23, 50, 59, 0, tm.Location()),
-		SpaceID: "",
+	m := &BookingRequest{
+		Enter: time.Date(tm.Year(), tm.Month(), tm.Day(), 0, 0, 0, 0, tm.Location()),
+		Leave: time.Date(tm.Year(), tm.Month(), tm.Day(), 23, 50, 59, 0, tm.Location()),
 	}
 
 	router := &BookingRouter{}
@@ -668,10 +662,9 @@ func TestBookingsDailyBasisBookingRoundBookingDurationUp(t *testing.T) {
 	GetSettingsRepository().Set(org.ID, SettingDailyBasisBooking.Name, "1")
 	tm := time.Now().Add(time.Hour * 24).UTC()
 
-	m := &CreateBookingRequest{
-		Enter:   time.Date(tm.Year(), tm.Month(), tm.Day(), 0, 0, 0, 0, tm.Location()),
-		Leave:   time.Date(tm.Year(), tm.Month(), tm.Day(), 23, 59, 59, 0, tm.Location()),
-		SpaceID: "",
+	m := &BookingRequest{
+		Enter: time.Date(tm.Year(), tm.Month(), tm.Day(), 0, 0, 0, 0, tm.Location()),
+		Leave: time.Date(tm.Year(), tm.Month(), tm.Day(), 23, 59, 59, 0, tm.Location()),
 	}
 
 	router := &BookingRouter{}
@@ -684,10 +677,9 @@ func TestBookingsValidBorderBookingDuration(t *testing.T) {
 	org := createTestOrg("test.com")
 	GetSettingsRepository().Set(org.ID, SettingMaxBookingDurationHours.Name, "3")
 
-	m := &CreateBookingRequest{
-		Enter:   time.Now().Add(time.Hour * 1).UTC(),
-		Leave:   time.Now().Add(time.Hour * 4).UTC(),
-		SpaceID: "",
+	m := &BookingRequest{
+		Enter: time.Now().Add(time.Hour * 1).UTC(),
+		Leave: time.Now().Add(time.Hour * 4).UTC(),
 	}
 
 	router := &BookingRouter{}
@@ -700,10 +692,9 @@ func TestBookingsInvalidBorderBookingDuration(t *testing.T) {
 	org := createTestOrg("test.com")
 	GetSettingsRepository().Set(org.ID, SettingMaxBookingDurationHours.Name, "3")
 
-	m := &CreateBookingRequest{
-		Enter:   time.Now().Add(time.Hour * 1).UTC(),
-		Leave:   time.Now().Add(time.Hour * 4).Add(time.Minute * 1).UTC(),
-		SpaceID: "",
+	m := &BookingRequest{
+		Enter: time.Now().Add(time.Hour * 1).UTC(),
+		Leave: time.Now().Add(time.Hour * 4).Add(time.Minute * 1).UTC(),
 	}
 
 	router := &BookingRouter{}
@@ -716,10 +707,9 @@ func TestBookingsPastEnterDate(t *testing.T) {
 	org := createTestOrg("test.com")
 	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "5")
 
-	m := &CreateBookingRequest{
-		Enter:   time.Now().Add(time.Hour * -5).UTC(),
-		Leave:   time.Now().Add(time.Hour * -2).UTC(),
-		SpaceID: "",
+	m := &BookingRequest{
+		Enter: time.Now().Add(time.Hour * -5).UTC(),
+		Leave: time.Now().Add(time.Hour * -2).UTC(),
 	}
 
 	router := &BookingRouter{}
@@ -732,10 +722,9 @@ func TestBookingsValidFutureAdvanceDate(t *testing.T) {
 	org := createTestOrg("test.com")
 	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "5")
 
-	m := &CreateBookingRequest{
-		Enter:   time.Now().Add(time.Hour * 2 * 24).UTC(),
-		Leave:   time.Now().Add(time.Hour * 2 * 24).Add(time.Hour * 5).UTC(),
-		SpaceID: "",
+	m := &BookingRequest{
+		Enter: time.Now().Add(time.Hour * 2 * 24).UTC(),
+		Leave: time.Now().Add(time.Hour * 2 * 24).Add(time.Hour * 5).UTC(),
 	}
 
 	router := &BookingRouter{}
@@ -748,10 +737,9 @@ func TestBookingsValidBorderAdvanceDate(t *testing.T) {
 	org := createTestOrg("test.com")
 	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "5")
 
-	m := &CreateBookingRequest{
-		Enter:   time.Now().Add(time.Hour * 5 * 24).Add(time.Hour * 1).UTC(),
-		Leave:   time.Now().Add(time.Hour * 5 * 24).Add(time.Hour * 5).UTC(),
-		SpaceID: "",
+	m := &BookingRequest{
+		Enter: time.Now().Add(time.Hour * 5 * 24).Add(time.Hour * 1).UTC(),
+		Leave: time.Now().Add(time.Hour * 5 * 24).Add(time.Hour * 5).UTC(),
 	}
 
 	router := &BookingRouter{}
@@ -764,10 +752,9 @@ func TestBookingsInvalidBorderAdvanceDate(t *testing.T) {
 	org := createTestOrg("test.com")
 	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "5")
 
-	m := &CreateBookingRequest{
-		Enter:   time.Now().Add(time.Hour * 6 * 24).Add(time.Hour * 1).UTC(),
-		Leave:   time.Now().Add(time.Hour * 6 * 24).Add(time.Hour * 5).UTC(),
-		SpaceID: "",
+	m := &BookingRequest{
+		Enter: time.Now().Add(time.Hour * 6 * 24).Add(time.Hour * 1).UTC(),
+		Leave: time.Now().Add(time.Hour * 6 * 24).Add(time.Hour * 5).UTC(),
 	}
 
 	router := &BookingRouter{}
@@ -780,10 +767,9 @@ func TestBookingsInvalidFutureAdvanceDate(t *testing.T) {
 	org := createTestOrg("test.com")
 	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "5")
 
-	m := &CreateBookingRequest{
-		Enter:   time.Now().Add(time.Hour * 7 * 24).UTC(),
-		Leave:   time.Now().Add(time.Hour * 7 * 24).Add(time.Hour * 5).UTC(),
-		SpaceID: "",
+	m := &BookingRequest{
+		Enter: time.Now().Add(time.Hour * 7 * 24).UTC(),
+		Leave: time.Now().Add(time.Hour * 7 * 24).Add(time.Hour * 5).UTC(),
 	}
 
 	router := &BookingRouter{}
@@ -829,4 +815,215 @@ func TestBookingsInvalidMaxUpcomingBookings(t *testing.T) {
 	router := &BookingRouter{}
 	res := router.isValidMaxUpcomingBookings(org.ID, user.ID)
 	checkTestBool(t, false, res)
+}
+
+func TestBookingsMaxConcurrentOK(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, strconv.Itoa(365*10))
+	GetSettingsRepository().Set(org.ID, SettingMaxBookingsPerUser.Name, "1")
+	user1 := createTestUserInOrg(org)
+	user2 := createTestUserInOrg(org)
+	user3 := createTestUserInOrg(org)
+
+	l := &Location{
+		Name:                  "Test",
+		MaxConcurrentBookings: 2,
+		OrganizationID:        org.ID,
+	}
+	GetLocationRepository().Create(l)
+	s1 := &Space{Name: "Test 1", LocationID: l.ID}
+	GetSpaceRepository().Create(s1)
+	s2 := &Space{Name: "Test 2", LocationID: l.ID}
+	GetSpaceRepository().Create(s2)
+	s3 := &Space{Name: "Test 3", LocationID: l.ID}
+	GetSpaceRepository().Create(s3)
+
+	// Create booking 1
+	payload := "{\"spaceId\": \"" + s1.ID + "\", \"enter\": \"2030-09-01T08:30:00+02:00\", \"leave\": \"2030-09-01T17:00:00+02:00\"}"
+	req := newHTTPRequest("POST", "/booking/", user1.ID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+
+	// Create booking 2
+	payload = "{\"spaceId\": \"" + s2.ID + "\", \"enter\": \"2030-09-01T07:30:00+02:00\", \"leave\": \"2030-09-01T12:00:00+02:00\"}"
+	req = newHTTPRequest("POST", "/booking/", user2.ID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+
+	// Create booking 3
+	payload = "{\"spaceId\": \"" + s3.ID + "\", \"enter\": \"2030-09-01T13:00:00+02:00\", \"leave\": \"2030-09-01T18:00:00+02:00\"}"
+	req = newHTTPRequest("POST", "/booking/", user3.ID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+}
+
+func TestBookingsMaxConcurrentLimitExceeded(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, strconv.Itoa(365*10))
+	GetSettingsRepository().Set(org.ID, SettingMaxBookingsPerUser.Name, "1")
+	user1 := createTestUserInOrg(org)
+	user2 := createTestUserInOrg(org)
+	user3 := createTestUserInOrg(org)
+
+	l := &Location{
+		Name:                  "Test",
+		MaxConcurrentBookings: 2,
+		OrganizationID:        org.ID,
+	}
+	GetLocationRepository().Create(l)
+	s1 := &Space{Name: "Test 1", LocationID: l.ID}
+	GetSpaceRepository().Create(s1)
+	s2 := &Space{Name: "Test 2", LocationID: l.ID}
+	GetSpaceRepository().Create(s2)
+	s3 := &Space{Name: "Test 3", LocationID: l.ID}
+	GetSpaceRepository().Create(s3)
+
+	// Create booking 1
+	payload := "{\"spaceId\": \"" + s1.ID + "\", \"enter\": \"2030-09-01T08:30:00+02:00\", \"leave\": \"2030-09-01T17:00:00+02:00\"}"
+	req := newHTTPRequest("POST", "/booking/", user1.ID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+
+	// Create booking 2
+	payload = "{\"spaceId\": \"" + s2.ID + "\", \"enter\": \"2030-09-01T07:30:00+02:00\", \"leave\": \"2030-09-01T12:00:00+02:00\"}"
+	req = newHTTPRequest("POST", "/booking/", user2.ID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+
+	// Create booking 3
+	payload = "{\"spaceId\": \"" + s3.ID + "\", \"enter\": \"2030-09-01T11:00:00+02:00\", \"leave\": \"2030-09-01T15:00:00+02:00\"}"
+	req = newHTTPRequest("POST", "/booking/", user3.ID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusBadRequest, res.Code)
+	checkTestString(t, strconv.Itoa(ResponseCodeBookingLocationMaxConcurrent), res.Header().Get("X-Error-Code"))
+}
+
+func TestBookingsMaxConcurrentLimitOKOnUpdate(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, strconv.Itoa(365*10))
+	GetSettingsRepository().Set(org.ID, SettingMaxBookingsPerUser.Name, "1")
+	user1 := createTestUserInOrg(org)
+	user2 := createTestUserInOrg(org)
+
+	l := &Location{
+		Name:                  "Test",
+		MaxConcurrentBookings: 2,
+		OrganizationID:        org.ID,
+	}
+	GetLocationRepository().Create(l)
+	s1 := &Space{Name: "Test 1", LocationID: l.ID}
+	GetSpaceRepository().Create(s1)
+	s2 := &Space{Name: "Test 2", LocationID: l.ID}
+	GetSpaceRepository().Create(s2)
+
+	// Create booking 1
+	payload := "{\"spaceId\": \"" + s1.ID + "\", \"enter\": \"2030-09-01T08:30:00+02:00\", \"leave\": \"2030-09-01T17:00:00+02:00\"}"
+	req := newHTTPRequest("POST", "/booking/", user1.ID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+
+	// Create booking 2
+	payload = "{\"spaceId\": \"" + s2.ID + "\", \"enter\": \"2030-09-01T07:30:00+02:00\", \"leave\": \"2030-09-01T12:00:00+02:00\"}"
+	req = newHTTPRequest("POST", "/booking/", user2.ID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id := res.Header().Get("X-Object-Id")
+
+	// Modify booking 2
+	payload = "{\"spaceId\": \"" + s2.ID + "\", \"enter\": \"2030-09-01T10:00:00+02:00\", \"leave\": \"2030-09-01T15:00:00+02:00\"}"
+	req = newHTTPRequest("PUT", "/booking/"+id, user2.ID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+}
+
+func TestBookingsMaxConcurrentLimitExceededOnUpdate(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, strconv.Itoa(365*10))
+	GetSettingsRepository().Set(org.ID, SettingMaxBookingsPerUser.Name, "1")
+	user1 := createTestUserInOrg(org)
+	user2 := createTestUserInOrg(org)
+	user3 := createTestUserInOrg(org)
+
+	l := &Location{
+		Name:                  "Test",
+		MaxConcurrentBookings: 2,
+		OrganizationID:        org.ID,
+	}
+	GetLocationRepository().Create(l)
+	s1 := &Space{Name: "Test 1", LocationID: l.ID}
+	GetSpaceRepository().Create(s1)
+	s2 := &Space{Name: "Test 2", LocationID: l.ID}
+	GetSpaceRepository().Create(s2)
+	s3 := &Space{Name: "Test 3", LocationID: l.ID}
+	GetSpaceRepository().Create(s3)
+
+	// Create booking 1
+	payload := "{\"spaceId\": \"" + s1.ID + "\", \"enter\": \"2030-09-01T08:30:00+02:00\", \"leave\": \"2030-09-01T17:00:00+02:00\"}"
+	req := newHTTPRequest("POST", "/booking/", user1.ID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+
+	// Create booking 2
+	payload = "{\"spaceId\": \"" + s2.ID + "\", \"enter\": \"2030-09-01T07:30:00+02:00\", \"leave\": \"2030-09-01T12:00:00+02:00\"}"
+	req = newHTTPRequest("POST", "/booking/", user2.ID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+
+	// Create booking 3
+	payload = "{\"spaceId\": \"" + s3.ID + "\", \"enter\": \"2030-09-01T13:00:00+02:00\", \"leave\": \"2030-09-01T15:00:00+02:00\"}"
+	req = newHTTPRequest("POST", "/booking/", user3.ID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id := res.Header().Get("X-Object-Id")
+
+	// Modify booking 3
+	payload = "{\"spaceId\": \"" + s3.ID + "\", \"enter\": \"2030-09-01T11:00:00+02:00\", \"leave\": \"2030-09-01T13:00:00+02:00\"}"
+	req = newHTTPRequest("PUT", "/booking/"+id, user3.ID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusBadRequest, res.Code)
+	checkTestString(t, strconv.Itoa(ResponseCodeBookingLocationMaxConcurrent), res.Header().Get("X-Error-Code"))
+}
+
+func TestBookingsMaxConcurrentLimitExceededHeadRequest(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, strconv.Itoa(365*10))
+	GetSettingsRepository().Set(org.ID, SettingMaxBookingsPerUser.Name, "1")
+	user1 := createTestUserInOrg(org)
+	user2 := createTestUserInOrg(org)
+	user3 := createTestUserInOrg(org)
+
+	l := &Location{
+		Name:                  "Test",
+		MaxConcurrentBookings: 2,
+		OrganizationID:        org.ID,
+	}
+	GetLocationRepository().Create(l)
+	s1 := &Space{Name: "Test 1", LocationID: l.ID}
+	GetSpaceRepository().Create(s1)
+	s2 := &Space{Name: "Test 2", LocationID: l.ID}
+	GetSpaceRepository().Create(s2)
+
+	// Create booking 1
+	payload := "{\"spaceId\": \"" + s1.ID + "\", \"enter\": \"2030-09-01T08:30:00+02:00\", \"leave\": \"2030-09-01T17:00:00+02:00\"}"
+	req := newHTTPRequest("POST", "/booking/", user1.ID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+
+	// Create booking 2
+	payload = "{\"spaceId\": \"" + s2.ID + "\", \"enter\": \"2030-09-01T07:30:00+02:00\", \"leave\": \"2030-09-01T12:00:00+02:00\"}"
+	req = newHTTPRequest("POST", "/booking/", user2.ID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+
+	// Create booking 3
+	payload = "{\"locationId\": \"" + l.ID + "\", \"enter\": \"2030-09-01T11:00:00+02:00\", \"leave\": \"2030-09-01T15:00:00+02:00\"}"
+	req = newHTTPRequest("POST", "/booking/precheck/", user3.ID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusBadRequest, res.Code)
+	checkTestString(t, strconv.Itoa(ResponseCodeBookingLocationMaxConcurrent), res.Header().Get("X-Error-Code"))
 }

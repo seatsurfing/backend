@@ -19,8 +19,9 @@ type LocationRouter struct {
 }
 
 type CreateLocationRequest struct {
-	Name        string `json:"name" validate:"required"`
-	Description string `json:"description"`
+	Name                  string `json:"name" validate:"required"`
+	Description           string `json:"description"`
+	MaxConcurrentBookings uint   `json:"maxConcurrentBookings"`
 }
 
 type GetLocationResponse struct {
@@ -237,6 +238,7 @@ func (router *LocationRouter) copyFromRestModel(m *CreateLocationRequest) *Locat
 	e := &Location{}
 	e.Name = m.Name
 	e.Description = m.Description
+	e.MaxConcurrentBookings = m.MaxConcurrentBookings
 	return e
 }
 
@@ -249,5 +251,6 @@ func (router *LocationRouter) copyToRestModel(e *Location) *GetLocationResponse 
 	m.MapWidth = e.MapWidth
 	m.MapHeight = e.MapHeight
 	m.Description = e.Description
+	m.MaxConcurrentBookings = e.MaxConcurrentBookings
 	return m
 }

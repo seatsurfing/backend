@@ -12,10 +12,19 @@ import (
 type BookingRouter struct {
 }
 
+type BookingRequest struct {
+	Enter time.Time `json:"enter" validate:"required"`
+	Leave time.Time `json:"leave" validate:"required"`
+}
+
 type CreateBookingRequest struct {
-	SpaceID string    `json:"spaceId" validate:"required"`
-	Enter   time.Time `json:"enter" validate:"required"`
-	Leave   time.Time `json:"leave" validate:"required"`
+	SpaceID string `json:"spaceId" validate:"required"`
+	BookingRequest
+}
+
+type PreCreateBookingRequest struct {
+	LocationID string `json:"locationID" validate:"required"`
+	BookingRequest
 }
 
 type GetBookingResponse struct {
@@ -33,6 +42,7 @@ type GetBookingFilterRequest struct {
 
 func (router *BookingRouter) setupRoutes(s *mux.Router) {
 	s.HandleFunc("/filter/", router.getFiltered).Methods("POST")
+	s.HandleFunc("/precheck/", router.preBookingCreateCheck).Methods("POST")
 	s.HandleFunc("/{id}", router.getOne).Methods("GET")
 	s.HandleFunc("/{id}", router.update).Methods("PUT")
 	s.HandleFunc("/{id}", router.delete).Methods("DELETE")
@@ -126,11 +136,15 @@ func (router *BookingRouter) update(w http.ResponseWriter, r *http.Request) {
 		SendForbidden(w)
 		return
 	}
-	if !router.isValidBookingRequest(&m, GetRequestUserID(r), location.OrganizationID, true) {
-		SendBadRequest(w)
+	if valid, code := router.isValidBookingRequest(&m.BookingRequest, GetRequestUserID(r), location.OrganizationID, true); !valid {
+		SendBadRequestCode(w, code)
 		return
 	}
-	conflicts, err := GetBookingRepository().GetConflicts(m.SpaceID, m.Enter, m.Leave, vars["id"])
+	if !router.isValidConcurrent(&m.BookingRequest, location, e.ID) {
+		SendBadRequestCode(w, ResponseCodeBookingLocationMaxConcurrent)
+		return
+	}
+	conflicts, err := GetBookingRepository().GetConflicts(m.SpaceID, m.Enter, m.Leave, e.ID)
 	if err != nil {
 		log.Println(err)
 		SendInternalServerError(w)
@@ -183,6 +197,40 @@ func (router *BookingRouter) delete(w http.ResponseWriter, r *http.Request) {
 	SendUpdated(w)
 }
 
+func (router *BookingRouter) checkBookingCreateUpdate(m *BookingRequest, location *Location, requestUser *User, bookingID string) (bool, int) {
+	isUpdate := bookingID != ""
+	if valid, code := router.isValidBookingRequest(m, requestUser.ID, location.OrganizationID, isUpdate); !valid {
+		return false, code
+	}
+	if !router.isValidConcurrent(m, location, bookingID) {
+		return false, ResponseCodeBookingLocationMaxConcurrent
+	}
+	return true, 0
+}
+
+func (router *BookingRouter) preBookingCreateCheck(w http.ResponseWriter, r *http.Request) {
+	var m PreCreateBookingRequest
+	if UnmarshalValidateBody(r, &m) != nil {
+		SendBadRequest(w)
+		return
+	}
+	location, err := GetLocationRepository().GetOne(m.LocationID)
+	if err != nil {
+		SendBadRequest(w)
+		return
+	}
+	requestUser := GetRequestUser(r)
+	if !CanAccessOrg(requestUser, location.OrganizationID) {
+		SendForbidden(w)
+		return
+	}
+	if valid, code := router.checkBookingCreateUpdate(&m.BookingRequest, location, requestUser, ""); !valid {
+		SendBadRequestCode(w, code)
+		return
+	}
+	SendUpdated(w)
+}
+
 func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 	var m CreateBookingRequest
 	if UnmarshalValidateBody(r, &m) != nil {
@@ -199,12 +247,13 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 		SendBadRequest(w)
 		return
 	}
-	if !CanAccessOrg(GetRequestUser(r), location.OrganizationID) {
+	requestUser := GetRequestUser(r)
+	if !CanAccessOrg(requestUser, location.OrganizationID) {
 		SendForbidden(w)
 		return
 	}
-	if !router.isValidBookingRequest(&m, GetRequestUserID(r), location.OrganizationID, false) {
-		SendBadRequest(w)
+	if valid, code := router.checkBookingCreateUpdate(&m.BookingRequest, location, requestUser, ""); !valid {
+		SendBadRequestCode(w, code)
 		return
 	}
 	conflicts, err := GetBookingRepository().GetConflicts(m.SpaceID, m.Enter, m.Leave, "")
@@ -227,7 +276,7 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 	SendCreated(w, e.ID)
 }
 
-func (router *BookingRouter) isValidBookingDuration(m *CreateBookingRequest, orgID string) bool {
+func (router *BookingRouter) isValidBookingDuration(m *BookingRequest, orgID string) bool {
 	dailyBasisBooking, _ := GetSettingsRepository().GetBool(orgID, SettingDailyBasisBooking.Name)
 	maxDurationHours, _ := GetSettingsRepository().GetInt(orgID, SettingMaxBookingDurationHours.Name)
 	if dailyBasisBooking && (maxDurationHours%24 != 0) {
@@ -244,7 +293,7 @@ func (router *BookingRouter) isValidBookingDuration(m *CreateBookingRequest, org
 	return true
 }
 
-func (router *BookingRouter) isValidBookingAdvance(m *CreateBookingRequest, orgID string) bool {
+func (router *BookingRouter) isValidBookingAdvance(m *BookingRequest, orgID string) bool {
 	maxAdvanceDays, _ := GetSettingsRepository().GetInt(orgID, SettingMaxDaysInAdvance.Name)
 	now := time.Now().UTC()
 	dailyBasisBooking, _ := GetSettingsRepository().GetBool(orgID, SettingDailyBasisBooking.Name)
@@ -265,17 +314,32 @@ func (router *BookingRouter) isValidMaxUpcomingBookings(orgID string, userID str
 	return len(curUpcoming) < maxUpcoming
 }
 
-func (router *BookingRouter) isValidBookingRequest(m *CreateBookingRequest, userID string, orgID string, isUpdate bool) bool {
+func (router *BookingRouter) isValidBookingRequest(m *BookingRequest, userID string, orgID string, isUpdate bool) (bool, int) {
 	if !router.isValidBookingDuration(m, orgID) {
-		return false
+		return false, ResponseCodeBookingInvalidBookingDuration
 	}
 	if !router.isValidBookingAdvance(m, orgID) {
-		return false
+		return false, ResponseCodeBookingTooManyDaysInAdvance
 	}
 	if !isUpdate {
 		if !router.isValidMaxUpcomingBookings(orgID, userID) {
-			return false
+			return false, ResponseCodeBookingTooManyUpcomingBookings
 		}
+	}
+	return true, 0
+}
+
+func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Location, bookingID string) bool {
+	if location.MaxConcurrentBookings == 0 {
+		return true
+	}
+	bookings, err := GetBookingRepository().GetConcurrent(location.ID, m.Enter, m.Leave, bookingID)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	if len(bookings) >= int(location.MaxConcurrentBookings) {
+		return false
 	}
 	return true
 }

@@ -74,12 +74,14 @@ func TestLocationsCRUD(t *testing.T) {
 	req = newHTTPRequest("GET", "/location/"+id, loginResponse.UserID, nil)
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusOK, res.Code)
-	var resBody *GetOrganizationResponse
+	var resBody *GetLocationResponse
 	json.Unmarshal(res.Body.Bytes(), &resBody)
 	checkTestString(t, "Location 1", resBody.Name)
+	checkTestString(t, "", resBody.Description)
+	checkTestInt(t, 0, int(resBody.MaxConcurrentBookings))
 
 	// 3. Update
-	payload = `{"name": "Location 2"}`
+	payload = `{"name": "Location 2", "description": "Test 123", "maxConcurrentBookings": 20}`
 	req = newHTTPRequest("PUT", "/location/"+id, loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusNoContent, res.Code)
@@ -91,6 +93,8 @@ func TestLocationsCRUD(t *testing.T) {
 	var resBody2 *GetLocationResponse
 	json.Unmarshal(res.Body.Bytes(), &resBody2)
 	checkTestString(t, "Location 2", resBody2.Name)
+	checkTestString(t, "Test 123", resBody2.Description)
+	checkTestInt(t, 20, int(resBody2.MaxConcurrentBookings))
 
 	// 4. Delete
 	req = newHTTPRequest("DELETE", "/location/"+id, loginResponse.UserID, nil)

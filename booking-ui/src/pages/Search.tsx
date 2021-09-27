@@ -1,7 +1,7 @@
 import React from 'react';
 import './Login.css';
 import { Form, Button, Alert } from 'react-bootstrap';
-import { Location, Booking } from 'flexspace-commons';
+import { Location, Booking, Ajax, AjaxError } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 // @ts-ignore
@@ -11,6 +11,7 @@ import './Search.css';
 import { Redirect } from 'react-router-dom';
 import { SearchResultRouteParams } from './SearchResult';
 import { AuthContext } from '../AuthContextData';
+import ErrorText from '../types/ErrorText';
 
 interface State {
   enter: Date
@@ -173,8 +174,23 @@ class Search extends React.Component<Props, State> {
     this.setState({ locationId: value }, this.updateCanSearch);
   }
 
-  onSubmit = () => {
-    this.setState({showResult: true});
+  onSubmit = (ev: any) => {
+    ev.preventDefault();
+    this.setState({canSearch: false});
+    let payload = {
+      "locationId": this.state.locationId,
+      "enter": this.state.enter.toISOString(),
+      "leave": this.state.leave.toISOString(),
+    };
+    Ajax.postData("/booking/precheck/", payload).then(res => {
+      this.setState({ canSearch: true, showResult: true });
+    }).catch(e => {
+      let code: number = 0;
+      if (e instanceof AjaxError) {
+        code = e.appErrorCode;
+      }
+      this.setState({ canSearch: false, canSearchHint: ErrorText.getTextForAppCode(code, this.props.t, this.context) });
+    });
   }
 
   render() {
@@ -188,7 +204,7 @@ class Search extends React.Component<Props, State> {
     }
 
     let hint = <></>;
-    if (!this.state.canSearch) {
+    if ((!this.state.canSearch) && (this.state.canSearchHint)) {
       hint = (
         <Form.Group>
           <Alert variant="warning">{this.state.canSearchHint}</Alert>

@@ -1,11 +1,12 @@
 import React from 'react';
 import './SearchResult.css';
-import { Booking, Formatting, Location, Space } from 'flexspace-commons';
+import { AjaxError, Booking, Formatting, Location, Space } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 import { Link, RouteProps } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { Button, Modal } from 'react-bootstrap';
+import ErrorText from '../types/ErrorText';
 
 interface State {
   loading: boolean
@@ -15,6 +16,8 @@ interface State {
   name: string
   showConfirm: boolean
   showSuccess: boolean
+  showError: boolean
+  errorText: string
   showBookingNames: boolean
   selectedSpace: Space
 }
@@ -44,6 +47,8 @@ class SearchResult extends React.Component<Props, State> {
       name: "",
       showConfirm: false,
       showSuccess: false,
+      showError: false,
+      errorText: "",
       showBookingNames: false,
       selectedSpace: new Space()
     };
@@ -126,9 +131,17 @@ class SearchResult extends React.Component<Props, State> {
         loading: false,
         showSuccess: true
       });
+    }).catch(e => {
+      let code: number = 0;
+      if (e instanceof AjaxError) {
+        code = e.appErrorCode;
+      }
+      this.setState({ 
+        loading: false,
+        showError: true, 
+        errorText: ErrorText.getTextForAppCode(code, this.props.t, this.context) 
+      });
     });
-
-    this.setState({ showConfirm: false });
   }
 
   renderBookingNameRow = (booking: Booking) => {
@@ -204,6 +217,19 @@ class SearchResult extends React.Component<Props, State> {
           </Modal.Header>
           <Modal.Body>
             <p>{this.props.t("bookingConfirmed")}</p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="primary" as={Link} to="/bookings">
+              {this.props.t("myBookings")}
+            </Button>
+          </Modal.Footer>
+        </Modal>
+        <Modal show={this.state.showError} onHide={() => this.setState({ showError: false })} backdrop="static" keyboard={false}>
+          <Modal.Header closeButton={false}>
+            <Modal.Title>{this.props.t("bookSeat")}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p>{this.state.errorText}</p>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="primary" as={Link} to="/bookings">

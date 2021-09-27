@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -18,6 +19,8 @@ import (
 
 const JsDateTimeFormat string = "2006-01-02T15:04:05"
 
+//const JsDateTimeFormatWithTimezone string = "2006-01-02T15:04:05-07:00"
+
 type contextKey string
 
 func (c contextKey) String() string {
@@ -27,6 +30,14 @@ func (c contextKey) String() string {
 var (
 	contextKeyUserID     = contextKey("UserID")
 	contextKeyAuthHeader = contextKey("AuthHeader")
+)
+
+var (
+	ResponseCodeBookingSlotConflict            = 1001
+	ResponseCodeBookingLocationMaxConcurrent   = 1002
+	ResponseCodeBookingTooManyUpcomingBookings = 1003
+	ResponseCodeBookingTooManyDaysInAdvance    = 1004
+	ResponseCodeBookingInvalidBookingDuration  = 1005
 )
 
 type Route interface {
@@ -47,6 +58,11 @@ func SendForbidden(w http.ResponseWriter) {
 }
 
 func SendBadRequest(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusBadRequest)
+}
+
+func SendBadRequestCode(w http.ResponseWriter, code int) {
+	w.Header().Set("X-Error-Code", strconv.Itoa(code))
 	w.WriteHeader(http.StatusBadRequest)
 }
 
@@ -193,7 +209,7 @@ func SetCorsHeaders(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")
-	w.Header().Set("Access-Control-Expose-Headers", "X-Object-Id, Content-Length, Content-Type")
+	w.Header().Set("Access-Control-Expose-Headers", "X-Object-Id, X-Error-Code, Content-Length, Content-Type")
 }
 
 func CorsHandler(w http.ResponseWriter, r *http.Request) {

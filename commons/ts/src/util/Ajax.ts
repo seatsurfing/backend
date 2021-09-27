@@ -1,4 +1,6 @@
 import { Entity } from "../types/Entity";
+import AjaxError from "./AjaxError";
+
 interface AjaxResult {
   json: any
   status: number
@@ -57,7 +59,8 @@ export default class Ajax {
             } as AjaxResult);
           });
         } else {
-          reject(new Error("Got status code " + response.status));
+          let appCode = response.headers.get("X-Error-Code");
+          reject(new AjaxError(response.status, appCode ? parseInt(appCode) : 0));
         }
       }).catch(err => {
         reject(err);
@@ -71,6 +74,20 @@ export default class Ajax {
 
   static async putData(url: string, data?: any): Promise<AjaxResult> {
     return Ajax.query("PUT", url, data);
+  }
+
+  static async head(url: string, params?: any): Promise<AjaxResult> {
+    if (params) {
+      let s = "";
+      for (const k in params) {
+        if (s !== "") {
+          s += "&";
+        }
+        s += k + "=" + encodeURIComponent(params[k]);
+      }
+      url += "?" + s;
+    }
+    return Ajax.query("HEAD", url, null);
   }
 
   static async saveEntity(e: Entity, url: string): Promise<AjaxResult> {

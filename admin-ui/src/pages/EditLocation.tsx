@@ -1,6 +1,6 @@
 import React from 'react';
 import FullLayout from '../components/FullLayout';
-import { Form, Col, Row, Button, Alert } from 'react-bootstrap';
+import { Form, Col, Row, Button, Alert, InputGroup } from 'react-bootstrap';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete, MapPin as IconMap, Copy as IconCopy, Loader as IconLoad } from 'react-feather';
 import { Link, RouteChildrenProps, Redirect } from 'react-router-dom';
 import Loading from '../components/Loading';
@@ -27,6 +27,8 @@ interface State {
   goBack: boolean
   name: string
   description: string
+  limitConcurrentBookings: boolean
+  maxConcurrentBookings: number
   fileLabel: string
   files: FileList | null
   spaces: SpaceState[]
@@ -56,6 +58,8 @@ class EditLocation extends React.Component<Props, State> {
       goBack: false,
       name: "",
       description: "",
+      limitConcurrentBookings: false,
+      maxConcurrentBookings: 0,
       fileLabel: this.props.t("mapFileTypes"),
       files: null,
       spaces: [],
@@ -85,6 +89,8 @@ class EditLocation extends React.Component<Props, State> {
             this.setState({
               name: location.name,
               description: location.description,
+              limitConcurrentBookings: (location.maxConcurrentBookings > 0),
+              maxConcurrentBookings: location.maxConcurrentBookings,
               loading: false
             });
           });
@@ -127,6 +133,7 @@ class EditLocation extends React.Component<Props, State> {
     this.setState({submitting: true});
     this.entity.name = this.state.name;
     this.entity.description = this.state.description;
+    this.entity.maxConcurrentBookings = (this.state.limitConcurrentBookings ? this.state.maxConcurrentBookings : 0);
     this.entity.save().then(() => {
       this.saveSpaces().then(() => {
         if (this.state.files && this.state.files.length > 0) {
@@ -353,6 +360,17 @@ class EditLocation extends React.Component<Props, State> {
             <Form.Label column sm="2">{this.props.t("description")}</Form.Label>
             <Col sm="4">
               <Form.Control type="text" placeholder={this.props.t("description")} value={this.state.description} onChange={(e: any) => this.setState({ description: e.target.value })} />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row}>
+            <Form.Label column sm="2">{this.props.t("maxConcurrentBookings")}</Form.Label>
+            <Col sm="4">
+              <InputGroup>
+                <InputGroup.Prepend>
+                  <InputGroup.Checkbox type="checkbox" id="check-limitConcurrentBookings" checked={this.state.limitConcurrentBookings} onChange={(e: any) => this.setState({ limitConcurrentBookings: e.target.checked })} />
+                </InputGroup.Prepend>
+                <Form.Control type="number" min="0" value={this.state.maxConcurrentBookings} onChange={(e: any) => this.setState({ maxConcurrentBookings: parseInt(e.target.value) })} disabled={!this.state.limitConcurrentBookings} />
+              </InputGroup>
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
