@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+	"log"
 	"math"
 	"sync"
 	"time"
@@ -242,7 +244,17 @@ func (r *BookingRepository) GetConflicts(spaceID string, enter time.Time, leave 
 
 // GetConcurrent returns concurrent bookings for a specific location
 // within the specified enter and leave times.
-func (r *BookingRepository) GetConcurrent(locationID string, enter time.Time, leave time.Time, excludeBookingID string) ([]*Booking, error) {
+func (r *BookingRepository) GetConcurrent(locationID string, enter time.Time, leave time.Time, excludeBookingID string) (int, error) {
+	var getNumActive = func(bookings []*Booking, timestamp time.Time) int {
+		res := 0
+		for _, b := range bookings {
+			if b.Enter.Before(timestamp) && b.Leave.After(timestamp) && !b.Enter.Equal(timestamp) && !b.Leave.Equal(timestamp) {
+				res++
+			}
+		}
+		return res
+	}
+
 	var result []*Booking
 	rows, err := GetDatabase().DB().Query("SELECT id, user_id, space_id, enter_time, leave_time "+
 		"FROM bookings "+
@@ -253,17 +265,37 @@ func (r *BookingRepository) GetConcurrent(locationID string, enter time.Time, le
 		"(leave_time BETWEEN $3 AND $4)"+
 		") "+
 		"ORDER BY enter_time", excludeBookingID, locationID, enter, leave)
+	if err == sql.ErrNoRows {
+		return 0, nil
+	}
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		e := &Booking{}
 		err = rows.Scan(&e.ID, &e.UserID, &e.SpaceID, &e.Enter, &e.Leave)
 		if err != nil {
-			return nil, err
+			return 0, err
 		}
 		result = append(result, e)
 	}
-	return result, nil
+
+	max := 0
+	timestamp := enter
+	for timestamp.Before(leave) {
+		numActive := getNumActive(result, timestamp)
+		if numActive > max {
+			for _, b := range result {
+				log.Println(b.Enter.String())
+				log.Println(b.Leave.String())
+			}
+			log.Println("Turning point: " + timestamp.String())
+			max = numActive
+		}
+		timestamp = timestamp.Add(time.Minute * 1)
+	}
+
+	log.Printf("GetConcurrent for location %s with enter = %s and leave = %s has %d overlaps\n", locationID, enter, leave, max)
+	return max, nil
 }

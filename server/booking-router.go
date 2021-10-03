@@ -338,7 +338,7 @@ func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Loca
 		log.Println(err)
 		return false
 	}
-	if len(bookings) >= int(location.MaxConcurrentBookings) {
+	if bookings >= int(location.MaxConcurrentBookings) {
 		return false
 	}
 	return true

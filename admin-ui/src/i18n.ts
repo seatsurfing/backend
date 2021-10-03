@@ -117,6 +117,9 @@ const resources = {
             "country": "Land",
             "language": "Sprache",
             "maxConcurrentBookings": "Max. Buchungen",
+            "defaultTimezone": "Standard-Zeitzone",
+            "timezone": "Zeitzone",
+            "default": "Standard",
         }
     },
     en: {
@@ -233,6 +236,9 @@ const resources = {
             "country": "Country",
             "language": "Language",
             "maxConcurrentBookings": "Max. bookings",
+            "defaultTimezone": "Default time zone",
+            "timezone": "Time zone",
+            "default": "Default",
         }
     }
 };

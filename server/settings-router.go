@@ -27,10 +27,15 @@ var (
 )
 
 func (router *SettingsRouter) setupRoutes(s *mux.Router) {
+	s.HandleFunc("/timezones", router.getTimezones).Methods("GET")
 	s.HandleFunc("/{name}", router.getSetting).Methods("GET")
 	s.HandleFunc("/{name}", router.setSetting).Methods("PUT")
 	s.HandleFunc("/", router.getAll).Methods("GET")
 	s.HandleFunc("/", router.setAll).Methods("PUT")
+}
+
+func (router *SettingsRouter) getTimezones(w http.ResponseWriter, r *http.Request) {
+	SendJSON(w, TimeZones)
 }
 
 func (router *SettingsRouter) getSetting(w http.ResponseWriter, r *http.Request) {
@@ -71,6 +76,10 @@ func (router *SettingsRouter) setSetting(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	if !router.isValidSettingType(vars["name"], value.Value) {
+		SendBadRequest(w)
+		return
+	}
+	if !router.isValidSettingValue(vars["name"], value.Value) {
 		SendBadRequest(w)
 		return
 	}
@@ -134,6 +143,10 @@ func (router *SettingsRouter) setAll(w http.ResponseWriter, r *http.Request) {
 			SendBadRequest(w)
 			return
 		}
+		if !router.isValidSettingValue(e.Name, e.Value) {
+			SendBadRequest(w)
+			return
+		}
 		err := router.doSetOne(user.OrganizationID, e.Name, e.Value)
 		if err != nil {
 			log.Println(err)
@@ -165,7 +178,8 @@ func (router *SettingsRouter) isValidSettingNameReadPublic(name string) bool {
 		name == SettingMaxDaysInAdvance.Name ||
 		name == SettingMaxBookingDurationHours.Name ||
 		name == SettingShowNames.Name ||
-		name == SettingDailyBasisBooking.Name {
+		name == SettingDailyBasisBooking.Name ||
+		name == SettingDefaultTimezone.Name {
 		return true
 	}
 	return false
@@ -192,7 +206,8 @@ func (router *SettingsRouter) isValidSettingNameWrite(name string) bool {
 		name == SettingMaxDaysInAdvance.Name ||
 		name == SettingDailyBasisBooking.Name ||
 		name == SettingShowNames.Name ||
-		name == SettingMaxBookingDurationHours.Name {
+		name == SettingMaxBookingDurationHours.Name ||
+		name == SettingDefaultTimezone.Name {
 		return true
 	}
 	return false
@@ -223,6 +238,9 @@ func (router *SettingsRouter) getSettingType(name string) SettingType {
 	if name == SettingShowNames.Name {
 		return SettingShowNames.Type
 	}
+	if name == SettingDefaultTimezone.Name {
+		return SettingDefaultTimezone.Type
+	}
 	return 0
 }
 
@@ -243,6 +261,13 @@ func (router *SettingsRouter) isValidSettingType(name string, value string) bool
 		}
 	}
 	return false
+}
+
+func (router *SettingsRouter) isValidSettingValue(name string, value string) bool {
+	if name == SettingDefaultTimezone.Name && !isValidTimeZone(value) {
+		return false
+	}
+	return true
 }
 
 func (router *SettingsRouter) getSysSettingOrgSignupDelete() *GetSettingsResponse {

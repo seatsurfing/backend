@@ -4,7 +4,7 @@ import { Form, Col, Row, Button, Alert, InputGroup } from 'react-bootstrap';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete, MapPin as IconMap, Copy as IconCopy, Loader as IconLoad } from 'react-feather';
 import { Link, RouteChildrenProps, Redirect } from 'react-router-dom';
 import Loading from '../components/Loading';
-import { Location, Space } from 'flexspace-commons';
+import { Ajax, Location, Space } from 'flexspace-commons';
 import { Rnd } from 'react-rnd';
 import './EditLocation.css';
 import { withTranslation } from 'react-i18next';
@@ -29,6 +29,7 @@ interface State {
   description: string
   limitConcurrentBookings: boolean
   maxConcurrentBookings: number
+  timezone: string
   fileLabel: string
   files: FileList | null
   spaces: SpaceState[]
@@ -48,9 +49,11 @@ interface Props extends RouteChildrenProps<RoutedProps> {
 class EditLocation extends React.Component<Props, State> {
   entity: Location = new Location();
   mapData: any = null;
+  timezones: string[];
 
   constructor(props: any) {
     super(props);
+    this.timezones = [];
     this.state = {
       loading: true,
       submitting: false,
@@ -60,6 +63,7 @@ class EditLocation extends React.Component<Props, State> {
       description: "",
       limitConcurrentBookings: false,
       maxConcurrentBookings: 0,
+      timezone: "",
       fileLabel: this.props.t("mapFileTypes"),
       files: null,
       spaces: [],
@@ -70,36 +74,49 @@ class EditLocation extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
-    this.loadData();
+    let promises = [
+      this.loadData(),
+      this.loadTimezones(),
+    ];
+    Promise.all(promises).then(() => {
+      this.setState({
+        loading: false
+      });
+    });
   }
 
-  loadData = (id?: string) => {
+  loadTimezones = async (): Promise<void> => {
+    return Ajax.get("/setting/timezones").then(res => {
+      this.timezones = res.json;
+    });
+  }
+
+  loadData = async (id?: string): Promise<void> => {
     if (!id) {
       id = this.props.match?.params.id;
     }
     if (id) {
-      Location.get(id).then(location => {
+      return Location.get(id).then(location => {
         this.entity = location;
-        Space.list(this.entity.id).then(spaces => {
+        return Space.list(this.entity.id).then(spaces => {
           spaces.forEach(space => {
             this.addRect(space);
           });
-          this.entity.getMap().then(mapData => {
+          return this.entity.getMap().then(mapData => {
             this.mapData = mapData;
             this.setState({
               name: location.name,
               description: location.description,
               limitConcurrentBookings: (location.maxConcurrentBookings > 0),
               maxConcurrentBookings: location.maxConcurrentBookings,
+              timezone: location.timezone,
               loading: false
             });
           });
         });
       });
     } else {
-      this.setState({
-        loading: false
-      });
+      //return Promise.resolve();
     }
   }
 
@@ -134,6 +151,7 @@ class EditLocation extends React.Component<Props, State> {
     this.entity.name = this.state.name;
     this.entity.description = this.state.description;
     this.entity.maxConcurrentBookings = (this.state.limitConcurrentBookings ? this.state.maxConcurrentBookings : 0);
+    this.entity.timezone = this.state.timezone;
     this.entity.save().then(() => {
       this.saveSpaces().then(() => {
         if (this.state.files && this.state.files.length > 0) {
@@ -360,6 +378,15 @@ class EditLocation extends React.Component<Props, State> {
             <Form.Label column sm="2">{this.props.t("description")}</Form.Label>
             <Col sm="4">
               <Form.Control type="text" placeholder={this.props.t("description")} value={this.state.description} onChange={(e: any) => this.setState({ description: e.target.value })} />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row}>
+            <Form.Label column sm="2">{this.props.t("timezone")}</Form.Label>
+            <Col sm="4">
+              <Form.Control as="select" custom={true} value={this.state.timezone} onChange={(e: any) => this.setState({ timezone: e.target.value })}>
+                <option value="">({this.props.t("default")})</option>
+                {this.timezones.map(tz => <option value={tz}>{tz}</option>)}
+              </Form.Control>
             </Col>
           </Form.Group>
           <Form.Group as={Row}>

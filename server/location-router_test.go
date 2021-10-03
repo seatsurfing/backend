@@ -78,10 +78,11 @@ func TestLocationsCRUD(t *testing.T) {
 	json.Unmarshal(res.Body.Bytes(), &resBody)
 	checkTestString(t, "Location 1", resBody.Name)
 	checkTestString(t, "", resBody.Description)
+	checkTestString(t, "", resBody.Timezone)
 	checkTestInt(t, 0, int(resBody.MaxConcurrentBookings))
 
 	// 3. Update
-	payload = `{"name": "Location 2", "description": "Test 123", "maxConcurrentBookings": 20}`
+	payload = `{"name": "Location 2", "description": "Test 123", "maxConcurrentBookings": 20, "timezone": "Africa/Cairo"}`
 	req = newHTTPRequest("PUT", "/location/"+id, loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusNoContent, res.Code)
@@ -94,6 +95,7 @@ func TestLocationsCRUD(t *testing.T) {
 	json.Unmarshal(res.Body.Bytes(), &resBody2)
 	checkTestString(t, "Location 2", resBody2.Name)
 	checkTestString(t, "Test 123", resBody2.Description)
+	checkTestString(t, "Africa/Cairo", resBody2.Timezone)
 	checkTestInt(t, 20, int(resBody2.MaxConcurrentBookings))
 
 	// 4. Delete
@@ -191,4 +193,36 @@ func TestLocationsUpload(t *testing.T) {
 	}
 	checkTestUint(t, uint(len(data)), uint(len(data2)))
 	checkTestUint(t, 0, uint(bytes.Compare(data, data2)))
+}
+
+func TestLocationsInvalidTimezone(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	user := createTestUserOrgAdmin(org)
+	loginResponse := loginTestUser(user.ID)
+
+	// Create with invalid
+	payload := `{"name": "Location 1", "timezone": "Europe/Hamburg"}`
+	req := newHTTPRequest("POST", "/location/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusBadRequest, res.Code)
+
+	// Create with valid
+	payload = `{"name": "Location 1", "timezone": "Europe/Berlin"}`
+	req = newHTTPRequest("POST", "/location/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id := res.Header().Get("X-Object-Id")
+
+	// Update with invalid
+	payload = `{"name": "Location 2", "description": "Test 123", "maxConcurrentBookings": 20, "timezone": "Africa/Dubai"}`
+	req = newHTTPRequest("PUT", "/location/"+id, loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusBadRequest, res.Code)
+
+	// Update with valid
+	payload = `{"name": "Location 2", "description": "Test 123", "maxConcurrentBookings": 20, "timezone": "Africa/Cairo"}`
+	req = newHTTPRequest("PUT", "/location/"+id, loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
 }

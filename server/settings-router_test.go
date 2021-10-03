@@ -48,6 +48,7 @@ func TestSettingsReadPublic(t *testing.T) {
 		SettingMaxBookingDurationHours.Name,
 		SettingDailyBasisBooking.Name,
 		SettingShowNames.Name,
+		SettingDefaultTimezone.Name,
 	}
 	forbiddenSettings := []string{
 		SettingDatabaseVersion.Name,
@@ -104,6 +105,7 @@ func TestSettingsReadAdmin(t *testing.T) {
 		SettingConfluenceAnonymous.Name,
 		SettingActiveSubscription.Name,
 		SettingSubscriptionMaxUsers.Name,
+		SettingDefaultTimezone.Name,
 		SysSettingOrgSignupDelete,
 	}
 	forbiddenSettings := []string{
@@ -246,4 +248,21 @@ func TestSettingsInvalidInt(t *testing.T) {
 	req := newHTTPRequest("PUT", "/setting/"+SettingMaxBookingsPerUser.Name, loginResponse.UserID, bytes.NewBufferString(payload))
 	res := executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusBadRequest, res.Code)
+}
+
+func TestSettingsInvalidTimezone(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	user := createTestUserOrgAdmin(org)
+	loginResponse := loginTestUser(user.ID)
+
+	payload := `{"value": "Europe/Hamburg"}`
+	req := newHTTPRequest("PUT", "/setting/"+SettingDefaultTimezone.Name, loginResponse.UserID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusBadRequest, res.Code)
+
+	payload = `{"value": "Europe/Berlin"}`
+	req = newHTTPRequest("PUT", "/setting/"+SettingDefaultTimezone.Name, loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
 }

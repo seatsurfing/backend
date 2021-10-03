@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"runtime/debug"
 	"strings"
 	"testing"
 	"time"
@@ -189,36 +190,36 @@ func executeTestRequest(req *http.Request) *httptest.ResponseRecorder {
 
 func checkTestResponseCode(t *testing.T, expected, actual int) {
 	if expected != actual {
-		t.Fatalf("Expected HTTP Status %d, but got %d", expected, actual)
+		t.Fatalf("Expected HTTP Status %d, but got %d at:\n%s", expected, actual, debug.Stack())
 	}
 }
 
 func checkTestString(t *testing.T, expected, actual string) {
 	if expected != actual {
-		t.Fatalf("Expected '%s', but got '%s'", expected, actual)
+		t.Fatalf("Expected '%s', but got '%s' at:\n%s", expected, actual, debug.Stack())
 	}
 }
 
 func checkTestBool(t *testing.T, expected, actual bool) {
 	if expected != actual {
-		t.Fatalf("Expected '%t', but got '%t'", expected, actual)
+		t.Fatalf("Expected '%t', but got '%t' at:\n%s", expected, actual, debug.Stack())
 	}
 }
 
 func checkTestUint(t *testing.T, expected, actual uint) {
 	if expected != actual {
-		t.Fatalf("Expected '%d', but got '%d'", expected, actual)
+		t.Fatalf("Expected '%d', but got '%d' at:\n%s", expected, actual, debug.Stack())
 	}
 }
 
 func checkTestInt(t *testing.T, expected, actual int) {
 	if expected != actual {
-		t.Fatalf("Expected '%d', but got '%d'", expected, actual)
+		t.Fatalf("Expected '%d', but got '%d' at:\n%s", expected, actual, debug.Stack())
 	}
 }
 
 func checkStringNotEmpty(t *testing.T, s string) {
 	if strings.TrimSpace(s) == "" {
-		t.Fatalf("Expected non-empty string")
+		t.Fatalf("Expected non-empty string at:\n%s", debug.Stack())
 	}
 }

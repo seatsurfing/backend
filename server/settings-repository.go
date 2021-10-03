@@ -39,6 +39,7 @@ var (
 	SettingDailyBasisBooking            SettingName = SettingName{Name: "daily_basis_booking", Type: SettingTypeBool}
 	SettingShowNames                    SettingName = SettingName{Name: "show_names", Type: SettingTypeBool}
 	SettingSubscriptionMaxUsers         SettingName = SettingName{Name: "subscription_max_users", Type: SettingTypeInt}
+	SettingDefaultTimezone              SettingName = SettingName{Name: "default_timezone", Type: SettingTypeString}
 )
 
 var settingsRepository *SettingsRepository
@@ -187,7 +188,8 @@ func (r *SettingsRepository) InitDefaultSettingsForOrg(organizationID string) er
 		"($1, '"+SettingConfluenceAnonymous.Name+"', '0'), "+
 		"($1, '"+SettingMaxBookingsPerUser.Name+"', '10'), "+
 		"($1, '"+SettingMaxDaysInAdvance.Name+"', '14'), "+
-		"($1, '"+SettingMaxBookingDurationHours.Name+"', '12') "+
+		"($1, '"+SettingMaxBookingDurationHours.Name+"', '12'), "+
+		"($1, '"+SettingDefaultTimezone.Name+"', 'Europe/Berlin') "+
 		"ON CONFLICT (organization_id, name) DO NOTHING",
 		organizationID)
 	return err

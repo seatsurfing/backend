@@ -5,6 +5,7 @@ export default class Location extends Entity {
     name: string;
     description: string;
     maxConcurrentBookings: number;
+    timezone: string;
     mapWidth: number;
 	mapHeight: number;
 	mapMimeType: string;
@@ -14,6 +15,7 @@ export default class Location extends Entity {
         this.name = "";
         this.description = "";
         this.maxConcurrentBookings = 0;
+        this.timezone = "";
         this.mapWidth = 0;
 	    this.mapHeight = 0;
 	    this.mapMimeType = "";
@@ -24,6 +26,7 @@ export default class Location extends Entity {
             "name": this.name,
             "description": this.description,
             "maxConcurrentBookings": this.maxConcurrentBookings,
+            "timezone": this.timezone,
         });
     }
 
@@ -32,6 +35,7 @@ export default class Location extends Entity {
         this.name = input.name;
         this.description = input.description;
         this.maxConcurrentBookings = input.maxConcurrentBookings;
+        this.timezone = input.timezone;
         this.mapWidth = input.mapWidth;
         this.mapHeight = input.mapHeight;
         this.mapMimeType = input.mapMimeType;

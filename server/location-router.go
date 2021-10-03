@@ -22,6 +22,7 @@ type CreateLocationRequest struct {
 	Name                  string `json:"name" validate:"required"`
 	Description           string `json:"description"`
 	MaxConcurrentBookings uint   `json:"maxConcurrentBookings"`
+	Timezone              string `json:"timezone"`
 }
 
 type GetLocationResponse struct {
@@ -101,6 +102,12 @@ func (router *LocationRouter) update(w http.ResponseWriter, r *http.Request) {
 		SendForbidden(w)
 		return
 	}
+	if m.Timezone != "" {
+		if !isValidTimeZone(m.Timezone) {
+			SendBadRequest(w)
+			return
+		}
+	}
 	eNew := router.copyFromRestModel(&m)
 	eNew.ID = e.ID
 	eNew.OrganizationID = e.OrganizationID
@@ -144,6 +151,12 @@ func (router *LocationRouter) create(w http.ResponseWriter, r *http.Request) {
 	if !CanAdminOrg(user, e.OrganizationID) {
 		SendForbidden(w)
 		return
+	}
+	if m.Timezone != "" {
+		if !isValidTimeZone(m.Timezone) {
+			SendBadRequest(w)
+			return
+		}
 	}
 	if err := GetLocationRepository().Create(e); err != nil {
 		log.Println(err)
@@ -239,6 +252,7 @@ func (router *LocationRouter) copyFromRestModel(m *CreateLocationRequest) *Locat
 	e.Name = m.Name
 	e.Description = m.Description
 	e.MaxConcurrentBookings = m.MaxConcurrentBookings
+	e.Timezone = m.Timezone
 	return e
 }
 
@@ -252,5 +266,6 @@ func (router *LocationRouter) copyToRestModel(e *Location) *GetLocationResponse 
 	m.MapHeight = e.MapHeight
 	m.Description = e.Description
 	m.MaxConcurrentBookings = e.MaxConcurrentBookings
+	m.Timezone = e.Timezone
 	return m
 }

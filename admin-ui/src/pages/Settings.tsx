@@ -10,6 +10,7 @@ import { TFunction } from 'i18next';
 
 interface State {
   allowAnyUser: boolean
+  defaultTimezone: string
   confluenceServerSharedSecret: string
   maxBookingsPerUser: number
   maxDaysInAdvance: number
@@ -36,13 +37,16 @@ interface Props {
 class Settings extends React.Component<Props, State> {
   org: Organization | null;
   authProviders: AuthProvider[];
+  timezones: string[];
 
   constructor(props: any) {
     super(props);
     this.org = null;
     this.authProviders = [];
+    this.timezones = [];
     this.state = {
       allowAnyUser: true,
+      defaultTimezone: "",
       confluenceServerSharedSecret: "",
       maxBookingsPerUser: 0,
       maxBookingDurationHours: 0,
@@ -64,34 +68,44 @@ class Settings extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
-    this.loadSettings();
-    this.loadItems();
+    let promises = [
+      this.loadSettings(),
+      this.loadItems(),
+      this.loadAuthProviders(),
+      this.loadTimezones(),
+    ];
+    Promise.all(promises).then(() => {
+      this.setState({ loading: false });
+    });
   }
 
-  loadItems = () => {
-    User.getSelf().then(user => {
+  loadItems = async (): Promise<void> => {
+    return User.getSelf().then(user => {
       let userDomain = user.email.substring(user.email.indexOf("@")+1).toLowerCase();
-      Organization.get(user.organizationId).then(org => {
+      return Organization.get(user.organizationId).then(org => {
         this.org = org;
-        Domain.list(org.id).then(domains => {
+        return Domain.list(org.id).then(domains => {
           this.setState({
             domains: domains,
             userDomain: userDomain
-          });
-          AuthProvider.list().then(list => {
-            this.authProviders = list;
-            this.setState({ loading: false });
           });
         });
       });
     });
   }
 
-  loadSettings = () => {
-    OrgSettings.list().then(settings => {
+  loadAuthProviders = async (): Promise<void> => {
+    return AuthProvider.list().then(list => {
+      this.authProviders = list;
+    });
+  }
+
+  loadSettings = async (): Promise<void> => {
+    return OrgSettings.list().then(settings => {
       let state: any = {};
       settings.forEach(s => {
         if (s.name === "allow_any_user") state.allowAnyUser = (s.value === "1");
+        if (s.name === "default_timezone") state.defaultTimezone = s.value;
         if (s.name === "confluence_server_shared_secret") state.confluenceServerSharedSecret = s.value;
         if (s.name === "max_bookings_per_user") state.maxBookingsPerUser = window.parseInt(s.value);
         if (s.name === "max_days_in_advance") state.maxDaysInAdvance = window.parseInt(s.value);
@@ -112,6 +126,12 @@ class Settings extends React.Component<Props, State> {
     });
   }
 
+  loadTimezones = async (): Promise<void> => {
+    return Ajax.get("/setting/timezones").then(res => {
+      this.timezones = res.json;
+    });
+  }
+
   onSubmit = (e: any) => {
     e.preventDefault();
     this.setState({
@@ -121,6 +141,7 @@ class Settings extends React.Component<Props, State> {
     });
     let payload = [
       new OrgSettings("allow_any_user", this.state.allowAnyUser ? "1" : "0"),
+      new OrgSettings("default_timezone", this.state.defaultTimezone),
       new OrgSettings("confluence_server_shared_secret", this.state.confluenceServerSharedSecret),
       new OrgSettings("daily_basis_booking", this.state.dailyBasisBooking ? "1" : "0"),
       new OrgSettings("show_names", this.state.showNames ? "1" : "0"),
@@ -403,6 +424,14 @@ class Settings extends React.Component<Props, State> {
           <Form.Group as={Row}>
             <Col sm="6">
               <Form.Check type="checkbox" id="check-showNames" label={this.props.t("showNames")} checked={this.state.showNames} onChange={(e: any) => this.setState({ showNames: e.target.checked })} />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row}>
+            <Form.Label column sm="2">{this.props.t("defaultTimezone")}</Form.Label>
+            <Col sm="4">
+              <Form.Control as="select" custom={true} value={this.state.defaultTimezone} onChange={(e: any) => this.setState({ defaultTimezone: e.target.value })}>
+                {this.timezones.map(tz => <option>{tz}</option>)}
+              </Form.Control>
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
