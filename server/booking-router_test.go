@@ -1141,3 +1141,82 @@ func TestBookingsMaxConcurrentLimitOKComplex(t *testing.T) {
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
 }
+
+func TestBookingsConvertTimestampDefaultSetting(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	GetSettingsRepository().Set(org.ID, SettingDefaultTimezone.Name, "US/Central")
+	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, strconv.Itoa(365*10))
+	user1 := createTestUserInOrg(org)
+
+	l := &Location{
+		Name:           "Test",
+		OrganizationID: org.ID,
+	}
+	GetLocationRepository().Create(l)
+	s1 := &Space{Name: "Test 1", LocationID: l.ID}
+	GetSpaceRepository().Create(s1)
+
+	// Create booking
+	payload := "{\"spaceId\": \"" + s1.ID + "\", \"enter\": \"2030-09-01T09:30:00+02:00\", \"leave\": \"2030-09-01T12:00:00+02:00\"}"
+	req := newHTTPRequest("POST", "/booking/", user1.ID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id := res.Header().Get("X-Object-Id")
+
+	// Read booking
+	req = newHTTPRequest("GET", "/booking/"+id, user1.ID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusOK, res.Code)
+	var resBody *GetBookingResponse
+	json.Unmarshal(res.Body.Bytes(), &resBody)
+	checkTestString(t, "2030-09-01T02:30:00", resBody.Enter.Format(JsDateTimeFormat))
+	checkTestString(t, "2030-09-01T05:00:00", resBody.Leave.Format(JsDateTimeFormat))
+}
+
+func TestBookingsConvertTimestamp(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, strconv.Itoa(365*10))
+	user1 := createTestUserInOrg(org)
+
+	l := &Location{
+		Name:           "Test",
+		OrganizationID: org.ID,
+		Timezone:       "US/Central",
+	}
+	GetLocationRepository().Create(l)
+	s1 := &Space{Name: "Test 1", LocationID: l.ID}
+	GetSpaceRepository().Create(s1)
+
+	// Create booking
+	payload := "{\"spaceId\": \"" + s1.ID + "\", \"enter\": \"2030-09-01T09:30:00+02:00\", \"leave\": \"2030-09-01T12:00:00+02:00\"}"
+	req := newHTTPRequest("POST", "/booking/", user1.ID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id := res.Header().Get("X-Object-Id")
+
+	// Read booking
+	req = newHTTPRequest("GET", "/booking/"+id, user1.ID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusOK, res.Code)
+	var resBody *GetBookingResponse
+	json.Unmarshal(res.Body.Bytes(), &resBody)
+	checkTestString(t, "2030-09-01T02:30:00", resBody.Enter.Format(JsDateTimeFormat))
+	checkTestString(t, "2030-09-01T05:00:00", resBody.Leave.Format(JsDateTimeFormat))
+
+	// Update Booking
+	payload = "{\"spaceId\": \"" + s1.ID + "\", \"enter\": \"2030-09-01T08:45:00-02:00\", \"leave\": \"2030-09-01T15:15:00-02:00\"}"
+	req = newHTTPRequest("PUT", "/booking/"+id, user1.ID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+
+	// Read booking
+	req = newHTTPRequest("GET", "/booking/"+id, user1.ID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusOK, res.Code)
+	var resBody2 *GetBookingResponse
+	json.Unmarshal(res.Body.Bytes(), &resBody2)
+	checkTestString(t, "2030-09-01T05:45:00", resBody2.Enter.Format(JsDateTimeFormat))
+	checkTestString(t, "2030-09-01T12:15:00", resBody2.Leave.Format(JsDateTimeFormat))
+}

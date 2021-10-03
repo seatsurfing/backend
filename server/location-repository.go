@@ -206,3 +206,12 @@ func (r *LocationRepository) GetMap(location *Location) (*LocationMap, error) {
 	}
 	return e, nil
 }
+
+func (r *LocationRepository) GetTimezone(location *Location) string {
+	tz := location.Timezone
+	if tz == "" {
+		defaultTz, _ := GetSettingsRepository().Get(location.OrganizationID, SettingDefaultTimezone.Name)
+		tz = defaultTz
+	}
+	return tz
+}

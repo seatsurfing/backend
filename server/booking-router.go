@@ -128,7 +128,8 @@ func (router *BookingRouter) update(w http.ResponseWriter, r *http.Request) {
 		SendBadRequest(w)
 		return
 	}
-	if !CanAccessOrg(GetRequestUser(r), location.OrganizationID) {
+	requestUser := GetRequestUser(r)
+	if !CanAccessOrg(requestUser, location.OrganizationID) {
 		SendForbidden(w)
 		return
 	}
@@ -136,15 +137,22 @@ func (router *BookingRouter) update(w http.ResponseWriter, r *http.Request) {
 		SendForbidden(w)
 		return
 	}
-	if valid, code := router.isValidBookingRequest(&m.BookingRequest, GetRequestUserID(r), location.OrganizationID, true); !valid {
+	eNew, err := router.copyFromRestModel(&m, location)
+	if err != nil {
+		SendInternalServerError(w)
+		return
+	}
+	eNew.ID = e.ID
+	eNew.UserID = GetRequestUserID(r)
+	bookingReq := &BookingRequest{
+		Enter: eNew.Enter,
+		Leave: eNew.Leave,
+	}
+	if valid, code := router.checkBookingCreateUpdate(bookingReq, location, requestUser, eNew.ID); !valid {
 		SendBadRequestCode(w, code)
 		return
 	}
-	if !router.isValidConcurrent(&m.BookingRequest, location, e.ID) {
-		SendBadRequestCode(w, ResponseCodeBookingLocationMaxConcurrent)
-		return
-	}
-	conflicts, err := GetBookingRepository().GetConflicts(m.SpaceID, m.Enter, m.Leave, e.ID)
+	conflicts, err := GetBookingRepository().GetConflicts(eNew.SpaceID, eNew.Enter, eNew.Leave, eNew.ID)
 	if err != nil {
 		log.Println(err)
 		SendInternalServerError(w)
@@ -154,9 +162,6 @@ func (router *BookingRouter) update(w http.ResponseWriter, r *http.Request) {
 		SendAleadyExists(w)
 		return
 	}
-	eNew := router.copyFromRestModel(&m)
-	eNew.ID = vars["id"]
-	eNew.UserID = GetRequestUserID(r)
 	if err := GetBookingRepository().Update(eNew); err != nil {
 		log.Println(err)
 		SendInternalServerError(w)
@@ -224,7 +229,21 @@ func (router *BookingRouter) preBookingCreateCheck(w http.ResponseWriter, r *htt
 		SendForbidden(w)
 		return
 	}
-	if valid, code := router.checkBookingCreateUpdate(&m.BookingRequest, location, requestUser, ""); !valid {
+	enterNew, err := router.convertTimeToLocationTimezone(m.Enter, location)
+	if err != nil {
+		SendInternalServerError(w)
+		return
+	}
+	leaveNew, err := router.convertTimeToLocationTimezone(m.Leave, location)
+	if err != nil {
+		SendInternalServerError(w)
+		return
+	}
+	bookingReq := &BookingRequest{
+		Enter: enterNew,
+		Leave: leaveNew,
+	}
+	if valid, code := router.checkBookingCreateUpdate(bookingReq, location, requestUser, ""); !valid {
 		SendBadRequestCode(w, code)
 		return
 	}
@@ -252,11 +271,22 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 		SendForbidden(w)
 		return
 	}
-	if valid, code := router.checkBookingCreateUpdate(&m.BookingRequest, location, requestUser, ""); !valid {
+	e, err := router.copyFromRestModel(&m, location)
+	if err != nil {
+		SendInternalServerError(w)
+		return
+	}
+	e.UserID = GetRequestUserID(r)
+	bookingReq := &BookingRequest{
+		Enter: e.Enter,
+		Leave: e.Leave,
+	}
+	if valid, code := router.checkBookingCreateUpdate(bookingReq, location, requestUser, ""); !valid {
+		log.Println(err)
 		SendBadRequestCode(w, code)
 		return
 	}
-	conflicts, err := GetBookingRepository().GetConflicts(m.SpaceID, m.Enter, m.Leave, "")
+	conflicts, err := GetBookingRepository().GetConflicts(e.SpaceID, e.Enter, e.Leave, "")
 	if err != nil {
 		log.Println(err)
 		SendInternalServerError(w)
@@ -266,8 +296,6 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 		SendAleadyExists(w)
 		return
 	}
-	e := router.copyFromRestModel(&m)
-	e.UserID = GetRequestUserID(r)
 	if err := GetBookingRepository().Create(e); err != nil {
 		log.Println(err)
 		SendInternalServerError(w)
@@ -333,7 +361,7 @@ func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Loca
 	if location.MaxConcurrentBookings == 0 {
 		return true
 	}
-	bookings, err := GetBookingRepository().GetConcurrent(location.ID, m.Enter, m.Leave, bookingID)
+	bookings, err := GetBookingRepository().GetConcurrent(location, m.Enter, m.Leave, bookingID)
 	if err != nil {
 		log.Println(err)
 		return false
@@ -344,12 +372,22 @@ func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Loca
 	return true
 }
 
-func (router *BookingRouter) copyFromRestModel(m *CreateBookingRequest) *Booking {
+func (router *BookingRouter) copyFromRestModel(m *CreateBookingRequest, location *Location) (*Booking, error) {
 	e := &Booking{}
 	e.SpaceID = m.SpaceID
 	e.Enter = m.Enter
 	e.Leave = m.Leave
-	return e
+	enterNew, err := router.convertTimeToLocationTimezone(e.Enter, location)
+	if err != nil {
+		return nil, err
+	}
+	e.Enter = enterNew
+	leaveNew, err := router.convertTimeToLocationTimezone(e.Leave, location)
+	if err != nil {
+		return nil, err
+	}
+	e.Leave = leaveNew
+	return e, nil
 }
 
 func (router *BookingRouter) copyToRestModel(e *BookingDetails) *GetBookingResponse {
@@ -366,4 +404,14 @@ func (router *BookingRouter) copyToRestModel(e *BookingDetails) *GetBookingRespo
 	m.Space.Location.ID = e.Space.Location.ID
 	m.Space.Location.Name = e.Space.Location.Name
 	return m
+}
+
+func (router *BookingRouter) convertTimeToLocationTimezone(timestamp time.Time, location *Location) (time.Time, error) {
+	tz := GetLocationRepository().GetTimezone(location)
+	targetTz, err := time.LoadLocation(tz)
+	if err != nil {
+		return timestamp, err
+	}
+	targetTimestamp := timestamp.In(targetTz)
+	return targetTimestamp, nil
 }

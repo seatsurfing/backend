@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"log"
 	"math"
 	"sync"
 	"time"
@@ -244,7 +243,7 @@ func (r *BookingRepository) GetConflicts(spaceID string, enter time.Time, leave 
 
 // GetConcurrent returns concurrent bookings for a specific location
 // within the specified enter and leave times.
-func (r *BookingRepository) GetConcurrent(locationID string, enter time.Time, leave time.Time, excludeBookingID string) (int, error) {
+func (r *BookingRepository) GetConcurrent(location *Location, enter time.Time, leave time.Time, excludeBookingID string) (int, error) {
 	var getNumActive = func(bookings []*Booking, timestamp time.Time) int {
 		res := 0
 		for _, b := range bookings {
@@ -256,6 +255,8 @@ func (r *BookingRepository) GetConcurrent(locationID string, enter time.Time, le
 	}
 
 	var result []*Booking
+	tz := GetLocationRepository().GetTimezone(location)
+	targetTz, err := time.LoadLocation(tz)
 	rows, err := GetDatabase().DB().Query("SELECT id, user_id, space_id, enter_time, leave_time "+
 		"FROM bookings "+
 		"WHERE id::text != $1 AND space_id IN (SELECT id FROM spaces WHERE location_id = $2) AND ("+
@@ -264,7 +265,7 @@ func (r *BookingRepository) GetConcurrent(locationID string, enter time.Time, le
 		"(enter_time BETWEEN $3 AND $4) OR "+
 		"(leave_time BETWEEN $3 AND $4)"+
 		") "+
-		"ORDER BY enter_time", excludeBookingID, locationID, enter, leave)
+		"ORDER BY enter_time", excludeBookingID, location.ID, enter, leave)
 	if err == sql.ErrNoRows {
 		return 0, nil
 	}
@@ -275,6 +276,8 @@ func (r *BookingRepository) GetConcurrent(locationID string, enter time.Time, le
 	for rows.Next() {
 		e := &Booking{}
 		err = rows.Scan(&e.ID, &e.UserID, &e.SpaceID, &e.Enter, &e.Leave)
+		e.Enter, _ = time.ParseInLocation(JsDateTimeFormat, e.Enter.Format(JsDateTimeFormat), targetTz)
+		e.Leave, _ = time.ParseInLocation(JsDateTimeFormat, e.Leave.Format(JsDateTimeFormat), targetTz)
 		if err != nil {
 			return 0, err
 		}
@@ -283,19 +286,14 @@ func (r *BookingRepository) GetConcurrent(locationID string, enter time.Time, le
 
 	max := 0
 	timestamp := enter
-	for timestamp.Before(leave) {
+	for timestamp.Before(leave) || timestamp.Equal(leave) {
 		numActive := getNumActive(result, timestamp)
 		if numActive > max {
-			for _, b := range result {
-				log.Println(b.Enter.String())
-				log.Println(b.Leave.String())
-			}
-			log.Println("Turning point: " + timestamp.String())
 			max = numActive
 		}
 		timestamp = timestamp.Add(time.Minute * 1)
 	}
 
-	log.Printf("GetConcurrent for location %s with enter = %s and leave = %s has %d overlaps\n", locationID, enter, leave, max)
+	//log.Printf("GetConcurrent for location %s with enter = %s and leave = %s has %d overlaps\n", location.Name, enter, leave, max)
 	return max, nil
 }
