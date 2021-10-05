@@ -18,8 +18,7 @@ import (
 )
 
 const JsDateTimeFormat string = "2006-01-02T15:04:05"
-
-//const JsDateTimeFormatWithTimezone string = "2006-01-02T15:04:05-07:00"
+const JsDateTimeFormatWithTimezone string = "2006-01-02T15:04:05-07:00"
 
 type contextKey string
 

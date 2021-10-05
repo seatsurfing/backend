@@ -229,12 +229,12 @@ func (router *BookingRouter) preBookingCreateCheck(w http.ResponseWriter, r *htt
 		SendForbidden(w)
 		return
 	}
-	enterNew, err := router.convertTimeToLocationTimezone(m.Enter, location)
+	enterNew, err := attachTimezoneInformation(m.Enter, location)
 	if err != nil {
 		SendInternalServerError(w)
 		return
 	}
-	leaveNew, err := router.convertTimeToLocationTimezone(m.Leave, location)
+	leaveNew, err := attachTimezoneInformation(m.Leave, location)
 	if err != nil {
 		SendInternalServerError(w)
 		return
@@ -377,12 +377,12 @@ func (router *BookingRouter) copyFromRestModel(m *CreateBookingRequest, location
 	e.SpaceID = m.SpaceID
 	e.Enter = m.Enter
 	e.Leave = m.Leave
-	enterNew, err := router.convertTimeToLocationTimezone(e.Enter, location)
+	enterNew, err := attachTimezoneInformation(e.Enter, location)
 	if err != nil {
 		return nil, err
 	}
 	e.Enter = enterNew
-	leaveNew, err := router.convertTimeToLocationTimezone(e.Leave, location)
+	leaveNew, err := attachTimezoneInformation(e.Leave, location)
 	if err != nil {
 		return nil, err
 	}
@@ -396,8 +396,8 @@ func (router *BookingRouter) copyToRestModel(e *BookingDetails) *GetBookingRespo
 	m.UserID = e.UserID
 	m.UserEmail = e.UserEmail
 	m.SpaceID = e.SpaceID
-	m.Enter, _ = router.attachTimezoneInformation(e.Enter, &e.Space.Location)
-	m.Leave, _ = router.attachTimezoneInformation(e.Leave, &e.Space.Location)
+	m.Enter, _ = attachTimezoneInformation(e.Enter, &e.Space.Location)
+	m.Leave, _ = attachTimezoneInformation(e.Leave, &e.Space.Location)
 	m.Space.ID = e.Space.ID
 	m.Space.LocationID = e.Space.LocationID
 	m.Space.Name = e.Space.Name
@@ -406,6 +406,7 @@ func (router *BookingRouter) copyToRestModel(e *BookingDetails) *GetBookingRespo
 	return m
 }
 
+/*
 func (router *BookingRouter) convertTimeToLocationTimezone(timestamp time.Time, location *Location) (time.Time, error) {
 	tz := GetLocationRepository().GetTimezone(location)
 	targetTz, err := time.LoadLocation(tz)
@@ -415,15 +416,4 @@ func (router *BookingRouter) convertTimeToLocationTimezone(timestamp time.Time, 
 	targetTimestamp := timestamp.In(targetTz)
 	return targetTimestamp, nil
 }
-
-func (router *BookingRouter) attachTimezoneInformation(timestamp time.Time, location *Location) (time.Time, error) {
-	tz := GetLocationRepository().GetTimezone(location)
-	targetTz, err := time.LoadLocation(tz)
-	if err != nil {
-		return timestamp, err
-	}
-	targetTimestamp := timestamp.In(targetTz)
-	_, offset := targetTimestamp.Zone()
-	targetTimestamp = targetTimestamp.Add(time.Second * time.Duration(offset) * -1)
-	return targetTimestamp, nil
-}
+*/

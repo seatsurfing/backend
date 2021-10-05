@@ -7,6 +7,7 @@ import { Link, RouteProps } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { Button, Modal } from 'react-bootstrap';
 import ErrorText from '../types/ErrorText';
+import { AuthContext } from '../AuthContextData';
 
 interface State {
   loading: boolean
@@ -33,6 +34,7 @@ interface Props extends RouteProps {
 }
 
 class SearchResult extends React.Component<Props, State> {
+  static contextType = AuthContext;
   data: Space[] = [];
   entity: Location = new Location();
   mapData: any = null;
@@ -95,7 +97,6 @@ class SearchResult extends React.Component<Props, State> {
   }
 
   renderItem = (item: Space) => {
-    console.log(this.context.showNames);
     const boxStyle: React.CSSProperties = {
       backgroundColor: item.available ? "rgba(48, 209, 88, 0.9)" : "rgba(255, 69, 58, 0.9)",
       position: "absolute",
@@ -155,6 +156,13 @@ class SearchResult extends React.Component<Props, State> {
     );
   }
 
+  getActualTimezone = (): string => {
+    if (this.entity.timezone) {
+      return this.entity.timezone;
+    }
+    return this.context.defaultTimezone;
+  }
+
   render() {
     if (this.state.loading) {
       return <Loading />;
@@ -201,6 +209,7 @@ class SearchResult extends React.Component<Props, State> {
             <p>{this.props.t("area")}: {this.entity.name}</p>
             <p>{this.props.t("enter")}: {Formatting.getFormatterShort().format(new Date(this.state.enter))}</p>
             <p>{this.props.t("leave")}: {Formatting.getFormatterShort().format(new Date(this.state.leave))}</p>
+            <p>{this.props.t("timezone")}: {this.getActualTimezone()}</p>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={() => this.setState({ showConfirm: false })}>

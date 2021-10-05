@@ -49,7 +49,7 @@ func TestBookingsCRUD(t *testing.T) {
 	loginResponse := loginTestUser(user.ID)
 
 	// 1. Create
-	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-01T08:30:00+02:00\", \"leave\": \"2030-09-01T17:00:00+02:00\"}"
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-01T08:30:00Z\", \"leave\": \"2030-09-01T17:00:00Z\"}"
 	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
@@ -61,15 +61,15 @@ func TestBookingsCRUD(t *testing.T) {
 	checkTestResponseCode(t, http.StatusOK, res.Code)
 	var resBody *GetBookingResponse
 	json.Unmarshal(res.Body.Bytes(), &resBody)
-	checkTestString(t, "2030-09-01T08:30:00", resBody.Enter.Format(JsDateTimeFormat))
-	checkTestString(t, "2030-09-01T17:00:00", resBody.Leave.Format(JsDateTimeFormat))
+	checkTestString(t, "2030-09-01T08:30:00+02:00", resBody.Enter.Format(JsDateTimeFormatWithTimezone))
+	checkTestString(t, "2030-09-01T17:00:00+02:00", resBody.Leave.Format(JsDateTimeFormatWithTimezone))
 	checkTestString(t, spaceID, resBody.Space.ID)
 	checkTestString(t, "H234", resBody.Space.Name)
 	checkTestString(t, locationID, resBody.Space.Location.ID)
 	checkTestString(t, "Location 1", resBody.Space.Location.Name)
 
 	// 3. Update
-	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-01T08:45:00+02:00\", \"leave\": \"2030-09-01T18:15:00+02:00\"}"
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-01T08:45:00Z\", \"leave\": \"2030-09-01T18:15:00Z\"}"
 	req = newHTTPRequest("PUT", "/booking/"+id, loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusNoContent, res.Code)
@@ -80,8 +80,8 @@ func TestBookingsCRUD(t *testing.T) {
 	checkTestResponseCode(t, http.StatusOK, res.Code)
 	var resBody2 *GetBookingResponse
 	json.Unmarshal(res.Body.Bytes(), &resBody2)
-	checkTestString(t, "2030-09-01T08:45:00", resBody2.Enter.Format(JsDateTimeFormat))
-	checkTestString(t, "2030-09-01T18:15:00", resBody2.Leave.Format(JsDateTimeFormat))
+	checkTestString(t, "2030-09-01T08:45:00+02:00", resBody2.Enter.Format(JsDateTimeFormatWithTimezone))
+	checkTestString(t, "2030-09-01T18:15:00+02:00", resBody2.Leave.Format(JsDateTimeFormatWithTimezone))
 	checkTestString(t, spaceID, resBody2.Space.ID)
 	checkTestString(t, "H234", resBody2.Space.Name)
 	checkTestString(t, locationID, resBody2.Space.Location.ID)
@@ -124,7 +124,7 @@ func TestBookingsList(t *testing.T) {
 	loginResponse := loginTestUser(user.ID)
 
 	// Create #1
-	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-01T08:30:00+02:00\", \"leave\": \"2030-09-01T17:00:00+02:00\"}"
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-01T08:30:00Z\", \"leave\": \"2030-09-01T17:00:00Z\"}"
 	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
@@ -141,7 +141,7 @@ func TestBookingsList(t *testing.T) {
 	GetBookingRepository().Create(b2)
 
 	// Create #3
-	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-06-01T08:30:00+02:00\", \"leave\": \"2030-06-01T17:00:00+02:00\"}"
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-06-01T08:30:00Z\", \"leave\": \"2030-06-01T17:00:00Z\"}"
 	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
@@ -154,8 +154,8 @@ func TestBookingsList(t *testing.T) {
 	if len(resBody) != 2 {
 		t.Fatalf("Expected array with 2 elements")
 	}
-	checkTestString(t, "2030-06-01T08:30:00", resBody[0].Enter.Format(JsDateTimeFormat))
-	checkTestString(t, "2030-09-01T08:30:00", resBody[1].Enter.Format(JsDateTimeFormat))
+	checkTestString(t, "2030-06-01T08:30:00+02:00", resBody[0].Enter.Format(JsDateTimeFormatWithTimezone))
+	checkTestString(t, "2030-09-01T08:30:00+02:00", resBody[1].Enter.Format(JsDateTimeFormatWithTimezone))
 }
 
 func TestBookingsGetForeign(t *testing.T) {
@@ -1158,7 +1158,7 @@ func TestBookingsConvertTimestampDefaultSetting(t *testing.T) {
 	GetSpaceRepository().Create(s1)
 
 	// Create booking
-	payload := "{\"spaceId\": \"" + s1.ID + "\", \"enter\": \"2030-09-01T09:30:00+02:00\", \"leave\": \"2030-09-01T12:00:00+02:00\"}"
+	payload := "{\"spaceId\": \"" + s1.ID + "\", \"enter\": \"2030-09-01T09:30:00Z\", \"leave\": \"2030-09-01T12:00:00Z\"}"
 	req := newHTTPRequest("POST", "/booking/", user1.ID, bytes.NewBufferString(payload))
 	res := executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
@@ -1170,8 +1170,8 @@ func TestBookingsConvertTimestampDefaultSetting(t *testing.T) {
 	checkTestResponseCode(t, http.StatusOK, res.Code)
 	var resBody *GetBookingResponse
 	json.Unmarshal(res.Body.Bytes(), &resBody)
-	checkTestString(t, "2030-09-01T02:30:00", resBody.Enter.Format(JsDateTimeFormat))
-	checkTestString(t, "2030-09-01T05:00:00", resBody.Leave.Format(JsDateTimeFormat))
+	checkTestString(t, "2030-09-01T09:30:00-05:00", resBody.Enter.Format(JsDateTimeFormatWithTimezone))
+	checkTestString(t, "2030-09-01T12:00:00-05:00", resBody.Leave.Format(JsDateTimeFormatWithTimezone))
 }
 
 func TestBookingsConvertTimestamp(t *testing.T) {
@@ -1190,7 +1190,7 @@ func TestBookingsConvertTimestamp(t *testing.T) {
 	GetSpaceRepository().Create(s1)
 
 	// Create booking
-	payload := "{\"spaceId\": \"" + s1.ID + "\", \"enter\": \"2030-09-01T09:30:00+02:00\", \"leave\": \"2030-09-01T12:00:00+02:00\"}"
+	payload := "{\"spaceId\": \"" + s1.ID + "\", \"enter\": \"2030-09-01T09:30:00Z\", \"leave\": \"2030-09-01T12:00:00Z\"}"
 	req := newHTTPRequest("POST", "/booking/", user1.ID, bytes.NewBufferString(payload))
 	res := executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
@@ -1202,11 +1202,11 @@ func TestBookingsConvertTimestamp(t *testing.T) {
 	checkTestResponseCode(t, http.StatusOK, res.Code)
 	var resBody *GetBookingResponse
 	json.Unmarshal(res.Body.Bytes(), &resBody)
-	checkTestString(t, "2030-09-01T02:30:00", resBody.Enter.Format(JsDateTimeFormat))
-	checkTestString(t, "2030-09-01T05:00:00", resBody.Leave.Format(JsDateTimeFormat))
+	checkTestString(t, "2030-09-01T09:30:00-05:00", resBody.Enter.Format(JsDateTimeFormatWithTimezone))
+	checkTestString(t, "2030-09-01T12:00:00-05:00", resBody.Leave.Format(JsDateTimeFormatWithTimezone))
 
 	// Update Booking
-	payload = "{\"spaceId\": \"" + s1.ID + "\", \"enter\": \"2030-09-01T08:45:00-02:00\", \"leave\": \"2030-09-01T15:15:00-02:00\"}"
+	payload = "{\"spaceId\": \"" + s1.ID + "\", \"enter\": \"2030-09-01T08:45:00Z\", \"leave\": \"2030-09-01T15:15:00Z\"}"
 	req = newHTTPRequest("PUT", "/booking/"+id, user1.ID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusNoContent, res.Code)
@@ -1217,6 +1217,6 @@ func TestBookingsConvertTimestamp(t *testing.T) {
 	checkTestResponseCode(t, http.StatusOK, res.Code)
 	var resBody2 *GetBookingResponse
 	json.Unmarshal(res.Body.Bytes(), &resBody2)
-	checkTestString(t, "2030-09-01T05:45:00", resBody2.Enter.Format(JsDateTimeFormat))
-	checkTestString(t, "2030-09-01T12:15:00", resBody2.Leave.Format(JsDateTimeFormat))
+	checkTestString(t, "2030-09-01T08:45:00-05:00", resBody2.Enter.Format(JsDateTimeFormatWithTimezone))
+	checkTestString(t, "2030-09-01T15:15:00-05:00", resBody2.Leave.Format(JsDateTimeFormatWithTimezone))
 }

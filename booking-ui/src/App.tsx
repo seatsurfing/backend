@@ -39,6 +39,7 @@ class App extends React.Component<Props, AuthContextData> {
       maxBookingDurationHours: 0,
       dailyBasisBooking: false,
       showNames: false,
+      defaultTimezone: "",
       setDetails: this.setDetails
     };
     if (process.env.NODE_ENV.toLowerCase() === "development") {
@@ -85,6 +86,7 @@ class App extends React.Component<Props, AuthContextData> {
         if (s.name === "max_booking_duration_hours") state.maxBookingDurationHours = window.parseInt(s.value);
         if (s.name === "daily_basis_booking") state.dailyBasisBooking = (s.value === "1");
         if (s.name === "show_names") state.showNames = (s.value === "1");
+        if (s.name === "default_timezone") state.defaultTimezone = s.value;
       });
       this.setState({
         ...this.state,

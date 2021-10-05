@@ -88,13 +88,23 @@ func (router *SpaceRouter) getAvailability(w http.ResponseWriter, r *http.Reques
 		SendBadRequest(w)
 		return
 	}
+	enterNew, err := attachTimezoneInformation(m.Enter, location)
+	if err != nil {
+		SendInternalServerError(w)
+		return
+	}
+	leaveNew, err := attachTimezoneInformation(m.Leave, location)
+	if err != nil {
+		SendInternalServerError(w)
+		return
+	}
 	user := GetRequestUser(r)
 	if !CanAccessOrg(user, location.OrganizationID) {
 		SendForbidden(w)
 		return
 	}
 	showNames, _ := GetSettingsRepository().GetBool(location.OrganizationID, SettingShowNames.Name)
-	list, err := GetSpaceRepository().GetAllInTime(location.ID, m.Enter, m.Leave)
+	list, err := GetSpaceRepository().GetAllInTime(location.ID, enterNew, leaveNew)
 	if err != nil {
 		log.Println(err)
 		SendInternalServerError(w)
@@ -115,11 +125,13 @@ func (router *SpaceRouter) getAvailability(w http.ResponseWriter, r *http.Reques
 		m.Bookings = []*GetSpaceAvailabilityBookingsResponse{}
 		if showNames {
 			for _, booking := range e.Bookings {
+				enter, _ := attachTimezoneInformation(booking.Enter, location)
+				leave, _ := attachTimezoneInformation(booking.Leave, location)
 				entry := &GetSpaceAvailabilityBookingsResponse{
 					UserID:    booking.UserID,
 					UserEmail: booking.UserEmail,
-					Enter:     booking.Enter,
-					Leave:     booking.Leave,
+					Enter:     enter,
+					Leave:     leave,
 				}
 				m.Bookings = append(m.Bookings, entry)
 			}

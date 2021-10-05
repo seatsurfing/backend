@@ -73,6 +73,7 @@ const resources = {
             "initPasswordResetFailed": "Das hat leider nicht geklappt! Bitte versuche es später noch einmal.",
             "passwordChanged": "Dein Kennwort wurde erfolgreich geändert.",
             "proceedToLogin": "Zum Login",
+            "timezone": "Zeitzone",
         }
     },
     en: {
@@ -144,6 +145,7 @@ const resources = {
             "initPasswordResetFailed": "That didn't work! Please try again later.",
             "passwordChanged": "Your password has been changed.",
             "proceedToLogin": "Log in",
+            "timezone": "Time zone",
         }
     }
 };

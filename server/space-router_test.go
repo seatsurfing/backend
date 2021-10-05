@@ -230,13 +230,13 @@ func TestSpacesAvailabilityStart(t *testing.T) {
 	locationID, spaceID, _, _ := createTestSpaces(t, loginResponse)
 
 	// Create booking
-	payload := "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-01T07:00:00+02:00\", \"leave\": \"2030-09-01T09:00:00+02:00\"}"
+	payload := "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-01T07:00:00Z\", \"leave\": \"2030-09-01T09:00:00Z\"}"
 	req := newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
 	res := executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
 
 	// Check
-	payload = `{"enter": "2030-09-01T08:30:00+02:00", "leave": "2030-09-01T17:00:00+02:00"}`
+	payload = `{"enter": "2030-09-01T08:30:00Z", "leave": "2030-09-01T17:00:00Z"}`
 	req = newHTTPRequest("POST", "/location/"+locationID+"/space/availability", loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusOK, res.Code)

@@ -1,5 +1,7 @@
 package main
 
+import "time"
+
 func isValidTimeZone(timezone string) bool {
 	for _, tz := range TimeZones {
 		if tz == timezone {
@@ -7,6 +9,18 @@ func isValidTimeZone(timezone string) bool {
 		}
 	}
 	return false
+}
+
+func attachTimezoneInformation(timestamp time.Time, location *Location) (time.Time, error) {
+	tz := GetLocationRepository().GetTimezone(location)
+	targetTz, err := time.LoadLocation(tz)
+	if err != nil {
+		return timestamp, err
+	}
+	targetTimestamp := timestamp.In(targetTz)
+	_, offset := targetTimestamp.Zone()
+	targetTimestamp = targetTimestamp.Add(time.Second * time.Duration(offset) * -1)
+	return targetTimestamp, nil
 }
 
 var TimeZones = []string{

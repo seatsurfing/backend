@@ -9,6 +9,7 @@ export interface AuthContextData {
     maxBookingDurationHours: number;
     dailyBasisBooking: boolean;
     showNames: boolean;
+    defaultTimezone: string;
     setDetails: (token: string, username: string) => void;
 };
 
@@ -21,5 +22,6 @@ export const AuthContext = React.createContext<AuthContextData>({
     maxBookingDurationHours: 0,
     dailyBasisBooking: false,
     showNames: false,
+    defaultTimezone: "",
     setDetails: (token: string, username: string) => {},
 });
