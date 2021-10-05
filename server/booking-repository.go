@@ -70,14 +70,14 @@ func (r *BookingRepository) GetOne(id string) (*BookingDetails, error) {
 	e := &BookingDetails{}
 	err := GetDatabase().DB().QueryRow("SELECT bookings.id, bookings.user_id, bookings.space_id, bookings.enter_time, bookings.leave_time, "+
 		"spaces.id, spaces.location_id, spaces.name, "+
-		"locations.id, locations.organization_id, locations.name, "+
+		"locations.id, locations.organization_id, locations.name, locations.description, locations.tz, "+
 		"users.email "+
 		"FROM bookings "+
 		"INNER JOIN spaces ON bookings.space_id = spaces.id "+
 		"INNER JOIN locations ON spaces.location_id = locations.id "+
 		"INNER JOIN users ON bookings.user_id = users.id "+
 		"WHERE bookings.id = $1",
-		id).Scan(&e.ID, &e.UserID, &e.SpaceID, &e.Enter, &e.Leave, &e.Space.ID, &e.Space.LocationID, &e.Space.Name, &e.Space.Location.ID, &e.Space.Location.OrganizationID, &e.Space.Location.Name, &e.UserEmail)
+		id).Scan(&e.ID, &e.UserID, &e.SpaceID, &e.Enter, &e.Leave, &e.Space.ID, &e.Space.LocationID, &e.Space.Name, &e.Space.Location.ID, &e.Space.Location.OrganizationID, &e.Space.Location.Name, &e.Space.Location.Description, &e.Space.Location.Timezone, &e.UserEmail)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (r *BookingRepository) GetAllByOrg(organizationID string, startTime, endTim
 	var result []*BookingDetails
 	rows, err := GetDatabase().DB().Query("SELECT bookings.id, bookings.user_id, bookings.space_id, bookings.enter_time, bookings.leave_time, "+
 		"spaces.id, spaces.location_id, spaces.name, "+
-		"locations.id, locations.organization_id, locations.name, "+
+		"locations.id, locations.organization_id, locations.name, locations.description, locations.tz, "+
 		"users.email "+
 		"FROM bookings "+
 		"INNER JOIN spaces ON bookings.space_id = spaces.id "+
@@ -102,7 +102,7 @@ func (r *BookingRepository) GetAllByOrg(organizationID string, startTime, endTim
 	defer rows.Close()
 	for rows.Next() {
 		e := &BookingDetails{}
-		err = rows.Scan(&e.ID, &e.UserID, &e.SpaceID, &e.Enter, &e.Leave, &e.Space.ID, &e.Space.LocationID, &e.Space.Name, &e.Space.Location.ID, &e.Space.Location.OrganizationID, &e.Space.Location.Name, &e.UserEmail)
+		err = rows.Scan(&e.ID, &e.UserID, &e.SpaceID, &e.Enter, &e.Leave, &e.Space.ID, &e.Space.LocationID, &e.Space.Name, &e.Space.Location.ID, &e.Space.Location.OrganizationID, &e.Space.Location.Name, &e.Space.Location.Description, &e.Space.Location.Timezone, &e.UserEmail)
 		if err != nil {
 			return nil, err
 		}
@@ -115,7 +115,7 @@ func (r *BookingRepository) GetAllByUser(userID string, startTime time.Time) ([]
 	var result []*BookingDetails
 	rows, err := GetDatabase().DB().Query("SELECT bookings.id, bookings.user_id, bookings.space_id, bookings.enter_time, bookings.leave_time, "+
 		"spaces.id, spaces.location_id, spaces.name, "+
-		"locations.id, locations.organization_id, locations.name, "+
+		"locations.id, locations.organization_id, locations.name, locations.description, locations.tz, "+
 		"users.email "+
 		"FROM bookings "+
 		"INNER JOIN spaces ON bookings.space_id = spaces.id "+
@@ -129,7 +129,7 @@ func (r *BookingRepository) GetAllByUser(userID string, startTime time.Time) ([]
 	defer rows.Close()
 	for rows.Next() {
 		e := &BookingDetails{}
-		err = rows.Scan(&e.ID, &e.UserID, &e.SpaceID, &e.Enter, &e.Leave, &e.Space.ID, &e.Space.LocationID, &e.Space.Name, &e.Space.Location.ID, &e.Space.Location.OrganizationID, &e.Space.Location.Name, &e.UserEmail)
+		err = rows.Scan(&e.ID, &e.UserID, &e.SpaceID, &e.Enter, &e.Leave, &e.Space.ID, &e.Space.LocationID, &e.Space.Name, &e.Space.Location.ID, &e.Space.Location.OrganizationID, &e.Space.Location.Name, &e.Space.Location.Description, &e.Space.Location.Timezone, &e.UserEmail)
 		if err != nil {
 			return nil, err
 		}
@@ -257,6 +257,9 @@ func (r *BookingRepository) GetConcurrent(location *Location, enter time.Time, l
 	var result []*Booking
 	tz := GetLocationRepository().GetTimezone(location)
 	targetTz, err := time.LoadLocation(tz)
+	if err != nil {
+		return 0, err
+	}
 	rows, err := GetDatabase().DB().Query("SELECT id, user_id, space_id, enter_time, leave_time "+
 		"FROM bookings "+
 		"WHERE id::text != $1 AND space_id IN (SELECT id FROM spaces WHERE location_id = $2) AND ("+

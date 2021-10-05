@@ -396,8 +396,8 @@ func (router *BookingRouter) copyToRestModel(e *BookingDetails) *GetBookingRespo
 	m.UserID = e.UserID
 	m.UserEmail = e.UserEmail
 	m.SpaceID = e.SpaceID
-	m.Enter = e.Enter
-	m.Leave = e.Leave
+	m.Enter, _ = router.attachTimezoneInformation(e.Enter, &e.Space.Location)
+	m.Leave, _ = router.attachTimezoneInformation(e.Leave, &e.Space.Location)
 	m.Space.ID = e.Space.ID
 	m.Space.LocationID = e.Space.LocationID
 	m.Space.Name = e.Space.Name
@@ -413,5 +413,17 @@ func (router *BookingRouter) convertTimeToLocationTimezone(timestamp time.Time, 
 		return timestamp, err
 	}
 	targetTimestamp := timestamp.In(targetTz)
+	return targetTimestamp, nil
+}
+
+func (router *BookingRouter) attachTimezoneInformation(timestamp time.Time, location *Location) (time.Time, error) {
+	tz := GetLocationRepository().GetTimezone(location)
+	targetTz, err := time.LoadLocation(tz)
+	if err != nil {
+		return timestamp, err
+	}
+	targetTimestamp := timestamp.In(targetTz)
+	_, offset := targetTimestamp.Zone()
+	targetTimestamp = targetTimestamp.Add(time.Second * time.Duration(offset) * -1)
 	return targetTimestamp, nil
 }
