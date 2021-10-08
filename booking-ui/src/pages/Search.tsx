@@ -155,11 +155,17 @@ class Search extends React.Component<Props, State> {
   }
 
   setEnterDate = (value: Date | Date[]) => {
+    let diff = this.state.leave.getTime() - this.state.enter.getTime();
     let date = (value instanceof Date) ? value : value[0];
     if (this.context.dailyBasisBooking) {
       date.setHours(0, 0, 0);
     }
-    this.setState({ enter: date }, this.updateCanSearch);
+    let leave = new Date();
+    leave.setTime(date.getTime() + diff);
+    this.setState({ 
+      enter: date,
+      leave: leave
+    }, this.updateCanSearch);
   }
 
   setLeaveDate = (value: Date | Date[]) => {
