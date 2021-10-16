@@ -1,7 +1,7 @@
 import React from 'react';
 import './Login.css';
 import { Form, Button, Alert } from 'react-bootstrap';
-import { Location, Booking, Ajax, AjaxError } from 'flexspace-commons';
+import { Location, Booking, Ajax, AjaxError, Formatting } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 // @ts-ignore
@@ -185,8 +185,8 @@ class Search extends React.Component<Props, State> {
     this.setState({canSearch: false});
     let payload = {
       "locationId": this.state.locationId,
-      "enter": this.state.enter.toISOString(),
-      "leave": this.state.leave.toISOString(),
+      "enter": Formatting.convertToFakeUTCDate(this.state.enter).toISOString(),
+      "leave": Formatting.convertToFakeUTCDate(this.state.leave).toISOString(),
     };
     Ajax.postData("/booking/precheck/", payload).then(res => {
       this.setState({ canSearch: true, showResult: true });

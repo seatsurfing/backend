@@ -3,6 +3,7 @@ import Space from "./Space";
 import { Entity } from "./Entity";
 import Ajax from "../util/Ajax";
 import User from "./User";
+import { Formatting } from "..";
 
 export default class Booking extends Entity {
     enter: Date;
@@ -22,8 +23,8 @@ export default class Booking extends Entity {
 
     serialize(): Object {
         // Convert the local dates to UTC dates without changing the date/time ("fake" UTC)
-        let enter = new Date(Date.UTC(this.enter.getFullYear(), this.enter.getMonth(), this.enter.getDate(), this.enter.getHours(), this.enter.getMinutes(), 0, 0));
-        let leave = new Date(Date.UTC(this.leave.getFullYear(), this.leave.getMonth(), this.leave.getDate(), this.leave.getHours(), this.leave.getMinutes(), 0, 0));
+        let enter = Formatting.convertToFakeUTCDate(this.enter);
+        let leave = Formatting.convertToFakeUTCDate(this.leave);
         return Object.assign(super.serialize(), {
             "enter": enter.toISOString(),
             "leave": leave.toISOString(),
@@ -34,12 +35,8 @@ export default class Booking extends Entity {
     deserialize(input: any): void {
         super.deserialize(input);
         // Discard time zone information from date
-        if ((input.enter.length > 6) && ((input.enter[input.enter.length-6] === "+") || (input.enter[input.enter.length-6] === "-"))) {
-            input.enter = input.enter.substring(0, input.enter.length-6);
-        }
-        if ((input.leave.length > 6) && ((input.leave[input.leave.length-6] === "+") || (input.leave[input.leave.length-6] === "-"))) {
-            input.leave = input.leave.substring(0, input.leave.length-6);
-        }
+        input.enter = Formatting.stripTimezoneDetails(input.enter);
+        input.leave = Formatting.stripTimezoneDetails(input.leave);
         this.enter = new Date(input.enter);
         this.leave = new Date(input.leave);
         if (input.space) {
