@@ -26,6 +26,10 @@ html, body, div#root {
     margin-bottom: 50px;
 }
 
+.form-signin .form-control:focus {
+    box-shadow: none;
+}
+
 .form-signin .form-control {
     position: relative;
     box-sizing: border-box;
@@ -38,12 +42,12 @@ html, body, div#root {
     z-index: 2;
 }
 
-.form-signin button[type="submit"] {
-    margin-top: 15px;
-}
-
 .btn-auth-provider {
     width: 100%;
+}
+
+.btn-back {
+    margin-top: 25px;
 }
 
 .copyright-footer {

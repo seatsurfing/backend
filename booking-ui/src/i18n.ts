@@ -74,6 +74,7 @@ const resources = {
             "passwordChanged": "Dein Kennwort wurde erfolgreich geändert.",
             "proceedToLogin": "Zum Login",
             "timezone": "Zeitzone",
+            "rememberMe": "Login merken",
         }
     },
     en: {
@@ -146,6 +147,7 @@ const resources = {
             "passwordChanged": "Your password has been changed.",
             "proceedToLogin": "Log in",
             "timezone": "Time zone",
+            "rememberMe": "Remember me",
         }
     }
 };

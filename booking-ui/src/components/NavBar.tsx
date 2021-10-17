@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navbar, Nav, Modal, Button, Form, Badge } from 'react-bootstrap';
 import { NavLink, Redirect } from 'react-router-dom';
-import { Ajax, User, MergeRequest } from 'flexspace-commons';
+import { Ajax, User, MergeRequest, AjaxCredentials } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 import './NavBar.css';
@@ -26,7 +26,7 @@ interface Props {
 
 class NavBar extends React.Component<Props, State> {
     static contextType = AuthContext;
-    
+
     constructor(props: any) {
         super(props);
         this.state = {
@@ -58,10 +58,11 @@ class NavBar extends React.Component<Props, State> {
 
     logOut = (e: any) => {
         e.preventDefault();
-        Ajax.JWT = "";
-        window.sessionStorage.removeItem("jwt");
-        this.setState({
-            redirect: "/login"
+        Ajax.CREDENTIALS = new AjaxCredentials();
+        Ajax.PERSISTER.deleteCredentialsFromSessionStorage().then(() => {
+            this.setState({
+                redirect: "/login"
+            });
         });
     }
 

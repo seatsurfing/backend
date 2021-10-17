@@ -8,7 +8,7 @@ import {
 import './i18n';
 import './App.css';
 import { withTranslation } from 'react-i18next';
-import { Ajax, Settings as OrgSettings, User } from 'flexspace-commons';
+import { Ajax, AjaxCredentials, Settings as OrgSettings, User } from 'flexspace-commons';
 import Login from './pages/Login';
 import LoginSuccess from './pages/LoginSuccess';
 import LoginFailed from './pages/LoginFailed';
@@ -31,7 +31,6 @@ class App extends React.Component<Props, AuthContextData> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      token: "",
       username: "",
       isLoading: true,
       maxBookingsPerUser: 0,
@@ -52,25 +51,26 @@ class App extends React.Component<Props, AuthContextData> {
       this.verifyToken();
     }, 10);
   }
-
+  
   verifyToken = async () => {
-    let token: string | null = null;
-    try {
-      token = window.sessionStorage.getItem("jwt");
-    } catch (e) {
-      // Do nothing
+    Ajax.CREDENTIALS = await Ajax.PERSISTER.readCredentialsFromSessionStorage();
+    if (!Ajax.CREDENTIALS.accessToken) {
+      Ajax.CREDENTIALS = await Ajax.PERSISTER.readRefreshTokenFromLocalStorage();
+      if (Ajax.CREDENTIALS.refreshToken) {
+        await Ajax.refreshAccessToken(Ajax.CREDENTIALS.refreshToken);
+      }
     }
-    if (token != null) {
-      Ajax.JWT = token;
+    if (Ajax.CREDENTIALS.accessToken) {
       User.getSelf().then(user => {
         this.loadSettings().then(() => {
-          this.setDetails(token != null ? token : "", user.email);
+          this.setDetails(user.email);
           this.setState({ isLoading: false });
         });
       }).catch((e) => {
-        Ajax.JWT = "";
-        window.sessionStorage.removeItem("jwt");
-        this.setState({ isLoading: false });
+        Ajax.CREDENTIALS = new AjaxCredentials();
+        Ajax.PERSISTER.deleteCredentialsFromSessionStorage().then(() => {
+          this.setState({ isLoading: false });
+        });
       });
     } else {
       this.setState({ isLoading: false });
@@ -95,10 +95,9 @@ class App extends React.Component<Props, AuthContextData> {
     });
   }
 
-  setDetails = (token: string, username: string) => {
+  setDetails = (username: string) => {
     this.loadSettings().then(() => {
       this.setState({
-        token: token,
         username: username
       });
     });

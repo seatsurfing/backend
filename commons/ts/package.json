@@ -5,7 +5,9 @@
   "scripts": {
     "build": "rm -rf ./dist && tsc && npm pack"
   },
-  "dependencies": {},
+  "dependencies": {
+    "async-mutex": "^0.3.2"
+  },
   "devDependencies": {
     "typescript": "~4.4.3"
   },

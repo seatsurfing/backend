@@ -1,5 +1,7 @@
 export { default as Ajax } from './util/Ajax';
 export { default as AjaxError } from './util/AjaxError';
+export { default as AjaxConfigPersister } from './util/AjaxConfigPersister';
+export { default as AjaxCredentials } from './util/AjaxCredentials';
 export { default as Formatting } from './util/Formatting';
 export { default as JwtDecoder } from './util/JwtDecoder';
 export { Entity } from './types/Entity';

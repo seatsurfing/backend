@@ -2,13 +2,101 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"net/http"
 	"regexp"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/google/uuid"
 )
 
-func TestPasswordReset(t *testing.T) {
+func TestAuthPasswordLogin(t *testing.T) {
+	clearTestDB()
+
+	org := createTestOrg("test.com")
+	user := createTestUserInOrg(org)
+	user.HashedPassword = NullString(GetUserRepository().GetHashedPassword("12345678"))
+	GetUserRepository().Update(user)
+
+	// Log in
+	payload := "{ \"email\": \"" + user.Email + "\", \"password\": \"12345678\" }"
+	req := newHTTPRequest("POST", "/auth/login", "", bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusOK, res.Code)
+	var resBody *JWTResponse
+	json.Unmarshal(res.Body.Bytes(), &resBody)
+	checkTestBool(t, true, len(resBody.AccessToken) > 32)
+	checkTestBool(t, true, len(resBody.RefreshToken) == 36)
+
+	// Test access token
+	req = newHTTPRequestWithAccessToken("GET", "/user/me", resBody.AccessToken, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusOK, res.Code)
+	var resBody2 *GetUserResponse
+	json.Unmarshal(res.Body.Bytes(), &resBody2)
+	checkTestString(t, user.Email, resBody2.Email)
+}
+
+func TestAuthRefresh(t *testing.T) {
+	clearTestDB()
+
+	org := createTestOrg("test.com")
+	user := createTestUserInOrg(org)
+	user.HashedPassword = NullString(GetUserRepository().GetHashedPassword("12345678"))
+	GetUserRepository().Update(user)
+
+	// Log in
+	payload := "{ \"email\": \"" + user.Email + "\", \"password\": \"12345678\" }"
+	req := newHTTPRequest("POST", "/auth/login", "", bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusOK, res.Code)
+	var resBody *JWTResponse
+	json.Unmarshal(res.Body.Bytes(), &resBody)
+	checkTestBool(t, true, len(resBody.AccessToken) > 32)
+	checkTestBool(t, true, len(resBody.RefreshToken) == 36)
+
+	// Sleep to ensure new access token
+	time.Sleep(time.Second * 2)
+
+	// Refresh access token
+	payload = "{ \"refreshToken\": \"" + resBody.RefreshToken + "\" }"
+	req = newHTTPRequest("POST", "/auth/refresh", "", bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusOK, res.Code)
+	var resBody3 *JWTResponse
+	json.Unmarshal(res.Body.Bytes(), &resBody3)
+	checkTestBool(t, true, len(resBody3.AccessToken) > 32)
+	checkTestBool(t, true, len(resBody3.RefreshToken) == 36)
+	checkTestBool(t, false, resBody3.AccessToken == resBody.AccessToken)
+	checkTestBool(t, false, resBody3.RefreshToken == resBody.RefreshToken)
+
+	// Test refreshed access token
+	req = newHTTPRequestWithAccessToken("GET", "/user/me", resBody3.AccessToken, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusOK, res.Code)
+	var resBody2 *GetUserResponse
+	json.Unmarshal(res.Body.Bytes(), &resBody2)
+	checkTestString(t, user.Email, resBody2.Email)
+}
+
+func TestAuthRefreshNonExistent(t *testing.T) {
+	clearTestDB()
+
+	org := createTestOrg("test.com")
+	user := createTestUserInOrg(org)
+	user.HashedPassword = NullString(GetUserRepository().GetHashedPassword("12345678"))
+	GetUserRepository().Update(user)
+
+	// Refresh access token
+	payload := "{ \"refreshToken\": \"" + uuid.New().String() + "\" }"
+	req := newHTTPRequest("POST", "/auth/refresh", "", bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNotFound, res.Code)
+}
+
+func TestAuthPasswordReset(t *testing.T) {
 	clearTestDB()
 
 	org := createTestOrg("test.com")

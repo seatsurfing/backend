@@ -112,7 +112,7 @@ func (router *UserRouter) mergeFinish(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	target := GetRequestUser(r)
 	authState, err := GetAuthStateRepository().GetOne(vars["id"])
-	if err != nil || authState == nil || authState.AuthProviderID != target.ID {
+	if err != nil || authState == nil || authState.AuthStateType != AuthMergeRequest || authState.AuthProviderID != target.ID {
 		SendNotFound(w)
 		return
 	}

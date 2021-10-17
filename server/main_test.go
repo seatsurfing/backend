@@ -46,14 +46,22 @@ func getTestJWT(userID string) string {
 		},
 	}
 	router := &AuthRouter{}
-	jwt := router.createJWT(claims)
-	return jwt
+	accessToken := router.createAccessToken(claims)
+	return accessToken
 }
 
 func newHTTPRequest(method, url, userID string, body io.Reader) *http.Request {
 	req, _ := http.NewRequest(method, url, body)
 	if userID != "" {
 		req.Header.Set("Authorization", "Bearer "+getTestJWT(userID))
+	}
+	return req
+}
+
+func newHTTPRequestWithAccessToken(method, url, accessToken string, body io.Reader) *http.Request {
+	req, _ := http.NewRequest(method, url, body)
+	if accessToken != "" {
+		req.Header.Set("Authorization", "Bearer "+accessToken)
 	}
 	return req
 }

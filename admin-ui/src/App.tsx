@@ -25,19 +25,43 @@ import SearchResult from './pages/SearchResult';
 import ConfirmSignup from './pages/ConfirmSignup';
 import Organizations from './pages/Organizations';
 import EditOrganization from './pages/EditOrganization';
+import Loading from './components/Loading';
 
 interface Props {
 }
 
-class App extends React.Component<Props, {}> {
-  render() {
-    let jwt = window.sessionStorage.getItem("jwt");
-    if (jwt) {
-      Ajax.JWT = jwt;
-    }
+interface State {
+  isLoading: boolean
+}
+
+class App extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      isLoading: true
+    };
     if (process.env.NODE_ENV.toLowerCase() === "development") {
       Ajax.URL = "http://" + window.location.host.split(':').shift() + ":8080";
     }
+    setTimeout(() => {
+      this.initAjax();
+    }, 10);
+  }
+
+  initAjax = async () => {
+    Ajax.PERSISTER.readCredentialsFromSessionStorage().then(c => {
+      Ajax.CREDENTIALS = c;
+      this.setState({
+        isLoading: false
+      });
+    });
+  }
+
+  render() {
+    if (this.state.isLoading) {
+      return <Loading />;
+    }
+
     return (
         <Router basename={process.env.PUBLIC_URL}>
           <Switch>

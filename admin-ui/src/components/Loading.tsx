@@ -13,7 +13,7 @@ interface Props {
 class Loading extends React.Component<Props, State> {
     render() {
         return (
-            <div><IconLoad className="feather loader" /> {this.props.t("loadingHint")}</div>
+            <div className="padding-top center"><IconLoad className="feather loader" /> {this.props.t("loadingHint")}</div>
         );
     }
 }

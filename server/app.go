@@ -107,6 +107,9 @@ func (a *App) InitializeTimers() {
 			if err := GetSignupRepository().DeleteExpired(); err != nil {
 				log.Println(err)
 			}
+			if err := GetRefreshTokenRepository().DeleteExpired(); err != nil {
+				log.Println(err)
+			}
 		}
 	}()
 }

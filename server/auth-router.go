@@ -16,7 +16,8 @@ import (
 )
 
 type JWTResponse struct {
-	JWT string `json:"jwt"`
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
 }
 
 type Claims struct {
@@ -45,8 +46,19 @@ type AuthPreflightResponse struct {
 }
 
 type AuthPasswordRequest struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=8"`
+	Email     string `json:"email" validate:"required,email"`
+	Password  string `json:"password" validate:"required,min=8"`
+	LongLived bool   `json:"longLived"`
+}
+
+type RefreshRequest struct {
+	RefreshToken string `json:"refreshToken" validate:"required"`
+}
+
+type AuthStateLoginPayload struct {
+	UserID    string `json:"userId"`
+	LoginType string `json:"type"`
+	LongLived bool   `json:"longLived"`
 }
 
 type AuthRouter struct {
@@ -54,12 +66,46 @@ type AuthRouter struct {
 
 func (router *AuthRouter) setupRoutes(s *mux.Router) {
 	s.HandleFunc("/verify/{id}", router.verify).Methods("GET")
+	s.HandleFunc("/{id}/login/{type}/{longLived}", router.login).Methods("GET")
 	s.HandleFunc("/{id}/login/{type}", router.login).Methods("GET")
 	s.HandleFunc("/{id}/callback", router.callback).Methods("GET")
 	s.HandleFunc("/preflight", router.preflight).Methods("POST")
 	s.HandleFunc("/login", router.loginPassword).Methods("POST")
 	s.HandleFunc("/initpwreset", router.initPasswordReset).Methods("POST")
 	s.HandleFunc("/pwreset/{id}", router.completePasswordReset).Methods("POST")
+	s.HandleFunc("/refresh", router.refreshAccessToken).Methods("POST")
+}
+
+func (router *AuthRouter) refreshAccessToken(w http.ResponseWriter, r *http.Request) {
+	var m RefreshRequest
+	if UnmarshalValidateBody(r, &m) != nil {
+		SendBadRequest(w)
+		return
+	}
+	refreshToken, err := GetRefreshTokenRepository().GetOne(m.RefreshToken)
+	if err != nil || refreshToken == nil {
+		SendNotFound(w)
+		return
+	}
+	if refreshToken.Expiry.Before(time.Now()) {
+		SendBadRequest(w)
+		return
+	}
+	user, err := GetUserRepository().GetOne(refreshToken.UserID)
+	if err != nil {
+		SendNotFound(w)
+		return
+	}
+	claims := router.createClaims(user)
+	longLived := refreshToken.Expiry.Sub(refreshToken.Created) > time.Duration(time.Minute*60*25)
+	accessToken := router.createAccessToken(claims)
+	newRefreshToken := router.createRefreshToken(claims, longLived)
+	res := &JWTResponse{
+		AccessToken:  accessToken,
+		RefreshToken: newRefreshToken,
+	}
+	GetRefreshTokenRepository().Delete(refreshToken)
+	SendJSON(w, res)
 }
 
 func (router *AuthRouter) initPasswordReset(w http.ResponseWriter, r *http.Request) {
@@ -165,24 +211,29 @@ func (router *AuthRouter) loginPassword(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	claims := router.createClaims(user)
-	jwt := router.createJWT(claims)
+	accessToken := router.createAccessToken(claims)
+	refreshToken := router.createRefreshToken(claims, m.LongLived)
 	res := &JWTResponse{
-		JWT: jwt,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	}
 	SendJSON(w, res)
 }
 
 func (router *AuthRouter) handleAtlassianVerify(authState *AuthState, w http.ResponseWriter) {
-	user, err := GetUserRepository().GetByAtlassianID(authState.Payload)
+	payload := router.unmarshalAuthStateLoginPayload(authState.Payload)
+	user, err := GetUserRepository().GetByAtlassianID(payload.UserID)
 	if err != nil {
 		SendNotFound(w)
 		return
 	}
 	GetAuthStateRepository().Delete(authState)
 	claims := router.createClaims(user)
-	jwt := router.createJWT(claims)
+	accessToken := router.createAccessToken(claims)
+	refreshToken := router.createRefreshToken(claims, payload.LongLived)
 	res := &JWTResponse{
-		JWT: jwt,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	}
 	SendJSON(w, res)
 }
@@ -207,7 +258,8 @@ func (router *AuthRouter) verify(w http.ResponseWriter, r *http.Request) {
 		SendNotFound(w)
 		return
 	}
-	user, err := GetUserRepository().GetByEmail(authState.Payload)
+	payload := router.unmarshalAuthStateLoginPayload(authState.Payload)
+	user, err := GetUserRepository().GetByEmail(payload.UserID)
 	// TODO Change email to auth server ID???
 	if err != nil {
 		org, err := GetOrganizationRepository().GetOne(provider.OrganizationID)
@@ -220,7 +272,7 @@ func (router *AuthRouter) verify(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		user = &User{
-			Email:          authState.Payload,
+			Email:          payload.UserID,
 			OrganizationID: org.ID,
 			OrgAdmin:       false,
 			SuperAdmin:     false,
@@ -233,9 +285,11 @@ func (router *AuthRouter) verify(w http.ResponseWriter, r *http.Request) {
 	}
 	GetAuthStateRepository().Delete(authState)
 	claims := router.createClaims(user)
-	jwt := router.createJWT(claims)
+	accessToken := router.createAccessToken(claims)
+	refreshToken := router.createRefreshToken(claims, payload.LongLived)
 	res := &JWTResponse{
-		JWT: jwt,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	}
 	SendJSON(w, res)
 }
@@ -252,12 +306,21 @@ func (router *AuthRouter) login(w http.ResponseWriter, r *http.Request) {
 		SendTemporaryRedirect(w, router.getRedirectFailedUrl(loginType))
 		return
 	}
+	longLived := false
+	if vars["longLived"] == "1" {
+		longLived = true
+	}
 	config := router.getConfig(provider)
+	payload := &AuthStateLoginPayload{
+		LoginType: loginType,
+		UserID:    "",
+		LongLived: longLived, // TODO
+	}
 	authState := &AuthState{
 		AuthProviderID: provider.ID,
 		Expiry:         time.Now().Add(time.Minute * 5),
 		AuthStateType:  AuthRequestState,
-		Payload:        loginType,
+		Payload:        router.marshalAuthStateLoginPayload(payload),
 	}
 	if err := GetAuthStateRepository().Create(authState); err != nil {
 		SendTemporaryRedirect(w, router.getRedirectFailedUrl(loginType))
@@ -274,36 +337,41 @@ func (router *AuthRouter) callback(w http.ResponseWriter, r *http.Request) {
 		SendTemporaryRedirect(w, router.getRedirectFailedUrl("ui"))
 		return
 	}
-	claims, loginType, err := router.getUserInfo(provider, r.FormValue("state"), r.FormValue("code"))
+	claims, payload, err := router.getUserInfo(provider, r.FormValue("state"), r.FormValue("code"))
 	if err != nil {
 		log.Println(err)
-		SendTemporaryRedirect(w, router.getRedirectFailedUrl(loginType))
+		SendTemporaryRedirect(w, router.getRedirectFailedUrl(payload.LoginType))
 		return
 	}
 	if !router.isValidEmailForOrg(provider, claims.Email) {
-		SendTemporaryRedirect(w, router.getRedirectFailedUrl(loginType))
+		SendTemporaryRedirect(w, router.getRedirectFailedUrl(payload.LoginType))
 		return
 	}
 	allowAnyUser, _ := GetSettingsRepository().GetBool(provider.OrganizationID, SettingAllowAnyUser.Name)
 	if !allowAnyUser {
 		_, err := GetUserRepository().GetByEmail(claims.Email)
 		if err != nil {
-			SendTemporaryRedirect(w, router.getRedirectFailedUrl(loginType))
+			SendTemporaryRedirect(w, router.getRedirectFailedUrl(payload.LoginType))
 			return
 		}
+	}
+	payloadNew := &AuthStateLoginPayload{
+		UserID:    claims.Email,
+		LoginType: payload.LoginType,
+		LongLived: payload.LongLived,
 	}
 	authState := &AuthState{
 		AuthProviderID: provider.ID,
 		Expiry:         time.Now().Add(time.Minute * 5),
 		AuthStateType:  AuthResponseCache,
-		Payload:        claims.Email,
+		Payload:        router.marshalAuthStateLoginPayload(payloadNew),
 	}
 	if err := GetAuthStateRepository().Create(authState); err != nil {
 		log.Println(err)
-		SendTemporaryRedirect(w, router.getRedirectFailedUrl(loginType))
+		SendTemporaryRedirect(w, router.getRedirectFailedUrl(payload.LoginType))
 		return
 	}
-	redirectUrl := router.getRedirectSuccessUrl(loginType, authState)
+	redirectUrl := router.getRedirectSuccessUrl(payload.LoginType, authState)
 	SendTemporaryRedirect(w, redirectUrl)
 }
 
@@ -335,48 +403,49 @@ func (router *AuthRouter) isValidEmailForOrg(provider *AuthProvider, email strin
 	return GetOrganizationRepository().isValidEmailForOrg(email, org)
 }
 
-func (router *AuthRouter) getUserInfo(provider *AuthProvider, state string, code string) (*Claims, string, error) {
+func (router *AuthRouter) getUserInfo(provider *AuthProvider, state string, code string) (*Claims, *AuthStateLoginPayload, error) {
 	// Verify state string
 	authState, err := GetAuthStateRepository().GetOne(state)
 	if err != nil {
-		return nil, "", fmt.Errorf("state not found for id %s", state)
+		return nil, nil, fmt.Errorf("state not found for id %s", state)
 	}
 	if authState.AuthProviderID != provider.ID {
-		return nil, "", fmt.Errorf("auth providers don't match")
+		return nil, nil, fmt.Errorf("auth providers don't match")
 	}
 	defer GetAuthStateRepository().Delete(authState)
 	// Exchange authorization code for an access token
 	config := router.getConfig(provider)
 	token, err := config.Exchange(context.Background(), code)
 	if err != nil {
-		return nil, "", fmt.Errorf("code exchange failed: %s", err.Error())
+		return nil, nil, fmt.Errorf("code exchange failed: %s", err.Error())
 	}
 	// Get user info from resource server
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", provider.UserInfoURL, nil)
 	if err != nil {
-		return nil, "", fmt.Errorf("failed creating http request: %s", err.Error())
+		return nil, nil, fmt.Errorf("failed creating http request: %s", err.Error())
 	}
 	req.Header.Add("Authorization", "Bearer "+token.AccessToken)
 	response, err := client.Do(req)
 	if err != nil {
-		return nil, "", fmt.Errorf("failed getting user info: %s", err.Error())
+		return nil, nil, fmt.Errorf("failed getting user info: %s", err.Error())
 	}
 	defer response.Body.Close()
 	contents, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return nil, "", fmt.Errorf("failed reading response body: %s", err.Error())
+		return nil, nil, fmt.Errorf("failed reading response body: %s", err.Error())
 	}
 	// Extract email address from JSON response
 	var result map[string]interface{}
 	json.Unmarshal([]byte(contents), &result)
 	if (result[provider.UserInfoEmailField] == nil) || (strings.TrimSpace(result[provider.UserInfoEmailField].(string)) == "") {
-		return nil, "", fmt.Errorf("could not read email address from field: %s", provider.UserInfoEmailField)
+		return nil, nil, fmt.Errorf("could not read email address from field: %s", provider.UserInfoEmailField)
 	}
 	claims := &Claims{
 		Email: result[provider.UserInfoEmailField].(string),
 	}
-	return claims, authState.Payload, nil
+	payload := router.unmarshalAuthStateLoginPayload(authState.Payload)
+	return claims, payload, nil
 }
 
 func (router *AuthRouter) SendPasswordResetEmail(user *User, ID string, org *Organization) error {
@@ -417,9 +486,9 @@ func (router *AuthRouter) createClaims(user *User) *Claims {
 	return claims
 }
 
-func (router *AuthRouter) createJWT(claims *Claims) string {
+func (router *AuthRouter) createAccessToken(claims *Claims) string {
 	claims.StandardClaims = jwt.StandardClaims{
-		ExpiresAt: time.Now().Add(60 * 24 * 14 * time.Minute).Unix(),
+		ExpiresAt: time.Now().Add(15 * time.Minute).Unix(),
 	}
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
 	jwtString, err := accessToken.SignedString([]byte(GetConfig().JwtSigningKey))
@@ -427,6 +496,22 @@ func (router *AuthRouter) createJWT(claims *Claims) string {
 		return ""
 	}
 	return jwtString
+}
+
+func (router *AuthRouter) createRefreshToken(claims *Claims, longLived bool) string {
+	var expiry time.Time
+	if longLived {
+		expiry = time.Now().Add(60 * 24 * 28 * time.Minute)
+	} else {
+		expiry = time.Now().Add(60 * 24 * time.Minute)
+	}
+	refreshToken := &RefreshToken{
+		UserID:  claims.UserID,
+		Expiry:  expiry,
+		Created: time.Now(),
+	}
+	GetRefreshTokenRepository().Create(refreshToken)
+	return refreshToken.ID
 }
 
 func (router *AuthRouter) getOrgForEmail(email string) *Organization {
@@ -469,4 +554,15 @@ func (router *AuthRouter) getPreflightResponse(req *AuthPreflightRequest) *AuthP
 		res.AuthProviders = append(res.AuthProviders, m)
 	}
 	return res
+}
+
+func (router *AuthRouter) marshalAuthStateLoginPayload(payload *AuthStateLoginPayload) string {
+	json, _ := json.Marshal(payload)
+	return string(json)
+}
+
+func (router *AuthRouter) unmarshalAuthStateLoginPayload(payload string) *AuthStateLoginPayload {
+	var o *AuthStateLoginPayload
+	json.Unmarshal([]byte(payload), &o)
+	return o
 }

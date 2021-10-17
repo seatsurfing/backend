@@ -6,7 +6,7 @@ import { Ajax } from 'flexspace-commons';
 
 export default class ProtectedRoute extends Route {
   render() {
-    if (!Ajax.JWT) {
+    if (!Ajax.CREDENTIALS.accessToken) {
         return (
             <Redirect to="/login" />
         );

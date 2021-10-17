@@ -1,7 +1,7 @@
 import React from 'react';
 import FullLayout from '../components/FullLayout';
 import Loading from '../components/Loading';
-import { User, Organization, AuthProvider, Settings as OrgSettings, Domain, Ajax } from 'flexspace-commons';
+import { User, Organization, AuthProvider, Settings as OrgSettings, Domain, Ajax, AjaxCredentials } from 'flexspace-commons';
 import { Form, Col, Row, Table, Button, Alert, InputGroup, Popover, OverlayTrigger } from 'react-bootstrap';
 import { Link, Redirect } from 'react-router-dom';
 import { Plus as IconPlus, Save as IconSave } from 'react-feather';
@@ -245,9 +245,10 @@ class Settings extends React.Component<Props, State> {
     if (window.confirm(this.props.t("confirmDeleteOrg"))) {
       if (window.confirm(this.props.t("confirmDeleteOrg2"))) {
         this.org?.delete().then(() => {
-          Ajax.JWT = "";
-          window.sessionStorage.removeItem("jwt");
-          window.location.href = "/admin/";
+          Ajax.CREDENTIALS = new AjaxCredentials();
+          Ajax.PERSISTER.deleteCredentialsFromSessionStorage().then(() => {
+            window.location.href = "/admin/";
+          });
         });
       }
     }

@@ -33,11 +33,18 @@ export default class LoginSuccess extends React.Component<RouteChildrenProps<Pro
 
   loadData = () => {
     if (this.props.match?.params.id) {
-      return Ajax.get("/auth/verify/" + this.props.match.params.id).then(result => {
-        if (result.json && result.json.jwt) {
-          RuntimeConfig.setLoginDetails(result.json.jwt, this.context).then(() => {
-            this.setState({
-              redirect: "/search"
+      return Ajax.get("/auth/verify/" + this.props.match.params.id).then(res => {
+        if (res.json && res.json.accessToken) {
+          Ajax.CREDENTIALS = {
+            accessToken: res.json.accessToken,
+            refreshToken: res.json.refreshToken,
+            accessTokenExpiry: new Date(new Date().getTime() + Ajax.ACCESS_TOKEN_EXPIRY_OFFSET)
+          };
+          Ajax.PERSISTER.updateCredentialsSessionStorage(Ajax.CREDENTIALS).then(() => {
+            RuntimeConfig.setLoginDetails(this.context).then(() => {
+              this.setState({
+                redirect: "/search"
+              });
             });
           });
         } else {

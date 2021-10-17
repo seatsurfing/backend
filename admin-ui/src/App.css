@@ -22,6 +22,14 @@ main {
     padding-bottom: 50px;
 }
 
+.padding-top {
+    padding-top: 75px;
+}
+
+.center {
+    text-align: center;
+}
+
 @-moz-keyframes spin {
     100% {
         -moz-transform: rotate(360deg);

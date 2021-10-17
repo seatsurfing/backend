@@ -2,7 +2,7 @@ import React from 'react';
 import { Nav, Button, Form } from 'react-bootstrap';
 import './NavBar.css';
 import { Link, Redirect } from 'react-router-dom';
-import { Ajax } from 'flexspace-commons';
+import { Ajax, AjaxCredentials } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 
@@ -26,10 +26,11 @@ class NavBar extends React.Component<Props, State> {
 
     logout = (e: any) => {
         e.preventDefault();
-        Ajax.JWT = "";
-        window.sessionStorage.removeItem("jwt");
-        this.setState({
-            redirect: "/login"
+        Ajax.CREDENTIALS = new AjaxCredentials();
+        Ajax.PERSISTER.deleteCredentialsFromSessionStorage().then(() => {
+            this.setState({
+                redirect: "/login"
+            });
         });
     }
 
@@ -49,7 +50,7 @@ class NavBar extends React.Component<Props, State> {
         } else {
             window.sessionStorage.removeItem("searchKeyword");
         }
-      }
+    }
 
     render() {
         if (this.state.redirect != null) {
