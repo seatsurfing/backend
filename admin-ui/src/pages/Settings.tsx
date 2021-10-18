@@ -116,8 +116,8 @@ class Settings extends React.Component<Props, State> {
         if (s.name === "subscription_max_users") state.subscriptionMaxUsers = window.parseInt(s.value);
         if (s.name === "_sys_org_signup_delete") state.allowOrgDelete = (s.value === "1");
       });
-      if (state.maxBookingDurationHours && (state.maxBookingDurationHours%24 !== 0)) {
-        state.maxBookingDurationHours += state.maxBookingDurationHours%24;
+      if (state.dailyBasisBooking && (state.maxBookingDurationHours%24 !== 0)) {
+        state.maxBookingDurationHours += (24-state.maxBookingDurationHours%24);
       }
       this.setState({
         ...this.state,
