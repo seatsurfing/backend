@@ -24,6 +24,7 @@ type GetSettingsResponse struct {
 var (
 	ErrAlreadyExists          = errors.New("resource already exists")
 	SysSettingOrgSignupDelete = "_sys_org_signup_delete"
+	SysSettingVersion         = "_sys_version"
 )
 
 func (router *SettingsRouter) setupRoutes(s *mux.Router) {
@@ -48,6 +49,10 @@ func (router *SettingsRouter) getSetting(w http.ResponseWriter, r *http.Request)
 	}
 	if (vars["name"] == SysSettingOrgSignupDelete) && orgAdmin {
 		SendJSON(w, router.getSysSettingOrgSignupDelete())
+		return
+	}
+	if vars["name"] == SysSettingVersion {
+		SendJSON(w, router.getSysSettingVersion())
 		return
 	}
 	value, err := GetSettingsRepository().Get(user.OrganizationID, vars["name"])
@@ -119,6 +124,7 @@ func (router *SettingsRouter) getAll(w http.ResponseWriter, r *http.Request) {
 	if orgAdmin {
 		res = append(res, router.getSysSettingOrgSignupDelete())
 	}
+	res = append(res, router.getSysSettingVersion())
 	SendJSON(w, res)
 }
 
@@ -179,7 +185,8 @@ func (router *SettingsRouter) isValidSettingNameReadPublic(name string) bool {
 		name == SettingMaxBookingDurationHours.Name ||
 		name == SettingShowNames.Name ||
 		name == SettingDailyBasisBooking.Name ||
-		name == SettingDefaultTimezone.Name {
+		name == SettingDefaultTimezone.Name ||
+		name == SysSettingVersion {
 		return true
 	}
 	return false
@@ -278,5 +285,12 @@ func (router *SettingsRouter) getSysSettingOrgSignupDelete() *GetSettingsRespons
 	return &GetSettingsResponse{
 		Name:  SysSettingOrgSignupDelete,
 		Value: boolVal,
+	}
+}
+
+func (router *SettingsRouter) getSysSettingVersion() *GetSettingsResponse {
+	return &GetSettingsResponse{
+		Name:  SysSettingVersion,
+		Value: GetProductVersion(),
 	}
 }

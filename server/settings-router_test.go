@@ -49,6 +49,7 @@ func TestSettingsReadPublic(t *testing.T) {
 		SettingDailyBasisBooking.Name,
 		SettingShowNames.Name,
 		SettingDefaultTimezone.Name,
+		SysSettingVersion,
 	}
 	forbiddenSettings := []string{
 		SettingDatabaseVersion.Name,
@@ -107,6 +108,7 @@ func TestSettingsReadAdmin(t *testing.T) {
 		SettingSubscriptionMaxUsers.Name,
 		SettingDefaultTimezone.Name,
 		SysSettingOrgSignupDelete,
+		SysSettingVersion,
 	}
 	forbiddenSettings := []string{
 		SettingDatabaseVersion.Name,
@@ -189,12 +191,14 @@ func TestSettingsCRUDMany(t *testing.T) {
 	checkTestResponseCode(t, http.StatusOK, res.Code)
 	var resBody []GetSettingsResponse
 	json.Unmarshal(res.Body.Bytes(), &resBody)
-	checkTestInt(t, 3, len(resBody))
+	checkTestInt(t, 4, len(resBody))
 	checkTestString(t, SettingAllowAnyUser.Name, resBody[0].Name)
 	checkTestString(t, SettingMaxBookingsPerUser.Name, resBody[1].Name)
 	checkTestString(t, SysSettingOrgSignupDelete, resBody[2].Name)
+	checkTestString(t, SysSettingVersion, resBody[3].Name)
 	checkTestString(t, "1", resBody[0].Value)
 	checkTestString(t, "5", resBody[1].Value)
+	checkTestString(t, GetProductVersion(), resBody[3].Value)
 
 	payload = `[{"name": "allow_any_user", "value": "0"}, {"name": "max_bookings_per_user", "value": "3"}]`
 	req = newHTTPRequest("PUT", "/setting/", loginResponse.UserID, bytes.NewBufferString(payload))
@@ -206,10 +210,11 @@ func TestSettingsCRUDMany(t *testing.T) {
 	checkTestResponseCode(t, http.StatusOK, res.Code)
 	var resBody2 []GetSettingsResponse
 	json.Unmarshal(res.Body.Bytes(), &resBody2)
-	checkTestInt(t, 3, len(resBody2))
+	checkTestInt(t, 4, len(resBody2))
 	checkTestString(t, SettingAllowAnyUser.Name, resBody2[0].Name)
 	checkTestString(t, SettingMaxBookingsPerUser.Name, resBody2[1].Name)
 	checkTestString(t, SysSettingOrgSignupDelete, resBody2[2].Name)
+	checkTestString(t, SysSettingVersion, resBody2[3].Name)
 	checkTestString(t, "0", resBody2[0].Value)
 	checkTestString(t, "3", resBody2[1].Value)
 }

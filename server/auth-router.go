@@ -43,6 +43,7 @@ type AuthPreflightResponse struct {
 	Organization    *GetOrganizationResponse         `json:"organization"`
 	AuthProviders   []*GetAuthProviderPublicResponse `json:"authProviders"`
 	RequirePassword bool                             `json:"requirePassword"`
+	BackendVersion  string                           `json:"backendVersion"`
 }
 
 type AuthPasswordRequest struct {
@@ -546,6 +547,7 @@ func (router *AuthRouter) getPreflightResponse(req *AuthPreflightRequest) *AuthP
 		},
 		RequirePassword: false,
 		AuthProviders:   []*GetAuthProviderPublicResponse{},
+		BackendVersion:  GetProductVersion(),
 	}
 	for _, e := range list {
 		m := &GetAuthProviderPublicResponse{}
