@@ -121,7 +121,7 @@ func (r *SpaceRepository) GetAllInTime(locationID string, enter, leave time.Time
 		err = rows.Scan(&e.ID, &e.LocationID, &e.Name, &e.X, &e.Y, &e.Width, &e.Height, &e.Rotation, &e.Available, pq.Array(&bookingUserNames))
 		for _, bookingUserName := range bookingUserNames {
 			tokens := strings.Split(bookingUserName, "@@@")
-			timeFormat := "2006-01-02 15:04:05.000"
+			timeFormat := "2006-01-02 15:04:05"
 			enter, _ := time.Parse(timeFormat, tokens[2])
 			leave, _ := time.Parse(timeFormat, tokens[3])
 			entry := &SpaceAvailabilityBookingEntry{

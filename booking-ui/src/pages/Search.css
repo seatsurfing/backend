@@ -19,3 +19,123 @@
 .react-datetime-picker__wrapper {
     border: 0;
 }
+
+.container-map {
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 100px;
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-bottom: 50px;
+}
+
+.mapScrollContainer {
+    max-width: 100%;
+    overflow-y: scroll;
+}
+
+.mapScrollContainer::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 7px;
+}
+
+.mapScrollContainer::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, .5);
+    -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+}
+
+.space-box {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+}
+
+.space-box p {
+    width: 100%;
+    height: auto;
+    font-size: 12px;
+    color: white;
+    text-align: center;
+    margin: 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.space-box-vertical p {
+    writing-mode: vertical-rl;
+    text-orientation: sideways;
+    width: auto;
+    height: 100%;
+}
+
+.container-search-config {
+    border-radius: 10px;
+    box-shadow: 0px 0px 3px #555;
+    width: 350px;
+    position: fixed;
+    top: 80px;
+    left: 30px;
+    background-color: white;
+    padding: 20px;
+    padding-top: 0px;
+    transition: all .2s;
+    opacity: 0.95;
+    z-index: 100;
+}
+
+.container-search-config .btn-outline-dark:hover {
+    background-color: #eee;
+}
+
+.container-search-config.minimized {
+    width: 48px;
+    height: 48px;
+    padding: 0px;
+    transition: all .2s;
+}
+
+.container-search-config.minimized .content {
+    display: none;
+}
+
+.container-search-config .collapse-bar {
+    text-align: right;
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+.container-search-config.minimized .collapse-bar {
+    text-align: center;
+    padding-top: 11px;
+    padding-bottom: 11px;
+}
+
+.container-search-config .collapse-bar .expand-icon {
+    display: none;
+}
+
+.container-search-config.minimized .collapse-bar .expand-icon {
+    display: inline;
+}
+
+.container-search-config.minimized .collapse-bar .collapse-icon {
+    display: none;
+}
+
+@media only screen and (max-width: 600px) {
+    .container-map {
+        margin-left: auto;
+        margin-right: auto;
+        padding-top: 70px;
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-bottom: 10px;
+    }
+
+    .container-search-config {
+        width: 300px;
+        top: 70px;
+        left: 10px;
+    }
+}

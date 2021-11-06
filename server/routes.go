@@ -97,6 +97,7 @@ func SendJSON(w http.ResponseWriter, v interface{}) {
 		SendInternalServerError(w)
 		return
 	}
+	//log.Println(string(json))
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(json)
 }

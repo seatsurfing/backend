@@ -14,7 +14,6 @@ import LoginSuccess from './pages/LoginSuccess';
 import LoginFailed from './pages/LoginFailed';
 import ProtectedRoute from './pages/ProtectedRoute';
 import Search from './pages/Search';
-import SearchResult from './pages/SearchResult';
 import Bookings from './pages/Bookings';
 import ConfluenceHint from './pages/ConfluenceHint';
 import RuntimeConfig from './components/RuntimeConfig';
@@ -130,7 +129,6 @@ class App extends React.Component<Props, AuthContextData> {
             <Route path="/login" component={Login} />
             <Route path="/resetpw/:id" component={CompletePasswordReset} />
             <Route path="/resetpw" component={InitPasswordReset} />
-            <ProtectedRoute path="/search/result" component={SearchResult} />
             <ProtectedRoute path="/search" component={Search} />
             <ProtectedRoute path="/bookings" component={Bookings} />
             <Route path="/"><Redirect to="/login" /></Route>

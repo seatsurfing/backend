@@ -55,6 +55,7 @@ class Bookings extends React.Component<Props, State> {
   }
 
   renderItem = (item: Booking) => {
+    console.log(item.enter.toISOString());
     return (
       <ListGroup.Item key={item.id} action={true} onClick={(e) => { e.preventDefault(); this.onItemPress(item); }}>
         <h5>{Formatting.getDateOffsetText(item.enter, item.leave)}</h5>
@@ -89,7 +90,7 @@ class Bookings extends React.Component<Props, State> {
             </ListGroup>
           </Form>
         </div>
-        <Modal show={this.state.selectedItem} onHide={() => this.setState({ selectedItem: null })}>
+        <Modal show={this.state.selectedItem != null} onHide={() => this.setState({ selectedItem: null })}>
           <Modal.Header closeButton>
             <Modal.Title>{this.props.t("cancelBooking")}</Modal.Title>
           </Modal.Header>

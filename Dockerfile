@@ -1,4 +1,4 @@
-FROM node:15 AS admin-ui-builder
+FROM node:16 AS admin-ui-builder
 RUN mkdir -p /usr/src/app /usr/src/commons/ts/
 WORKDIR /usr/src/commons/ts/
 ADD commons/ts/ .
@@ -10,7 +10,7 @@ ADD admin-ui/ .
 RUN npm install
 RUN REACT_APP_PRODUCT_VERSION=$(cat ../version.txt | awk NF) npm run build
 
-FROM node:15 AS booking-ui-builder
+FROM node:16 AS booking-ui-builder
 RUN mkdir -p /usr/src/app /usr/src/commons/ts/
 WORKDIR /usr/src/commons/ts/
 ADD commons/ts/ .
@@ -22,7 +22,7 @@ ADD booking-ui/ .
 RUN npm install
 RUN REACT_APP_PRODUCT_VERSION=$(cat ../version.txt | awk NF) npm run build
 
-FROM golang:1.16-alpine AS server-builder
+FROM golang:1.17-alpine AS server-builder
 RUN apk --update add --no-cache git gcc g++ patch
 RUN export GOBIN=$HOME/work/bin
 WORKDIR /go/src/app

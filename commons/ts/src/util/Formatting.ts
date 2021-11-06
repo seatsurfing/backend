@@ -28,6 +28,7 @@ export default class Formatting {
 
     static getFormatter(): Intl.DateTimeFormat {
         let formatter = new Intl.DateTimeFormat(Formatting.Language, {
+            timeZone: 'UTC',
             weekday: 'long',
             year: 'numeric',
             month: '2-digit',
@@ -41,6 +42,7 @@ export default class Formatting {
 
     static getFormatterNoTime(): Intl.DateTimeFormat {
         let formatter = new Intl.DateTimeFormat(Formatting.Language, {
+            timeZone: 'UTC',
             weekday: 'long',
             year: 'numeric',
             month: '2-digit',
@@ -51,6 +53,7 @@ export default class Formatting {
 
     static getFormatterShort(): Intl.DateTimeFormat {
         let formatter = new Intl.DateTimeFormat(Formatting.Language, {
+            timeZone: 'UTC',
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',
@@ -63,6 +66,7 @@ export default class Formatting {
 
     static getFormatterDate(): Intl.DateTimeFormat {
         let formatter = new Intl.DateTimeFormat(Formatting.Language, {
+            timeZone: 'UTC',
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',

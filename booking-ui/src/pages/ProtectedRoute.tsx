@@ -7,15 +7,15 @@ import { Ajax } from 'flexspace-commons';
 export default class ProtectedRoute extends Route {
   render() {
     if (!Ajax.CREDENTIALS.accessToken) {
-        return (
-            <Redirect to="/login" />
-        );
+      return (
+        <Redirect to="/login" />
+      );
     }
     return (
-        <>
-          <NavBar />
-          <Route path={this.props.path} component={this.props.component} />
-        </>
+      <>
+        <NavBar />
+        <Route path={this.props.path} component={this.props.component} />
+      </>
     );
   }
 }
