@@ -101,7 +101,7 @@ export default class Formatting {
     }
 
     static convertToFakeUTCDate(d: Date): Date {
-        return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes(), 0, 0));
+        return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes(), d.getSeconds(), 0));
     }
 
     static stripTimezoneDetails(s: string): string {

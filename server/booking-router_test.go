@@ -858,6 +858,32 @@ func TestBookingsMaxConcurrentOK(t *testing.T) {
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
 }
 
+func TestBookingsSameDay(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	GetSettingsRepository().Set(org.ID, SettingDailyBasisBooking.Name, "1")
+	GetSettingsRepository().Set(org.ID, SettingMaxBookingDurationHours.Name, "24")
+	user1 := createTestUserInOrg(org)
+
+	l := &Location{
+		Name:                  "Test",
+		MaxConcurrentBookings: 2,
+		OrganizationID:        org.ID,
+	}
+	GetLocationRepository().Create(l)
+	s1 := &Space{Name: "Test 1", LocationID: l.ID}
+	GetSpaceRepository().Create(s1)
+
+	now := time.Now().UTC()
+	enter := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	leave := time.Date(now.Year(), now.Month(), now.Day(), 23, 59, 59, 0, now.Location())
+
+	payload := "{\"spaceId\": \"" + s1.ID + "\", \"enter\": \"" + enter.Format(JsDateTimeFormatWithTimezone) + "\", \"leave\": \"" + leave.Format(JsDateTimeFormatWithTimezone) + "\"}"
+	req := newHTTPRequest("POST", "/booking/", user1.ID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+}
+
 func TestBookingsMaxConcurrentLimitExceeded(t *testing.T) {
 	clearTestDB()
 	org := createTestOrg("test.com")

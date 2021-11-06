@@ -76,20 +76,23 @@ class App extends React.Component<Props, AuthContextData> {
     }
   }
 
-  loadSettings = async () => {
-    OrgSettings.list().then(settings => {
-      let state: any = {};
-      settings.forEach(s => {
-        if (s.name === "max_bookings_per_user") state.maxBookingsPerUser = window.parseInt(s.value);
-        if (s.name === "max_days_in_advance") state.maxDaysInAdvance = window.parseInt(s.value);
-        if (s.name === "max_booking_duration_hours") state.maxBookingDurationHours = window.parseInt(s.value);
-        if (s.name === "daily_basis_booking") state.dailyBasisBooking = (s.value === "1");
-        if (s.name === "show_names") state.showNames = (s.value === "1");
-        if (s.name === "default_timezone") state.defaultTimezone = s.value;
-      });
-      this.setState({
-        ...this.state,
-        ...state
+  loadSettings = async (): Promise<void> => {
+    let self = this;
+    return new Promise<void>(function (resolve, reject) {
+      OrgSettings.list().then(settings => {
+        let state: any = {};
+        settings.forEach(s => {
+          if (s.name === "max_bookings_per_user") state.maxBookingsPerUser = window.parseInt(s.value);
+          if (s.name === "max_days_in_advance") state.maxDaysInAdvance = window.parseInt(s.value);
+          if (s.name === "max_booking_duration_hours") state.maxBookingDurationHours = window.parseInt(s.value);
+          if (s.name === "daily_basis_booking") state.dailyBasisBooking = (s.value === "1");
+          if (s.name === "show_names") state.showNames = (s.value === "1");
+          if (s.name === "default_timezone") state.defaultTimezone = s.value;
+        });
+        self.setState({
+          ...self.state,
+          ...state
+        }, () => resolve());
       });
     });
   }

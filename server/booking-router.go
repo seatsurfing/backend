@@ -405,15 +405,3 @@ func (router *BookingRouter) copyToRestModel(e *BookingDetails) *GetBookingRespo
 	m.Space.Location.Name = e.Space.Location.Name
 	return m
 }
-
-/*
-func (router *BookingRouter) convertTimeToLocationTimezone(timestamp time.Time, location *Location) (time.Time, error) {
-	tz := GetLocationRepository().GetTimezone(location)
-	targetTz, err := time.LoadLocation(tz)
-	if err != nil {
-		return timestamp, err
-	}
-	targetTimestamp := timestamp.In(targetTz)
-	return targetTimestamp, nil
-}
-*/
