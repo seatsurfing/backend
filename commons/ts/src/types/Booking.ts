@@ -3,7 +3,7 @@ import Space from "./Space";
 import { Entity } from "./Entity";
 import Ajax from "../util/Ajax";
 import User from "./User";
-import { Formatting } from "..";
+import Formatting from "../util/Formatting";
 
 export default class Booking extends Entity {
     enter: Date;
@@ -95,6 +95,14 @@ export default class Booking extends Entity {
                 list.push(e);
             });
             return list;
+        });
+    }
+
+    static createFromRawArray(arr: any[]): Booking[] {
+        return arr.map(booking => {
+            let res = new Booking();
+            res.deserialize(booking);
+            return res;
         });
     }
 }

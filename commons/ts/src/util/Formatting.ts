@@ -26,9 +26,9 @@ export default class Formatting {
         return res;
     }
 
-    static getFormatter(): Intl.DateTimeFormat {
+    static getFormatter(local?: boolean): Intl.DateTimeFormat {
         let formatter = new Intl.DateTimeFormat(Formatting.Language, {
-            timeZone: 'UTC',
+            timeZone: local ? undefined : 'UTC',
             weekday: 'long',
             year: 'numeric',
             month: '2-digit',
@@ -40,9 +40,9 @@ export default class Formatting {
         return formatter;
     }
 
-    static getFormatterNoTime(): Intl.DateTimeFormat {
+    static getFormatterNoTime(local?: boolean): Intl.DateTimeFormat {
         let formatter = new Intl.DateTimeFormat(Formatting.Language, {
-            timeZone: 'UTC',
+            timeZone: local ? undefined : 'UTC',
             weekday: 'long',
             year: 'numeric',
             month: '2-digit',
@@ -51,9 +51,9 @@ export default class Formatting {
         return formatter;
     }
 
-    static getFormatterShort(): Intl.DateTimeFormat {
+    static getFormatterShort(local?: boolean): Intl.DateTimeFormat {
         let formatter = new Intl.DateTimeFormat(Formatting.Language, {
-            timeZone: 'UTC',
+            timeZone: local ? undefined : 'UTC',
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',
@@ -64,9 +64,9 @@ export default class Formatting {
         return formatter;
     }
 
-    static getFormatterDate(): Intl.DateTimeFormat {
+    static getFormatterDate(local?: boolean): Intl.DateTimeFormat {
         let formatter = new Intl.DateTimeFormat(Formatting.Language, {
-            timeZone: 'UTC',
+            timeZone: local ? undefined : 'UTC',
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',

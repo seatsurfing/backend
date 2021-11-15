@@ -1,7 +1,6 @@
 import { Entity } from "./Entity";
 import Ajax from "../util/Ajax";
 import Location from "./Location";
-import Booking from "./Booking";
 
 export default class Space extends Entity {
     name: string;
@@ -13,7 +12,7 @@ export default class Space extends Entity {
     available: boolean;
     locationId: string;
     location: Location;
-    bookings: Booking[];
+    rawBookings: any[];
 
     constructor() {
         super();
@@ -26,7 +25,7 @@ export default class Space extends Entity {
         this.available = false;
         this.locationId = "";
         this.location = new Location();
-        this.bookings = [];
+        this.rawBookings = [];
     }
 
     serialize(): Object {
@@ -56,11 +55,7 @@ export default class Space extends Entity {
             this.location.deserialize(input.location);
         }
         if (input.bookings && Array.isArray(input.bookings)) {
-            this.bookings = input.bookings.map(booking => {
-                let res = new Booking();
-                res.deserialize(booking);
-                return res;
-            });
+            this.rawBookings = input.bookings;
         }
     }
 

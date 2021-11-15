@@ -307,15 +307,19 @@ class Search extends React.Component<Props, State> {
         showConfirm: true,
         selectedSpace: item
       });
-    } else if (!item.available && item.bookings && item.bookings.length > 0) {
-      this.setState({
-        showBookingNames: true,
-        selectedSpace: item
-      });
+    } else {
+      let bookings = Booking.createFromRawArray(item.rawBookings);
+      if (!item.available && bookings && bookings.length > 0) {
+        this.setState({
+          showBookingNames: true,
+          selectedSpace: item
+        });
+      }
     }
   }
 
   renderItem = (item: Space) => {
+    let bookings = Booking.createFromRawArray(item.rawBookings);
     const boxStyle: React.CSSProperties = {
       backgroundColor: item.available ? "rgba(48, 209, 88, 0.9)" : "rgba(255, 69, 58, 0.9)",
       position: "absolute",
@@ -324,7 +328,7 @@ class Search extends React.Component<Props, State> {
       width: item.width,
       height: item.height,
       transform: "rotate: " + item.rotation + "deg",
-      cursor: (item.available || (item.bookings && item.bookings.length > 0)) ? "pointer" : "default"
+      cursor: (item.available || (bookings && bookings.length > 0)) ? "pointer" : "default"
     };
     const textStyle: React.CSSProperties = {
       textAlign: "center"
@@ -514,13 +518,17 @@ class Search extends React.Component<Props, State> {
         </Modal.Footer>
       </Modal>
     );
+    let bookings: Booking[] = [];
+    if (this.state.selectedSpace) {
+      bookings = Booking.createFromRawArray(this.state.selectedSpace.rawBookings);
+    }
     let bookingNamesModal = (
       <Modal show={this.state.showBookingNames} onHide={() => this.setState({ showBookingNames: false })}>
         <Modal.Header closeButton>
           <Modal.Title>{this.state.selectedSpace?.name}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {this.state.selectedSpace?.bookings.map(item => this.renderBookingNameRow(item))}
+          {bookings.map(item => this.renderBookingNameRow(item))}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="primary" onClick={() => this.setState({ showBookingNames: false })}>
