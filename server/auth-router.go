@@ -222,7 +222,7 @@ func (router *AuthRouter) loginPassword(w http.ResponseWriter, r *http.Request) 
 }
 
 func (router *AuthRouter) handleAtlassianVerify(authState *AuthState, w http.ResponseWriter) {
-	payload := router.unmarshalAuthStateLoginPayload(authState.Payload)
+	payload := unmarshalAuthStateLoginPayload(authState.Payload)
 	user, err := GetUserRepository().GetByAtlassianID(payload.UserID)
 	if err != nil {
 		SendNotFound(w)
@@ -259,7 +259,7 @@ func (router *AuthRouter) verify(w http.ResponseWriter, r *http.Request) {
 		SendNotFound(w)
 		return
 	}
-	payload := router.unmarshalAuthStateLoginPayload(authState.Payload)
+	payload := unmarshalAuthStateLoginPayload(authState.Payload)
 	user, err := GetUserRepository().GetByEmail(payload.UserID)
 	// TODO Change email to auth server ID???
 	if err != nil {
@@ -321,7 +321,7 @@ func (router *AuthRouter) login(w http.ResponseWriter, r *http.Request) {
 		AuthProviderID: provider.ID,
 		Expiry:         time.Now().Add(time.Minute * 5),
 		AuthStateType:  AuthRequestState,
-		Payload:        router.marshalAuthStateLoginPayload(payload),
+		Payload:        marshalAuthStateLoginPayload(payload),
 	}
 	if err := GetAuthStateRepository().Create(authState); err != nil {
 		SendTemporaryRedirect(w, router.getRedirectFailedUrl(loginType))
@@ -365,7 +365,7 @@ func (router *AuthRouter) callback(w http.ResponseWriter, r *http.Request) {
 		AuthProviderID: provider.ID,
 		Expiry:         time.Now().Add(time.Minute * 5),
 		AuthStateType:  AuthResponseCache,
-		Payload:        router.marshalAuthStateLoginPayload(payloadNew),
+		Payload:        marshalAuthStateLoginPayload(payloadNew),
 	}
 	if err := GetAuthStateRepository().Create(authState); err != nil {
 		log.Println(err)
@@ -445,7 +445,7 @@ func (router *AuthRouter) getUserInfo(provider *AuthProvider, state string, code
 	claims := &Claims{
 		Email: result[provider.UserInfoEmailField].(string),
 	}
-	payload := router.unmarshalAuthStateLoginPayload(authState.Payload)
+	payload := unmarshalAuthStateLoginPayload(authState.Payload)
 	return claims, payload, nil
 }
 
@@ -558,12 +558,12 @@ func (router *AuthRouter) getPreflightResponse(req *AuthPreflightRequest) *AuthP
 	return res
 }
 
-func (router *AuthRouter) marshalAuthStateLoginPayload(payload *AuthStateLoginPayload) string {
+func marshalAuthStateLoginPayload(payload *AuthStateLoginPayload) string {
 	json, _ := json.Marshal(payload)
 	return string(json)
 }
 
-func (router *AuthRouter) unmarshalAuthStateLoginPayload(payload string) *AuthStateLoginPayload {
+func unmarshalAuthStateLoginPayload(payload string) *AuthStateLoginPayload {
 	var o *AuthStateLoginPayload
 	json.Unmarshal([]byte(payload), &o)
 	return o

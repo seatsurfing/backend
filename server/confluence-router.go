@@ -74,11 +74,16 @@ func (router *ConfluenceRouter) serverLogin(w http.ResponseWriter, r *http.Reque
 		}
 		GetUserRepository().Create(user)
 	}
+	payload := &AuthStateLoginPayload{
+		LoginType: "",
+		UserID:    userID,
+		LongLived: false,
+	}
 	authState := &AuthState{
 		AuthProviderID: GetSettingsRepository().getNullUUID(),
 		Expiry:         time.Now().Add(time.Minute * 5),
 		AuthStateType:  AuthAtlassian,
-		Payload:        userID,
+		Payload:        marshalAuthStateLoginPayload(payload),
 	}
 	if err := GetAuthStateRepository().Create(authState); err != nil {
 		SendInternalServerError(w)
