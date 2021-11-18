@@ -124,6 +124,10 @@ const resources = {
             "roleUser": "Benutzer",
             "roleSpaceAdmin": "Raumplan-Administrator",
             "roleOrgAdmin": "Organisations-Administrator",
+            "user": "Benutzer",
+            "area": "Bereich",
+            "space": "Platz",
+            "download": "Herunterladen",
         }
     },
     en: {
@@ -247,6 +251,10 @@ const resources = {
             "roleUser": "User",
             "roleSpaceAdmin": "Floor plan administrator",
             "roleOrgAdmin": "Organisation administrator",
+            "user": "User",
+            "area": "Area",
+            "space": "Space",
+            "download": "Download",
         }
     }
 };

@@ -1,10 +1,11 @@
 import React from 'react';
 import FullLayout from '../components/FullLayout';
 import { Table } from 'react-bootstrap';
-import { Plus as IconPlus } from 'react-feather';
+import { Plus as IconPlus, Download as IconDownload } from 'react-feather';
 import { Link, Redirect } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { Location } from 'flexspace-commons';
+import ExcellentExport from 'excellentexport';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 
@@ -52,12 +53,26 @@ class Locations extends React.Component<Props, State> {
     );
   }
 
+  exportTable = (e: any) => {
+    return ExcellentExport.convert(
+      { anchor: e.target, filename: "seatsurfing-areas", format: "xlsx"},
+      [{name: "Seatsurfing Areas", from: {table: "datatable"}}]
+    );
+  }
+
   render() {
     if (this.state.selectedItem) {
       return <Redirect to={`/locations/${this.state.selectedItem}`} />
     }
 
-    let buttons = <Link to="/locations/add" className="btn btn-sm btn-outline-secondary"><IconPlus className="feather" /> {this.props.t("add")}</Link>;
+    // eslint-disable-next-line
+    let downloadButton = <a download="seatsurfing-areas.xlsx" href="#" className="btn btn-sm btn-outline-secondary" onClick={this.exportTable}><IconDownload className="feather" /> {this.props.t("download")}</a>;
+    let buttons = (
+      <>
+        {this.data && this.data.length > 0 ? downloadButton : <></>}
+        <Link to="/locations/add" className="btn btn-sm btn-outline-secondary"><IconPlus className="feather" /> {this.props.t("add")}</Link>
+      </>
+    );
 
     if (this.state.loading) {
       return (
@@ -77,7 +92,7 @@ class Locations extends React.Component<Props, State> {
     }
     return (
       <FullLayout headline={this.props.t("areas")} buttons={buttons}>
-        <Table striped={true} hover={true} className="clickable-table">
+        <Table striped={true} hover={true} className="clickable-table" id="datatable">
           <thead>
             <tr>
               <th>{this.props.t("name")}</th>

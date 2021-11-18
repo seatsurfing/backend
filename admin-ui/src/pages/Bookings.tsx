@@ -3,7 +3,8 @@ import FullLayout from '../components/FullLayout';
 import Loading from '../components/Loading';
 import { Booking, Formatting } from 'flexspace-commons';
 import { Table, Form, Col, Row, Button } from 'react-bootstrap';
-import { Search as IconSearch } from 'react-feather';
+import { Search as IconSearch, Download as IconDownload } from 'react-feather';
+import ExcellentExport from 'excellentexport';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 
@@ -61,8 +62,23 @@ class Bookings extends React.Component<Props, State> {
     this.loadItems();
   }
 
+  exportTable = (e: any) => {
+    return ExcellentExport.convert(
+      { anchor: e.target, filename: "seatsurfing-bookings", format: "xlsx"},
+      [{name: "Seatsurfing Bookings", from: {table: "datatable"}}]
+    );
+  }
+
   render() {
-    let buttonSearch = <Button className="btn-sm" variant="outline-secondary" type="submit" form="form"><IconSearch className="feather" /> {this.props.t("search")}</Button>;
+    let searchButton = <Button className="btn-sm" variant="outline-secondary" type="submit" form="form"><IconSearch className="feather" /> {this.props.t("search")}</Button>;
+    // eslint-disable-next-line
+    let downloadButton = <a download="seatsurfing-bookings.xlsx" href="#" className="btn btn-sm btn-outline-secondary" onClick={this.exportTable}><IconDownload className="feather" /> {this.props.t("download")}</a>;
+    let buttons = (
+      <>
+        {this.data && this.data.length > 0 ? downloadButton : <></>}
+        {searchButton}
+      </>
+    );
     let form = (
       <Form onSubmit={this.onFilterSubmit} id="form">
         <Form.Group as={Row}>
@@ -82,7 +98,7 @@ class Bookings extends React.Component<Props, State> {
 
     if (this.state.loading) {
       return (
-        <FullLayout headline={this.props.t("bookings")} buttons={buttonSearch}>
+        <FullLayout headline={this.props.t("bookings")}>
           {form}
           <Loading />
         </FullLayout>
@@ -92,16 +108,16 @@ class Bookings extends React.Component<Props, State> {
     let rows = this.data.map(item => this.renderItem(item));
     if (rows.length === 0) {
       return (
-        <FullLayout headline={this.props.t("bookings")} buttons={buttonSearch}>
+        <FullLayout headline={this.props.t("bookings")} buttons={buttons}>
           {form}
           <p>{this.props.t("noRecords")}</p>
         </FullLayout>
       );
     }
     return (
-      <FullLayout headline={this.props.t("bookings")} buttons={buttonSearch}>
+      <FullLayout headline={this.props.t("bookings")} buttons={buttons}>
         {form}
-        <Table striped={true} hover={true} className="clickable-table">
+        <Table striped={true} hover={true} className="clickable-table" id="datatable">
           <thead>
             <tr>
               <th>{this.props.t("user")}</th>
