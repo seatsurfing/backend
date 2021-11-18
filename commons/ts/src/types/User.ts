@@ -4,6 +4,11 @@ import Organization from "./Organization";
 import MergeRequest from "./MergeRequest";
 
 export default class User extends Entity {
+    static UserRoleUser: number = 0;
+    static UserRoleSpaceAdmin: number = 10;
+    static UserRoleOrgAdmin: number = 20;
+    static UserRoleSuperAdmin: number = 90;
+
     id: string;
     email: string;
     atlassianId: string;
@@ -11,6 +16,8 @@ export default class User extends Entity {
     organization: Organization;
     authProviderId: string;
     requirePassword: boolean;
+    role: number;
+    spaceAdmin: boolean;
     admin: boolean;
     superAdmin: boolean;
     password: string;
@@ -24,6 +31,8 @@ export default class User extends Entity {
         this.organization = new Organization();
         this.authProviderId = "";
         this.requirePassword = false;
+        this.role = User.UserRoleUser;
+        this.spaceAdmin = false;
         this.admin = false;
         this.superAdmin = false;
         this.password = "";
@@ -32,8 +41,7 @@ export default class User extends Entity {
     serialize(): Object {
         return Object.assign(super.serialize(), {
             "email": this.email,
-            "admin": this.admin,
-            "superAdmin": this.superAdmin,
+            "role": this.role,
             "password": this.password,
             "organizationId": this.organizationId
         });
@@ -55,6 +63,8 @@ export default class User extends Entity {
         if (input.requirePassword) {
             this.requirePassword = input.requirePassword;
         }
+        this.role = input.role;
+        this.spaceAdmin = input.spaceAdmin;
         this.admin = input.admin;
         this.superAdmin = input.superAdmin;
     }

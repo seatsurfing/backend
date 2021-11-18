@@ -56,10 +56,17 @@ class Users extends React.Component<Props, State> {
     } else if (this.authProviders[user.authProviderId]) {
       authProvider = this.authProviders[user.authProviderId];
     }
+    let role = this.props.t("roleUser");
+    if (user.role === User.UserRoleSpaceAdmin) {
+      role = this.props.t("roleSpaceAdmin");
+    }
+    if (user.role === User.UserRoleOrgAdmin) {
+      role = this.props.t("roleOrgAdmin");
+    }
     return (
       <tr key={user.id} onClick={() => this.onItemSelect(user)}>
         <td>{user.email}</td>
-        <td>{user.admin ? this.props.t("yes") : ""}</td>
+        <td>{role}</td>
         <td>{authProvider}</td>
       </tr>
     );
@@ -94,7 +101,7 @@ class Users extends React.Component<Props, State> {
           <thead>
             <tr>
               <th>{this.props.t("username")}</th>
-              <th>{this.props.t("admin")}</th>
+              <th>{this.props.t("role")}</th>
               <th>{this.props.t("loginMeans")}</th>
             </tr>
           </thead>

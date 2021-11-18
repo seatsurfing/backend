@@ -69,8 +69,7 @@ func (router *ConfluenceRouter) serverLogin(w http.ResponseWriter, r *http.Reque
 			Email:          userID,
 			AtlassianID:    NullString(userID),
 			OrganizationID: org.ID,
-			OrgAdmin:       false,
-			SuperAdmin:     false,
+			Role:           UserRoleUser,
 		}
 		GetUserRepository().Create(user)
 	}

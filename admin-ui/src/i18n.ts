@@ -120,6 +120,10 @@ const resources = {
             "defaultTimezone": "Standard-Zeitzone",
             "timezone": "Zeitzone",
             "default": "Standard",
+            "role": "Rolle",
+            "roleUser": "Benutzer",
+            "roleSpaceAdmin": "Raumplan-Administrator",
+            "roleOrgAdmin": "Organisations-Administrator",
         }
     },
     en: {
@@ -239,6 +243,10 @@ const resources = {
             "defaultTimezone": "Default time zone",
             "timezone": "Time zone",
             "default": "Default",
+            "role": "Role",
+            "roleUser": "User",
+            "roleSpaceAdmin": "Floor plan administrator",
+            "roleOrgAdmin": "Organisation administrator",
         }
     }
 };

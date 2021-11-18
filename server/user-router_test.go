@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"testing"
 
 	"github.com/google/uuid"
@@ -17,7 +18,7 @@ func TestUserCRUD(t *testing.T) {
 
 	// 1. Create
 	username := uuid.New().String() + "@test.com"
-	payload := "{\"email\": \"" + username + "\", \"password\": \"12345678\"}"
+	payload := "{\"email\": \"" + username + "\", \"password\": \"12345678\", \"role\": " + strconv.Itoa(int(UserRoleOrgAdmin)) + "}"
 	req := newHTTPRequest("POST", "/user/", loginResponse.UserID, bytes.NewBufferString(payload))
 	res := executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
@@ -33,10 +34,14 @@ func TestUserCRUD(t *testing.T) {
 	checkTestString(t, org.ID, resBody.OrganizationID)
 	checkTestString(t, "", resBody.AuthProviderID)
 	checkTestBool(t, true, resBody.RequirePassword)
+	checkTestInt(t, int(UserRoleOrgAdmin), resBody.Role)
+	checkTestBool(t, true, resBody.SpaceAdmin)
+	checkTestBool(t, true, resBody.OrgAdmin)
+	checkTestBool(t, false, resBody.SuperAdmin)
 
 	// 3. Update
 	username = uuid.New().String() + "@test.com"
-	payload = "{\"email\": \"" + username + "\", \"password\": \"\"}"
+	payload = "{\"email\": \"" + username + "\", \"password\": \"\", \"role\": " + strconv.Itoa(int(UserRoleSpaceAdmin)) + "}"
 	req = newHTTPRequest("PUT", "/user/"+userID, loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusNoContent, res.Code)
@@ -51,6 +56,10 @@ func TestUserCRUD(t *testing.T) {
 	checkTestString(t, org.ID, resBody2.OrganizationID)
 	checkTestString(t, "", resBody2.AuthProviderID)
 	checkTestBool(t, true, resBody2.RequirePassword)
+	checkTestInt(t, int(UserRoleSpaceAdmin), resBody2.Role)
+	checkTestBool(t, true, resBody2.SpaceAdmin)
+	checkTestBool(t, false, resBody2.OrgAdmin)
+	checkTestBool(t, false, resBody2.SuperAdmin)
 
 	// 4. Delete
 	req = newHTTPRequest("DELETE", "/user/"+userID, loginResponse.UserID, nil)

@@ -18,7 +18,7 @@ interface State {
   requirePassword: boolean
   password: string
   changePassword: boolean
-  admin: boolean
+  role: number
   domain: string
 }
 
@@ -48,7 +48,7 @@ class EditUser extends React.Component<Props, State> {
       requirePassword: false,
       password: "",
       changePassword: false,
-      admin: false,
+      role: User.UserRoleUser,
       domain: ""
     };
   }
@@ -83,12 +83,12 @@ class EditUser extends React.Component<Props, State> {
       });
       if (values.length >= 4) {
         let user = values[3];
-        let userDomain = user.email.substring(user.email.indexOf("@")+1).toLowerCase();
+        let userDomain = user.email.substring(user.email.indexOf("@") + 1).toLowerCase();
         this.entity = user;
         this.setState({
           email: user.email.substring(0, user.email.indexOf("@")),
           requirePassword: user.requirePassword,
-          admin: user.admin,
+          role: user.role,
           domain: userDomain
         });
       }
@@ -105,7 +105,7 @@ class EditUser extends React.Component<Props, State> {
       saved: false
     });
     this.entity.email = this.state.email + "@" + this.state.domain;
-    this.entity.admin = this.state.admin;
+    this.entity.role = this.state.role;
     this.entity.save().then(() => {
       this.props.history.push("/users/" + this.entity.id);
       if (this.state.changePassword) {
@@ -209,8 +209,13 @@ class EditUser extends React.Component<Props, State> {
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
-            <Col sm="6">
-              <Form.Check type="checkbox" id="check-admin" label={this.props.t("admin")} checked={this.state.admin} onChange={(e: any) => this.setState({ admin: e.target.checked })} />
+            <Form.Label column sm="2">{this.props.t("role")}</Form.Label>
+            <Col sm="4">
+              <Form.Control as="select" custom={true} value={this.state.role} onChange={(e: any) => this.setState({ role: parseInt(e.target.value) })}>
+                <option value={User.UserRoleUser}>{this.props.t("roleUser")}</option>
+                <option value={User.UserRoleSpaceAdmin}>{this.props.t("roleSpaceAdmin")}</option>
+                <option value={User.UserRoleOrgAdmin}>{this.props.t("roleOrgAdmin")}</option>
+              </Form.Control>
             </Col>
           </Form.Group>
         </Form>

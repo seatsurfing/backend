@@ -8,6 +8,8 @@ import { User } from 'flexspace-commons';
 
 interface State {
     superAdmin: boolean
+    spaceAdmin: boolean
+    orgAdmin: boolean
 }
 
 interface Props {
@@ -18,13 +20,19 @@ class SideBar extends React.Component<Props, State> {
     constructor(props: any) {
         super(props);
         this.state = {
-            superAdmin: false
+            superAdmin: false,
+            spaceAdmin: false,
+            orgAdmin: false,
         };
     }
 
     componentDidMount = () => {
         User.getSelf().then(user => {
-            this.setState({superAdmin: user.superAdmin});
+            this.setState({
+                superAdmin: user.superAdmin,
+                spaceAdmin: user.spaceAdmin,
+                orgAdmin: user.admin,
+            });
         });
     }
 
@@ -35,6 +43,19 @@ class SideBar extends React.Component<Props, State> {
                 <li className="nav-item">
                     <NavLink to="/organizations" className="nav-link" activeClassName="active"><IconBox className="feather" /> {this.props.t("organizations")}</NavLink>
                 </li>
+            );
+        }
+        let orgAdminItems = <></>;
+        if (this.state.orgAdmin) {
+            orgAdminItems = (
+                <>
+                    <li className="nav-item">
+                        <NavLink to="/users" className="nav-link" activeClassName="active"><IconUsers className="feather" /> {this.props.t("users")}</NavLink>
+                    </li>
+                    <li className="nav-item">
+                        <NavLink to="/settings" className="nav-link" activeClassName="active"><IconSettings className="feather" /> {this.props.t("settings")}</NavLink>
+                    </li>
+                </>
             );
         }
         return (
@@ -48,15 +69,10 @@ class SideBar extends React.Component<Props, State> {
                             <NavLink to="/locations" className="nav-link" activeClassName="active"><IconMap className="feather" /> {this.props.t("areas")}</NavLink>
                         </li>
                         <li className="nav-item">
-                            <NavLink to="/users" className="nav-link" activeClassName="active"><IconUsers className="feather" /> {this.props.t("users")}</NavLink>
-                        </li>
-                        {orgItem}
-                        <li className="nav-item">
                             <NavLink to="/bookings" className="nav-link" activeClassName="active"><IconBook className="feather" /> {this.props.t("bookings")}</NavLink>
                         </li>
-                        <li className="nav-item">
-                            <NavLink to="/settings" className="nav-link" activeClassName="active"><IconSettings className="feather" /> {this.props.t("settings")}</NavLink>
-                        </li>
+                        {orgAdminItems}
+                        {orgItem}
                     </ul>
                 </div>
             </nav>

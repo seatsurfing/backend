@@ -183,7 +183,7 @@ func (router *SpaceRouter) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user := GetRequestUser(r)
-	if !CanAdminOrg(user, location.OrganizationID) {
+	if !CanSpaceAdminOrg(user, location.OrganizationID) {
 		SendForbidden(w)
 		return
 	}
@@ -208,7 +208,7 @@ func (router *SpaceRouter) delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user := GetRequestUser(r)
-	if !CanAdminOrg(user, location.OrganizationID) {
+	if !CanSpaceAdminOrg(user, location.OrganizationID) {
 		SendForbidden(w)
 		return
 	}
@@ -234,7 +234,7 @@ func (router *SpaceRouter) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user := GetRequestUser(r)
-	if !CanAdminOrg(user, location.OrganizationID) {
+	if !CanSpaceAdminOrg(user, location.OrganizationID) {
 		SendForbidden(w)
 		return
 	}

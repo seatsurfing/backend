@@ -21,9 +21,11 @@ type JWTResponse struct {
 }
 
 type Claims struct {
-	Email    string `json:"email"`
-	UserID   string `json:"userID"`
-	OrgAdmin bool   `json:"admin"`
+	Email      string `json:"email"`
+	UserID     string `json:"userID"`
+	SpaceAdmin bool   `json:"spaceAdmin"`
+	OrgAdmin   bool   `json:"admin"`
+	Role       int    `json:"role"`
 	jwt.StandardClaims
 }
 
@@ -275,8 +277,7 @@ func (router *AuthRouter) verify(w http.ResponseWriter, r *http.Request) {
 		user = &User{
 			Email:          payload.UserID,
 			OrganizationID: org.ID,
-			OrgAdmin:       false,
-			SuperAdmin:     false,
+			Role:           UserRoleUser,
 		}
 		GetUserRepository().Create(user)
 	}
@@ -480,9 +481,11 @@ func (router *AuthRouter) getConfig(provider *AuthProvider) *oauth2.Config {
 
 func (router *AuthRouter) createClaims(user *User) *Claims {
 	claims := &Claims{
-		UserID:   user.ID,
-		Email:    user.Email,
-		OrgAdmin: user.OrgAdmin,
+		UserID:     user.ID,
+		Email:      user.Email,
+		SpaceAdmin: GetUserRepository().isSpaceAdmin(user),
+		OrgAdmin:   GetUserRepository().isOrgAdmin(user),
+		Role:       int(user.Role),
 	}
 	return claims
 }

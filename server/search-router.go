@@ -22,7 +22,7 @@ func (router *SearchRouter) setupRoutes(s *mux.Router) {
 
 func (router *SearchRouter) getResults(w http.ResponseWriter, r *http.Request) {
 	user := GetRequestUser(r)
-	if !CanAdminOrg(user, user.OrganizationID) {
+	if !CanSpaceAdminOrg(user, user.OrganizationID) {
 		SendForbidden(w)
 		return
 	}
@@ -31,10 +31,12 @@ func (router *SearchRouter) getResults(w http.ResponseWriter, r *http.Request) {
 	res := &GetSearchResultsResponse{
 		Users: []*GetUserResponse{},
 	}
-	if err := router.addUserResults(user, keyword, res); err != nil {
-		log.Println(err)
-		SendInternalServerError(w)
-		return
+	if CanAdminOrg(user, user.OrganizationID) {
+		if err := router.addUserResults(user, keyword, res); err != nil {
+			log.Println(err)
+			SendInternalServerError(w)
+			return
+		}
 	}
 	if err := router.addLocationResults(user, keyword, res); err != nil {
 		log.Println(err)

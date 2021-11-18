@@ -31,7 +31,7 @@ func (router *StatsRouter) setupRoutes(s *mux.Router) {
 
 func (router *StatsRouter) getStats(w http.ResponseWriter, r *http.Request) {
 	user := GetRequestUser(r)
-	if !CanAdminOrg(user, user.OrganizationID) {
+	if !CanSpaceAdminOrg(user, user.OrganizationID) {
 		SendForbidden(w)
 		return
 	}

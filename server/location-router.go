@@ -98,7 +98,7 @@ func (router *LocationRouter) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user := GetRequestUser(r)
-	if !CanAdminOrg(user, e.OrganizationID) {
+	if !CanSpaceAdminOrg(user, e.OrganizationID) {
 		SendForbidden(w)
 		return
 	}
@@ -127,7 +127,7 @@ func (router *LocationRouter) delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user := GetRequestUser(r)
-	if !CanAdminOrg(user, e.OrganizationID) {
+	if !CanSpaceAdminOrg(user, e.OrganizationID) {
 		SendForbidden(w)
 		return
 	}
@@ -148,7 +148,7 @@ func (router *LocationRouter) create(w http.ResponseWriter, r *http.Request) {
 	user := GetRequestUser(r)
 	e := router.copyFromRestModel(&m)
 	e.OrganizationID = user.OrganizationID
-	if !CanAdminOrg(user, e.OrganizationID) {
+	if !CanSpaceAdminOrg(user, e.OrganizationID) {
 		SendForbidden(w)
 		return
 	}
@@ -203,7 +203,7 @@ func (router *LocationRouter) setMap(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	user := GetRequestUser(r)
-	if !CanAdminOrg(user, e.OrganizationID) {
+	if !CanSpaceAdminOrg(user, e.OrganizationID) {
 		SendForbidden(w)
 		return
 	}

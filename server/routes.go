@@ -247,17 +247,27 @@ func CanAccessOrg(user *User, organizationID string) bool {
 	if user.OrganizationID == organizationID {
 		return true
 	}
-	if user.SuperAdmin {
+	if GetUserRepository().isSuperAdmin(user) {
+		return true
+	}
+	return false
+}
+
+func CanSpaceAdminOrg(user *User, organizationID string) bool {
+	if (user.OrganizationID == organizationID) && (GetUserRepository().isSpaceAdmin(user)) {
+		return true
+	}
+	if GetUserRepository().isSuperAdmin(user) {
 		return true
 	}
 	return false
 }
 
 func CanAdminOrg(user *User, organizationID string) bool {
-	if (user.OrganizationID == organizationID) && (user.OrgAdmin) {
+	if (user.OrganizationID == organizationID) && (GetUserRepository().isOrgAdmin(user)) {
 		return true
 	}
-	if user.SuperAdmin {
+	if GetUserRepository().isSuperAdmin(user) {
 		return true
 	}
 	return false

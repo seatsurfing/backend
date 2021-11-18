@@ -1,7 +1,7 @@
 import React from 'react';
 import FullLayout from '../components/FullLayout';
 import Loading from '../components/Loading';
-import { Stats } from 'flexspace-commons';
+import { Stats, User } from 'flexspace-commons';
 import { Card, Row, Col, ProgressBar } from 'react-bootstrap';
 import './Dashboard.css';
 import { Redirect } from 'react-router-dom';
@@ -11,6 +11,8 @@ import { TFunction } from 'i18next';
 interface State {
   loading: boolean
   redirect: string
+  spaceAdmin: boolean
+  orgAdmin: boolean
 }
 
 interface Props {
@@ -25,18 +27,41 @@ class Dashboard extends React.Component<Props, State> {
     this.stats = null;
     this.state = {
       loading: true,
-      redirect: ""
+      redirect: "",
+      spaceAdmin: false,
+      orgAdmin: false,
     };
   }
 
   componentDidMount = () => {
-    this.loadItems();
+    let promises = [
+      this.loadItems(),
+      this.getUserInfo()
+    ];
+    Promise.all(promises).then(() => {
+      this.setState({ loading: false });
+    });
   }
 
-  loadItems = () => {
-    Stats.get().then(stats => {
-      this.stats = stats;
-      this.setState({ loading: false });
+  getUserInfo = async (): Promise<void> => {
+    let self = this;
+    return new Promise<void>(function (resolve, reject) {
+      User.getSelf().then(user => {
+        self.setState({
+          spaceAdmin: user.spaceAdmin,
+          orgAdmin: user.admin,
+        }, () => resolve());
+      }).catch(e => reject(e));
+    });
+  }
+
+  loadItems = async (): Promise<void> => {
+    let self = this;
+    return new Promise<void>(function (resolve, reject) {
+      Stats.get().then(stats => {
+        self.stats = stats;
+        resolve();
+      }).catch(e => reject(e));
     });
   }
 
@@ -92,13 +117,13 @@ class Dashboard extends React.Component<Props, State> {
     return (
       <FullLayout headline="Dashboard">
         <Row className="mb-4">
-          {this.renderStatsCard(this.stats?.numUsers, this.props.t("users"), "/users/")}
+          {this.renderStatsCard(this.stats?.numUsers, this.props.t("users"), (this.state.orgAdmin ? "/users/": ""))}
           {this.renderStatsCard(this.stats?.numLocations, this.props.t("areas"), "/locations/")}
           {this.renderStatsCard(this.stats?.numSpaces, this.props.t("spaces"), "/locations/")}
           {this.renderStatsCard(this.stats?.numBookings, this.props.t("bookings"), "/bookings/")}
         </Row>
         <Row className="mb-4">
-        {this.renderStatsCard(this.stats?.numBookingsToday, this.props.t("today"), "/bookings/")}
+          {this.renderStatsCard(this.stats?.numBookingsToday, this.props.t("today"), "/bookings/")}
           {this.renderStatsCard(this.stats?.numBookingsYesterday, this.props.t("yesterday"), "/bookings/")}
           {this.renderStatsCard(this.stats?.numBookingsThisWeek, this.props.t("thisWeek"), "/bookings/")}
           {this.renderStatsCard(this.stats?.numBookingsLastWeek, this.props.t("lastWeek"), "/bookings/")}
@@ -108,10 +133,10 @@ class Dashboard extends React.Component<Props, State> {
             <Card>
               <Card.Body>
                 <Card.Title>{this.props.t("utilization")}</Card.Title>
-                  {this.renderProgressBar(this.stats?.spaceLoadToday, this.props.t("today"))}
-                  {this.renderProgressBar(this.stats?.spaceLoadYesterday, this.props.t("yesterday"))}
-                  {this.renderProgressBar(this.stats?.spaceLoadThisWeek, this.props.t("thisWeek"))}
-                  {this.renderProgressBar(this.stats?.spaceLoadLastWeek, this.props.t("lastWeek"))}
+                {this.renderProgressBar(this.stats?.spaceLoadToday, this.props.t("today"))}
+                {this.renderProgressBar(this.stats?.spaceLoadYesterday, this.props.t("yesterday"))}
+                {this.renderProgressBar(this.stats?.spaceLoadThisWeek, this.props.t("thisWeek"))}
+                {this.renderProgressBar(this.stats?.spaceLoadLastWeek, this.props.t("lastWeek"))}
               </Card.Body>
             </Card>
           </Col>

@@ -119,8 +119,7 @@ func (router *SignupRouter) confirm(w http.ResponseWriter, r *http.Request) {
 		Email:          GetConfig().OrgSignupAdmin + "@" + e.Domain,
 		HashedPassword: NullString(e.Password),
 		OrganizationID: org.ID,
-		OrgAdmin:       true,
-		SuperAdmin:     false,
+		Role:           UserRoleOrgAdmin,
 	}
 	if err := GetUserRepository().Create(user); err != nil {
 		log.Println(err)

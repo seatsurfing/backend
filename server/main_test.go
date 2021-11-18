@@ -75,8 +75,7 @@ func createTestUserParams(orgDomain string) *User {
 	user := &User{
 		Email:          uuid.New().String() + "@" + orgDomain,
 		OrganizationID: org.ID,
-		OrgAdmin:       false,
-		SuperAdmin:     false,
+		Role:           UserRoleUser,
 	}
 	if err := GetUserRepository().Create(user); err != nil {
 		panic(err)
@@ -89,8 +88,7 @@ func createTestUserSuperAdmin() *User {
 	user := &User{
 		Email:          uuid.New().String() + "@test.com",
 		OrganizationID: org.ID,
-		OrgAdmin:       false,
-		SuperAdmin:     true,
+		Role:           UserRoleSuperAdmin,
 	}
 	if err := GetUserRepository().Create(user); err != nil {
 		panic(err)
@@ -121,8 +119,7 @@ func createTestUserInOrgDomain(org *Organization, domain string) *User {
 	user := &User{
 		Email:          uuid.New().String() + "@" + domain,
 		OrganizationID: org.ID,
-		OrgAdmin:       false,
-		SuperAdmin:     false,
+		Role:           UserRoleUser,
 	}
 	if err := GetUserRepository().Create(user); err != nil {
 		panic(err)
@@ -138,8 +135,7 @@ func createTestUserOrgAdminDomain(org *Organization, domain string) *User {
 	user := &User{
 		Email:          uuid.New().String() + "@" + domain,
 		OrganizationID: org.ID,
-		OrgAdmin:       true,
-		SuperAdmin:     false,
+		Role:           UserRoleOrgAdmin,
 	}
 	if err := GetUserRepository().Create(user); err != nil {
 		panic(err)

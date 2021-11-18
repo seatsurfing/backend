@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -11,6 +12,15 @@ import (
 type UserRepository struct {
 }
 
+type UserRole int
+
+const (
+	UserRoleUser       UserRole = 0
+	UserRoleSpaceAdmin UserRole = 10
+	UserRoleOrgAdmin   UserRole = 20
+	UserRoleSuperAdmin UserRole = 90
+)
+
 type User struct {
 	ID             string
 	OrganizationID string
@@ -18,8 +28,9 @@ type User struct {
 	AtlassianID    NullString
 	HashedPassword NullString
 	AuthProviderID NullString
-	OrgAdmin       bool
-	SuperAdmin     bool
+	Role           UserRole
+	//OrgAdmin       bool
+	//SuperAdmin     bool
 }
 
 var userRepository *UserRepository
@@ -69,15 +80,35 @@ func (r *UserRepository) RunSchemaUpgrade(curVersion, targetVersion int) {
 			panic(err)
 		}
 	}
+	if curVersion < 13 {
+		if _, err := GetDatabase().DB().Exec("ALTER TABLE users " +
+			"ADD COLUMN role INT"); err != nil {
+			panic(err)
+		}
+		if _, err := GetDatabase().DB().Exec("UPDATE users SET role = " + strconv.Itoa(int(UserRoleUser))); err != nil {
+			panic(err)
+		}
+		if _, err := GetDatabase().DB().Exec("UPDATE users SET role = " + strconv.Itoa(int(UserRoleOrgAdmin)) + " WHERE org_admin IS TRUE"); err != nil {
+			panic(err)
+		}
+		if _, err := GetDatabase().DB().Exec("UPDATE users SET role = " + strconv.Itoa(int(UserRoleSuperAdmin)) + " WHERE super_admin IS TRUE"); err != nil {
+			panic(err)
+		}
+		if _, err := GetDatabase().DB().Exec("ALTER TABLE users " +
+			"DROP COLUMN org_admin, " +
+			"DROP COLUMN super_admin"); err != nil {
+			panic(err)
+		}
+	}
 }
 
 func (r *UserRepository) Create(e *User) error {
 	var id string
 	err := GetDatabase().DB().QueryRow("INSERT INTO users "+
-		"(organization_id, email, org_admin, super_admin, password, auth_provider_id, atlassian_id) "+
-		"VALUES ($1, $2, $3, $4, $5, $6, $7) "+
+		"(organization_id, email, role, password, auth_provider_id, atlassian_id) "+
+		"VALUES ($1, $2, $3, $4, $5, $6) "+
 		"RETURNING id",
-		e.OrganizationID, strings.ToLower(e.Email), e.OrgAdmin, e.SuperAdmin, CheckNullString(e.HashedPassword), CheckNullString(e.AuthProviderID), CheckNullString(e.AtlassianID)).Scan(&id)
+		e.OrganizationID, strings.ToLower(e.Email), e.Role, CheckNullString(e.HashedPassword), CheckNullString(e.AuthProviderID), CheckNullString(e.AtlassianID)).Scan(&id)
 	if err != nil {
 		return err
 	}
@@ -87,10 +118,10 @@ func (r *UserRepository) Create(e *User) error {
 
 func (r *UserRepository) GetOne(id string) (*User, error) {
 	e := &User{}
-	err := GetDatabase().DB().QueryRow("SELECT id, organization_id, email, org_admin, super_admin, password, auth_provider_id, atlassian_id "+
+	err := GetDatabase().DB().QueryRow("SELECT id, organization_id, email, role, password, auth_provider_id, atlassian_id "+
 		"FROM users "+
 		"WHERE id = $1",
-		id).Scan(&e.ID, &e.OrganizationID, &e.Email, &e.OrgAdmin, &e.SuperAdmin, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
+		id).Scan(&e.ID, &e.OrganizationID, &e.Email, &e.Role, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
 	if err != nil {
 		return nil, err
 	}
@@ -99,10 +130,10 @@ func (r *UserRepository) GetOne(id string) (*User, error) {
 
 func (r *UserRepository) GetByEmail(email string) (*User, error) {
 	e := &User{}
-	err := GetDatabase().DB().QueryRow("SELECT id, organization_id, email, org_admin, super_admin, password, auth_provider_id, atlassian_id "+
+	err := GetDatabase().DB().QueryRow("SELECT id, organization_id, email, role, password, auth_provider_id, atlassian_id "+
 		"FROM users "+
 		"WHERE LOWER(email) = $1",
-		strings.ToLower(email)).Scan(&e.ID, &e.OrganizationID, &e.Email, &e.OrgAdmin, &e.SuperAdmin, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
+		strings.ToLower(email)).Scan(&e.ID, &e.OrganizationID, &e.Email, &e.Role, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
 	if err != nil {
 		return nil, err
 	}
@@ -110,10 +141,10 @@ func (r *UserRepository) GetByEmail(email string) (*User, error) {
 }
 func (r *UserRepository) GetByAtlassianID(atlassianID string) (*User, error) {
 	e := &User{}
-	err := GetDatabase().DB().QueryRow("SELECT id, organization_id, email, org_admin, super_admin, password, auth_provider_id, atlassian_id "+
+	err := GetDatabase().DB().QueryRow("SELECT id, organization_id, email, role, password, auth_provider_id, atlassian_id "+
 		"FROM users "+
 		"WHERE LOWER(atlassian_id) = $1",
-		strings.ToLower(atlassianID)).Scan(&e.ID, &e.OrganizationID, &e.Email, &e.OrgAdmin, &e.SuperAdmin, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
+		strings.ToLower(atlassianID)).Scan(&e.ID, &e.OrganizationID, &e.Email, &e.Role, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +153,7 @@ func (r *UserRepository) GetByAtlassianID(atlassianID string) (*User, error) {
 
 func (r *UserRepository) GetUsersWithAtlassianID(organizationID string) ([]*User, error) {
 	var result []*User
-	rows, err := GetDatabase().DB().Query("SELECT id, organization_id, email, org_admin, super_admin, password, auth_provider_id, atlassian_id "+
+	rows, err := GetDatabase().DB().Query("SELECT id, organization_id, email, role, password, auth_provider_id, atlassian_id "+
 		"FROM users "+
 		"WHERE organization_id = $1 AND (atlassian_id IS NOT NULL OR atlassian_id != '') "+
 		"ORDER BY email", organizationID)
@@ -132,7 +163,7 @@ func (r *UserRepository) GetUsersWithAtlassianID(organizationID string) ([]*User
 	defer rows.Close()
 	for rows.Next() {
 		e := &User{}
-		err = rows.Scan(&e.ID, &e.OrganizationID, &e.Email, &e.OrgAdmin, &e.SuperAdmin, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
+		err = rows.Scan(&e.ID, &e.OrganizationID, &e.Email, &e.Role, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
 		if err != nil {
 			return nil, err
 		}
@@ -152,7 +183,7 @@ func (r *UserRepository) UpdateAtlassianClientID(organizationID, oldClientID, ne
 
 func (r *UserRepository) GetByKeyword(organizationID string, keyword string) ([]*User, error) {
 	var result []*User
-	rows, err := GetDatabase().DB().Query("SELECT id, organization_id, email, org_admin, super_admin, password, auth_provider_id, atlassian_id "+
+	rows, err := GetDatabase().DB().Query("SELECT id, organization_id, email, role, password, auth_provider_id, atlassian_id "+
 		"FROM users "+
 		"WHERE organization_id = $1 AND LOWER(email) LIKE '%' || $2 || '%' "+
 		"ORDER BY email", organizationID, strings.ToLower(keyword))
@@ -162,7 +193,7 @@ func (r *UserRepository) GetByKeyword(organizationID string, keyword string) ([]
 	defer rows.Close()
 	for rows.Next() {
 		e := &User{}
-		err = rows.Scan(&e.ID, &e.OrganizationID, &e.Email, &e.OrgAdmin, &e.SuperAdmin, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
+		err = rows.Scan(&e.ID, &e.OrganizationID, &e.Email, &e.Role, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
 		if err != nil {
 			return nil, err
 		}
@@ -173,7 +204,7 @@ func (r *UserRepository) GetByKeyword(organizationID string, keyword string) ([]
 
 func (r *UserRepository) GetAll(organizationID string, maxResults int, offset int) ([]*User, error) {
 	var result []*User
-	rows, err := GetDatabase().DB().Query("SELECT id, organization_id, email, org_admin, super_admin, password, auth_provider_id, atlassian_id "+
+	rows, err := GetDatabase().DB().Query("SELECT id, organization_id, email, role, password, auth_provider_id, atlassian_id "+
 		"FROM users "+
 		"WHERE organization_id = $1 "+
 		"ORDER BY email "+
@@ -184,7 +215,7 @@ func (r *UserRepository) GetAll(organizationID string, maxResults int, offset in
 	defer rows.Close()
 	for rows.Next() {
 		e := &User{}
-		err = rows.Scan(&e.ID, &e.OrganizationID, &e.Email, &e.OrgAdmin, &e.SuperAdmin, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
+		err = rows.Scan(&e.ID, &e.OrganizationID, &e.Email, &e.Role, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
 		if err != nil {
 			return nil, err
 		}
@@ -197,13 +228,12 @@ func (r *UserRepository) Update(e *User) error {
 	_, err := GetDatabase().DB().Exec("UPDATE users SET "+
 		"organization_id = $1, "+
 		"email = $2, "+
-		"org_admin = $3, "+
-		"super_admin = $4, "+
-		"password = $5, "+
-		"auth_provider_id = $6, "+
-		"atlassian_id = $7 "+
-		"WHERE id = $8",
-		e.OrganizationID, strings.ToLower(e.Email), e.OrgAdmin, e.SuperAdmin, CheckNullString(e.HashedPassword), CheckNullString(e.AuthProviderID), CheckNullString(e.AtlassianID), e.ID)
+		"role = $3, "+
+		"password = $4, "+
+		"auth_provider_id = $5, "+
+		"atlassian_id = $6 "+
+		"WHERE id = $7",
+		e.OrganizationID, strings.ToLower(e.Email), e.Role, CheckNullString(e.HashedPassword), CheckNullString(e.AuthProviderID), CheckNullString(e.AtlassianID), e.ID)
 	return err
 }
 
@@ -250,8 +280,7 @@ func (r *UserRepository) mergeUsers(source, target *User) error {
 	if target.AtlassianID == "" {
 		target.AtlassianID = source.AtlassianID
 	}
-	target.OrgAdmin = target.OrgAdmin || source.OrgAdmin
-	target.SuperAdmin = target.SuperAdmin || source.SuperAdmin
+	target.Role = UserRole(MaxOf(int(target.Role), int(source.Role)))
 	if err := r.Delete(source); err != nil {
 		return err
 	}
@@ -265,4 +294,16 @@ func (r *UserRepository) canCreateUser(org *Organization) bool {
 	maxUsers, _ := GetSettingsRepository().GetInt(org.ID, SettingSubscriptionMaxUsers.Name)
 	curUsers, _ := GetUserRepository().GetCount(org.ID)
 	return curUsers < maxUsers
+}
+
+func (r *UserRepository) isSpaceAdmin(user *User) bool {
+	return int(user.Role) >= int(UserRoleSpaceAdmin)
+}
+
+func (r *UserRepository) isOrgAdmin(user *User) bool {
+	return int(user.Role) >= int(UserRoleOrgAdmin)
+}
+
+func (r *UserRepository) isSuperAdmin(user *User) bool {
+	return int(user.Role) >= int(UserRoleSuperAdmin)
 }

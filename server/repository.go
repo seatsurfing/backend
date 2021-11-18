@@ -15,3 +15,15 @@ func CheckNullString(s NullString) sql.NullString {
 		Valid:  true,
 	}
 }
+
+func MaxOf(vars ...int) int {
+	max := vars[0]
+
+	for _, i := range vars {
+		if max < i {
+			max = i
+		}
+	}
+
+	return max
+}

@@ -52,7 +52,7 @@ func (router *BookingRouter) setupRoutes(s *mux.Router) {
 
 func (router *BookingRouter) getFiltered(w http.ResponseWriter, r *http.Request) {
 	user := GetRequestUser(r)
-	if !CanAdminOrg(user, user.OrganizationID) {
+	if !CanSpaceAdminOrg(user, user.OrganizationID) {
 		SendForbidden(w)
 		return
 	}

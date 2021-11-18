@@ -14,8 +14,7 @@ type UserRouter struct {
 type CreateUserRequest struct {
 	Email          string `json:"email" validate:"required"`
 	AtlassianID    string `json:"atlassianId"`
-	OrgAdmin       bool   `json:"admin"`
-	SuperAdmin     bool   `json:"superAdmin"`
+	Role           int    `json:"role"`
 	AuthProviderID string `json:"authProviderId"`
 	Password       string `json:"password"`
 	OrganizationID string `json:"organizationId"`
@@ -25,6 +24,9 @@ type GetUserResponse struct {
 	ID              string                  `json:"id"`
 	Organization    GetOrganizationResponse `json:"organization"`
 	RequirePassword bool                    `json:"requirePassword"`
+	SpaceAdmin      bool                    `json:"spaceAdmin"`
+	OrgAdmin        bool                    `json:"admin"`
+	SuperAdmin      bool                    `json:"superAdmin"`
 	CreateUserRequest
 }
 
@@ -250,7 +252,6 @@ func (router *UserRouter) update(w http.ResponseWriter, r *http.Request) {
 	eNew := router.copyFromRestModel(&m)
 	eNew.ID = e.ID
 	eNew.OrganizationID = e.OrganizationID
-	eNew.SuperAdmin = e.SuperAdmin
 	eNew.HashedPassword = e.HashedPassword
 	org, err := GetOrganizationRepository().GetOne(e.OrganizationID)
 	if err != nil {
@@ -301,12 +302,12 @@ func (router *UserRouter) create(w http.ResponseWriter, r *http.Request) {
 		SendBadRequest(w)
 		return
 	}
-	if m.OrganizationID != "" && m.OrganizationID != user.OrganizationID && !user.SuperAdmin {
+	if m.OrganizationID != "" && m.OrganizationID != user.OrganizationID && !GetUserRepository().isSuperAdmin(user) {
 		SendForbidden(w)
 		return
 	}
 	e := router.copyFromRestModel(&m)
-	if e.OrganizationID == "" || !user.SuperAdmin {
+	if e.OrganizationID == "" || !GetUserRepository().isSuperAdmin(user) {
 		e.OrganizationID = user.OrganizationID
 	}
 	org, err := GetOrganizationRepository().GetOne(e.OrganizationID)
@@ -334,8 +335,10 @@ func (router *UserRouter) create(w http.ResponseWriter, r *http.Request) {
 func (router *UserRouter) copyFromRestModel(m *CreateUserRequest) *User {
 	e := &User{}
 	e.Email = m.Email
-	e.OrgAdmin = m.OrgAdmin
-	e.SuperAdmin = false
+	e.Role = UserRole(m.Role)
+	if e.Role == UserRoleSuperAdmin {
+		e.Role = UserRoleUser
+	}
 	if m.Password != "" {
 		e.HashedPassword = NullString(GetUserRepository().GetHashedPassword(m.Password))
 		e.AuthProviderID = NullString("")
@@ -352,8 +355,10 @@ func (router *UserRouter) copyToRestModel(e *User, admin bool) *GetUserResponse 
 	m.OrganizationID = e.OrganizationID
 	m.Email = e.Email
 	m.AtlassianID = string(e.AtlassianID)
-	m.OrgAdmin = e.OrgAdmin
-	m.SuperAdmin = e.SuperAdmin
+	m.Role = int(e.Role)
+	m.SpaceAdmin = GetUserRepository().isSpaceAdmin(e)
+	m.OrgAdmin = GetUserRepository().isOrgAdmin(e)
+	m.SuperAdmin = GetUserRepository().isSuperAdmin(e)
 	m.RequirePassword = (e.HashedPassword != "")
 	if admin {
 		m.AuthProviderID = string(e.AuthProviderID)

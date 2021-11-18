@@ -73,7 +73,7 @@ func (router *OrganizationRouter) getOne(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	user := GetRequestUser(r)
-	if !(user.SuperAdmin || CanAdminOrg(user, e.ID)) {
+	if !(GetUserRepository().isSuperAdmin(user) || CanAdminOrg(user, e.ID)) {
 		SendForbidden(w)
 		return
 	}
@@ -83,7 +83,7 @@ func (router *OrganizationRouter) getOne(w http.ResponseWriter, r *http.Request)
 
 func (router *OrganizationRouter) getAll(w http.ResponseWriter, r *http.Request) {
 	user := GetRequestUser(r)
-	if !user.SuperAdmin {
+	if !GetUserRepository().isSuperAdmin(user) {
 		SendForbidden(w)
 		return
 	}
@@ -110,7 +110,7 @@ func (router *OrganizationRouter) getDomains(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	user := GetRequestUser(r)
-	if !(user.SuperAdmin || CanAdminOrg(user, e.ID)) {
+	if !(GetUserRepository().isSuperAdmin(user) || CanAdminOrg(user, e.ID)) {
 		SendForbidden(w)
 		return
 	}
@@ -140,7 +140,7 @@ func (router *OrganizationRouter) addDomain(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	user := GetRequestUser(r)
-	if !(user.SuperAdmin || CanAdminOrg(user, e.ID)) {
+	if !(GetUserRepository().isSuperAdmin(user) || CanAdminOrg(user, e.ID)) {
 		SendForbidden(w)
 		return
 	}
@@ -157,7 +157,7 @@ func (router *OrganizationRouter) addDomain(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	// Add domain
-	err = GetOrganizationRepository().AddDomain(e, vars["domain"], user.SuperAdmin)
+	err = GetOrganizationRepository().AddDomain(e, vars["domain"], GetUserRepository().isSuperAdmin(user))
 	if err != nil {
 		log.Println(err)
 		SendAleadyExists(w)
@@ -175,7 +175,7 @@ func (router *OrganizationRouter) verifyDomain(w http.ResponseWriter, r *http.Re
 		return
 	}
 	user := GetRequestUser(r)
-	if !(user.SuperAdmin || CanAdminOrg(user, e.ID)) {
+	if !(GetUserRepository().isSuperAdmin(user) || CanAdminOrg(user, e.ID)) {
 		SendForbidden(w)
 		return
 	}
@@ -216,7 +216,7 @@ func (router *OrganizationRouter) removeDomain(w http.ResponseWriter, r *http.Re
 		return
 	}
 	user := GetRequestUser(r)
-	if !(user.SuperAdmin || CanAdminOrg(user, e.ID)) {
+	if !(GetUserRepository().isSuperAdmin(user) || CanAdminOrg(user, e.ID)) {
 		SendForbidden(w)
 		return
 	}
@@ -241,7 +241,7 @@ func (router *OrganizationRouter) removeDomain(w http.ResponseWriter, r *http.Re
 
 func (router *OrganizationRouter) update(w http.ResponseWriter, r *http.Request) {
 	user := GetRequestUser(r)
-	if !user.SuperAdmin {
+	if !GetUserRepository().isSuperAdmin(user) {
 		SendForbidden(w)
 		return
 	}
@@ -263,11 +263,11 @@ func (router *OrganizationRouter) update(w http.ResponseWriter, r *http.Request)
 
 func (router *OrganizationRouter) delete(w http.ResponseWriter, r *http.Request) {
 	user := GetRequestUser(r)
-	if !(user.SuperAdmin || CanAdminOrg(user, user.OrganizationID)) {
+	if !(GetUserRepository().isSuperAdmin(user) || CanAdminOrg(user, user.OrganizationID)) {
 		SendForbidden(w)
 		return
 	}
-	if !user.SuperAdmin && CanAdminOrg(user, user.OrganizationID) {
+	if !GetUserRepository().isSuperAdmin(user) && CanAdminOrg(user, user.OrganizationID) {
 		if !GetConfig().OrgSignupDelete {
 			SendForbidden(w)
 		}
@@ -287,7 +287,7 @@ func (router *OrganizationRouter) delete(w http.ResponseWriter, r *http.Request)
 
 func (router *OrganizationRouter) create(w http.ResponseWriter, r *http.Request) {
 	user := GetRequestUser(r)
-	if !user.SuperAdmin {
+	if !GetUserRepository().isSuperAdmin(user) {
 		SendForbidden(w)
 		return
 	}
