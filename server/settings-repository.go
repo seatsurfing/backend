@@ -56,20 +56,6 @@ func GetSettingsRepository() *SettingsRepository {
 		if err != nil {
 			panic(err)
 		}
-		// Migration from old ConfigRepository that existed in schema version <= 5
-		s := "0"
-		if err := GetDatabase().DB().QueryRow("SELECT value "+
-			"FROM config_items "+
-			"WHERE organization_id = $1 AND name = 'db_version'",
-			settingsRepository.getNullUUID()).Scan(&s); err == nil {
-			settingsRepository.SetGlobal(SettingDatabaseVersion.Name, s)
-			if _, err := GetDatabase().DB().Exec("DROP INDEX IF EXISTS idx_auth_config_items"); err != nil {
-				panic(err)
-			}
-			if _, err := GetDatabase().DB().Exec("DROP TABLE IF EXISTS config_items"); err != nil {
-				panic(err)
-			}
-		}
 	})
 	return settingsRepository
 }
