@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"testing"
 	"time"
 )
@@ -52,9 +51,6 @@ func TestBookingRepositoryPresenceReport(t *testing.T) {
 	res, err := GetBookingRepository().GetPresenceReport(org.ID, nil, tomorrow, end, 99999, 0)
 
 	checkTestBool(t, true, err == nil)
-	for _, item := range res {
-		log.Println(item)
-	}
 	checkTestInt(t, 3, len(res))
 	const DateFormat string = "2006-01-02"
 
