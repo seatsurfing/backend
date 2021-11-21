@@ -26,6 +26,7 @@ import ConfirmSignup from './pages/ConfirmSignup';
 import Organizations from './pages/Organizations';
 import EditOrganization from './pages/EditOrganization';
 import Loading from './components/Loading';
+import ReportAnalysis from './pages/ReportAnalysis';
 
 interface Props {
 }
@@ -80,6 +81,7 @@ class App extends React.Component<Props, State> {
             <ProtectedRoute path="/settings/auth-providers/:id" component={EditAuthProvider} />
             <ProtectedRoute path="/settings" component={Settings} />
             <ProtectedRoute path="/bookings" component={Bookings} />
+            <ProtectedRoute path="/report/analysis" component={ReportAnalysis} />
             <ProtectedRoute path="/organizations/add" component={EditOrganization} />
             <ProtectedRoute path="/organizations/:id" component={EditOrganization} />
             <ProtectedRoute path="/organizations" component={Organizations} />

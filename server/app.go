@@ -133,6 +133,7 @@ func (a *App) setupStaticAdminRoutes(router *mux.Router) {
 		"/users",
 		"/settings",
 		"/bookings",
+		"/report",
 		"/search",
 		"/confirm",
 		"/organizations",

@@ -115,16 +115,20 @@ func createTestOrg(orgDomain string) *Organization {
 	return org
 }
 
-func createTestUserInOrgDomain(org *Organization, domain string) *User {
+func createTestUserInOrgWithName(org *Organization, email string, role UserRole) *User {
 	user := &User{
-		Email:          uuid.New().String() + "@" + domain,
+		Email:          email,
 		OrganizationID: org.ID,
-		Role:           UserRoleUser,
+		Role:           role,
 	}
 	if err := GetUserRepository().Create(user); err != nil {
 		panic(err)
 	}
 	return user
+}
+
+func createTestUserInOrgDomain(org *Organization, domain string) *User {
+	return createTestUserInOrgWithName(org, uuid.New().String()+"@"+domain, UserRoleUser)
 }
 
 func createTestUserInOrg(org *Organization) *User {

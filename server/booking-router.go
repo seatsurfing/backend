@@ -4,6 +4,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"sort"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -36,11 +37,19 @@ type GetBookingResponse struct {
 }
 
 type GetBookingFilterRequest struct {
-	Start time.Time `json:"start" validate:"required"`
-	End   time.Time `json:"end" validate:"required"`
+	Start      time.Time `json:"start" validate:"required"`
+	End        time.Time `json:"end" validate:"required"`
+	LocationID string    `json:"locationId"`
+}
+
+type GetPresenceReportResult struct {
+	Users     []GetUserInfoSmall `json:"users"`
+	Dates     []string           `json:"dates"`
+	Presences [][]int            `json:"presences"`
 }
 
 func (router *BookingRouter) setupRoutes(s *mux.Router) {
+	s.HandleFunc("/report/presence/", router.getPresenceReport).Methods("POST")
 	s.HandleFunc("/filter/", router.getFiltered).Methods("POST")
 	s.HandleFunc("/precheck/", router.preBookingCreateCheck).Methods("POST")
 	s.HandleFunc("/{id}", router.getOne).Methods("GET")
@@ -302,6 +311,64 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	SendCreated(w, e.ID)
+}
+
+func (router *BookingRouter) getPresenceReport(w http.ResponseWriter, r *http.Request) {
+	user := GetRequestUser(r)
+	if !CanSpaceAdminOrg(user, user.OrganizationID) {
+		SendForbidden(w)
+		return
+	}
+	var m GetBookingFilterRequest
+	if UnmarshalValidateBody(r, &m) != nil {
+		SendBadRequest(w)
+		return
+	}
+	var location *Location = nil
+	if m.LocationID != "" {
+		location, _ := GetLocationRepository().GetOne(m.LocationID)
+		if location == nil {
+			SendNotFound(w)
+			return
+		}
+		if !GetUserRepository().isSuperAdmin(user) && location.OrganizationID != user.OrganizationID {
+			SendForbidden(w)
+			return
+		}
+	}
+	items, err := GetBookingRepository().GetPresenceReport(user.OrganizationID, location, m.Start, m.End, 1000, 0)
+	if err != nil {
+		log.Println(err)
+		SendInternalServerError(w)
+		return
+	}
+	numUsers := len(items)
+	numDates := 0
+	if numUsers > 0 {
+		numDates = len(items[0].Presence)
+	}
+	res := &GetPresenceReportResult{
+		Users:     make([]GetUserInfoSmall, numUsers),
+		Dates:     make([]string, numDates),
+		Presences: make([][]int, numUsers),
+	}
+	i := 0
+	for date := range items[0].Presence {
+		res.Dates[i] = date
+		i++
+	}
+	sort.Strings(res.Dates)
+	for i, item := range items {
+		res.Users[i] = GetUserInfoSmall{
+			UserID: item.User.ID,
+			Email:  item.User.Email,
+		}
+		res.Presences[i] = make([]int, numDates)
+		for j, date := range res.Dates {
+			res.Presences[i][j] = item.Presence[date]
+		}
+	}
+	SendJSON(w, res)
 }
 
 func (router *BookingRouter) isValidBookingDuration(m *BookingRequest, orgID string) bool {

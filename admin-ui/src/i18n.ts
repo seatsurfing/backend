@@ -128,6 +128,8 @@ const resources = {
             "area": "Bereich",
             "space": "Platz",
             "download": "Herunterladen",
+            "analysis": "Auswertung",
+            "all": "Alle",
         }
     },
     en: {
@@ -255,6 +257,8 @@ const resources = {
             "area": "Area",
             "space": "Space",
             "download": "Download",
+            "analysis": "Analysis",
+            "all": "All",
         }
     }
 };

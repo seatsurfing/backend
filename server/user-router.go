@@ -30,6 +30,11 @@ type GetUserResponse struct {
 	CreateUserRequest
 }
 
+type GetUserInfoSmall struct {
+	UserID string `json:"userId"`
+	Email  string `json:"email"`
+}
+
 type GetMergeRequestResponse struct {
 	ID     string `json:"id"`
 	UserID string `json:"userId"`

@@ -1246,3 +1246,101 @@ func TestBookingsConvertTimestamp(t *testing.T) {
 	checkTestString(t, "2030-09-01T08:45:00-05:00", resBody2.Enter.Format(JsDateTimeFormatWithTimezone))
 	checkTestString(t, "2030-09-01T15:15:00-05:00", resBody2.Leave.Format(JsDateTimeFormatWithTimezone))
 }
+
+func TestBookingsPresenceReport(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	user1 := createTestUserInOrgWithName(org, "u1@test.com", UserRoleUser)
+	user2 := createTestUserInOrgWithName(org, "u2@test.com", UserRoleUser)
+	user3 := createTestUserInOrgWithName(org, "u3@test.com", UserRoleSpaceAdmin)
+
+	// Prepare
+	l := &Location{
+		Name:           "Test",
+		OrganizationID: org.ID,
+	}
+	GetLocationRepository().Create(l)
+	s1 := &Space{Name: "Test 1", LocationID: l.ID}
+	GetSpaceRepository().Create(s1)
+
+	tomorrow := time.Now().Add(24 * time.Hour)
+	tomorrow = time.Date(tomorrow.Year(), tomorrow.Month(), tomorrow.Day(), 8, 0, 0, 0, tomorrow.Location())
+
+	// Create booking
+	b1_1 := &Booking{
+		UserID:  user1.ID,
+		SpaceID: s1.ID,
+		Enter:   tomorrow.Add(0 * time.Hour),
+		Leave:   tomorrow.Add(8 * time.Hour),
+	}
+	GetBookingRepository().Create(b1_1)
+	b1_2 := &Booking{
+		UserID:  user1.ID,
+		SpaceID: s1.ID,
+		Enter:   tomorrow.Add((24 + 0) * time.Hour),
+		Leave:   tomorrow.Add((24 + 8) * time.Hour),
+	}
+	GetBookingRepository().Create(b1_2)
+	b2_1 := &Booking{
+		UserID:  user2.ID,
+		SpaceID: s1.ID,
+		Enter:   tomorrow.Add((24*2 + 0) * time.Hour),
+		Leave:   tomorrow.Add((24*2 + 8) * time.Hour),
+	}
+	GetBookingRepository().Create(b2_1)
+
+	end := tomorrow.Add(24 * 7 * time.Hour)
+	payload := "{\"start\": \"" + tomorrow.Format(JsDateTimeFormatWithTimezone) + "\", \"end\": \"" + end.Format(JsDateTimeFormatWithTimezone) + "\"}"
+	req := newHTTPRequest("POST", "/booking/report/presence/", user3.ID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusOK, res.Code)
+	var resBody *GetPresenceReportResult
+	json.Unmarshal(res.Body.Bytes(), &resBody)
+
+	checkTestInt(t, 3, len(resBody.Users))
+	checkTestInt(t, 8, len(resBody.Dates))
+
+	checkTestString(t, user1.ID, resBody.Users[0].UserID)
+	checkTestString(t, user1.Email, resBody.Users[0].Email)
+	checkTestString(t, user2.ID, resBody.Users[1].UserID)
+	checkTestString(t, user2.Email, resBody.Users[1].Email)
+	checkTestString(t, user3.ID, resBody.Users[2].UserID)
+	checkTestString(t, user3.Email, resBody.Users[2].Email)
+
+	const DateFormat string = "2006-01-02"
+	checkTestString(t, tomorrow.Add(24*0*time.Hour).Format(DateFormat), resBody.Dates[0])
+	checkTestString(t, tomorrow.Add(24*1*time.Hour).Format(DateFormat), resBody.Dates[1])
+	checkTestString(t, tomorrow.Add(24*2*time.Hour).Format(DateFormat), resBody.Dates[2])
+	checkTestString(t, tomorrow.Add(24*3*time.Hour).Format(DateFormat), resBody.Dates[3])
+	checkTestString(t, tomorrow.Add(24*4*time.Hour).Format(DateFormat), resBody.Dates[4])
+	checkTestString(t, tomorrow.Add(24*5*time.Hour).Format(DateFormat), resBody.Dates[5])
+	checkTestString(t, tomorrow.Add(24*6*time.Hour).Format(DateFormat), resBody.Dates[6])
+	checkTestString(t, tomorrow.Add(24*7*time.Hour).Format(DateFormat), resBody.Dates[7])
+
+	checkTestInt(t, 1, resBody.Presences[0][0])
+	checkTestInt(t, 1, resBody.Presences[0][1])
+	checkTestInt(t, 0, resBody.Presences[0][2])
+	checkTestInt(t, 0, resBody.Presences[0][3])
+	checkTestInt(t, 0, resBody.Presences[0][4])
+	checkTestInt(t, 0, resBody.Presences[0][5])
+	checkTestInt(t, 0, resBody.Presences[0][6])
+	checkTestInt(t, 0, resBody.Presences[0][7])
+
+	checkTestInt(t, 0, resBody.Presences[1][0])
+	checkTestInt(t, 0, resBody.Presences[1][1])
+	checkTestInt(t, 1, resBody.Presences[1][2])
+	checkTestInt(t, 0, resBody.Presences[1][3])
+	checkTestInt(t, 0, resBody.Presences[1][4])
+	checkTestInt(t, 0, resBody.Presences[1][5])
+	checkTestInt(t, 0, resBody.Presences[1][6])
+	checkTestInt(t, 0, resBody.Presences[1][7])
+
+	checkTestInt(t, 0, resBody.Presences[2][0])
+	checkTestInt(t, 0, resBody.Presences[2][1])
+	checkTestInt(t, 0, resBody.Presences[2][2])
+	checkTestInt(t, 0, resBody.Presences[2][3])
+	checkTestInt(t, 0, resBody.Presences[2][4])
+	checkTestInt(t, 0, resBody.Presences[2][5])
+	checkTestInt(t, 0, resBody.Presences[2][6])
+	checkTestInt(t, 0, resBody.Presences[2][7])
+}

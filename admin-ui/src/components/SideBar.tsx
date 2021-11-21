@@ -1,6 +1,6 @@
 import React from 'react';
 import './SideBar.css';
-import { Home as IconHome, Users as IconUsers, Map as IconMap, Book as IconBook, Settings as IconSettings, Box as IconBox } from 'react-feather';
+import { Home as IconHome, Users as IconUsers, Map as IconMap, Book as IconBook, Settings as IconSettings, Box as IconBox, Activity as IconAnalysis } from 'react-feather';
 import { NavLink } from 'react-router-dom';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
@@ -70,6 +70,9 @@ class SideBar extends React.Component<Props, State> {
                         </li>
                         <li className="nav-item">
                             <NavLink to="/bookings" className="nav-link" activeClassName="active"><IconBook className="feather" /> {this.props.t("bookings")}</NavLink>
+                        </li>
+                        <li className="nav-item">
+                            <NavLink to="/report/analysis" className="nav-link" activeClassName="active"><IconAnalysis className="feather" /> {this.props.t("analysis")}</NavLink>
                         </li>
                         {orgAdminItems}
                         {orgItem}

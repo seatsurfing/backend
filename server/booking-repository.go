@@ -3,8 +3,11 @@ package main
 import (
 	"database/sql"
 	"math"
+	"strings"
 	"sync"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 type BookingRepository struct {
@@ -22,6 +25,11 @@ type BookingDetails struct {
 	Space     SpaceDetails
 	UserEmail string
 	Booking
+}
+
+type BookingPresenceItem struct {
+	User     *User
+	Presence map[string]int
 }
 
 var bookingRepository *BookingRepository
@@ -299,4 +307,91 @@ func (r *BookingRepository) GetConcurrent(location *Location, enter time.Time, l
 
 	//log.Printf("GetConcurrent for location %s with enter = %s and leave = %s has %d overlaps\n", location.Name, enter, leave, max)
 	return max, nil
+}
+
+func (r *BookingRepository) GetPresenceReport(organizationID string, location *Location, start time.Time, end time.Time, maxResults, offset int) ([]*BookingPresenceItem, error) {
+	// Build list of users to include in report
+	users, err := GetUserRepository().GetAll(organizationID, maxResults, offset)
+	if err != nil {
+		return nil, err
+	}
+	userIds := make([]string, len(users))
+	for i, user := range users {
+		userIds[i] = user.ID
+	}
+
+	// Prepare array of days to report
+	var times []time.Time
+	curTime := time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
+	var cols strings.Builder
+	const DateFormat string = "2006-01-02"
+	for curTime.Before(end) {
+		times = append(times, curTime)
+		cols.WriteString(", ")
+		cols.WriteString("(SELECT COUNT(*) FROM bookings b2 WHERE b2.user_id = b.user_id AND DATE(b2.enter_time) = '" + curTime.Format(DateFormat) + "'::DATE)")
+		curTime = curTime.Add(time.Hour * 24)
+	}
+
+	// Prepapre result
+	res := make([]*BookingPresenceItem, len(users))
+	for i, user := range users {
+		presence := make(map[string]int)
+		for _, time := range times {
+			presence[time.Format(DateFormat)] = 0
+		}
+		item := &BookingPresenceItem{
+			User:     user,
+			Presence: presence,
+		}
+		res[i] = item
+	}
+
+	// Build query
+	conditions := ""
+	if location != nil {
+		conditions = "AND b.space IN (SELECT id FROM spaces WHERE location_id = $2) "
+	}
+	stm := "SELECT b.user_id" + cols.String() + " " +
+		"FROM bookings b " +
+		"WHERE b.user_id = ANY($1) " + conditions +
+		"GROUP BY b.user_id"
+	var rows *sql.Rows
+	if location != nil {
+		rows, err = GetDatabase().DB().Query(stm, pq.Array(userIds), location.ID)
+	} else {
+		rows, err = GetDatabase().DB().Query(stm, pq.Array(userIds))
+	}
+	if err == sql.ErrNoRows {
+		return res, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		// Scan row
+		dest := make([]interface{}, len(times)+1)
+		dest[0] = new(string)
+		for i := 1; i < len(times)+1; i++ {
+			dest[i] = new(int)
+		}
+		if err := rows.Scan(dest...); err != nil {
+			continue
+		}
+
+		// Get
+		var item *BookingPresenceItem = nil
+		for _, i := range res {
+			if i.User.ID == *(dest[0].(*string)) {
+				item = i
+			}
+		}
+		if item == nil {
+			continue
+		}
+		for i, time := range times {
+			item.Presence[time.Format(DateFormat)] = *(dest[i+1].(*int))
+		}
+	}
+	return res, nil
 }
