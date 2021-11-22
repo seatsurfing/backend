@@ -82,6 +82,7 @@ func (r *SettingsRepository) Get(organizationID string, name string) (string, er
 	}
 	return res, nil
 }
+
 func (r *SettingsRepository) GetOrganizationIDsByValue(name, value string) ([]string, error) {
 	var res []string
 	rows, err := GetDatabase().DB().Query("SELECT organization_id FROM settings "+

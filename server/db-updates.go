@@ -20,6 +20,7 @@ func RunDBSchemaUpdates() {
 		GetOrganizationRepository(),
 		GetSpaceRepository(),
 		GetUserRepository(),
+		GetUserPreferencesRepository(),
 		GetSettingsRepository(),
 		GetSignupRepository(),
 		GetSubscriptionRepository(),
@@ -38,6 +39,17 @@ func InitDefaultOrgSettings() {
 		panic(err)
 	}
 	if err := GetSettingsRepository().InitDefaultSettings(list); err != nil {
+		panic(err)
+	}
+}
+
+func InitDefaultUserPreferences() {
+	log.Println("Configuring default preferences for users...")
+	list, err := GetUserRepository().GetAllIDs()
+	if err != nil {
+		panic(err)
+	}
+	if err := GetUserPreferencesRepository().InitDefaultSettings(list); err != nil {
 		panic(err)
 	}
 }

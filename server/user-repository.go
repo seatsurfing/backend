@@ -113,6 +113,7 @@ func (r *UserRepository) Create(e *User) error {
 		return err
 	}
 	e.ID = id
+	GetUserPreferencesRepository().InitDefaultSettingsForUser(e.ID)
 	return nil
 }
 
@@ -220,6 +221,25 @@ func (r *UserRepository) GetAll(organizationID string, maxResults int, offset in
 			return nil, err
 		}
 		result = append(result, e)
+	}
+	return result, nil
+}
+
+func (r *UserRepository) GetAllIDs() ([]string, error) {
+	var result []string
+	rows, err := GetDatabase().DB().Query("SELECT id " +
+		"FROM users")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var ID string
+		err = rows.Scan(&ID)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, ID)
 	}
 	return result, nil
 }

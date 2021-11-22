@@ -32,6 +32,7 @@ type App struct {
 func (a *App) InitializeDatabases() {
 	RunDBSchemaUpdates()
 	InitDefaultOrgSettings()
+	InitDefaultUserPreferences()
 }
 
 func (a *App) InitializeRouter() {
@@ -45,6 +46,7 @@ func (a *App) InitializeRouter() {
 	routers["/auth-provider/"] = &AuthProviderRouter{}
 	routers["/auth/"] = &AuthRouter{}
 	routers["/user/"] = &UserRouter{}
+	routers["/preference/"] = &UserPreferencesRouter{}
 	routers["/stats/"] = &StatsRouter{}
 	routers["/search/"] = &SearchRouter{}
 	routers["/setting/"] = &SettingsRouter{}
