@@ -155,6 +155,7 @@ func (a *App) setupStaticUserRoutes(router *mux.Router) {
 		"/login",
 		"/search",
 		"/bookings",
+		"/preferences",
 		"/resetpw",
 	}
 	fs := http.FileServer(http.Dir(GetConfig().StaticBookingUiPath))

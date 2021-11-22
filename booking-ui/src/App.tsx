@@ -22,6 +22,7 @@ import Loading from './components/Loading';
 import ConfluenceAnonymous from './pages/ConfluenceAnonymous';
 import CompletePasswordReset from './pages/CompletePasswordReset';
 import InitPasswordReset from './pages/InitPasswordReset';
+import Preferences from './pages/Preferences';
 
 interface Props {
 }
@@ -134,6 +135,7 @@ class App extends React.Component<Props, AuthContextData> {
             <Route path="/resetpw" component={InitPasswordReset} />
             <ProtectedRoute path="/search" component={Search} />
             <ProtectedRoute path="/bookings" component={Bookings} />
+            <ProtectedRoute path="/preferences" component={Preferences} />
             <Route path="/"><Redirect to="/login" /></Route>
           </Switch>
         </AuthContext.Provider>

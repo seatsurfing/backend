@@ -1,7 +1,7 @@
 import React, { RefObject } from 'react';
 import './Login.css';
 import { Form, Alert, Col, Row, Modal, Button, ListGroup } from 'react-bootstrap';
-import { Location, Booking, Ajax, Formatting, Space, AjaxError } from 'flexspace-commons';
+import { Location, Booking, Ajax, Formatting, Space, AjaxError, UserPreference } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 // @ts-ignore
@@ -13,8 +13,8 @@ import Loading from '../components/Loading';
 import { EnterOutline as EnterIcon, ExitOutline as ExitIcon, LocationOutline as LocationIcon, ChevronUpOutline as CollapseIcon, SettingsOutline as SettingsIcon, MapOutline as MapIcon, ListOutline as ListIcon } from 'react-ionicons'
 import ErrorText from '../types/ErrorText';
 import { Link } from 'react-router-dom';
-interface State {
 
+interface State {
   enter: Date
   leave: Date
   locationId: string
@@ -28,13 +28,21 @@ interface State {
   errorText: string
   loading: boolean
   listView: boolean
+  prefEnterTime: number
+  prefBookingDuration: number
+  prefLocationId: string
 }
 
 interface Props {
   t: TFunction
 }
+
 class Search extends React.Component<Props, State> {
   static contextType = AuthContext;
+  static PreferenceEnterTimeNow: number = 1;
+	static PreferenceEnterTimeNextDay: number = 2;
+	static PreferenceEnterTimeNextWorkday: number = 3;
+
   data: Space[];
   locations: Location[]
   mapData: any;
@@ -65,23 +73,52 @@ class Search extends React.Component<Props, State> {
       errorText: "",
       loading: true,
       listView: false,
+      prefEnterTime: 0,
+      prefBookingDuration: 0,
+      prefLocationId: "",
     };
   }
 
   componentDidMount = () => {
-    this.initDates();
     let promises = [
-      this.loadLocations()
+      this.loadLocations(),
+      this.loadPreferences(),
     ];
     Promise.all(promises).then(() => {
+      this.initDates();
       if (this.state.locationId === "" && this.locations.length > 0) {
-        this.setState({ locationId: this.locations[0].id });
+        let defaultLocationId = this.locations[0].id;
+        if (this.state.prefLocationId) {
+          this.locations.forEach(location => {
+            if (location.id === this.state.prefLocationId) {
+              defaultLocationId = this.state.prefLocationId;
+            }
+          })
+        }
+        this.setState({ locationId: defaultLocationId });
         this.loadMap(this.state.locationId).then(() => {
           this.setState({ loading: false });
         });
       } else {
         this.setState({ loading: false });
       }
+    });
+  }
+
+  loadPreferences = async (): Promise<void> => {
+    let self = this;
+    return new Promise<void>(function (resolve, reject) {
+      UserPreference.list().then(list => {
+        let state: any = {};
+        list.forEach(s => {
+          if (s.name === "enter_time") state.prefEnterTime = window.parseInt(s.value);
+          if (s.name === "booking_duration") state.prefBookingDuration = window.parseInt(s.value);
+          if (s.name === "location_id") state.prefLocationId = s.value;
+        });
+        self.setState({
+          ...state
+        }, () => resolve());
+      }).catch(e => reject(e));
     });
   }
 
@@ -93,50 +130,38 @@ class Search extends React.Component<Props, State> {
   }
 
   initDates = () => {
-    let now = new Date();
-    if (now.getHours() > 17) {
-      let enter = new Date();
+    let enter = new Date();
+    if (this.state.prefEnterTime === Search.PreferenceEnterTimeNow) {
+      enter.setHours(enter.getHours() + 1, 0, 0);
+      if (enter.getHours() > 17) {
+        enter.setDate(enter.getDate() + 1);
+        enter.setHours(9, 0, 0, 0);
+      }
+    } else if (this.state.prefEnterTime === Search.PreferenceEnterTimeNextDay) {
       enter.setDate(enter.getDate() + 1);
-      if (this.context.dailyBasisBooking) {
-        enter.setHours(0, 0, 0);
-      } else {
-        enter.setHours(9, 0, 0);
-      }
-      let leave = new Date(enter);
-      if (this.context.dailyBasisBooking) {
-        leave.setHours(23, 59, 59);
-      } else {
-        leave.setHours(17, 0, 0);
-      }
-      this.setState({
-        enter: enter,
-        leave: leave
-      });
-    } else {
-      if (this.context.dailyBasisBooking) {
-        let enter = new Date();
-        enter.setHours(0, 0, 0);
-        let leave = new Date(enter);
-        leave.setHours(23, 59, 59);
-        this.setState({
-          enter: enter,
-          leave: leave
-        });
-      } else {
-        let enter = new Date();
-        enter.setHours(enter.getHours() + 1, 0, 0);
-        let leave = new Date(enter);
-        if (leave.getHours() < 17) {
-          leave.setHours(17, 0, 0);
-        } else {
-          leave.setHours(leave.getHours() + 1, 0, 0);
-        }
-        this.setState({
-          enter: enter,
-          leave: leave
-        });
-      }
+      enter.setHours(9, 0, 0, 0);
+    } else if (this.state.prefEnterTime === Search.PreferenceEnterTimeNextWorkday) {
+      let add = 1;
+      if (enter.getDay() === 5) add = 3;
+      if (enter.getDay() === 6) add = 2;
+      enter.setDate(enter.getDate() + add);
+      enter.setHours(9, 0, 0, 0);
     }
+
+    let leave = new Date(enter);
+    let leaveHour = 9 + this.state.prefBookingDuration;
+    if (leaveHour >= 24) leaveHour = 23;
+    leave.setHours(leaveHour, 0, 0);
+
+    if (this.context.dailyBasisBooking) {
+      enter.setHours(0, 0, 0, 0);
+      leave.setHours(23, 59, 59, 0);
+    }
+
+    this.setState({
+      enter: enter,
+      leave: leave
+    });
   }
 
   loadLocations = async (): Promise<void> => {

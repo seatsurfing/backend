@@ -75,6 +75,17 @@ const resources = {
             "proceedToLogin": "Zum Login",
             "timezone": "Zeitzone",
             "rememberMe": "Login merken",
+            "preferredLocation": "Bevorzugter Bereich",
+            "none": "Keiner",
+            "save": "Speichern",
+            "entryUpdated": "Einstellungen gespeichert.",
+            "errorSave": "Fehler beim Speichern, bitte probiere es später noch einmal.",
+            "bookingDuration": "Buchungsdauer",
+            "earliestPossible": "Schnellstmöglich",
+            "nextDay": "Nächster Tag",
+            "nextWorkday": "Nächster Arbeitstag",
+            "notice": "Vorlaufzeit",
+            "preferences": "Einstellungen",
         }
     },
     en: {
@@ -148,6 +159,17 @@ const resources = {
             "proceedToLogin": "Log in",
             "timezone": "Time zone",
             "rememberMe": "Remember me",
+            "preferredLocation": "Preferred area",
+            "none": "None",
+            "save": "Save",
+            "entryUpdated": "Preferences saved.",
+            "errorSave": "Error while saving, please try again later.",
+            "bookingDuration": "Booking duration",
+            "earliestPossible": "Earliest possible",
+            "nextDay": "Next day",
+            "nextWorkday": "Next business day",
+            "notice": "Notice",
+            "preferences": "Preferences",
         }
     }
 };

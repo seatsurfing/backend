@@ -142,6 +142,7 @@ class NavBar extends React.Component<Props, State> {
                 <Nav className="mr-auto">
                     <Nav.Link as={NavLink} to="/search" activeClassName="active">{this.props.t("bookSeat")}</Nav.Link>
                     <Nav.Link as={NavLink} to="/bookings" activeClassName="active">{this.props.t("myBookings")}</Nav.Link>
+                    <Nav.Link as={NavLink} to="/preferences" activeClassName="active">{this.props.t("preferences")}</Nav.Link>
                     {signOffButton}
                 </Nav>
                 <Nav className="mr-right">

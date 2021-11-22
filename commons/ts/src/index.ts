@@ -15,4 +15,5 @@ export { default as Settings } from './types/Settings';
 export { default as Space } from './types/Space';
 export { default as Stats } from './types/Stats';
 export { default as User } from './types/User';
+export { default as UserPreference } from './types/UserPreference';
 export { default as MergeRequest } from './types/MergeRequest';
