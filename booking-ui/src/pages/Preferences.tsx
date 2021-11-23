@@ -4,7 +4,7 @@ import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 import { RouteProps } from 'react-router-dom';
 import Loading from '../components/Loading';
-import { Alert, Button, Form } from 'react-bootstrap';
+import { Alert, Button, Col, Form } from 'react-bootstrap';
 
 interface State {
   loading: boolean
@@ -12,7 +12,9 @@ interface State {
   saved: boolean
   error: boolean
   enterTime: number
-  bookingDuration: number
+  workdayStart: number
+  workdayEnd: number
+  workdays: boolean[]
   locationId: string
 }
 
@@ -32,7 +34,9 @@ class Preferences extends React.Component<Props, State> {
       saved: false,
       error: false,
       enterTime: 0,
-      bookingDuration: 0,
+      workdayStart: 0,
+      workdayEnd: 0,
+      workdays: [],
       locationId: "",
     };
   }
@@ -54,7 +58,15 @@ class Preferences extends React.Component<Props, State> {
         let state: any = {};
         list.forEach(s => {
           if (s.name === "enter_time") state.enterTime = window.parseInt(s.value);
-          if (s.name === "booking_duration") state.bookingDuration = window.parseInt(s.value);
+          if (s.name === "workday_start") state.workdayStart = window.parseInt(s.value);
+          if (s.name === "workday_end") state.workdayEnd = window.parseInt(s.value);
+          if (s.name === "workdays") {
+            state.workdays = [];
+            for (let i = 0; i <= 6; i++) {
+              state.workdays[i] = false;
+            }
+            s.value.split(",").forEach(val => state.workdays[val] = true)
+          }
           if (s.name === "location_id") state.locationId = s.value;
         });
         self.setState({
@@ -82,9 +94,17 @@ class Preferences extends React.Component<Props, State> {
       saved: false,
       error: false
     });
+    let workdays: string[] = [];
+    this.state.workdays.forEach((val, day) => {
+      if (val) {
+        workdays.push(day.toString());
+      }
+    });
     let payload = [
       new UserPreference("enter_time", this.state.enterTime.toString()),
-      new UserPreference("booking_duration", this.state.bookingDuration.toString()),
+      new UserPreference("workday_start", this.state.workdayStart.toString()),
+      new UserPreference("workday_end", this.state.workdayEnd.toString()),
+      new UserPreference("workdays", workdays.join(",")),
       new UserPreference("location_id", this.state.locationId),
     ];
     UserPreference.setAll(payload).then(() => {
@@ -97,6 +117,13 @@ class Preferences extends React.Component<Props, State> {
         submitting: false,
         error: true
       });
+    });
+  }
+
+  onWorkdayCheck = (day: number, checked: boolean) => {
+    let workdays = this.state.workdays.map((val, i) => (i === day) ? checked : val);
+    this.setState({
+      workdays: workdays
     });
   }
 
@@ -126,8 +153,26 @@ class Preferences extends React.Component<Props, State> {
               </Form.Control>
             </Form.Group>
             <Form.Group>
-              <Form.Label>{this.props.t("bookingDuration")}</Form.Label>
-              <Form.Control type="number" value={this.state.bookingDuration} onChange={(e: any) => this.setState({ bookingDuration: e.target.value })} min="1" max="9999" />
+              <Form.Label>{this.props.t("workingHours")}</Form.Label>
+              <Form.Row>
+                <Col>
+                  <Form.Control type="number" value={this.state.workdayStart} onChange={(e: any) => this.setState({ workdayStart: window.parseInt(e.target.value) })} min="0" max="23" />
+                </Col>
+                <Col>
+                  <Form.Control plaintext={true} readOnly={true} defaultValue={this.props.t("to")} />
+                </Col>
+                <Col>
+                  <Form.Control type="number" value={this.state.workdayEnd} onChange={(e: any) => this.setState({ workdayEnd: e.target.value })} min={this.state.workdayStart+1} max="23" />
+                </Col>
+              </Form.Row>
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>{this.props.t("workdays")}</Form.Label>
+              <div className="text-left">
+                {[0, 1, 2, 3, 4, 5, 6].map(day => (
+                  <Form.Check type="checkbox" id={"workday-" + day} label={this.props.t("workday-" + day)} checked={this.state.workdays[day]} onChange={(e: any) => this.onWorkdayCheck(day, e.target.checked)} />
+                ))}
+              </div>
             </Form.Group>
             <Form.Group>
               <Form.Label>{this.props.t("preferredLocation")}</Form.Label>

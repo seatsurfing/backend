@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -117,7 +118,9 @@ func (router *UserPreferencesRouter) doSetOne(userID, name, value string) error 
 
 func (router *UserPreferencesRouter) isValidPreferenceName(name string) bool {
 	if name == PreferenceEnterTime.Name ||
-		name == PreferenceBookingDuration.Name ||
+		name == PreferenceWorkdayStart.Name ||
+		name == PreferenceWorkdayEnd.Name ||
+		name == PreferenceWorkdays.Name ||
 		name == PreferenceLocation.Name {
 		return true
 	}
@@ -128,8 +131,14 @@ func (router *UserPreferencesRouter) getPreferenceType(name string) SettingType 
 	if name == PreferenceEnterTime.Name {
 		return PreferenceEnterTime.Type
 	}
-	if name == PreferenceBookingDuration.Name {
-		return PreferenceBookingDuration.Type
+	if name == PreferenceWorkdayStart.Name {
+		return PreferenceWorkdayStart.Type
+	}
+	if name == PreferenceWorkdayEnd.Name {
+		return PreferenceWorkdayEnd.Type
+	}
+	if name == PreferenceWorkdays.Name {
+		return PreferenceWorkdays.Type
 	}
 	if name == PreferenceLocation.Name {
 		return PreferenceLocation.Type
@@ -153,6 +162,16 @@ func (router *UserPreferencesRouter) isValidPreferncesType(name string, value st
 			return true
 		}
 	}
+	if settingType == SettingTypeIntArray {
+		tokens := strings.Split(value, ",")
+		ok := true
+		for _, token := range tokens {
+			if _, err := strconv.Atoi(token); err != nil {
+				ok = false
+			}
+		}
+		return ok
+	}
 	return false
 }
 
@@ -163,11 +182,27 @@ func (router *UserPreferencesRouter) isValidPreferenceValue(name string, value s
 			return false
 		}
 	}
-	if name == PreferenceBookingDuration.Name {
+	if name == PreferenceWorkdayStart.Name {
 		i, _ := strconv.Atoi(value)
-		if i < 1 {
+		if i < 0 || i > 24 {
 			return false
 		}
+	}
+	if name == PreferenceWorkdayEnd.Name {
+		i, _ := strconv.Atoi(value)
+		if i < 0 || i > 24 {
+			return false
+		}
+	}
+	if name == PreferenceWorkdays.Name {
+		tokens := strings.Split(value, ",")
+		ok := true
+		for _, token := range tokens {
+			if workday, err := strconv.Atoi(token); err != nil || workday < 0 || workday > 6 {
+				ok = false
+			}
+		}
+		return ok
 	}
 	return true
 }

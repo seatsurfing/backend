@@ -29,7 +29,9 @@ interface State {
   loading: boolean
   listView: boolean
   prefEnterTime: number
-  prefBookingDuration: number
+  prefWorkdayStart: number
+  prefWorkdayEnd: number
+  prefWorkdays: number[]
   prefLocationId: string
 }
 
@@ -74,7 +76,9 @@ class Search extends React.Component<Props, State> {
       loading: true,
       listView: false,
       prefEnterTime: 0,
-      prefBookingDuration: 0,
+      prefWorkdayStart: 0,
+      prefWorkdayEnd: 0,
+      prefWorkdays: [],
       prefLocationId: "",
     };
   }
@@ -112,9 +116,15 @@ class Search extends React.Component<Props, State> {
         let state: any = {};
         list.forEach(s => {
           if (s.name === "enter_time") state.prefEnterTime = window.parseInt(s.value);
-          if (s.name === "booking_duration") state.prefBookingDuration = window.parseInt(s.value);
+          if (s.name === "workday_start") state.prefWorkdayStart = window.parseInt(s.value);
+          if (s.name === "workday_end") state.prefWorkdayEnd = window.parseInt(s.value);
+          if (s.name === "workdays") state.prefWorkdays = s.value.split(",").map(val => window.parseInt(val));
           if (s.name === "location_id") state.prefLocationId = s.value;
         });
+        if (self.context.dailyBasisBooking) {
+          state.prefWorkdayStart = 0;
+          state.prefWorkdayEnd = 23;
+        }
         self.setState({
           ...state
         }, () => resolve());
@@ -133,25 +143,38 @@ class Search extends React.Component<Props, State> {
     let enter = new Date();
     if (this.state.prefEnterTime === Search.PreferenceEnterTimeNow) {
       enter.setHours(enter.getHours() + 1, 0, 0);
-      if (enter.getHours() > 17) {
+      if (enter.getHours() < this.state.prefWorkdayStart) {
+        enter.setHours(this.state.prefWorkdayStart, 0, 0, 0);
+      }
+      if (enter.getHours() >= this.state.prefWorkdayEnd) {
         enter.setDate(enter.getDate() + 1);
-        enter.setHours(9, 0, 0, 0);
+        enter.setHours(this.state.prefWorkdayStart, 0, 0, 0);
       }
     } else if (this.state.prefEnterTime === Search.PreferenceEnterTimeNextDay) {
       enter.setDate(enter.getDate() + 1);
-      enter.setHours(9, 0, 0, 0);
+      enter.setHours(this.state.prefWorkdayStart, 0, 0, 0);
     } else if (this.state.prefEnterTime === Search.PreferenceEnterTimeNextWorkday) {
-      let add = 1;
-      if (enter.getDay() === 5) add = 3;
-      if (enter.getDay() === 6) add = 2;
+      enter.setDate(enter.getDate() + 1);
+      let add = 0;
+      let nextDayFound = false;
+      let lookFor = enter.getDay();
+      while (!nextDayFound) {
+        if (this.state.prefWorkdays.includes(lookFor) || add > 7) {
+          nextDayFound = true;
+        } else {
+          add++;
+          lookFor++;
+          if (lookFor > 6) {
+            lookFor = 0;
+          }
+        }
+      }
       enter.setDate(enter.getDate() + add);
-      enter.setHours(9, 0, 0, 0);
+      enter.setHours(this.state.prefWorkdayStart, 0, 0, 0);
     }
 
     let leave = new Date(enter);
-    let leaveHour = 9 + this.state.prefBookingDuration;
-    if (leaveHour >= 24) leaveHour = 23;
-    leave.setHours(leaveHour, 0, 0);
+    leave.setHours(this.state.prefWorkdayEnd, 0, 0);
 
     if (this.context.dailyBasisBooking) {
       enter.setHours(0, 0, 0, 0);

@@ -45,7 +45,7 @@ func TestUserPreferencesCRUDMany(t *testing.T) {
 	loginResponse := loginTestUser(user.ID)
 	GetDatabase().DB().Exec("TRUNCATE users_preferences")
 
-	payload := `[{"name": "enter_time", "value": "1"}, {"name": "booking_duration", "value": "5"}]`
+	payload := `[{"name": "enter_time", "value": "1"}, {"name": "workday_start", "value": "5"}]`
 	req := newHTTPRequest("PUT", "/preference/", loginResponse.UserID, bytes.NewBufferString(payload))
 	res := executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusNoContent, res.Code)
@@ -56,12 +56,12 @@ func TestUserPreferencesCRUDMany(t *testing.T) {
 	var resBody []GetSettingsResponse
 	json.Unmarshal(res.Body.Bytes(), &resBody)
 	checkTestInt(t, 2, len(resBody))
-	checkTestString(t, PreferenceBookingDuration.Name, resBody[0].Name)
-	checkTestString(t, PreferenceEnterTime.Name, resBody[1].Name)
-	checkTestString(t, "5", resBody[0].Value)
-	checkTestString(t, "1", resBody[1].Value)
+	checkTestString(t, PreferenceEnterTime.Name, resBody[0].Name)
+	checkTestString(t, PreferenceWorkdayStart.Name, resBody[1].Name)
+	checkTestString(t, "1", resBody[0].Value)
+	checkTestString(t, "5", resBody[1].Value)
 
-	payload = `[{"name": "enter_time", "value": "2"}, {"name": "booking_duration", "value": "3"}]`
+	payload = `[{"name": "enter_time", "value": "2"}, {"name": "workday_start", "value": "3"}]`
 	req = newHTTPRequest("PUT", "/preference/", loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusNoContent, res.Code)
@@ -72,8 +72,8 @@ func TestUserPreferencesCRUDMany(t *testing.T) {
 	var resBody2 []GetSettingsResponse
 	json.Unmarshal(res.Body.Bytes(), &resBody2)
 	checkTestInt(t, 2, len(resBody2))
-	checkTestString(t, PreferenceBookingDuration.Name, resBody2[0].Name)
-	checkTestString(t, PreferenceEnterTime.Name, resBody2[1].Name)
-	checkTestString(t, "3", resBody2[0].Value)
-	checkTestString(t, "2", resBody2[1].Value)
+	checkTestString(t, PreferenceEnterTime.Name, resBody2[0].Name)
+	checkTestString(t, PreferenceWorkdayStart.Name, resBody2[1].Name)
+	checkTestString(t, "2", resBody2[0].Value)
+	checkTestString(t, "3", resBody2[1].Value)
 }

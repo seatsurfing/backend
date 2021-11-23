@@ -17,9 +17,10 @@ type OrgSetting struct {
 type SettingType int
 
 const (
-	SettingTypeInt    SettingType = 1
-	SettingTypeBool   SettingType = 2
-	SettingTypeString SettingType = 3
+	SettingTypeInt      SettingType = 1
+	SettingTypeBool     SettingType = 2
+	SettingTypeString   SettingType = 3
+	SettingTypeIntArray SettingType = 4
 )
 
 type SettingName struct {

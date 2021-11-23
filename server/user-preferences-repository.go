@@ -20,9 +20,11 @@ type PreferenceName struct {
 }
 
 var (
-	PreferenceEnterTime       PreferenceName = PreferenceName{Name: "enter_time", Type: SettingTypeInt}
-	PreferenceBookingDuration PreferenceName = PreferenceName{Name: "booking_duration", Type: SettingTypeInt}
-	PreferenceLocation        PreferenceName = PreferenceName{Name: "location_id", Type: SettingTypeString}
+	PreferenceEnterTime    PreferenceName = PreferenceName{Name: "enter_time", Type: SettingTypeInt}
+	PreferenceWorkdayStart PreferenceName = PreferenceName{Name: "workday_start", Type: SettingTypeInt}
+	PreferenceWorkdayEnd   PreferenceName = PreferenceName{Name: "workday_end", Type: SettingTypeInt}
+	PreferenceWorkdays     PreferenceName = PreferenceName{Name: "workdays", Type: SettingTypeIntArray}
+	PreferenceLocation     PreferenceName = PreferenceName{Name: "location_id", Type: SettingTypeString}
 )
 
 var (
@@ -81,6 +83,16 @@ func (r *UserPreferencesRepository) GetInt(userID string, name string) (int, err
 	return i, err
 }
 
+/*
+func (r *UserPreferencesRepository) GetIntArray(userID string, name string) (int, error) {
+	res, err := r.Get(userID, name)
+	if err != nil {
+		return 0, err
+	}
+	i, err := strconv.Atoi(res)
+	return i, err
+} */
+
 func (r *UserPreferencesRepository) GetBool(userID string, name string) (bool, error) {
 	res, err := r.Get(userID, name)
 	if err != nil {
@@ -114,7 +126,9 @@ func (r *UserPreferencesRepository) InitDefaultSettingsForUser(userID string) er
 	_, err := GetDatabase().DB().Exec("INSERT INTO users_preferences (user_id, name, value) "+
 		"VALUES "+
 		"($1, '"+PreferenceEnterTime.Name+"', '"+strconv.Itoa(PreferenceEnterTimeNow)+"'), "+
-		"($1, '"+PreferenceBookingDuration.Name+"', '8'), "+
+		"($1, '"+PreferenceWorkdayStart.Name+"', '9'), "+
+		"($1, '"+PreferenceWorkdayEnd.Name+"', '17'), "+
+		"($1, '"+PreferenceWorkdays.Name+"', '1,2,3,4,5'), "+
 		"($1, '"+PreferenceLocation.Name+"', '') "+
 		"ON CONFLICT (user_id, name) DO NOTHING",
 		userID)

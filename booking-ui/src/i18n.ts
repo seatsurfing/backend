@@ -86,6 +86,16 @@ const resources = {
             "nextWorkday": "Nächster Arbeitstag",
             "notice": "Vorlaufzeit",
             "preferences": "Einstellungen",
+            "workdays": "Arbeitstage",
+            "workday-0": "Sonntag",
+            "workday-1": "Montag",
+            "workday-2": "Dienstag",
+            "workday-3": "Mittwoch",
+            "workday-4": "Donnerstag",
+            "workday-5": "Freitag",
+            "workday-6": "Samstag",
+            "workingHours": "Bürozeiten",
+            "to": "bis",
         }
     },
     en: {
@@ -170,6 +180,16 @@ const resources = {
             "nextWorkday": "Next business day",
             "notice": "Notice",
             "preferences": "Preferences",
+            "workdays": "Business days",
+            "workday-0": "Sunday",
+            "workday-1": "Monday",
+            "workday-2": "Tuesday",
+            "workday-3": "Wednesday",
+            "workday-4": "Thursday",
+            "workday-5": "Friday",
+            "workday-6": "Saturday",
+            "workingHours": "Working hours",
+            "to": "to",
         }
     }
 };
