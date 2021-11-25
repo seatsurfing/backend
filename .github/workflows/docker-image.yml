@@ -1,0 +1,44 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set version env
+      run: echo "CI_VERSION=$(cat server/res/version.txt | awk NF)" >> $GITHUB_ENV
+    - name: Set date env
+      run: echo "TODAY=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+    - name: Prepare Docker Hub Readme
+      run: cat docker-readme.md | sed "s/{{version}}/${CI_VERSION}/g" | sed "s/{{date}}/${TODAY}/g" > docker-readme-modified.md
+    - name: Log into registry
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v1
+      with:
+        registry: docker.io
+        username: seatsurfing
+        password: ${{ secrets.CI_REGISTRY_PASSWORD }}
+    - name: Build and push
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: |
+          seatsurfing/backend:${{ env.CI_VERSION }}
+          seatsurfing/backend:latest
+    - name: Docker Hub Description
+      uses: peter-evans/dockerhub-description@v2
+      with:
+        username: seatsurfing
+        password: ${{ secrets.CI_REGISTRY_PASSWORD }}
+        repository: seatsurfing/backend
+        readme-filepath: ./docker-readme-modified.md
