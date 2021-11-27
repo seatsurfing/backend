@@ -22,7 +22,9 @@ type LoginResponse struct {
 }
 
 func TestMain(m *testing.M) {
-	os.Setenv("POSTGRES_URL", "postgres://postgres:root@localhost/flexspace_test?sslmode=disable")
+	if os.Getenv("POSTGRES_URL") == "" {
+		os.Setenv("POSTGRES_URL", "postgres://postgres:root@localhost/flexspace_test?sslmode=disable")
+	}
 	os.Setenv("MOCK_SENDMAIL", "1")
 	os.Setenv("ORG_SIGNUP_ENABLED", "1")
 	os.Setenv("ORG_SIGNUP_DELETE", "1")
