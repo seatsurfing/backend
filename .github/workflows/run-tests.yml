@@ -1,0 +1,33 @@
+name: Run Tests
+
+on: [pull_request, workflow_dispatch]
+
+jobs:
+
+  container-job:
+    runs-on: ubuntu-latest
+    container: golang:1.17-alpine
+
+    services:
+      postgres:
+        image: postgres:13-alpine
+        env:
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: seatsurfing_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      working-directory: ./server
+      run: go get -d -v ./...
+    - name: Run server tests
+      working-directory: ./server
+      run: go test -cover -v
+      env:
+        POSTGRES_URL: postgres://postgres:root@postgres/seatsurfing_test?sslmode=disable
+        CGO_ENABLED: 0
