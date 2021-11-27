@@ -30,3 +30,4 @@ jobs:
       run: go test
       env:
         POSTGRES_URL: postgres://postgres:root@postgres/seatsurfing_test?sslmode=disable
+        CGO_ENABLED: 0
