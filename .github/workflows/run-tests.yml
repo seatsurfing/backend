@@ -27,7 +27,7 @@ jobs:
       run: go get -d -v ./...
     - name: Run server tests
       working-directory: ./server
-      run: go test
+      run: go test -cover -v
       env:
         POSTGRES_URL: postgres://postgres:root@postgres/seatsurfing_test?sslmode=disable
         CGO_ENABLED: 0
