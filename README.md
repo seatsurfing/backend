@@ -1,6 +1,5 @@
 # Seatsurfing Backend
-
-Seat booking server software which enables your organisation's employees to book seats, desks and rooms.
+Seatsurfing is a software which enables your organisation's employees to book seats, desks and rooms.
 
 This repository contains the Backend, which consists of:
 * The Server (REST API Backend) written in Go
@@ -10,6 +9,19 @@ This repository contains the Backend, which consists of:
 
 The mobile app is maintained in a [separate repository](https://github.com/seatsurfing/app).
 
+**[Visit project's website for more information.](https://seatsurfing.de)**
+
+## Screenshots
+
+### Web Admin UI
+![Seatsurfing Web Admin UI](https://raw.githubusercontent.com/seatsurfing/backend/master/.github/admin-ui.png)
+
+### Web Booking UI
+![Seatsurfing Web Booking UI](https://raw.githubusercontent.com/seatsurfing/backend/master/.github/booking-ui.png)
+
+### Mobile App (iOS and Android)
+![Seatsurfing Mobile App](https://raw.githubusercontent.com/seatsurfing/backend/master/.github/app.png)
+
 ## Quick reference
 * **Maintained by:** [Seatsurfing.de](https://seatsurfing.de/)
 * **Where to get help:** [Documentation](https://docs.seatsurfing.de/)
@@ -17,7 +29,7 @@ The mobile app is maintained in a [separate repository](https://github.com/seats
 * **License:** [GPL 3.0](https://github.com/seatsurfing/backend/blob/master/LICENSE)
 * **Mobile apps:** [Apple App Store](https://apps.apple.com/app/seatsurfing/id1579071273) and [Google Play](https://play.google.com/store/apps/details?id=de.seatsurfing.app)
 
-## How to use this Docker image
+## How to use the Docker image
 
 ### Start using ```docker run```
 ```
