@@ -33,7 +33,8 @@ WORKDIR /go/src/app/server
 RUN go get -d -v ./...
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o main .
 
-FROM alpine:3.14
+FROM alpine:3.15
+RUN apk --update add --no-cache tzdata
 COPY --from=server-builder /go/src/app/server/main /app/
 COPY --from=admin-ui-builder /usr/src/app/build/ /app/adminui/
 COPY --from=booking-ui-builder /usr/src/app/build/ /app/bookingui/
