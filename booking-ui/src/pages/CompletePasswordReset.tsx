@@ -2,9 +2,10 @@ import React from 'react';
 import './CenterContent.css';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
-import { Link, RouteChildrenProps } from 'react-router-dom';
+import { Link, Params, RouteProps } from 'react-router-dom';
 import { Ajax } from 'flexspace-commons';
 import { Button, Form } from 'react-bootstrap';
+import { withRouter } from '../types/withRouter';
 
 interface State {
   loading: boolean
@@ -13,11 +14,8 @@ interface State {
   newPassword: string
 }
 
-interface RoutedProps {
-  id: string
-}
-
-interface Props extends RouteChildrenProps<RoutedProps> {
+interface Props extends RouteProps {
+  params: Readonly<Params<string>>
   t: TFunction
 }
 
@@ -34,7 +32,7 @@ class CompletePasswordReset extends React.Component<Props, State> {
 
   onPasswordSubmit = (e: any) => {
     e.preventDefault();
-    let id = this.props.match?.params.id;
+    let id = this.props.params.id;
     if (!id || this.state.newPassword.length < 8) {
       return;
     }
@@ -81,4 +79,4 @@ class CompletePasswordReset extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(CompletePasswordReset as any);
+export default withRouter(withTranslation()(CompletePasswordReset as any));

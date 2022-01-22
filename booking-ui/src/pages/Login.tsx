@@ -1,8 +1,7 @@
 import React from 'react';
 import { Form, Button, InputGroup } from 'react-bootstrap';
 import {
-  Link,
-  Redirect
+  Link, Navigate
 } from "react-router-dom";
 import './Login.css';
 import { Organization, AuthProvider, Ajax } from 'flexspace-commons';
@@ -124,10 +123,10 @@ class Login extends React.Component<Props, State> {
 
   render() {
     if (this.state.redirect != null) {
-      return <Redirect to={this.state.redirect} />
+      return <Navigate replace={true} to={this.state.redirect} />
     }
     if (Ajax.CREDENTIALS.accessToken) {
-      return <Redirect to="/search" />
+      return <Navigate replace={true} to="/search" />
     }
 
     if (this.state.requirePassword) {

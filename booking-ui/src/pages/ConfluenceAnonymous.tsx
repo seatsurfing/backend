@@ -1,18 +1,14 @@
 import React from 'react';
 import './Login.css';
 import { Form, Alert } from 'react-bootstrap';
-import { RouteChildrenProps } from 'react-router-dom';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
+import { RouteProps } from 'react-router-dom';
 
 interface State {
 }
 
-interface RoutedProps {
-  id: string
-}
-
-interface Props extends RouteChildrenProps<RoutedProps> {
+interface Props extends RouteProps {
   t: TFunction
 }
 
