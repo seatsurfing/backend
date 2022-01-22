@@ -2,7 +2,7 @@ import React from 'react';
 import FullLayout from '../components/FullLayout';
 import { Table } from 'react-bootstrap';
 import { Plus as IconPlus } from 'react-feather';
-import { Link, Redirect } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { Organization } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
@@ -53,7 +53,7 @@ class Organizations extends React.Component<Props, State> {
 
   render() {
     if (this.state.selectedItem) {
-      return <Redirect to={`/organizations/${this.state.selectedItem}`} />
+      return <Navigate replace={true} to={`/organizations/${this.state.selectedItem}`} />
     }
 
     let buttons = <Link to="/organizations/add" className="btn btn-sm btn-outline-secondary"><IconPlus className="feather" /> {this.props.t("add")}</Link>;

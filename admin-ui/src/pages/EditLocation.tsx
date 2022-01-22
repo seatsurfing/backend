@@ -2,13 +2,15 @@ import React from 'react';
 import FullLayout from '../components/FullLayout';
 import { Form, Col, Row, Button, Alert, InputGroup } from 'react-bootstrap';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete, MapPin as IconMap, Copy as IconCopy, Loader as IconLoad } from 'react-feather';
-import { Link, RouteChildrenProps, Redirect } from 'react-router-dom';
+import { Link, RouteProps, Params, NavigateFunction, Navigate } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { Ajax, Location, Space } from 'flexspace-commons';
 import { Rnd } from 'react-rnd';
 import './EditLocation.css';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
+import { withRouter } from '../types/withRouter';
+import { withNavigate } from '../types/withNavigate';
 
 interface SpaceState {
   id: string
@@ -38,11 +40,9 @@ interface State {
   changed: boolean
 }
 
-interface RoutedProps {
-  id: string
-}
-
-interface Props extends RouteChildrenProps<RoutedProps> {
+interface Props extends RouteProps {
+  navigate: NavigateFunction
+  params: Readonly<Params<string>>
   t: TFunction
 }
 
@@ -93,7 +93,7 @@ class EditLocation extends React.Component<Props, State> {
 
   loadData = async (id?: string): Promise<void> => {
     if (!id) {
-      id = this.props.match?.params.id;
+      id = this.props.params.id;
     }
     if (id) {
       return Location.get(id).then(location => {
@@ -157,7 +157,7 @@ class EditLocation extends React.Component<Props, State> {
         if (this.state.files && this.state.files.length > 0) {
           this.entity.setMap(this.state.files.item(0) as File).then(() => {
             this.loadData(this.entity.id);
-            this.props.history.push("/locations/" + this.entity.id);
+            this.props.navigate("/locations/" + this.entity.id);
             this.setState({
               files: null,
               saved: true,
@@ -304,7 +304,7 @@ class EditLocation extends React.Component<Props, State> {
 
   render() {
     if (this.state.goBack) {
-      return <Redirect to={`/locations`} />
+      return <Navigate replace={true} to={`/locations`} />
     }
 
     let backButton = <Link to="/locations" onClick={this.onBackButtonClick} className="btn btn-sm btn-outline-secondary"><IconBack className="feather" /> {this.props.t("back")}</Link>;
@@ -413,4 +413,4 @@ class EditLocation extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(EditLocation as any);
+export default withNavigate(withRouter(withTranslation()(EditLocation as any)));

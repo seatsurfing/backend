@@ -1,21 +1,19 @@
 import React from 'react';
 import FullLayout from '../components/FullLayout';
 import Loading from '../components/Loading';
-import { RouteChildrenProps, Link } from 'react-router-dom';
+import { Link, Params, RouteProps } from 'react-router-dom';
 import { Search } from 'flexspace-commons';
 import { Card, ListGroup, Col, Row } from 'react-bootstrap';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
+import { withRouter } from '../types/withRouter';
 
 interface State {
   loading: boolean
 }
 
-interface RoutedProps {
-  keyword: string
-}
-
-interface Props extends RouteChildrenProps<RoutedProps> {
+interface Props extends RouteProps {
+  params: Readonly<Params<string>>
   t: TFunction
 }
 
@@ -35,13 +33,13 @@ class SearchResult extends React.Component<Props, State> {
   }
 
   componentDidUpdate = (prevProps: Props) => {
-    if (this.props.match?.params.keyword !== prevProps.match?.params.keyword) {
+    if (this.props.params.keyword !== prevProps.params.keyword) {
       this.loadItems();
     }
   }
 
   loadItems = () => {
-    Search.search(this.props.match ? this.props.match.params.keyword : "").then(res => {
+    Search.search(this.props.params.keyword ? this.props.params.keyword : "").then(res => {
       this.data = res;
       this.setState({ loading: false });
     });
@@ -118,7 +116,7 @@ class SearchResult extends React.Component<Props, State> {
   }
 
   render() {
-    let headline = this.props.t("searchForX", {keyword: this.escapeHTML(this.props.match ? this.props.match.params.keyword : "")});
+    let headline = this.props.t("searchForX", {keyword: this.escapeHTML(this.props.params.keyword ? this.props.params.keyword : "")});
 
     if (this.state.loading) {
       return (
@@ -140,4 +138,4 @@ class SearchResult extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(SearchResult as any);
+export default withRouter(withTranslation()(SearchResult as any));

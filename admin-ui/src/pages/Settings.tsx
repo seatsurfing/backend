@@ -3,7 +3,7 @@ import FullLayout from '../components/FullLayout';
 import Loading from '../components/Loading';
 import { User, Organization, AuthProvider, Settings as OrgSettings, Domain, Ajax, AjaxCredentials } from 'flexspace-commons';
 import { Form, Col, Row, Table, Button, Alert, InputGroup, Popover, OverlayTrigger } from 'react-bootstrap';
-import { Link, Redirect } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { Plus as IconPlus, Save as IconSave } from 'react-feather';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
@@ -281,7 +281,7 @@ class Settings extends React.Component<Props, State> {
 
   render() {
     if (this.state.selectedAuthProvider) {
-      return <Redirect to={`/settings/auth-providers/${this.state.selectedAuthProvider}`} />
+      return <Navigate replace={true} to={`/settings/auth-providers/${this.state.selectedAuthProvider}`} />
     }
 
     if (this.state.loading) {

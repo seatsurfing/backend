@@ -4,9 +4,9 @@ import Loading from '../components/Loading';
 import { Stats, User } from 'flexspace-commons';
 import { Card, Row, Col, ProgressBar } from 'react-bootstrap';
 import './Dashboard.css';
-import { Redirect } from 'react-router-dom';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
+import { Navigate } from 'react-router-dom';
 
 interface State {
   loading: boolean
@@ -103,7 +103,7 @@ class Dashboard extends React.Component<Props, State> {
 
   render() {
     if (this.state.redirect) {
-      return <Redirect to={this.state.redirect} />
+      return <Navigate replace={true} to={this.state.redirect} />
     }
 
     if (this.state.loading) {

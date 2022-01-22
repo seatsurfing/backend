@@ -1,9 +1,9 @@
 import React from 'react';
 import {
-  BrowserRouter as Router,
-  Switch,
+  BrowserRouter,
+  Navigate,
   Route,
-  Redirect
+  Routes
 } from "react-router-dom";
 import './i18n';
 import './App.css';
@@ -15,7 +15,6 @@ import EditLocation from './pages/EditLocation';
 import EditAuthProvider from './pages/EditAuthProvider';
 import LoginSuccess from './pages/LoginSuccess';
 import LoginFailed from './pages/LoginFailed';
-import ProtectedRoute from './pages/ProtectedRoute';
 import { Ajax } from 'flexspace-commons';
 import Users from './pages/Users';
 import EditUser from './pages/EditUser';
@@ -27,6 +26,7 @@ import Organizations from './pages/Organizations';
 import EditOrganization from './pages/EditOrganization';
 import Loading from './components/Loading';
 import ReportAnalysis from './pages/ReportAnalysis';
+import { ProtectedRoute } from './pages/ProtectedRoute';
 
 interface Props {
 }
@@ -64,31 +64,34 @@ class App extends React.Component<Props, State> {
     }
 
     return (
-        <Router basename={process.env.PUBLIC_URL}>
-          <Switch>
-            <Route path="/login/success/:id" component={LoginSuccess} />
-            <Route path="/login/failed" component={LoginFailed} />
-            <Route path="/login" component={Login} />
-            <Route path="/confirm/:id" component={ConfirmSignup} />
-            <ProtectedRoute path="/dashboard" component={Dashboard} />
-            <ProtectedRoute path="/locations/add" component={EditLocation} />
-            <ProtectedRoute path="/locations/:id" component={EditLocation} />
-            <ProtectedRoute path="/locations" component={Locations} />
-            <ProtectedRoute path="/users/add" component={EditUser} />
-            <ProtectedRoute path="/users/:id" component={EditUser} />
-            <ProtectedRoute path="/users" component={Users} />
-            <ProtectedRoute path="/settings/auth-providers/add" component={EditAuthProvider} />
-            <ProtectedRoute path="/settings/auth-providers/:id" component={EditAuthProvider} />
-            <ProtectedRoute path="/settings" component={Settings} />
-            <ProtectedRoute path="/bookings" component={Bookings} />
-            <ProtectedRoute path="/report/analysis" component={ReportAnalysis} />
-            <ProtectedRoute path="/organizations/add" component={EditOrganization} />
-            <ProtectedRoute path="/organizations/:id" component={EditOrganization} />
-            <ProtectedRoute path="/organizations" component={Organizations} />
-            <ProtectedRoute path="/search/:keyword" component={SearchResult} />
-            <Route path="/"><Redirect to="/login" /></Route>
-          </Switch>
-        </Router>
+        <BrowserRouter basename={process.env.PUBLIC_URL}>
+          <Routes>
+            <Route path="/login/success/:id" element={<LoginSuccess />} />
+            <Route path="/login/failed" element={<LoginFailed />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/confirm/:id" element={<ConfirmSignup />} />
+
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/locations/add" element={<ProtectedRoute><EditLocation /></ProtectedRoute>} />
+            <Route path="/locations/:id" element={<ProtectedRoute><EditLocation /></ProtectedRoute>} />
+            <Route path="/locations" element={<ProtectedRoute><Locations /></ProtectedRoute>} />
+            <Route path="/users/add" element={<ProtectedRoute><EditUser /></ProtectedRoute>} />
+            <Route path="/users/:id" element={<ProtectedRoute><EditUser /></ProtectedRoute>} />
+            <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
+            <Route path="/settings/auth-providers/add" element={<ProtectedRoute><EditAuthProvider /></ProtectedRoute>} />
+            <Route path="/settings/auth-providers/:id" element={<ProtectedRoute><EditAuthProvider /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
+            <Route path="/report/analysis" element={<ProtectedRoute><ReportAnalysis /></ProtectedRoute>} />
+            <Route path="/organizations/add" element={<ProtectedRoute><EditOrganization /></ProtectedRoute>} />
+            <Route path="/organizations/:id" element={<ProtectedRoute><EditOrganization /></ProtectedRoute>} />
+            <Route path="/organizations" element={<ProtectedRoute><Organizations /></ProtectedRoute>} />
+            <Route path="/search/:keyword" element={<ProtectedRoute><SearchResult /></ProtectedRoute>} />
+
+            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="*" element={<Navigate to="/login" />} />
+          </Routes>
+        </BrowserRouter>
     );
   }
 }

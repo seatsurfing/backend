@@ -1,21 +1,21 @@
 import React from 'react';
-import {
-  RouteChildrenProps, Redirect
-} from "react-router-dom";
 import './Login.css';
 import Loading from '../components/Loading';
 import { Form } from 'react-bootstrap';
 import { Ajax, JwtDecoder } from 'flexspace-commons';
+import { Navigate, Params, RouteProps } from 'react-router-dom';
+import { withRouter } from '../types/withRouter';
 
 interface State {
   redirect: string | null
 }
 
-interface Props {
+interface Props extends RouteProps {
+  params: Readonly<Params<string>>
   id: string
 }
 
-export default class LoginSuccess extends React.Component<RouteChildrenProps<Props>, State> {
+class LoginSuccess extends React.Component<Props, State> {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -28,8 +28,8 @@ export default class LoginSuccess extends React.Component<RouteChildrenProps<Pro
   }
 
   loadData = () => {
-    if (this.props.match?.params.id) {
-      return Ajax.get("/auth/verify/" + this.props.match.params.id).then(res => {
+    if (this.props.params.id) {
+      return Ajax.get("/auth/verify/" + this.props.params.id).then(res => {
         if (res.json && res.json.accessToken) {
           let jwtPayload = JwtDecoder.getPayload(res.json.accessToken);
           if (!jwtPayload.admin) {
@@ -63,7 +63,7 @@ export default class LoginSuccess extends React.Component<RouteChildrenProps<Pro
 
   render() {
     if (this.state.redirect != null) {
-      return <Redirect to={this.state.redirect} />
+      return <Navigate replace={true} to={this.state.redirect} />
     }
 
     return (
@@ -75,3 +75,5 @@ export default class LoginSuccess extends React.Component<RouteChildrenProps<Pro
     );
   }
 }
+
+export default withRouter(LoginSuccess as any);
