@@ -1,9 +1,9 @@
 import React from 'react';
 import {
-  BrowserRouter as Router,
-  Switch,
+  BrowserRouter,
+  Navigate,
   Route,
-  Redirect
+  Routes,
 } from "react-router-dom";
 import './i18n';
 import './App.css';
@@ -12,7 +12,6 @@ import { Ajax, AjaxCredentials, Settings as OrgSettings, User } from 'flexspace-
 import Login from './pages/Login';
 import LoginSuccess from './pages/LoginSuccess';
 import LoginFailed from './pages/LoginFailed';
-import ProtectedRoute from './pages/ProtectedRoute';
 import Search from './pages/Search';
 import Bookings from './pages/Bookings';
 import ConfluenceHint from './pages/ConfluenceHint';
@@ -23,6 +22,7 @@ import ConfluenceAnonymous from './pages/ConfluenceAnonymous';
 import CompletePasswordReset from './pages/CompletePasswordReset';
 import InitPasswordReset from './pages/InitPasswordReset';
 import Preferences from './pages/Preferences';
+import { ProtectedRoute } from './pages/ProtectedRoute';
 
 interface Props {
 }
@@ -123,23 +123,24 @@ class App extends React.Component<Props, AuthContextData> {
     }
 
     return (
-      <Router basename={process.env.PUBLIC_URL}>
+      <BrowserRouter basename={process.env.PUBLIC_URL}>
         <AuthContext.Provider value={this.state}>
-          <Switch>
-            <Route path="/login/confluence/anonymous" component={ConfluenceAnonymous} />
-            <Route path="/login/confluence/:id" component={ConfluenceHint} />
-            <Route path="/login/success/:id" component={LoginSuccess} />
-            <Route path="/login/failed" component={LoginFailed} />
-            <Route path="/login" component={Login} />
-            <Route path="/resetpw/:id" component={CompletePasswordReset} />
-            <Route path="/resetpw" component={InitPasswordReset} />
-            <ProtectedRoute path="/search" component={Search} />
-            <ProtectedRoute path="/bookings" component={Bookings} />
-            <ProtectedRoute path="/preferences" component={Preferences} />
-            <Route path="/"><Redirect to="/login" /></Route>
-          </Switch>
+          <Routes>
+            <Route path="/login/confluence/anonymous" element={<ConfluenceAnonymous />} />
+            <Route path="/login/confluence/:id" element={<ConfluenceHint />} />
+            <Route path="/login/success/:id" element={<LoginSuccess />} />
+            <Route path="/login/failed" element={<LoginFailed />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/resetpw/:id" element={<CompletePasswordReset />} />
+            <Route path="/resetpw" element={<InitPasswordReset />} />
+            <Route path="/search" element={<ProtectedRoute><Search /></ProtectedRoute>} />
+            <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
+            <Route path="/preferences" element={<ProtectedRoute><Preferences /></ProtectedRoute>} />
+            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="*" element={<Navigate to="/login" />} />
+          </Routes>
         </AuthContext.Provider>
-      </Router>
+      </BrowserRouter>
     );
   }
 }

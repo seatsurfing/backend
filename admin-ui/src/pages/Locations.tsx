@@ -2,7 +2,7 @@ import React from 'react';
 import FullLayout from '../components/FullLayout';
 import { Table } from 'react-bootstrap';
 import { Plus as IconPlus, Download as IconDownload } from 'react-feather';
-import { Link, Redirect } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { Location } from 'flexspace-commons';
 import ExcellentExport from 'excellentexport';
@@ -62,7 +62,7 @@ class Locations extends React.Component<Props, State> {
 
   render() {
     if (this.state.selectedItem) {
-      return <Redirect to={`/locations/${this.state.selectedItem}`} />
+      return <Navigate replace={true} to={`/locations/${this.state.selectedItem}`} />
     }
 
     // eslint-disable-next-line

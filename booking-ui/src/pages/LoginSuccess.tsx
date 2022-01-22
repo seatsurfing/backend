@@ -1,23 +1,22 @@
 import React from 'react';
-import {
-  RouteChildrenProps, Redirect
-} from "react-router-dom";
 import './Login.css';
 import Loading from '../components/Loading';
 import { Form } from 'react-bootstrap';
 import { Ajax } from 'flexspace-commons';
 import RuntimeConfig from '../components/RuntimeConfig';
 import { AuthContext } from '../AuthContextData';
+import { Navigate, Params } from 'react-router-dom';
+import { withRouter } from '../types/withRouter';
 
 interface State {
   redirect: string | null
 }
 
 interface Props {
-  id: string
+  params: Readonly<Params<string>>
 }
 
-export default class LoginSuccess extends React.Component<RouteChildrenProps<Props>, State> {
+class LoginSuccess extends React.Component<Props, State> {
   static contextType = AuthContext;
   
   constructor(props: any) {
@@ -32,8 +31,8 @@ export default class LoginSuccess extends React.Component<RouteChildrenProps<Pro
   }
 
   loadData = () => {
-    if (this.props.match?.params.id) {
-      return Ajax.get("/auth/verify/" + this.props.match.params.id).then(res => {
+    if (this.props.params.id) {
+      return Ajax.get("/auth/verify/" + this.props.params.id).then(res => {
         if (res.json && res.json.accessToken) {
           Ajax.CREDENTIALS = {
             accessToken: res.json.accessToken,
@@ -62,7 +61,7 @@ export default class LoginSuccess extends React.Component<RouteChildrenProps<Pro
 
   render() {
     if (this.state.redirect != null) {
-      return <Redirect to={this.state.redirect} />
+      return <Navigate replace={true} to={this.state.redirect} />
     }
 
     return (
@@ -74,3 +73,5 @@ export default class LoginSuccess extends React.Component<RouteChildrenProps<Pro
     );
   }
 }
+
+export default withRouter(LoginSuccess as any);

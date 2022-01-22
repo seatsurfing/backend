@@ -1,19 +1,17 @@
 import React from 'react';
 import './ConfluenceHint.css';
 import { Button } from 'react-bootstrap';
-import { RouteChildrenProps } from 'react-router-dom';
 import { Copy as IconCopy } from 'react-feather';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
+import { Params, RouteProps } from 'react-router-dom';
+import { withRouter } from '../types/withRouter';
 
 interface State {
 }
 
-interface RoutedProps {
-  id: string
-}
-
-interface Props extends RouteChildrenProps<RoutedProps> {
+interface Props extends RouteProps {
+  params: Readonly<Params<string>>
   t: TFunction
 }
 
@@ -61,7 +59,7 @@ class ConfluenceHint extends React.Component<Props, State> {
             <li>
               {this.props.t("confluenceClientIdStep4")}
               <br />
-              <input type="text" className="copy-input" size={36} onClick={this.onInputClick} value={this.props.match?.params.id} readOnly={true} />
+              <input type="text" className="copy-input" size={36} onClick={this.onInputClick} value={this.props.params.id} readOnly={true} />
               <Button variant="link" size="sm" className="copy-button" onClick={this.onCopyClick}><IconCopy className="feather" /></Button>
             </li>
             <li>{this.props.t("confluenceClientIdStep5")}</li>
@@ -73,4 +71,4 @@ class ConfluenceHint extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(ConfluenceHint as any);
+export default withRouter(withTranslation()(ConfluenceHint as any));

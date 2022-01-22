@@ -41,7 +41,7 @@ class SideBar extends React.Component<Props, State> {
         if (this.state.superAdmin) {
             orgItem = (
                 <li className="nav-item">
-                    <NavLink to="/organizations" className="nav-link" activeClassName="active"><IconBox className="feather" /> {this.props.t("organizations")}</NavLink>
+                    <NavLink to="/organizations" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}><IconBox className="feather" /> {this.props.t("organizations")}</NavLink>
                 </li>
             );
         }
@@ -50,10 +50,10 @@ class SideBar extends React.Component<Props, State> {
             orgAdminItems = (
                 <>
                     <li className="nav-item">
-                        <NavLink to="/users" className="nav-link" activeClassName="active"><IconUsers className="feather" /> {this.props.t("users")}</NavLink>
+                        <NavLink to="/users" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}><IconUsers className="feather" /> {this.props.t("users")}</NavLink>
                     </li>
                     <li className="nav-item">
-                        <NavLink to="/settings" className="nav-link" activeClassName="active"><IconSettings className="feather" /> {this.props.t("settings")}</NavLink>
+                        <NavLink to="/settings" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}><IconSettings className="feather" /> {this.props.t("settings")}</NavLink>
                     </li>
                 </>
             );
@@ -63,16 +63,16 @@ class SideBar extends React.Component<Props, State> {
                 <div className="sidebar-sticky pt-3">
                     <ul className="nav flex-column">
                         <li className="nav-item">
-                            <NavLink to="/dashboard" className="nav-link" activeClassName="active"><IconHome className="feather" /> {this.props.t("dashboard")}</NavLink>
+                            <NavLink to="/dashboard" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}><IconHome className="feather" /> {this.props.t("dashboard")}</NavLink>
                         </li>
                         <li className="nav-item">
-                            <NavLink to="/locations" className="nav-link" activeClassName="active"><IconMap className="feather" /> {this.props.t("areas")}</NavLink>
+                            <NavLink to="/locations" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}><IconMap className="feather" /> {this.props.t("areas")}</NavLink>
                         </li>
                         <li className="nav-item">
-                            <NavLink to="/bookings" className="nav-link" activeClassName="active"><IconBook className="feather" /> {this.props.t("bookings")}</NavLink>
+                            <NavLink to="/bookings" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}><IconBook className="feather" /> {this.props.t("bookings")}</NavLink>
                         </li>
                         <li className="nav-item">
-                            <NavLink to="/report/analysis" className="nav-link" activeClassName="active"><IconAnalysis className="feather" /> {this.props.t("analysis")}</NavLink>
+                            <NavLink to="/report/analysis" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}><IconAnalysis className="feather" /> {this.props.t("analysis")}</NavLink>
                         </li>
                         {orgAdminItems}
                         {orgItem}

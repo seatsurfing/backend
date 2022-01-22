@@ -1,12 +1,10 @@
 import React from 'react';
 import { Form, Button, InputGroup } from 'react-bootstrap';
-import {
-  Redirect
-} from "react-router-dom";
 import './Login.css';
 import { Organization, AuthProvider, Ajax, JwtDecoder, User } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
+import { Navigate } from 'react-router-dom';
 
 interface State {
   email: string
@@ -117,7 +115,7 @@ class Login extends React.Component<Props, State> {
 
   render() {
     if (this.state.redirect != null) {
-      return <Redirect to={this.state.redirect} />
+      return <Navigate replace={true} to={this.state.redirect} />
     }
 
     if (this.state.requirePassword) {

@@ -3,19 +3,17 @@ import './CenterContent.css';
 import { Loader as IconLoad } from 'react-feather';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
-import { Link, RouteChildrenProps } from 'react-router-dom';
+import { Link, Params, RouteProps } from 'react-router-dom';
 import { Ajax } from 'flexspace-commons';
+import { withRouter } from '../types/withRouter';
 
 interface State {
   loading: boolean
   success: boolean
 }
 
-interface RoutedProps {
-  id: string
-}
-
-interface Props extends RouteChildrenProps<RoutedProps> {
+interface Props extends RouteProps {
+  params: Readonly<Params<string>>
   t: TFunction
 }
 
@@ -34,7 +32,7 @@ class ConfirmSignup extends React.Component<Props, State> {
 
   loadData = (id?: string) => {
     if (!id) {
-      id = this.props.match?.params.id;
+      id = this.props.params.id;
     }
     if (id) {
       Ajax.postData("/signup/confirm/" + id, null).then((res) => {
@@ -85,4 +83,4 @@ class ConfirmSignup extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(ConfirmSignup as any);
+export default withRouter(withTranslation()(ConfirmSignup as any));

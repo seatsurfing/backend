@@ -2,11 +2,13 @@ import React from 'react';
 import FullLayout from '../components/FullLayout';
 import { Form, Col, Row, Button, Alert, ButtonGroup } from 'react-bootstrap';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete } from 'react-feather';
-import { Link, RouteChildrenProps, Redirect } from 'react-router-dom';
+import { Link, Navigate, NavigateFunction, Params, RouteProps } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { AuthProvider } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
+import { withRouter } from '../types/withRouter';
+import { withNavigate } from '../types/withNavigate';
 
 interface State {
   loading: boolean
@@ -25,11 +27,9 @@ interface State {
   clientSecret: string;
 }
 
-interface RoutedProps {
-  id: string
-}
-
-interface Props extends RouteChildrenProps<RoutedProps> {
+interface Props extends RouteProps {
+  navigate: NavigateFunction
+  params: Readonly<Params<string>>
   t: TFunction
 }
 
@@ -62,7 +62,7 @@ class EditAuthProvider extends React.Component<Props, State> {
 
   loadData = (id?: string) => {
     if (!id) {
-      id = this.props.match?.params.id;
+      id = this.props.params.id;
     }
     if (id) {
       AuthProvider.get(id).then(authProvider => {
@@ -101,7 +101,7 @@ class EditAuthProvider extends React.Component<Props, State> {
     this.entity.clientId = this.state.clientId;
     this.entity.clientSecret = this.state.clientSecret;
     this.entity.save().then(() => {
-      this.props.history.push("/settings/auth-providers/" + this.entity.id);
+      this.props.navigate("/settings/auth-providers/" + this.entity.id);
       this.setState({
         saved: true
       });
@@ -144,7 +144,7 @@ class EditAuthProvider extends React.Component<Props, State> {
 
   render() {
     if (this.state.goBack) {
-      return <Redirect to={`/settings`} />
+      return <Navigate replace={true} to={`/settings`} />
     }
 
     let backButton = <Link to="/settings" className="btn btn-sm btn-outline-secondary"><IconBack className="feather" /> {this.props.t("back")}</Link>;
@@ -266,4 +266,4 @@ class EditAuthProvider extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(EditAuthProvider as any);
+export default withNavigate(withRouter(withTranslation()(EditAuthProvider as any)));

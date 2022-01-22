@@ -2,11 +2,13 @@ import React from 'react';
 import FullLayout from '../components/FullLayout';
 import { Form, Col, Row, Button, Alert, InputGroup } from 'react-bootstrap';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete } from 'react-feather';
-import { Link, RouteChildrenProps, Redirect } from 'react-router-dom';
+import { Link, Navigate, NavigateFunction, Params, RouteProps } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { User, Settings as OrgSettings, Domain } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
+import { withRouter } from '../types/withRouter';
+import { withNavigate } from '../types/withNavigate';
 
 interface State {
   loading: boolean
@@ -22,11 +24,9 @@ interface State {
   domain: string
 }
 
-interface RoutedProps {
-  id: string
-}
-
-interface Props extends RouteChildrenProps<RoutedProps> {
+interface Props extends RouteProps {
+  navigate: NavigateFunction
+  params: Readonly<Params<string>>
   t: TFunction
 }
 
@@ -65,8 +65,8 @@ class EditUser extends React.Component<Props, State> {
         return Domain.list(me.organizationId);
       })
     ];
-    if (this.props.match?.params.id) {
-      promises.push(User.get(this.props.match.params.id));
+    if (this.props.params.id) {
+      promises.push(User.get(this.props.params.id));
     }
     Promise.all(promises).then(values => {
       this.usersMax = window.parseInt(values[0]);
@@ -107,7 +107,7 @@ class EditUser extends React.Component<Props, State> {
     this.entity.email = this.state.email + "@" + this.state.domain;
     this.entity.role = this.state.role;
     this.entity.save().then(() => {
-      this.props.history.push("/users/" + this.entity.id);
+      this.props.navigate("/users/" + this.entity.id);
       if (this.state.changePassword) {
         this.entity.setPassword(this.state.password).then(() => {
           this.setState({ saved: true });
@@ -132,7 +132,7 @@ class EditUser extends React.Component<Props, State> {
 
   render() {
     if (this.state.goBack) {
-      return <Redirect to={`/users`} />
+      return <Navigate replace={true} to={`/users`} />
     }
 
     let backButton = <Link to="/users" className="btn btn-sm btn-outline-secondary"><IconBack className="feather" /> {this.props.t("back")}</Link>;
@@ -224,4 +224,4 @@ class EditUser extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(EditUser as any);
+export default withNavigate(withRouter(withTranslation()(EditUser as any)));

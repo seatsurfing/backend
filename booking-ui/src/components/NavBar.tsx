@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navbar, Nav, Modal, Button, Form, Badge } from 'react-bootstrap';
-import { NavLink, Redirect } from 'react-router-dom';
+import { Navigate, NavLink } from 'react-router-dom';
 import { Ajax, User, MergeRequest, AjaxCredentials } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
@@ -114,7 +114,7 @@ class NavBar extends React.Component<Props, State> {
         if (this.state.redirect != null) {
             let target = this.state.redirect;
             this.setState({ redirect: null });
-            return <Redirect to={target} />
+            return <Navigate replace={true} to={target} />
         }
 
         let signOffButton = <></>;
@@ -140,9 +140,9 @@ class NavBar extends React.Component<Props, State> {
         collapsable = (
             <>
                 <Nav className="mr-auto">
-                    <Nav.Link as={NavLink} to="/search" activeClassName="active">{this.props.t("bookSeat")}</Nav.Link>
-                    <Nav.Link as={NavLink} to="/bookings" activeClassName="active">{this.props.t("myBookings")}</Nav.Link>
-                    <Nav.Link as={NavLink} to="/preferences" activeClassName="active">{this.props.t("preferences")}</Nav.Link>
+                    <NavLink to="/search" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}>{this.props.t("bookSeat")}</NavLink>
+                    <NavLink to="/bookings" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}>{this.props.t("myBookings")}</NavLink>
+                    <NavLink to="/preferences" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}>{this.props.t("preferences")}</NavLink>
                     {signOffButton}
                 </Nav>
                 <Nav className="mr-right">

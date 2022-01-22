@@ -2,11 +2,13 @@ import React from 'react';
 import FullLayout from '../components/FullLayout';
 import { Form, Col, Row, Button, Alert, InputGroup } from 'react-bootstrap';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete } from 'react-feather';
-import { Link, RouteChildrenProps, Redirect } from 'react-router-dom';
+import { Link, RouteProps, Params, NavigateFunction, Navigate } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { Domain, Organization, User } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
+import { withRouter } from '../types/withRouter';
+import { withNavigate } from '../types/withNavigate';
 
 interface State {
   loading: boolean
@@ -24,11 +26,9 @@ interface State {
   password: string
 }
 
-interface RoutedProps {
-  id: string
-}
-
-interface Props extends RouteChildrenProps<RoutedProps> {
+interface Props extends RouteProps {
+  navigate: NavigateFunction
+  params: Readonly<Params<string>>
   t: TFunction
 }
 
@@ -59,8 +59,8 @@ class EditOrganization extends React.Component<Props, State> {
   }
 
   loadData = () => {
-    if (this.props.match?.params.id) {
-      Organization.get(this.props.match.params.id).then(org => {
+    if (this.props.params.id) {
+      Organization.get(this.props.params.id).then(org => {
         this.entity = org;
         this.setState({
           name: org.name,
@@ -103,12 +103,12 @@ class EditOrganization extends React.Component<Props, State> {
           user.admin = true;
           user.superAdmin = false;
           user.save().then(() => {
-            this.props.history.push("/organizations/" + this.entity.id);
+            this.props.navigate("/organizations/" + this.entity.id);
             this.setState({ saved: true });
           });
         });
       } else {
-        this.props.history.push("/organizations/" + this.entity.id);
+        this.props.navigate("/organizations/" + this.entity.id);
         this.setState({ saved: true });
       }
     }).catch(() => {
@@ -126,7 +126,7 @@ class EditOrganization extends React.Component<Props, State> {
 
   render() {
     if (this.state.goBack) {
-      return <Redirect to={`/organizations`} />
+      return <Navigate replace={true} to={`/organizations`} />
     }
 
     let backButton = <Link to="/organizations" className="btn btn-sm btn-outline-secondary"><IconBack className="feather" /> {this.props.t("back")}</Link>;
@@ -238,4 +238,4 @@ class EditOrganization extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(EditOrganization as any);
+export default withNavigate(withRouter(withTranslation()(EditOrganization as any)));

@@ -1,17 +1,11 @@
-import React from 'react';
 import './Login.css';
-import { Route, Redirect } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { Ajax } from 'flexspace-commons';
+import React from 'react';
 
-export default class ProtectedRoute extends Route {
-  render() {
-    if (!Ajax.CREDENTIALS.accessToken) {
-        return (
-            <Redirect to="/login" />
-        );
-    }
-    return (
-        <Route path={this.props.path} component={this.props.component} />
-    );
+export function ProtectedRoute({ children }: { children: JSX.Element }) {
+  if (!Ajax.CREDENTIALS.accessToken) {
+    return <Navigate to="/login" replace={true} />;
   }
+  return children;
 }

@@ -2,7 +2,7 @@ import React from 'react';
 import FullLayout from '../components/FullLayout';
 import { Table } from 'react-bootstrap';
 import { Plus as IconPlus, Download as IconDownload } from 'react-feather';
-import { Link, Redirect } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { User, AuthProvider } from 'flexspace-commons';
 import ExcellentExport from 'excellentexport';
@@ -82,7 +82,7 @@ class Users extends React.Component<Props, State> {
 
   render() {
     if (this.state.selectedItem) {
-      return <Redirect to={`/users/${this.state.selectedItem}`} />
+      return <Navigate replace={true} to={`/users/${this.state.selectedItem}`} />
     }
     // eslint-disable-next-line
     let downloadButton = <a download="seatsurfing-users.xlsx" href="#" className="btn btn-sm btn-outline-secondary" onClick={this.exportTable}><IconDownload className="feather" /> {this.props.t("download")}</a>;
