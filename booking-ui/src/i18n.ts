@@ -202,6 +202,9 @@ i18n
     fallbackLng: "en",
     keySeparator: false
 });
-Formatting.Language = i18n.language.split("-")[0];
+Formatting.Language = i18n.language.split("-")[0].toLowerCase();
+if (!resources.hasOwnProperty(Formatting.Language)) {
+    Formatting.Language = "en";
+}
 
 export default i18n;
