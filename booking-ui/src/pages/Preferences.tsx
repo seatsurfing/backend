@@ -4,7 +4,7 @@ import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 import { RouteProps } from 'react-router-dom';
 import Loading from '../components/Loading';
-import { Alert, Button, Col, Form } from 'react-bootstrap';
+import { Alert, Button, Col, Form, Row } from 'react-bootstrap';
 
 interface State {
   loading: boolean
@@ -144,29 +144,29 @@ class Preferences extends React.Component<Props, State> {
         <div className="container-center">
           <Form className="container-center-inner" onSubmit={this.onSubmit}>
             {hint}
-            <Form.Group>
+            <Form.Group className="margin-top-15">
               <Form.Label>{this.props.t("notice")}</Form.Label>
-              <Form.Control as="select" custom={true} value={this.state.enterTime} onChange={(e: any) => this.setState({ enterTime: e.target.value })}>
+              <Form.Select value={this.state.enterTime} onChange={(e: any) => this.setState({ enterTime: e.target.value })}>
                 <option value="1">{this.props.t("earliestPossible")}</option>
                 <option value="2">{this.props.t("nextDay")}</option>
                 <option value="3">{this.props.t("nextWorkday")}</option>
-              </Form.Control>
+              </Form.Select>
             </Form.Group>
-            <Form.Group>
+            <Form.Group className="margin-top-15">
               <Form.Label>{this.props.t("workingHours")}</Form.Label>
-              <Form.Row>
+              <Row>
                 <Col>
                   <Form.Control type="number" value={this.state.workdayStart} onChange={(e: any) => this.setState({ workdayStart: window.parseInt(e.target.value) })} min="0" max="23" />
                 </Col>
                 <Col>
-                  <Form.Control plaintext={true} readOnly={true} defaultValue={this.props.t("to")} />
+                  <Form.Control plaintext={true} readOnly={true} defaultValue={this.props.t("to").toString()} />
                 </Col>
                 <Col>
                   <Form.Control type="number" value={this.state.workdayEnd} onChange={(e: any) => this.setState({ workdayEnd: e.target.value })} min={this.state.workdayStart+1} max="23" />
                 </Col>
-              </Form.Row>
+              </Row>
             </Form.Group>
-            <Form.Group>
+            <Form.Group className="margin-top-15">
               <Form.Label>{this.props.t("workdays")}</Form.Label>
               <div className="text-left">
                 {[0, 1, 2, 3, 4, 5, 6].map(day => (
@@ -174,14 +174,14 @@ class Preferences extends React.Component<Props, State> {
                 ))}
               </div>
             </Form.Group>
-            <Form.Group>
+            <Form.Group className="margin-top-15">
               <Form.Label>{this.props.t("preferredLocation")}</Form.Label>
-              <Form.Control as="select" custom={true} value={this.state.locationId} onChange={(e: any) => this.setState({ locationId: e.target.value })}>
+              <Form.Select value={this.state.locationId} onChange={(e: any) => this.setState({ locationId: e.target.value })}>
                 <option value="">({this.props.t("none")})</option>
                 {this.locations.map(location => <option value={location.id}>{location.name}</option>)}
-              </Form.Control>
+              </Form.Select>
             </Form.Group>
-            <Button type="submit">{this.props.t("save")}</Button>
+            <Button className="margin-top-15" type="submit">{this.props.t("save")}</Button>
           </Form>
         </div>
       </>

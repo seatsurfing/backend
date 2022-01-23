@@ -46,6 +46,12 @@ html, body, div#root {
 .form-signin .form-check {
     margin-top: 10px;
     margin-bottom: 10px;
+    width: auto;
+}
+
+.form-signin .form-check .form-check-input {
+    float: none;
+    margin-right: 0.25rem;
 }
 
 .btn-auth-provider {

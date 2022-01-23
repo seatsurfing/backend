@@ -121,10 +121,10 @@ class ReportAnalysis extends React.Component<Props, State> {
         <Form.Group as={Row}>
           <Form.Label column sm="2">{this.props.t("area")}</Form.Label>
           <Col sm="4">
-            <Form.Control as="select" custom={true} value={this.state.locationId} onChange={(e: any) => this.setState({ locationId: e.target.value })}>
+            <Form.Select value={this.state.locationId} onChange={(e: any) => this.setState({ locationId: e.target.value })}>
               <option value="">({this.props.t("all")})</option>
               {this.locations.map(location => <option value={location.id}>{location.name}</option>)}
-            </Form.Control>
+            </Form.Select>
           </Col>
         </Form.Group>
       </Form>

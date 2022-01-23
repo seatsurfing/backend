@@ -34,6 +34,10 @@ main {
     white-space: nowrap;
 }
 
+form .row {
+    margin-bottom: 15px;
+}
+
 @-moz-keyframes spin {
     100% {
         -moz-transform: rotate(360deg);

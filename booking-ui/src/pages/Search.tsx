@@ -12,7 +12,8 @@ import { AuthContext } from '../AuthContextData';
 import Loading from '../components/Loading';
 import { EnterOutline as EnterIcon, ExitOutline as ExitIcon, LocationOutline as LocationIcon, ChevronUpOutline as CollapseIcon, SettingsOutline as SettingsIcon, MapOutline as MapIcon, ListOutline as ListIcon } from 'react-ionicons'
 import ErrorText from '../types/ErrorText';
-import { Link } from 'react-router-dom';
+import { NavigateFunction } from 'react-router-dom';
+import { withNavigate } from '../types/withNavigate';
 
 interface State {
   enter: Date
@@ -36,6 +37,7 @@ interface State {
 }
 
 interface Props {
+  navigate: NavigateFunction
   t: TFunction
 }
 
@@ -518,18 +520,18 @@ class Search extends React.Component<Props, State> {
             <Form.Group as={Row}>
               <Col xs="2"><LocationIcon color={'#555'} height="20px" width="20px" /></Col>
               <Col xs="10">
-                <Form.Control as="select" custom={true} required={true} value={this.state.locationId} onChange={(e) => this.changeLocation(e.target.value)}>
+                <Form.Select required={true} value={this.state.locationId} onChange={(e) => this.changeLocation(e.target.value)}>
                   {this.renderLocations()}
-                </Form.Control>
+                </Form.Select>
               </Col>
             </Form.Group>
-            <Form.Group as={Row}>
+            <Form.Group as={Row} className="margin-top-10">
               <Col xs="2"><EnterIcon color={'#555'} height="20px" width="20px" /></Col>
               <Col xs="10">
                 {enterDatePicker}
               </Col>
             </Form.Group>
-            <Form.Group as={Row}>
+            <Form.Group as={Row} className="margin-top-10">
               <Col xs="2"><ExitIcon color={'#555'} height="20px" width="20px" /></Col>
               <Col xs="10">
                 {leaveDatePicker}
@@ -537,7 +539,7 @@ class Search extends React.Component<Props, State> {
             </Form.Group>
             {hint}
           </Form>
-          <Button variant="outline-dark" onClick={() => this.toggleListView()}>
+          <Button variant="outline-dark" onClick={() => this.toggleListView()} className="margin-top-10">
             <MapIcon color={'#555'} height="26px" width="26px" style={{ "display": this.state.listView ? "" : "none" }} />
             <ListIcon color={'#555'} height="26px" width="26px" style={{ "display": this.state.listView ? "none" : "" }} />
           </Button>
@@ -594,8 +596,8 @@ class Search extends React.Component<Props, State> {
           <p>{this.props.t("bookingConfirmed")}</p>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" as={Link} to="/bookings">
-            {this.props.t("myBookings")}
+          <Button variant="primary" onClick={() => this.props.navigate("/bookings")}>
+            {this.props.t("myBookings").toString()}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -609,8 +611,8 @@ class Search extends React.Component<Props, State> {
           <p>{this.state.errorText}</p>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" as={Link} to="/bookings">
-            {this.props.t("myBookings")}
+          <Button variant="primary" onClick={() => this.props.navigate("/bookings")}>
+            {this.props.t("myBookings").toString()}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -638,4 +640,4 @@ class Search extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(Search as any);
+export default withNavigate(withTranslation()(Search as any));

@@ -7,6 +7,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { Plus as IconPlus, Save as IconSave } from 'react-feather';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
+import './Settings.css';
 
 interface State {
   allowAnyUser: boolean
@@ -297,14 +298,14 @@ class Settings extends React.Component<Props, State> {
       let popoverId = "popover-domain-" + domain.domain;
       const popover = (
         <Popover id={popoverId}>
-          <Popover.Title as="h3">{this.props.t("verifyDomain")}</Popover.Title>
-          <Popover.Content>
+          <Popover.Header as="h3">{this.props.t("verifyDomain")}</Popover.Header>
+          <Popover.Body>
             <div>{this.props.t("verifyDomainHowto", {domain: domain.domain})}</div>
             <div>&nbsp;</div>
             <div><strong>seatsurfing-verification={domain.verifyToken}</strong></div>
             <div>&nbsp;</div>
             <Button variant="primary" size="sm" onClick={() => this.verifyDomain(domain.domain)}>{this.props.t("verifyNow")}</Button>
-          </Popover.Content>
+          </Popover.Body>
         </Popover>
       );
       if (!domain.active) {
@@ -317,7 +318,7 @@ class Settings extends React.Component<Props, State> {
       let key = "domain-" + domain.domain;
       let canDelete = domain.domain.toLowerCase() !== this.state.userDomain;
       return (
-        <Form.Group key={key}>
+        <Form.Group key={key} className="domain-row">
           {domain.domain}
             &nbsp;
           <Button variant="danger" size="sm" onClick={() => this.removeDomain(domain.domain)} disabled={!canDelete}>{this.props.t("remove")}</Button>
@@ -400,9 +401,7 @@ class Settings extends React.Component<Props, State> {
             <Col sm="4">
               <InputGroup>
                 <Form.Control type="number" value={this.state.maxDaysInAdvance} onChange={(e: any) => this.setState({ maxDaysInAdvance: e.target.value })} min="0" max="9999" />
-                <InputGroup.Append>
-                  <InputGroup.Text>{this.props.t("days")}</InputGroup.Text>
-                </InputGroup.Append>
+                <InputGroup.Text>{this.props.t("days")}</InputGroup.Text>
               </InputGroup>
             </Col>
           </Form.Group>
@@ -416,9 +415,7 @@ class Settings extends React.Component<Props, State> {
             <Col sm="4">
               <InputGroup>
                 <Form.Control type="number" value={this.state.maxBookingDurationHours} onChange={(e: any) => this.setState({ maxBookingDurationHours: e.target.value })} min="0" max="9999" />
-                <InputGroup.Append>
-                  <InputGroup.Text>{this.props.t("hours")}</InputGroup.Text>
-                </InputGroup.Append>
+                <InputGroup.Text>{this.props.t("hours")}</InputGroup.Text>
               </InputGroup>
             </Col>
           </Form.Group>
@@ -430,9 +427,9 @@ class Settings extends React.Component<Props, State> {
           <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("defaultTimezone")}</Form.Label>
             <Col sm="4">
-              <Form.Control as="select" custom={true} value={this.state.defaultTimezone} onChange={(e: any) => this.setState({ defaultTimezone: e.target.value })}>
+              <Form.Select value={this.state.defaultTimezone} onChange={(e: any) => this.setState({ defaultTimezone: e.target.value })}>
                 {this.timezones.map(tz => <option>{tz}</option>)}
-              </Form.Control>
+              </Form.Select>
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
@@ -447,9 +444,7 @@ class Settings extends React.Component<Props, State> {
               {domains}
               <InputGroup size="sm">
                 <Form.Control type="text" value={this.state.newDomain} onChange={(e: any) => this.setState({ newDomain: e.target.value })} placeholder={this.props.t("yourDomainPlaceholder")} onKeyDown={this.handleNewDomainKeyDown} />
-                <InputGroup.Append>
-                  <Button variant="outline-secondary" onClick={this.addDomain} disabled={!this.isValidDomain()}>{this.props.t("addDomain")}</Button>
-                </InputGroup.Append>
+                <Button variant="outline-secondary" onClick={this.addDomain} disabled={!this.isValidDomain()}>{this.props.t("addDomain")}</Button>
               </InputGroup>
             </Col>
           </Form.Group>
@@ -457,7 +452,7 @@ class Settings extends React.Component<Props, State> {
         <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
           <h1 className="h2">{this.props.t("authProviders")}</h1>
           <div className="btn-toolbar mb-2 mb-md-0">
-            <div className="btn-group mr-2">
+            <div className="btn-group me-2">
               <Link to="/settings/auth-providers/add" className="btn btn-sm btn-outline-secondary"><IconPlus className="feather" /> {this.props.t("add")}</Link>
             </div>
           </div>

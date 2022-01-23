@@ -193,11 +193,9 @@ class EditUser extends React.Component<Props, State> {
             <Col sm="4">
               <InputGroup>
                 <Form.Control type="text" placeholder="max.mustermann" value={this.state.email} onChange={(e: any) => this.setState({ email: e.target.value })} required={true} />
-                <InputGroup.Append>
-                  <Form.Control as="select" className="custom-select" value={this.state.domain} onChange={(e: any) => this.setState({ domain: e.target.value })}>
-                    {domainOptions}
-                  </Form.Control>
-                </InputGroup.Append>
+                <Form.Select className="custom-select" value={this.state.domain} onChange={(e: any) => this.setState({ domain: e.target.value })}>
+                  {domainOptions}
+                </Form.Select>
               </InputGroup>
             </Col>
           </Form.Group>
@@ -211,11 +209,11 @@ class EditUser extends React.Component<Props, State> {
           <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("role")}</Form.Label>
             <Col sm="4">
-              <Form.Control as="select" custom={true} value={this.state.role} onChange={(e: any) => this.setState({ role: parseInt(e.target.value) })}>
+              <Form.Select value={this.state.role} onChange={(e: any) => this.setState({ role: parseInt(e.target.value) })}>
                 <option value={User.UserRoleUser}>{this.props.t("roleUser")}</option>
                 <option value={User.UserRoleSpaceAdmin}>{this.props.t("roleSpaceAdmin")}</option>
                 <option value={User.UserRoleOrgAdmin}>{this.props.t("roleOrgAdmin")}</option>
-              </Form.Control>
+              </Form.Select>
             </Col>
           </Form.Group>
         </Form>
