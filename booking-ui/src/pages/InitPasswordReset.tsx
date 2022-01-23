@@ -74,7 +74,7 @@ class InitPasswordReset extends React.Component<Props, State> {
           <Form.Group>
             <Form.Control type="email" placeholder={this.props.t("emailPlaceholder")} value={this.state.email} onChange={(e: any) => this.setState({ email: e.target.value })} required={true} autoFocus={true} />
           </Form.Group>
-          <Button variant="primary" type="submit" disabled={this.state.loading}>{this.props.t("changePassword")}</Button>
+          <Button className="margin-top-10" variant="primary" type="submit" disabled={this.state.loading}>{this.props.t("changePassword")}</Button>
         </Form>
       </div>
     );

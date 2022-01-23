@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navbar, Nav, Modal, Button, Form, Badge } from 'react-bootstrap';
+import { Navbar, Nav, Modal, Button, Form, Badge, Container } from 'react-bootstrap';
 import { Navigate, NavLink } from 'react-router-dom';
 import { Ajax, User, MergeRequest, AjaxCredentials } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
@@ -122,14 +122,12 @@ class NavBar extends React.Component<Props, State> {
         let mergeRequestsButton = <></>;
         let userInfo = <></>;
         let collapsable = <></>;
-        let navClass = "navbar-expand";
 
         if (!RuntimeConfig.EMBEDDED) {
-            navClass = "";
             signOffButton = <Nav.Link onClick={this.logOut}>{this.props.t("signout")}</Nav.Link>;
             userInfo = <Navbar.Text>{this.context.username}</Navbar.Text>;
             if (this.state.mergeRequests.length > 0) {
-                mergeRequestsButton = <Nav.Link onClick={this.showMergeRequestsModal} className="icon-link"><IconAlert className="feather feather-lg" /><Badge pill={true} variant="light" className="badge-top">{this.state.mergeRequests.length}</Badge></Nav.Link>;
+                mergeRequestsButton = <Nav.Link onClick={this.showMergeRequestsModal} className="icon-link"><IconAlert className="feather feather-lg" /><Badge pill={true} bg="light" className="badge-top">{this.state.mergeRequests.length}</Badge></Nav.Link>;
             }
         } else {
             if (this.state.allowMergeInit) {
@@ -139,13 +137,13 @@ class NavBar extends React.Component<Props, State> {
 
         collapsable = (
             <>
-                <Nav className="mr-auto">
+                <Nav>
                     <NavLink to="/search" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}>{this.props.t("bookSeat")}</NavLink>
                     <NavLink to="/bookings" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}>{this.props.t("myBookings")}</NavLink>
                     <NavLink to="/preferences" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}>{this.props.t("preferences")}</NavLink>
                     {signOffButton}
                 </Nav>
-                <Nav className="mr-right">
+                <Nav className="ms-auto">
                     {initMergeButton}
                     {mergeRequestsButton}
                     {userInfo}
@@ -166,9 +164,11 @@ class NavBar extends React.Component<Props, State> {
 
         return (
             <>
-                <Navbar bg="dark" variant="dark" expand="lg" fixed="top" className={navClass}>
-                    <Navbar.Brand as={NavLink} to="/search"><img src="/ui/seatsurfing_white.svg" alt="Seatsurfing" /></Navbar.Brand>
-                    {collapsable}
+                <Navbar bg="dark" variant="dark" expand="lg" fixed="top">
+                    <Container fluid={true}>
+                        <Navbar.Brand as={NavLink} to="/search"><img src="/ui/seatsurfing_white.svg" alt="Seatsurfing" /></Navbar.Brand>
+                        {collapsable}
+                    </Container>
                 </Navbar>
                 <Modal show={this.state.showMergeInit} onHide={() => this.setState({ showMergeInit: false })}>
                     <Modal.Header closeButton>
