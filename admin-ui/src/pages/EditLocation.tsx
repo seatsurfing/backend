@@ -348,7 +348,7 @@ class EditLocation extends React.Component<Props, State> {
           <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <h1 className="h2">{this.props.t("floorplan")}</h1>
             <div className="btn-toolbar mb-2 mb-md-0">
-              <div className="btn-group mr-2">
+              <div className="btn-group me-2">
                 {buttonCopySpace} {buttonDeleteSpace}
                 <Button className="btn-sm" variant="outline-secondary" onClick={() => this.addRect()}><IconMap className="feather" /> {this.props.t("addSpace")}</Button>
               </div>
@@ -383,19 +383,17 @@ class EditLocation extends React.Component<Props, State> {
           <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("timezone")}</Form.Label>
             <Col sm="4">
-              <Form.Control as="select" custom={true} value={this.state.timezone} onChange={(e: any) => this.setState({ timezone: e.target.value })}>
+              <Form.Select value={this.state.timezone} onChange={(e: any) => this.setState({ timezone: e.target.value })}>
                 <option value="">({this.props.t("default")})</option>
                 {this.timezones.map(tz => <option value={tz}>{tz}</option>)}
-              </Form.Control>
+              </Form.Select>
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("maxConcurrentBookings")}</Form.Label>
             <Col sm="4">
               <InputGroup>
-                <InputGroup.Prepend>
-                  <InputGroup.Checkbox type="checkbox" id="check-limitConcurrentBookings" checked={this.state.limitConcurrentBookings} onChange={(e: any) => this.setState({ limitConcurrentBookings: e.target.checked })} />
-                </InputGroup.Prepend>
+                <InputGroup.Checkbox type="checkbox" id="check-limitConcurrentBookings" checked={this.state.limitConcurrentBookings} onChange={(e: any) => this.setState({ limitConcurrentBookings: e.target.checked })} />
                 <Form.Control type="number" min="0" value={this.state.maxConcurrentBookings} onChange={(e: any) => this.setState({ maxConcurrentBookings: parseInt(e.target.value) })} disabled={!this.state.limitConcurrentBookings} />
               </InputGroup>
             </Col>
@@ -403,7 +401,7 @@ class EditLocation extends React.Component<Props, State> {
           <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("floorplan")}</Form.Label>
             <Col sm="4">
-              <Form.File label={this.state.fileLabel} custom={true} accept="image/png, image/jpeg, image/gif" onChange={(e: any) => this.setState({ files: e.target.files, fileLabel: e.target.files.item(0).name })} required={!this.entity.id} />
+              <Form.Control type="file" accept="image/png, image/jpeg, image/gif" onChange={(e: any) => this.setState({ files: e.target.files, fileLabel: e.target.files.item(0).name })} required={!this.entity.id} />
             </Col>
           </Form.Group>
         </Form>

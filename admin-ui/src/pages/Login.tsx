@@ -126,9 +126,7 @@ class Login extends React.Component<Props, State> {
             <p>{this.props.t("signinAsAt", { user: this.state.email, org: this.org?.name })}</p>
             <InputGroup>
               <Form.Control type="password" placeholder={this.props.t("password")} value={this.state.password} onChange={(e: any) => this.setState({ password: e.target.value, invalid: false })} required={true} isInvalid={this.state.invalid} minLength={8} autoFocus={true} />
-              <InputGroup.Append>
-                <Button variant="primary" type="submit">&#10148;</Button>
-              </InputGroup.Append>
+              <Button variant="primary" type="submit">&#10148;</Button>
             </InputGroup>
             <Form.Control.Feedback type="invalid">{this.props.t("errorInvalidPassword")}</Form.Control.Feedback>
             <Button variant="secondary" className="btn-auth-provider btn-back" onClick={this.cancelPasswordLogin}>{this.props.t("back")}</Button>
@@ -162,9 +160,7 @@ class Login extends React.Component<Props, State> {
           <h3>{this.props.t("mangageOrgHeadline")}</h3>
           <InputGroup>
             <Form.Control type="email" placeholder={this.props.t("emailAddress")} value={this.state.email} onChange={(e: any) => this.setState({ email: e.target.value, invalid: false })} required={true} isInvalid={this.state.invalid} autoFocus={true} />
-            <InputGroup.Append>
-              <Button variant="primary" type="submit">&#10148;</Button>
-            </InputGroup.Append>
+            <Button variant="primary" type="submit">&#10148;</Button>
           </InputGroup>
           <Form.Control.Feedback type="invalid">{this.props.t("errorInvalidEmail")}</Form.Control.Feedback>
         </Form>
