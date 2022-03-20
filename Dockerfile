@@ -37,7 +37,6 @@ COPY --from=server-builder /go/src/app/server/main /app/
 COPY --from=admin-ui-builder /usr/src/app/build/ /app/adminui/
 COPY --from=booking-ui-builder /usr/src/app/build/ /app/bookingui/
 ADD server/res/ /app/res
-ADD docker-entrypoint.sh /app/
 WORKDIR /app
 EXPOSE 8080
 USER 65532:65532
