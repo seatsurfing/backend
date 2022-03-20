@@ -22,8 +22,7 @@ ADD booking-ui/ .
 RUN npm install
 RUN REACT_APP_PRODUCT_VERSION=$(cat ../version.txt | awk NF) npm run build
 
-FROM golang:1.17-alpine AS server-builder
-RUN apk --update add --no-cache git gcc g++ patch
+FROM golang:1.18-bullseye AS server-builder
 RUN export GOBIN=$HOME/work/bin
 WORKDIR /go/src/app
 ADD server/ server/
@@ -33,8 +32,7 @@ WORKDIR /go/src/app/server
 RUN go get -d -v ./...
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o main .
 
-FROM alpine:3.15
-RUN apk --update add --no-cache tzdata
+FROM gcr.io/distroless/base-debian11
 COPY --from=server-builder /go/src/app/server/main /app/
 COPY --from=admin-ui-builder /usr/src/app/build/ /app/adminui/
 COPY --from=booking-ui-builder /usr/src/app/build/ /app/bookingui/
@@ -42,5 +40,5 @@ ADD server/res/ /app/res
 ADD docker-entrypoint.sh /app/
 WORKDIR /app
 EXPOSE 8080
-ENTRYPOINT ["./docker-entrypoint.sh"]
+USER 65532:65532
 CMD ["./main"]
