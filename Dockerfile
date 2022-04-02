@@ -30,7 +30,7 @@ ADD go.mod .
 ADD go.sum .
 WORKDIR /go/src/app/server
 RUN go get -d -v ./...
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o main .
+RUN CGO_ENABLED=0 go build -ldflags="-w -s" -o main .
 
 FROM gcr.io/distroless/static-debian11
 COPY --from=server-builder /go/src/app/server/main /app/
