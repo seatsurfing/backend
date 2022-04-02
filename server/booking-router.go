@@ -382,10 +382,18 @@ func (router *BookingRouter) isValidBookingDuration(m *BookingRequest, orgID str
 		return false
 	}
 	durationNotRounded := int(math.Round(m.Leave.Sub(m.Enter).Minutes()) / 60)
-	if dailyBasisBooking && (durationNotRounded%24 != 0) {
+	hoursOnDate := router.getHoursOnDate(&m.Leave)
+	if dailyBasisBooking && (durationNotRounded%hoursOnDate != 0) {
 		return false
 	}
 	return true
+}
+
+func (router *BookingRouter) getHoursOnDate(t *time.Time) int {
+	start := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
+	end := time.Date(t.Year(), t.Month(), t.Day(), 23, 59, 59, 0, t.Location())
+	durationNotRounded := int(math.Round(end.Sub(start).Minutes()) / 60)
+	return durationNotRounded
 }
 
 func (router *BookingRouter) isValidBookingAdvance(m *BookingRequest, orgID string) bool {
