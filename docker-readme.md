@@ -5,7 +5,7 @@ Seat booking server software which enables your organisation's employees to book
 ## Quick reference
 * **Maintained by:** [Seatsurfing.de](https://seatsurfing.de/)
 * **Where to get help:** [Documentation](https://docs.seatsurfing.de/)
-* **Supported architectures:** amd64
+* **Supported architectures:** amd64, arm64, arm v7
 * **Terms of use:** [License information](https://seatsurfing.de/terms/)
 * **Mobile apps:** [Apple App Store](https://apps.apple.com/app/seatsurfing/id1579071273) and [Google Play](https://play.google.com/store/apps/details?id=de.seatsurfing.app)
 
@@ -62,6 +62,9 @@ networks:
 This starts...
 * a PostgreSQL database with data stored on Docker volume "db"
 * a Seatsurfing Backend instance with port 8080 exposed.
+
+### Running on Kubernetes
+Please refer to our [Kubernetes documentation](https://docs.seatsurfing.de/kubernetes/).
 
 ## Environment variables
 Please check out the [documentation](https://docs.seatsurfing.de/) for the latest information on available environment variables and further guidance.
