@@ -1,4 +1,10 @@
 # Seatsurfing Backend
+
+[![](https://img.shields.io/docker/v/seatsurfing/backend)](https://hub.docker.com/r/seatsurfing/backend)
+[![](https://img.shields.io/docker/image-size/seatsurfing/backend)](https://hub.docker.com/r/seatsurfing/backend)
+![](https://img.shields.io/github/workflow/status/seatsurfing/backend/Docker%20Image%20CI)
+![](https://img.shields.io/github/license/seatsurfing/backend)
+
 Seatsurfing is a software which enables your organisation's employees to book seats, desks and rooms.
 
 This repository contains the Backend, which consists of:
@@ -25,7 +31,7 @@ The mobile app is maintained in a [separate repository](https://github.com/seats
 ## Quick reference
 * **Maintained by:** [Seatsurfing.de](https://seatsurfing.de/)
 * **Where to get help:** [Documentation](https://docs.seatsurfing.de/)
-* **Docker architectures:** [amd64](http://hub.docker.com/r/seatsurfing/backend)
+* **Docker architectures:** [amd64, arm64, arm v7](http://hub.docker.com/r/seatsurfing/backend)
 * **License:** [GPL 3.0](https://github.com/seatsurfing/backend/blob/master/LICENSE)
 * **Mobile apps:** [Apple App Store](https://apps.apple.com/app/seatsurfing/id1579071273) and [Google Play](https://play.google.com/store/apps/details?id=de.seatsurfing.app)
 
@@ -79,6 +85,9 @@ networks:
 This starts...
 * a PostgreSQL database with data stored on Docker volume "db"
 * a Seatsurfing Backend instance with port 8080 exposed.
+
+### Running on Kubernetes
+Please refer to our [Kubernetes documentation](https://docs.seatsurfing.de/kubernetes/).
 
 ## Environment variables
 Please check out the [documentation](https://docs.seatsurfing.de/) for the latest information on available environment variables and further guidance.
