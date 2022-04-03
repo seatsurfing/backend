@@ -20,6 +20,18 @@ jobs:
       run: echo "TODAY=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
     - name: Prepare Docker Hub Readme
       run: cat docker-readme.md | sed "s/{{version}}/${CI_VERSION}/g" | sed "s/{{date}}/${TODAY}/g" > docker-readme-modified.md
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+    - name: Build TypeScript commons
+      working-directory: ./commons/ts
+      run: npm install && npm run build
+    - name: Build Admin UI
+      working-directory: ./admin-ui
+      run: npm install && REACT_APP_PRODUCT_VERSION=$(cat ../server/res/version.txt | awk NF) npm run build
+    - name: Build Booking UI
+      working-directory: ./booking-ui
+      run: npm install && REACT_APP_PRODUCT_VERSION=$(cat ../server/res/version.txt | awk NF) npm run build
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx
