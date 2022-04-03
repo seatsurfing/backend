@@ -68,3 +68,12 @@ jobs:
         password: ${{ secrets.CI_REGISTRY_PASSWORD }}
         repository: seatsurfing/backend
         readme-filepath: ./docker-readme-modified.md
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.CI_VERSION }}
+        release_name: ${{ env.CI_VERSION }}
+        draft: false
+        prerelease: false
