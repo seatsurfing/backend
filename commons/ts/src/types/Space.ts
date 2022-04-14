@@ -1,6 +1,7 @@
 import { Entity } from "./Entity";
 import Ajax from "../util/Ajax";
 import Location from "./Location";
+import Formatting from "../util/Formatting";
 
 export default class Space extends Entity {
     name: string;
@@ -93,8 +94,8 @@ export default class Space extends Entity {
 
     static async listAvailability(locationId: string, enter: Date, leave: Date): Promise<Space[]> {
         let payload = {
-            enter: enter.toISOString(),
-            leave: leave.toISOString()
+            enter: Formatting.convertToFakeUTCDate(enter).toISOString(),
+            leave: Formatting.convertToFakeUTCDate(leave).toISOString()
         };
         return Ajax.postData("/location/"+locationId+"/space/availability", payload).then(result => {
             let list: Space[] = [];
