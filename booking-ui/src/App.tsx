@@ -23,6 +23,7 @@ import CompletePasswordReset from './pages/CompletePasswordReset';
 import InitPasswordReset from './pages/InitPasswordReset';
 import Preferences from './pages/Preferences';
 import { ProtectedRoute } from './pages/ProtectedRoute';
+import DebugTimeIssues from './pages/DebugTimeIssues';
 
 interface Props {
 }
@@ -133,6 +134,7 @@ class App extends React.Component<Props, AuthContextData> {
             <Route path="/login" element={<Login />} />
             <Route path="/resetpw/:id" element={<CompletePasswordReset />} />
             <Route path="/resetpw" element={<InitPasswordReset />} />
+            <Route path="/debugtime" element={<DebugTimeIssues />} />
             <Route path="/search" element={<ProtectedRoute><Search /></ProtectedRoute>} />
             <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
             <Route path="/preferences" element={<ProtectedRoute><Preferences /></ProtectedRoute>} />
