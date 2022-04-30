@@ -11,8 +11,7 @@ func isValidTimeZone(timezone string) bool {
 	return false
 }
 
-func attachTimezoneInformation(timestamp time.Time, location *Location) (time.Time, error) {
-	tz := GetLocationRepository().GetTimezone(location)
+func attachTimezoneInformationTz(timestamp time.Time, tz string) (time.Time, error) {
 	targetTz, err := time.LoadLocation(tz)
 	if err != nil {
 		return timestamp, err
@@ -21,6 +20,11 @@ func attachTimezoneInformation(timestamp time.Time, location *Location) (time.Ti
 	_, offset := targetTimestamp.Zone()
 	targetTimestamp = targetTimestamp.Add(time.Second * time.Duration(offset) * -1)
 	return targetTimestamp, nil
+}
+
+func attachTimezoneInformation(timestamp time.Time, location *Location) (time.Time, error) {
+	tz := GetLocationRepository().GetTimezone(location)
+	return attachTimezoneInformationTz(timestamp, tz)
 }
 
 var TimeZones = []string{

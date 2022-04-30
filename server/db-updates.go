@@ -25,6 +25,7 @@ func RunDBSchemaUpdates() {
 		GetSignupRepository(),
 		GetSubscriptionRepository(),
 		GetRefreshTokenRepository(),
+		GetDebugTimeIssuesRepository(),
 	}
 	for _, repository := range repositories {
 		repository.RunSchemaUpgrade(curVersion, targetVersion)

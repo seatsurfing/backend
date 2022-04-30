@@ -48,7 +48,21 @@ type GetPresenceReportResult struct {
 	Presences [][]int            `json:"presences"`
 }
 
+type DebugTimeIssuesRequest struct {
+	Time time.Time `json:"time" validate:"required"`
+}
+
+type DebugTimeIssuesResponse struct {
+	Timezone                string    `json:"tz"`
+	Error                   string    `json:"error"`
+	ReceivedTime            string    `json:"receivedTime"`
+	ReceivedTimeTransformed string    `json:"receivedTimeTransformed"`
+	Database                time.Time `json:"dbTime"`
+	Result                  time.Time `json:"result"`
+}
+
 func (router *BookingRouter) setupRoutes(s *mux.Router) {
+	s.HandleFunc("/debugtimeissues/", router.debugTimeIssues).Methods("POST")
 	s.HandleFunc("/report/presence/", router.getPresenceReport).Methods("POST")
 	s.HandleFunc("/filter/", router.getFiltered).Methods("POST")
 	s.HandleFunc("/precheck/", router.preBookingCreateCheck).Methods("POST")
@@ -57,6 +71,57 @@ func (router *BookingRouter) setupRoutes(s *mux.Router) {
 	s.HandleFunc("/{id}", router.delete).Methods("DELETE")
 	s.HandleFunc("/", router.create).Methods("POST")
 	s.HandleFunc("/", router.getAll).Methods("GET")
+}
+
+func (router *BookingRouter) debugTimeIssues(w http.ResponseWriter, r *http.Request) {
+	var m DebugTimeIssuesRequest
+	if UnmarshalValidateBody(r, &m) != nil {
+		SendBadRequest(w)
+		return
+	}
+	tz := "Europe/Berlin"
+	res := &DebugTimeIssuesResponse{
+		Timezone:     tz,
+		ReceivedTime: m.Time.String(),
+		Error:        "No error",
+	}
+	_, err := time.LoadLocation(tz)
+	if err != nil {
+		res.Error = "Could not load timezone: " + err.Error()
+		SendJSON(w, res)
+		return
+	}
+	timeNew, err := attachTimezoneInformationTz(m.Time, tz)
+	if err != nil {
+		res.Error = "Could not attach timezone information (incoming): " + err.Error()
+		SendJSON(w, res)
+		return
+	}
+	res.ReceivedTimeTransformed = timeNew.String()
+	e := &DebugTimeIssueItem{
+		Created: timeNew,
+	}
+	if err := GetDebugTimeIssuesRepository().Create(e); err != nil {
+		res.Error = "Could not create database record: " + err.Error()
+		SendJSON(w, res)
+		return
+	}
+	defer GetDebugTimeIssuesRepository().Delete(e)
+	e2, err := GetDebugTimeIssuesRepository().GetOne(e.ID)
+	if err != nil {
+		res.Error = "Could not load database record: " + err.Error()
+		SendJSON(w, res)
+		return
+	}
+	res.Database = e2.Created
+	timeToSend, err := attachTimezoneInformationTz(e2.Created, tz)
+	if err != nil {
+		res.Error = "Could not attach timezone information (outgoing): " + err.Error()
+		SendJSON(w, res)
+		return
+	}
+	res.Result = timeToSend
+	SendJSON(w, res)
 }
 
 func (router *BookingRouter) getFiltered(w http.ResponseWriter, r *http.Request) {
