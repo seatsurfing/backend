@@ -79,7 +79,7 @@ func (router *BookingRouter) debugTimeIssues(w http.ResponseWriter, r *http.Requ
 		SendBadRequest(w)
 		return
 	}
-	tz := "Europe/Berlin"
+	tz := "America/Los_Angeles"
 	res := &DebugTimeIssuesResponse{
 		Timezone:     tz,
 		ReceivedTime: m.Time.String(),
