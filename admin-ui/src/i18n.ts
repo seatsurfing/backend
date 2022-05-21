@@ -130,6 +130,7 @@ const resources = {
             "download": "Herunterladen",
             "analysis": "Auswertung",
             "all": "Alle",
+            "confirmCancelBooking": "Buchung stornieren?",
         }
     },
     en: {
@@ -259,6 +260,7 @@ const resources = {
             "download": "Download",
             "analysis": "Analysis",
             "all": "All",
+            "confirmCancelBooking": "Cancel booking?",
         }
     }
 };

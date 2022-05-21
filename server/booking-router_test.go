@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 func TestBookingsEmptyResult(t *testing.T) {
@@ -330,6 +332,48 @@ func TestBookingsDeleteForeign(t *testing.T) {
 	req = newHTTPRequest("DELETE", "/booking/"+id, loginResponse3.UserID, nil)
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusForbidden, res.Code)
+}
+
+func TestBookingsDeleteSpaceAdmin(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	user2 := createTestUserOrgAdmin(org)
+	loginResponse2 := loginTestUser(user2.ID)
+	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "5000")
+
+	// Create location
+	payload := `{"name": "Location 1"}`
+	req := newHTTPRequest("POST", "/location/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	locationID := res.Header().Get("X-Object-Id")
+
+	// Create space
+	payload = `{"name": "H234", "x": 50, "y": 100, "width": 200, "height": 300, "rotation": 90}`
+	req = newHTTPRequest("POST", "/location/"+locationID+"/space/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	spaceID := res.Header().Get("X-Object-Id")
+
+	// Switch to non-admin user
+	user := createTestUserInOrg(org)
+	loginResponse := loginTestUser(user.ID)
+
+	// Create booking
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-01T08:30:00+02:00\", \"leave\": \"2030-09-01T17:00:00+02:00\"}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id := res.Header().Get("X-Object-Id")
+
+	// Switch to space admin user
+	user3 := createTestUserInOrgWithName(org, uuid.New().String()+"@test.com", UserRoleSpaceAdmin)
+	loginResponse3 := loginTestUser(user3.ID)
+
+	// Delete
+	req = newHTTPRequest("DELETE", "/booking/"+id, loginResponse3.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
 }
 
 func TestBookingsConflictEnd(t *testing.T) {

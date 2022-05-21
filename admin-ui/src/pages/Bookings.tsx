@@ -3,10 +3,11 @@ import FullLayout from '../components/FullLayout';
 import Loading from '../components/Loading';
 import { Booking, Formatting } from 'flexspace-commons';
 import { Table, Form, Col, Row, Button } from 'react-bootstrap';
-import { Search as IconSearch, Download as IconDownload } from 'react-feather';
+import { Search as IconSearch, Download as IconDownload, X as IconX } from 'react-feather';
 import ExcellentExport from 'excellentexport';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
+import type * as CSS from 'csstype';
 
 interface State {
   loading: boolean
@@ -47,7 +48,24 @@ class Bookings extends React.Component<Props, State> {
     });
   }
 
+  cancelBooking = (booking: Booking) => {
+    if (!window.confirm(this.props.t("confirmCancelBooking"))) {
+      return;
+    }
+    this.setState({
+      loading: true
+    });
+    booking.delete().then(() => {
+      this.loadItems();
+    });
+  }
+
   renderItem = (booking: Booking) => {
+    const btnStyle: CSS.Properties = {
+      ['padding' as any]: '0.1rem 0.3rem',
+      ['font-size' as any]: '0.875rem',
+      ['border-radius' as any]: '0.2rem',
+    };
     return (
       <tr key={booking.id}>
         <td>{booking.user.email}</td>
@@ -55,6 +73,7 @@ class Bookings extends React.Component<Props, State> {
         <td>{booking.space.name}</td>
         <td>{Formatting.getFormatterShort().format(booking.enter)}</td>
         <td>{Formatting.getFormatterShort().format(booking.leave)}</td>
+        <td><Button variant="danger" style={btnStyle} onClick={() => this.cancelBooking(booking)}><IconX className="feather" /></Button></td>
       </tr>
     );
   }
@@ -120,7 +139,7 @@ class Bookings extends React.Component<Props, State> {
     return (
       <FullLayout headline={this.props.t("bookings")} buttons={buttons}>
         {form}
-        <Table striped={true} hover={true} className="clickable-table" id="datatable">
+        <Table striped={true} hover={true} id="datatable">
           <thead>
             <tr>
               <th>{this.props.t("user")}</th>
@@ -128,6 +147,7 @@ class Bookings extends React.Component<Props, State> {
               <th>{this.props.t("space")}</th>
               <th>{this.props.t("enter")}</th>
               <th>{this.props.t("leave")}</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
