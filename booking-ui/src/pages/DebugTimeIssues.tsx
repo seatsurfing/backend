@@ -43,6 +43,7 @@ class DebugTimeIssues extends React.Component<Props, State> {
   render() {
     let serverSideContent = <Loading />;
     if (!this.state.loading) {
+      let resDate = new Date(this.state.res.result);
       let strippedString = Formatting.stripTimezoneDetails(this.state.res.result);
       let strippedDate = new Date(strippedString);
       serverSideContent = (
@@ -54,6 +55,7 @@ class DebugTimeIssues extends React.Component<Props, State> {
           <p>Database Time:<br />{this.state.res.dbTime}</p>
           <p>Result:<br />{this.state.res.result}</p>
           <hr />
+          <p>Browser Received Date:<br />{resDate.toString()}</p>
           <p>Browser Transformed String:<br />{strippedString}</p>
           <p>Browser Transformed Time:<br />{strippedDate.toString()}</p>
           <p>Browser Formatted Time:<br />{Formatting.getFormatter().format(strippedDate)}</p>
