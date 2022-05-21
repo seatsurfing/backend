@@ -349,7 +349,7 @@ func (r *BookingRepository) GetPresenceReport(organizationID string, location *L
 	// Build query
 	conditions := ""
 	if location != nil {
-		conditions = "AND b.space IN (SELECT id FROM spaces WHERE location_id = $2) "
+		conditions = "AND b.space_id IN (SELECT id FROM spaces WHERE location_id = $2) "
 	}
 	stm := "SELECT b.user_id" + cols.String() + " " +
 		"FROM bookings b " +
