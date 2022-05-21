@@ -6,7 +6,7 @@ import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 import './NavBar.css';
 import RuntimeConfig from './RuntimeConfig';
-import { Users as IconMerge, Bell as IconAlert } from 'react-feather';
+import { Users as IconMerge, Bell as IconAlert, Settings as IconSettings, Calendar as IconCalendar, PlusSquare as IconPlus } from 'react-feather';
 import { AuthContext } from '../AuthContextData';
 
 interface State {
@@ -138,9 +138,9 @@ class NavBar extends React.Component<Props, State> {
         collapsable = (
             <>
                 <Nav>
-                    <NavLink to="/search" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}>{this.props.t("bookSeat")}</NavLink>
-                    <NavLink to="/bookings" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}>{this.props.t("myBookings")}</NavLink>
-                    <NavLink to="/preferences" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}>{this.props.t("preferences")}</NavLink>
+                    <NavLink to="/search" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}>{RuntimeConfig.EMBEDDED ? <IconPlus className="feather feather-lg" /> : this.props.t("bookSeat")}</NavLink>
+                    <NavLink to="/bookings" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}>{RuntimeConfig.EMBEDDED ? <IconCalendar className="feather feather-lg" /> : this.props.t("myBookings")}</NavLink>
+                    <NavLink to="/preferences" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}>{RuntimeConfig.EMBEDDED ? <IconSettings className="feather feather-lg" /> : this.props.t("preferences")}</NavLink>
                     {signOffButton}
                 </Nav>
                 <Nav className="ms-auto">
@@ -164,7 +164,7 @@ class NavBar extends React.Component<Props, State> {
 
         return (
             <>
-                <Navbar bg="dark" variant="dark" expand="lg" fixed="top">
+                <Navbar bg="dark" variant="dark" fixed="top" expand={RuntimeConfig.EMBEDDED ? true : "sm"}>
                     <Container fluid={true}>
                         <Navbar.Brand as={NavLink} to="/search"><img src="/ui/seatsurfing_white.svg" alt="Seatsurfing" /></Navbar.Brand>
                         {collapsable}
