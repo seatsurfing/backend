@@ -391,7 +391,7 @@ func (router *BookingRouter) getPresenceReport(w http.ResponseWriter, r *http.Re
 	}
 	var location *Location = nil
 	if m.LocationID != "" {
-		location, _ := GetLocationRepository().GetOne(m.LocationID)
+		location, _ = GetLocationRepository().GetOne(m.LocationID)
 		if location == nil {
 			SendNotFound(w)
 			return
