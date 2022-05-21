@@ -265,7 +265,7 @@ func (router *BookingRouter) delete(w http.ResponseWriter, r *http.Request) {
 		SendForbidden(w)
 		return
 	}
-	if e.UserID != GetRequestUserID(r) {
+	if (e.UserID != GetRequestUserID(r)) && !CanSpaceAdminOrg(GetRequestUser(r), location.OrganizationID) {
 		SendForbidden(w)
 		return
 	}
