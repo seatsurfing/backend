@@ -237,7 +237,7 @@ func TestSignupEmailConflictSignup(t *testing.T) {
 func TestSignupEmailConflictExistingOrg(t *testing.T) {
 	clearTestDB()
 
-	org := createTestOrg("testorg.on.seatsurfing.de")
+	org := createTestOrg("testorg.on.seatsurfing.app")
 	org.ContactEmail = "foo@bar.com"
 	GetOrganizationRepository().Update(org)
 

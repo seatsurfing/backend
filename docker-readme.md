@@ -3,10 +3,10 @@
 Seat booking server software which enables your organisation's employees to book seats, desks and rooms.
 
 ## Quick reference
-* **Maintained by:** [Seatsurfing.de](https://seatsurfing.de/)
-* **Where to get help:** [Documentation](https://docs.seatsurfing.de/)
+* **Maintained by:** [Seatsurfing.app](https://seatsurfing.app/)
+* **Where to get help:** [Documentation](https://docs.seatsurfing.app/)
 * **Supported architectures:** amd64, arm64, arm v7
-* **Terms of use:** [License information](https://seatsurfing.de/terms/)
+* **Terms of use:** [License information](https://seatsurfing.app/terms/)
 * **Mobile apps:** [Apple App Store](https://apps.apple.com/app/seatsurfing/id1579071273) and [Google Play](https://play.google.com/store/apps/details?id=de.seatsurfing.app)
 
 ## Supported tags
@@ -64,10 +64,10 @@ This starts...
 * a Seatsurfing Backend instance with port 8080 exposed.
 
 ### Running on Kubernetes
-Please refer to our [Kubernetes documentation](https://docs.seatsurfing.de/kubernetes/).
+Please refer to our [Kubernetes documentation](https://docs.seatsurfing.app/kubernetes/).
 
 ## Environment variables
-Please check out the [documentation](https://docs.seatsurfing.de/) for the latest information on available environment variables and further guidance.
+Please check out the [documentation](https://docs.seatsurfing.app/) for the latest information on available environment variables and further guidance.
 
 | Environment Variable | Type | Default | Description |
 | --- | --- | --- | --- |
