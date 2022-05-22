@@ -18,17 +18,17 @@ interface Props extends RouteProps {
 class ConfluenceHint extends React.Component<Props, State> {
   onCreateAccountClick = (e: any) => {
     e.preventDefault();
-    window.open("https://seatsurfing.de/sign-up/");
+    window.open("https://seatsurfing.app/sign-up/");
   }
 
   onAdminClick = (e: any) => {
     e.preventDefault();
-    window.open("https://app.seatsurfing.de/admin/");
+    window.open("https://app.seatsurfing.app/admin/");
   }
 
   onHelpClick = (e: any) => {
     e.preventDefault();
-    window.open("https://seatsurfing.de/contact/");
+    window.open("https://seatsurfing.app/contact/");
   }
 
   onInputClick = (e: any) => {

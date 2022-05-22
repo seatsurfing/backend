@@ -101,7 +101,7 @@ func createTestUserSuperAdmin() *User {
 func createTestOrg(orgDomain string) *Organization {
 	org := &Organization{
 		Name:             "Test Org",
-		ContactEmail:     "foo@seatsurfing.de",
+		ContactEmail:     "foo@seatsurfing.app",
 		ContactFirstname: "Foo",
 		ContactLastname:  "Bar",
 		Country:          "DE",

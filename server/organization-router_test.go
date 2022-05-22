@@ -58,7 +58,7 @@ func TestOrganizationsCRUD(t *testing.T) {
 		"name": "Some Company Ltd.",
 		"firstname": "Foo",
 		"lastname": "Bar",
-		"email": "foo@seatsurfing.de",
+		"email": "foo@seatsurfing.app",
 		"country": "DE",
 		"language": "de"
 	}`
@@ -76,7 +76,7 @@ func TestOrganizationsCRUD(t *testing.T) {
 	checkTestString(t, "Some Company Ltd.", resBody.Name)
 	checkTestString(t, "Foo", resBody.Firstname)
 	checkTestString(t, "Bar", resBody.Lastname)
-	checkTestString(t, "foo@seatsurfing.de", resBody.Email)
+	checkTestString(t, "foo@seatsurfing.app", resBody.Email)
 	checkTestString(t, "DE", resBody.Country)
 	checkTestString(t, "de", resBody.Language)
 
@@ -85,7 +85,7 @@ func TestOrganizationsCRUD(t *testing.T) {
 		"name": "Some Company 2 Ltd.",
 		"firstname": "Foo 2",
 		"lastname": "Bar 2",
-		"email": "foo2@seatsurfing.de",
+		"email": "foo2@seatsurfing.app",
 		"country": "AT",
 		"language": "us"
 	}`
@@ -102,7 +102,7 @@ func TestOrganizationsCRUD(t *testing.T) {
 	checkTestString(t, "Some Company 2 Ltd.", resBody2.Name)
 	checkTestString(t, "Foo 2", resBody2.Firstname)
 	checkTestString(t, "Bar 2", resBody2.Lastname)
-	checkTestString(t, "foo2@seatsurfing.de", resBody2.Email)
+	checkTestString(t, "foo2@seatsurfing.app", resBody2.Email)
 	checkTestString(t, "AT", resBody2.Country)
 	checkTestString(t, "us", resBody2.Language)
 
@@ -127,7 +127,7 @@ func TestOrganizationsGetByDomain(t *testing.T) {
 		"name": "Some Company Ltd.",
 		"firstname": "Foo",
 		"lastname": "Bar",
-		"email": "foo@seatsurfing.de",
+		"email": "foo@seatsurfing.app",
 		"country": "DE",
 		"language": "de"
 	}`
@@ -188,7 +188,7 @@ func TestOrganizationsDomainsCRUD(t *testing.T) {
 		"name": "Some Company Ltd.",
 		"firstname": "Foo",
 		"lastname": "Bar",
-		"email": "foo@seatsurfing.de",
+		"email": "foo@seatsurfing.app",
 		"country": "DE",
 		"language": "de"
 	}`
@@ -269,7 +269,7 @@ func TestOrganizationsVerifyDNS(t *testing.T) {
 		"name": "Some Company Ltd.",
 		"firstname": "Foo",
 		"lastname": "Bar",
-		"email": "foo@seatsurfing.de",
+		"email": "foo@seatsurfing.app",
 		"country": "DE",
 		"language": "de"
 	}`
@@ -283,7 +283,7 @@ func TestOrganizationsVerifyDNS(t *testing.T) {
 	adminLoginResponse := loginTestUser(adminUser.ID)
 
 	// Add domain
-	req = newHTTPRequest("POST", "/organization/"+id+"/domain/testcase.seatsurfing.de", adminLoginResponse.UserID, nil)
+	req = newHTTPRequest("POST", "/organization/"+id+"/domain/testcase.seatsurfing.app", adminLoginResponse.UserID, nil)
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
 
@@ -291,10 +291,10 @@ func TestOrganizationsVerifyDNS(t *testing.T) {
 	GetDatabase().DB().Exec("UPDATE organizations_domains "+
 		"SET verify_token = '65e51a4b-339f-4b24-b376-f9d866057b38' "+
 		"WHERE domain = LOWER($1) AND organization_id = $2",
-		"testcase.seatsurfing.de", id)
+		"testcase.seatsurfing.app", id)
 
 	// Verify domain
-	req = newHTTPRequest("POST", "/organization/"+id+"/domain/testcase.seatsurfing.de/verify", adminLoginResponse.UserID, nil)
+	req = newHTTPRequest("POST", "/organization/"+id+"/domain/testcase.seatsurfing.app/verify", adminLoginResponse.UserID, nil)
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusNoContent, res.Code)
 
@@ -307,7 +307,7 @@ func TestOrganizationsVerifyDNS(t *testing.T) {
 	if len(resBody) != 1 {
 		t.Fatalf("Expected array with 1 elements, got %d", len(resBody))
 	}
-	checkTestString(t, "testcase.seatsurfing.de", resBody[0].DomainName)
+	checkTestString(t, "testcase.seatsurfing.app", resBody[0].DomainName)
 	checkTestBool(t, true, resBody[0].Active)
 }
 
@@ -321,7 +321,7 @@ func TestOrganizationsAddDomainConflict(t *testing.T) {
 		"name": "Some Company Ltd.",
 		"firstname": "Foo",
 		"lastname": "Bar",
-		"email": "foo@seatsurfing.de",
+		"email": "foo@seatsurfing.app",
 		"country": "DE",
 		"language": "de"
 	}`
@@ -335,7 +335,7 @@ func TestOrganizationsAddDomainConflict(t *testing.T) {
 		"name": "Some Company 2 Ltd.",
 		"firstname": "Foo",
 		"lastname": "Bar",
-		"email": "foo@seatsurfing.de",
+		"email": "foo@seatsurfing.app",
 		"country": "DE",
 		"language": "de"
 	}`
@@ -367,7 +367,7 @@ func TestOrganizationsAddDomainNoConflictBecauseInactive(t *testing.T) {
 		"name": "Some Company 1 Ltd.",
 		"firstname": "Foo",
 		"lastname": "Bar",
-		"email": "foo@seatsurfing.de",
+		"email": "foo@seatsurfing.app",
 		"country": "DE",
 		"language": "de"
 	}`
@@ -381,7 +381,7 @@ func TestOrganizationsAddDomainNoConflictBecauseInactive(t *testing.T) {
 		"name": "Some Company 2 Ltd.",
 		"firstname": "Foo",
 		"lastname": "Bar",
-		"email": "foo@seatsurfing.de",
+		"email": "foo@seatsurfing.app",
 		"country": "DE",
 		"language": "de"
 	}`
@@ -419,7 +419,7 @@ func TestOrganizationsAddDomainActivateConflicting(t *testing.T) {
 		"name": "Some Company 1 Ltd.",
 		"firstname": "Foo",
 		"lastname": "Bar",
-		"email": "foo@seatsurfing.de",
+		"email": "foo@seatsurfing.app",
 		"country": "DE",
 		"language": "de"
 	}`
@@ -433,7 +433,7 @@ func TestOrganizationsAddDomainActivateConflicting(t *testing.T) {
 		"name": "Some Company 2 Ltd.",
 		"firstname": "Foo",
 		"lastname": "Bar",
-		"email": "foo@seatsurfing.de",
+		"email": "foo@seatsurfing.app",
 		"country": "DE",
 		"language": "de"
 	}`
@@ -451,12 +451,12 @@ func TestOrganizationsAddDomainActivateConflicting(t *testing.T) {
 	adminLoginResponse2 := loginTestUser(adminUser2.ID)
 
 	// Add domain to org 1
-	req = newHTTPRequest("POST", "/organization/"+id1+"/domain/testcase.seatsurfing.de", adminLoginResponse1.UserID, nil)
+	req = newHTTPRequest("POST", "/organization/"+id1+"/domain/testcase.seatsurfing.app", adminLoginResponse1.UserID, nil)
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
 
 	// Add same domain to org 2
-	req = newHTTPRequest("POST", "/organization/"+id2+"/domain/testcase.seatsurfing.de", adminLoginResponse2.UserID, nil)
+	req = newHTTPRequest("POST", "/organization/"+id2+"/domain/testcase.seatsurfing.app", adminLoginResponse2.UserID, nil)
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
 
@@ -464,18 +464,18 @@ func TestOrganizationsAddDomainActivateConflicting(t *testing.T) {
 	_, err := GetDatabase().DB().Exec("UPDATE organizations_domains "+
 		"SET verify_token = '65e51a4b-339f-4b24-b376-f9d866057b38' "+
 		"WHERE domain = LOWER($1) AND organization_id IN ($2, $3)",
-		"testcase.seatsurfing.de", id1, id2)
+		"testcase.seatsurfing.app", id1, id2)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Activate domain in org 1
-	req = newHTTPRequest("POST", "/organization/"+id1+"/domain/testcase.seatsurfing.de/verify", adminLoginResponse1.UserID, nil)
+	req = newHTTPRequest("POST", "/organization/"+id1+"/domain/testcase.seatsurfing.app/verify", adminLoginResponse1.UserID, nil)
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusNoContent, res.Code)
 
 	// Try to activate same domain in org 2
-	req = newHTTPRequest("POST", "/organization/"+id2+"/domain/testcase.seatsurfing.de/verify", adminLoginResponse2.UserID, nil)
+	req = newHTTPRequest("POST", "/organization/"+id2+"/domain/testcase.seatsurfing.app/verify", adminLoginResponse2.UserID, nil)
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusConflict, res.Code)
 }

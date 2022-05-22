@@ -17,7 +17,7 @@ This repository contains the Backend, which consists of:
 
 The mobile app is maintained in a [separate repository](https://github.com/seatsurfing/app).
 
-**[Visit project's website for more information.](https://seatsurfing.de)**
+**[Visit project's website for more information.](https://seatsurfing.app)**
 
 ## Screenshots
 
@@ -31,8 +31,8 @@ The mobile app is maintained in a [separate repository](https://github.com/seats
 ![Seatsurfing Mobile App](https://raw.githubusercontent.com/seatsurfing/backend/master/.github/app.png)
 
 ## Quick reference
-* **Maintained by:** [Seatsurfing.de](https://seatsurfing.de/)
-* **Where to get help:** [Documentation](https://docs.seatsurfing.de/)
+* **Maintained by:** [Seatsurfing.app](https://seatsurfing.app/)
+* **Where to get help:** [Documentation](https://docs.seatsurfing.app/)
 * **Docker architectures:** [amd64, arm64, arm v7](http://hub.docker.com/r/seatsurfing/backend)
 * **License:** [GPL 3.0](https://github.com/seatsurfing/backend/blob/master/LICENSE)
 * **Mobile apps:** [Apple App Store](https://apps.apple.com/app/seatsurfing/id1579071273) and [Google Play](https://play.google.com/store/apps/details?id=de.seatsurfing.app)
@@ -89,10 +89,10 @@ This starts...
 * a Seatsurfing Backend instance with port 8080 exposed.
 
 ### Running on Kubernetes
-Please refer to our [Kubernetes documentation](https://docs.seatsurfing.de/kubernetes/).
+Please refer to our [Kubernetes documentation](https://docs.seatsurfing.app/kubernetes/).
 
 ## Environment variables
-Please check out the [documentation](https://docs.seatsurfing.de/) for the latest information on available environment variables and further guidance.
+Please check out the [documentation](https://docs.seatsurfing.app/) for the latest information on available environment variables and further guidance.
 
 | Environment Variable | Type | Default | Description |
 | --- | --- | --- | --- |
