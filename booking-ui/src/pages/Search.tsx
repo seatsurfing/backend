@@ -86,6 +86,10 @@ class Search extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
+    this.loadItems();
+  }
+
+  loadItems = () => {
     let promises = [
       this.loadLocations(),
       this.loadPreferences(),
@@ -368,10 +372,23 @@ class Search extends React.Component<Props, State> {
     }
   }
 
+  getAvailibilityStyle = (item: Space, bookings: Booking[]) => {
+    const mydesk = (bookings.find(b => b.user.email == this.context.username ));
+    return (mydesk ? " space-mydesk" : (item.available ? " space-available" : " space-notavailable"));
+  }
+  
+  getBookersList = (bookings: Booking[]) => {
+    if (!bookings.length) return "";
+    let str = "";
+    bookings.forEach(b => {
+      str += (str ? ", " : "") + b.user.email
+     });
+     return str;
+  }
+
   renderItem = (item: Space) => {
     let bookings = Booking.createFromRawArray(item.rawBookings);
     const boxStyle: React.CSSProperties = {
-      backgroundColor: item.available ? "rgba(48, 209, 88, 0.9)" : "rgba(255, 69, 58, 0.9)",
       position: "absolute",
       left: item.x,
       top: item.y,
@@ -383,18 +400,29 @@ class Search extends React.Component<Props, State> {
     const textStyle: React.CSSProperties = {
       textAlign: "center"
     };
-    const className = (item.width < item.height) ? "space-box space-box-vertical" : "space-box";
+    const className = "space space-box" 
+      + ((item.width < item.height) ? " space-box-vertical" : "")
+      + this.getAvailibilityStyle(item, bookings);
     return (
-      <div key={item.id} style={boxStyle} className={className} onClick={() => this.onSpaceSelect(item)}>
+      <div key={item.id} style={boxStyle} className={className}
+        onClick={() => this.onSpaceSelect(item)}
+        title={this.getBookersList(bookings)}>
         <p style={textStyle}>{item.name}</p>
       </div>
     );
   }
 
   renderListItem = (item: Space) => {
+    let bookings: Booking[] = [];
+    bookings = Booking.createFromRawArray(item.rawBookings);
+    let persons = this.getBookersList(bookings);
+    const className = "space space-listitem" + this.getAvailibilityStyle(item, bookings);
     return (
       <ListGroup.Item key={item.id} action={true} onClick={(e) => { e.preventDefault(); this.onSpaceSelect(item); }}>
-        <p style={{ "color": item.available ? "" : "#aaa" }}>{item.name}</p>
+        <p className={className}>
+          <span key={item.id} className="space-listitem-title">{item.name}</span>
+          {bookings.map((booking, index) => <span key={booking.user.id}><br/>{booking.user.email}</span>)}
+        </p>
       </ListGroup.Item>
     );
   }
@@ -518,7 +546,7 @@ class Search extends React.Component<Props, State> {
         <div className="content">
           <Form>
             <Form.Group as={Row}>
-              <Col xs="2"><LocationIcon color={'#555'} height="20px" width="20px" /></Col>
+              <Col xs="2"><LocationIcon title={this.props.t("area")} color={'#555'} height="20px" width="20px" /></Col>
               <Col xs="10">
                 <Form.Select required={true} value={this.state.locationId} onChange={(e) => this.changeLocation(e.target.value)}>
                   {this.renderLocations()}
@@ -526,13 +554,13 @@ class Search extends React.Component<Props, State> {
               </Col>
             </Form.Group>
             <Form.Group as={Row} className="margin-top-10">
-              <Col xs="2"><EnterIcon color={'#555'} height="20px" width="20px" /></Col>
+              <Col xs="2"><EnterIcon title={this.props.t("enter")} color={'#555'} height="20px" width="20px" /></Col>
               <Col xs="10">
                 {enterDatePicker}
               </Col>
             </Form.Group>
             <Form.Group as={Row} className="margin-top-10">
-              <Col xs="2"><ExitIcon color={'#555'} height="20px" width="20px" /></Col>
+              <Col xs="2"><ExitIcon title={this.props.t("leave")} color={'#555'} height="20px" width="20px" /></Col>
               <Col xs="10">
                 {leaveDatePicker}
               </Col>
@@ -540,8 +568,8 @@ class Search extends React.Component<Props, State> {
             {hint}
           </Form>
           <Button variant="outline-dark" onClick={() => this.toggleListView()} className="margin-top-10">
-            <MapIcon color={'#555'} height="26px" width="26px" style={{ "display": this.state.listView ? "" : "none" }} />
-            <ListIcon color={'#555'} height="26px" width="26px" style={{ "display": this.state.listView ? "none" : "" }} />
+            <MapIcon title={this.props.t("showMap")} color={'#555'} height="26px" width="26px" style={{ "display": this.state.listView ? "" : "none" }} />
+            <ListIcon title={this.props.t("showList")} color={'#555'} height="26px" width="26px" style={{ "display": this.state.listView ? "none" : "" }} />
           </Button>
         </div>
       </div>
@@ -572,18 +600,34 @@ class Search extends React.Component<Props, State> {
     if (this.state.selectedSpace) {
       bookings = Booking.createFromRawArray(this.state.selectedSpace.rawBookings);
     }
+    const myBooking = (bookings.find(b => b.user.email == this.context.username ));
+    let gotoBooking;
+    if (myBooking){
+      gotoBooking = (
+        <Button variant="secondary" onClick={() => {
+          this.setState({ showBookingNames: false })
+          //this.props.navigate("/bookings", {state: {selectedItem: myBooking.id}})
+          this.props.navigate("/bookings#"+myBooking.id)
+        }}>
+          {this.props.t("gotoBooking")}
+        </Button>
+      )
+    }
     let bookingNamesModal = (
       <Modal show={this.state.showBookingNames} onHide={() => this.setState({ showBookingNames: false })}>
         <Modal.Header closeButton>
           <Modal.Title>{this.state.selectedSpace?.name}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {bookings.map(item => this.renderBookingNameRow(item))}
+          {bookings.map(item => {
+            return <span key={item.user.id}>{this.renderBookingNameRow(item)}</span>
+          })}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="primary" onClick={() => this.setState({ showBookingNames: false })}>
             {this.props.t("ok")}
           </Button>
+        {gotoBooking}
         </Modal.Footer>
       </Modal>
     );
@@ -598,6 +642,12 @@ class Search extends React.Component<Props, State> {
         <Modal.Footer>
           <Button variant="primary" onClick={() => this.props.navigate("/bookings")}>
             {this.props.t("myBookings").toString()}
+          </Button>
+          <Button variant="secondary" onClick={() => {
+            this.setState({ showSuccess: false });
+            this.refreshPage();
+            }}>
+            {this.props.t("ok").toString()}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -637,6 +687,15 @@ class Search extends React.Component<Props, State> {
         {configContainer}
       </>
     )
+  }
+
+  refreshPage = () => {
+    this.setState({
+      loading: true,
+    });
+    this.loadMap(this.state.locationId).then(() => {
+      this.setState({ loading: false });
+    });
   }
 }
 

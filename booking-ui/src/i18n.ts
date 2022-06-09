@@ -96,6 +96,9 @@ const resources = {
             "workday-6": "Samstag",
             "workingHours": "Bürozeiten",
             "to": "bis",
+            "showList": "Zeige Liste",
+            "showMap": "Zeige Plan",
+            "gotoBooking": "Gehe zur Buchung",
         }
     },
     en: {
@@ -190,6 +193,9 @@ const resources = {
             "workday-6": "Saturday",
             "workingHours": "Working hours",
             "to": "to",
+            "showList": "Show List",
+            "showMap": "Show Map",
+            "gotoBooking": "Show Booking",
         }
     }
 };

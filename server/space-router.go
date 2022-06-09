@@ -29,6 +29,7 @@ type GetSpaceResponse struct {
 }
 
 type GetSpaceAvailabilityBookingsResponse struct {
+	BookingID string    `json:"id"`
 	UserID    string    `json:"userId"`
 	UserEmail string    `json:"userEmail"`
 	Enter     time.Time `json:"enter"`
@@ -103,7 +104,12 @@ func (router *SpaceRouter) getAvailability(w http.ResponseWriter, r *http.Reques
 		SendForbidden(w)
 		return
 	}
-	showNames, _ := GetSettingsRepository().GetBool(location.OrganizationID, SettingShowNames.Name)
+	var showNames bool = false
+	if CanSpaceAdminOrg(user, location.OrganizationID) {
+		showNames = true
+	} else {
+		showNames, _ = GetSettingsRepository().GetBool(location.OrganizationID, SettingShowNames.Name)
+	}
 	list, err := GetSpaceRepository().GetAllInTime(location.ID, enterNew, leaveNew)
 	if err != nil {
 		log.Println(err)
@@ -123,18 +129,24 @@ func (router *SpaceRouter) getAvailability(w http.ResponseWriter, r *http.Reques
 		m.Rotation = e.Rotation
 		m.Available = e.Available
 		m.Bookings = []*GetSpaceAvailabilityBookingsResponse{}
-		if showNames {
-			for _, booking := range e.Bookings {
-				enter, _ := attachTimezoneInformation(booking.Enter, location)
-				leave, _ := attachTimezoneInformation(booking.Leave, location)
-				entry := &GetSpaceAvailabilityBookingsResponse{
-					UserID:    booking.UserID,
-					UserEmail: booking.UserEmail,
-					Enter:     enter,
-					Leave:     leave,
-				}
-				m.Bookings = append(m.Bookings, entry)
+		for _, booking := range e.Bookings {
+			var showName bool = showNames
+			enter, _ := attachTimezoneInformation(booking.Enter, location)
+			leave, _ := attachTimezoneInformation(booking.Leave, location)
+			outUserId := ""
+			outUserEmail := ""
+			if showName || user.Email == booking.UserEmail {
+				outUserId = booking.UserID
+				outUserEmail = booking.UserEmail
 			}
+			entry := &GetSpaceAvailabilityBookingsResponse{
+				BookingID: booking.ID,
+				UserID:    outUserId,
+				UserEmail: outUserEmail,
+				Enter:     enter,
+				Leave:     leave,
+			}
+			m.Bookings = append(m.Bookings, entry)
 		}
 		res = append(res, m)
 	}
