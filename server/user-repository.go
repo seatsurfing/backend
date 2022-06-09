@@ -173,6 +173,14 @@ func (r *UserRepository) GetUsersWithAtlassianID(organizationID string) ([]*User
 	return result, nil
 }
 
+func (r *UserRepository) UpdateAtlassianClientIDForUser(organizationID, userId, atlassianID string) error {
+	_, err := GetDatabase().DB().Exec("UPDATE users SET "+
+		"atlassian_id =  $3 "+
+		"WHERE organization_id = $1 AND id = $2",
+		organizationID, userId, strings.ToLower(atlassianID))
+	return err
+}
+
 func (r *UserRepository) UpdateAtlassianClientID(organizationID, oldClientID, newClientID string) error {
 	_, err := GetDatabase().DB().Exec("UPDATE users SET "+
 		"atlassian_id = REPLACE(atlassian_id, '@"+oldClientID+"', '@"+newClientID+"') ,"+
