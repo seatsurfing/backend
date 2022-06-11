@@ -48,6 +48,7 @@ func TestSettingsReadPublic(t *testing.T) {
 		SettingMaxBookingDurationHours.Name,
 		SettingDailyBasisBooking.Name,
 		SettingShowNames.Name,
+		SettingAllowBookingsNonExistingUsers.Name,
 		SettingDefaultTimezone.Name,
 		SysSettingVersion,
 	}
@@ -101,6 +102,7 @@ func TestSettingsReadAdmin(t *testing.T) {
 		SettingMaxBookingDurationHours.Name,
 		SettingDailyBasisBooking.Name,
 		SettingShowNames.Name,
+		SettingAllowBookingsNonExistingUsers.Name,
 		SettingAllowAnyUser.Name,
 		SettingConfluenceServerSharedSecret.Name,
 		SettingConfluenceAnonymous.Name,
