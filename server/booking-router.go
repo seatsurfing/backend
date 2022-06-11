@@ -364,8 +364,16 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 				SendInternalServerError(w)
 				return
 			}
+			if allowed, _ := GetSettingsRepository().GetBool(org.ID, SettingAllowBookingsNonExistingUsers.Name); !allowed {
+				SendForbidden(w)
+				return
+			}
 			if !GetUserRepository().canCreateUser(org) {
 				SendInternalServerError(w)
+				return
+			}
+			if !GetOrganizationRepository().isValidEmailForOrg(m.UserEmail, org) {
+				SendBadRequest(w)
 				return
 			}
 			user := &User{

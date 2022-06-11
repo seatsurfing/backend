@@ -18,6 +18,7 @@ interface State {
   maxBookingDurationHours: number
   dailyBasisBooking: boolean
   showNames: boolean
+  allowBookingNonExistUsers: boolean
   subscriptionActive: boolean
   subscriptionMaxUsers: number
   allowOrgDelete: boolean
@@ -54,6 +55,7 @@ class Settings extends React.Component<Props, State> {
       maxDaysInAdvance: 0,
       dailyBasisBooking: false,
       showNames: false,
+      allowBookingNonExistUsers: false,
       subscriptionActive: false,
       subscriptionMaxUsers: 0,
       allowOrgDelete: false,
@@ -113,6 +115,7 @@ class Settings extends React.Component<Props, State> {
         if (s.name === "max_booking_duration_hours") state.maxBookingDurationHours = window.parseInt(s.value);
         if (s.name === "daily_basis_booking") state.dailyBasisBooking = (s.value === "1");
         if (s.name === "show_names") state.showNames = (s.value === "1");
+        if (s.name === "allow_booking_nonexist_users") state.allowBookingNonExistUsers = (s.value === "1");
         if (s.name === "subscription_active") state.subscriptionActive = (s.value === "1");
         if (s.name === "subscription_max_users") state.subscriptionMaxUsers = window.parseInt(s.value);
         if (s.name === "_sys_org_signup_delete") state.allowOrgDelete = (s.value === "1");
@@ -146,6 +149,7 @@ class Settings extends React.Component<Props, State> {
       new OrgSettings("confluence_server_shared_secret", this.state.confluenceServerSharedSecret),
       new OrgSettings("daily_basis_booking", this.state.dailyBasisBooking ? "1" : "0"),
       new OrgSettings("show_names", this.state.showNames ? "1" : "0"),
+      new OrgSettings("allow_booking_nonexist_users", this.state.allowBookingNonExistUsers ? "1" : "0"),
       new OrgSettings("max_bookings_per_user", this.state.maxBookingsPerUser.toString()),
       new OrgSettings("max_days_in_advance", this.state.maxDaysInAdvance.toString()),
       new OrgSettings("max_booking_duration_hours", this.state.maxBookingDurationHours.toString())
@@ -422,6 +426,11 @@ class Settings extends React.Component<Props, State> {
           <Form.Group as={Row}>
             <Col sm="6">
               <Form.Check type="checkbox" id="check-showNames" label={this.props.t("showNames")} checked={this.state.showNames} onChange={(e: any) => this.setState({ showNames: e.target.checked })} />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row}>
+            <Col sm="6">
+              <Form.Check type="checkbox" id="check-allowBookingNonExistUsers" label={this.props.t("allowBookingNonExistUsers")} checked={this.state.allowBookingNonExistUsers} onChange={(e: any) => this.setState({ allowBookingNonExistUsers: e.target.checked })} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
