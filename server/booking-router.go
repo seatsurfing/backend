@@ -14,8 +14,9 @@ type BookingRouter struct {
 }
 
 type BookingRequest struct {
-	Enter time.Time `json:"enter" validate:"required"`
-	Leave time.Time `json:"leave" validate:"required"`
+	Enter     time.Time `json:"enter" validate:"required"`
+	Leave     time.Time `json:"leave" validate:"required"`
+	UserEmail string    `json:"userEmail"`
 }
 
 type CreateBookingRequest struct {
@@ -351,6 +352,46 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	e.UserID = GetRequestUserID(r)
+	if m.UserEmail != "" && m.UserEmail != requestUser.Email {
+		if !CanSpaceAdminOrg(requestUser, location.OrganizationID) {
+			SendForbidden(w)
+			return
+		}
+		bookForUser, err := GetUserRepository().GetByEmail(m.UserEmail)
+		if bookForUser == nil || err != nil {
+			org, err := GetOrganizationRepository().GetOne(location.OrganizationID)
+			if err != nil || org == nil {
+				SendInternalServerError(w)
+				return
+			}
+			if !GetUserRepository().canCreateUser(org) {
+				SendInternalServerError(w)
+				return
+			}
+			user := &User{
+				Email:          m.UserEmail,
+				AtlassianID:    NullString(""),
+				OrganizationID: org.ID,
+				Role:           UserRoleUser,
+			}
+			err = GetUserRepository().Create(user)
+			if err != nil {
+				SendInternalServerError(w)
+				return
+			}
+			bookForUser, err = GetUserRepository().GetByEmail(m.UserEmail)
+			if err != nil {
+				SendInternalServerError(w)
+				return
+			}
+		}
+
+		if bookForUser == nil {
+			SendNotFound(w)
+			return
+		}
+		e.UserID = bookForUser.ID
+	}
 	bookingReq := &BookingRequest{
 		Enter: e.Enter,
 		Leave: e.Leave,
