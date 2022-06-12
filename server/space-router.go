@@ -140,7 +140,7 @@ func (router *SpaceRouter) getAvailability(w http.ResponseWriter, r *http.Reques
 				outUserEmail = booking.UserEmail
 			}
 			entry := &GetSpaceAvailabilityBookingsResponse{
-				BookingID: booking.ID,
+				BookingID: booking.BookingID,
 				UserID:    outUserId,
 				UserEmail: outUserEmail,
 				Enter:     enter,
