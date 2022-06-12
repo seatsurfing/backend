@@ -69,7 +69,7 @@ class NavBar extends React.Component<Props, State> {
                     <Form.Control type="text" className="form-control form-control-dark w-100" placeholder={this.props.t("search")} aria-label="Suchen" value={this.state.search} onChange={(e: any) => this.setState({ search: e.target.value })} required={true} />
                 </Form>
                 <ul className="navbar-nav px-3">
-                    <li className="nav-item text-nowrap">
+                <li className="nav-item text-nowrap">
                         <Button variant="link" className="nav-link" onClick={this.logout}> {this.props.t("logout")}</Button>
                     </li>
                 </ul>

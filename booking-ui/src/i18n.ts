@@ -99,6 +99,7 @@ const resources = {
             "showList": "Zeige Liste",
             "showMap": "Zeige Plan",
             "gotoBooking": "Gehe zur Buchung",
+            "administration": "Administration"
         }
     },
     en: {
@@ -196,6 +197,7 @@ const resources = {
             "showList": "Show List",
             "showMap": "Show Map",
             "gotoBooking": "Show Booking",
+            "administration": "Administration"
         }
     }
 };

@@ -2,7 +2,7 @@ import React from 'react';
 import './Login.css';
 import Loading from '../components/Loading';
 import { Form } from 'react-bootstrap';
-import { Ajax, JwtDecoder } from 'flexspace-commons';
+import { Ajax, JwtDecoder, User } from 'flexspace-commons';
 import { Navigate, Params, RouteProps } from 'react-router-dom';
 import { withRouter } from '../types/withRouter';
 
@@ -32,8 +32,8 @@ class LoginSuccess extends React.Component<Props, State> {
       return Ajax.get("/auth/verify/" + this.props.params.id).then(res => {
         if (res.json && res.json.accessToken) {
           let jwtPayload = JwtDecoder.getPayload(res.json.accessToken);
-          if (!jwtPayload.admin) {
-            this.setState({
+          if (jwtPayload.role < User.UserRoleSpaceAdmin) {
+              this.setState({
               redirect: "/login/failed"
             });
             return;
