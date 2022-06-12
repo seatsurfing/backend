@@ -373,7 +373,7 @@ class Search extends React.Component<Props, State> {
   }
 
   getAvailibilityStyle = (item: Space, bookings: Booking[]) => {
-    const mydesk = (bookings.find(b => b.user.email == this.context.username ));
+    const mydesk = (bookings.find(b => b.user.email === this.context.username ));
     return (mydesk ? " space-mydesk" : (item.available ? " space-available" : " space-notavailable"));
   }
   
@@ -415,7 +415,6 @@ class Search extends React.Component<Props, State> {
   renderListItem = (item: Space) => {
     let bookings: Booking[] = [];
     bookings = Booking.createFromRawArray(item.rawBookings);
-    let persons = this.getBookersList(bookings);
     const className = "space space-listitem" + this.getAvailibilityStyle(item, bookings);
     return (
       <ListGroup.Item key={item.id} action={true} onClick={(e) => { e.preventDefault(); this.onSpaceSelect(item); }}>
@@ -600,13 +599,12 @@ class Search extends React.Component<Props, State> {
     if (this.state.selectedSpace) {
       bookings = Booking.createFromRawArray(this.state.selectedSpace.rawBookings);
     }
-    const myBooking = (bookings.find(b => b.user.email == this.context.username ));
+    const myBooking = (bookings.find(b => b.user.email === this.context.username ));
     let gotoBooking;
     if (myBooking){
       gotoBooking = (
         <Button variant="secondary" onClick={() => {
           this.setState({ showBookingNames: false })
-          //this.props.navigate("/bookings", {state: {selectedItem: myBooking.id}})
           this.props.navigate("/bookings#"+myBooking.id)
         }}>
           {this.props.t("gotoBooking")}
