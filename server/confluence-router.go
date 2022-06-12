@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -61,6 +62,16 @@ func (router *ConfluenceRouter) serverLogin(w http.ResponseWriter, r *http.Reque
 	}
 	_, err = GetUserRepository().GetByAtlassianID(userID)
 	if err != nil {
+		// user not found using atlassianID, try by mail
+		u, err := GetUserRepository().GetByEmail(userID)
+		if err == nil {
+			// got it, update it now
+			GetUserRepository().UpdateAtlassianClientIDForUser(u.OrganizationID, u.ID, userID)
+		}
+		// and load again
+		_, err = GetUserRepository().GetByAtlassianID(userID)
+	}
+	if err != nil {
 		if !GetUserRepository().canCreateUser(org) {
 			SendTemporaryRedirect(w, GetConfig().FrontendURL+"ui/login/failed")
 			return
@@ -92,22 +103,42 @@ func (router *ConfluenceRouter) serverLogin(w http.ResponseWriter, r *http.Reque
 }
 
 func (router *ConfluenceRouter) getUserEmailServer(org *Organization, claims *ConfluenceServerClaims, allowAnonymous bool) string {
-	userAccountID := "confluence-" + claims.UserName
-	if claims.UserName == "" {
-		if !allowAnonymous {
-			return ""
+	userAccountID := ""
+	desiredDomain := ""
+	if claims.UserName != "" {
+		mailparts := strings.Split(claims.UserName, "@")
+		if len(mailparts) == 2 {
+			userAccountID = mailparts[0]
+			desiredDomain = mailparts[1]
 		}
-		userAccountID = "confluence-anonymous-" + uuid.New().String()
+	}
+	if userAccountID == "" {
+		if claims.UserName != "" {
+			userAccountID = "confluence-" + claims.UserName
+		}
+		if claims.UserName == "" {
+			if !allowAnonymous {
+				return ""
+			}
+			userAccountID = "confluence-anonymous-" + uuid.New().String()
+		}
 	}
 	domains, err := GetOrganizationRepository().GetDomains(org)
 	if err != nil {
 		return ""
 	}
 	domain := ""
+	otherDomain := ""
 	for _, curDomain := range domains {
 		if curDomain.Active {
-			domain = curDomain.DomainName
+			otherDomain = curDomain.DomainName
+			if desiredDomain != "" && desiredDomain == curDomain.DomainName {
+				domain = curDomain.DomainName
+			}
 		}
+	}
+	if domain == "" {
+		domain = otherDomain
 	}
 	return userAccountID + "@" + domain
 }
