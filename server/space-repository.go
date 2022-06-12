@@ -23,6 +23,7 @@ type Space struct {
 }
 
 type SpaceAvailabilityBookingEntry struct {
+	ID        string
 	UserID    string
 	UserEmail string
 	Enter     time.Time
@@ -125,6 +126,7 @@ func (r *SpaceRepository) GetAllInTime(locationID string, enter, leave time.Time
 			enter, _ := time.Parse(timeFormat, tokens[2])
 			leave, _ := time.Parse(timeFormat, tokens[3])
 			entry := &SpaceAvailabilityBookingEntry{
+				ID:        e.ID,
 				UserID:    tokens[0],
 				UserEmail: tokens[1],
 				Enter:     enter,
