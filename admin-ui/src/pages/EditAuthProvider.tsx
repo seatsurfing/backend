@@ -142,6 +142,19 @@ class EditAuthProvider extends React.Component<Props, State> {
     });
   }
 
+  templateKeycloak = () => {
+    this.setState({
+      name: "Keycloak",
+      providerType: 1,
+      authUrl: "https://keycloakhost.sample/auth/realms/master/protocol/openid-connect/auth",
+      tokenUrl: "https://keycloakhost.sample/auth/realms/master/protocol/openid-connect/token",
+      authStyle: 1,
+      scopes: "openid,email",
+      userInfoUrl: "https://keycloakhost.sample/auth/realms/master/protocol/openid-connect/userinfo",
+      userInfoEmailField: "email"
+    });
+  }
+
   render() {
     if (this.state.goBack) {
       return <Navigate replace={true} to={`/settings`} />
@@ -171,7 +184,7 @@ class EditAuthProvider extends React.Component<Props, State> {
       urlInfo = (
         <Form.Group as={Row}>
           <Form.Label column sm="2">Callback URL</Form.Label>
-          <Col sm="4">
+          <Col sm="9">
             <Form.Control plaintext={true} readOnly={true} onClick={(e: any) => e.target.select()} defaultValue={`/auth/${this.entity.id}/callback`} />
           </Col>
         </Form.Group>
@@ -185,13 +198,13 @@ class EditAuthProvider extends React.Component<Props, State> {
           {hint}
           <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("name")}</Form.Label>
-            <Col sm="4">
+            <Col sm="9">
               <Form.Control type="text" placeholder="Name" value={this.state.name} onChange={(e: any) => this.setState({ name: e.target.value })} required={true} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("type")}</Form.Label>
-            <Col sm="4">
+            <Col sm="9">
               <Form.Control as="select" value={this.state.providerType} onChange={(e: any) => this.setState({ providerType: parseInt(e.target.value) })} required={true}>
                 <option value="0">({this.props.t("pleaseSelect")})</option>
                 <option value="1">OAuth 2</option>
@@ -200,19 +213,19 @@ class EditAuthProvider extends React.Component<Props, State> {
           </Form.Group>
           <Form.Group as={Row}>
             <Form.Label column sm="2">Auth URL</Form.Label>
-            <Col sm="4">
+            <Col sm="9">
               <Form.Control type="url" placeholder="https://..." value={this.state.authUrl} onChange={(e: any) => this.setState({ authUrl: e.target.value })} required={true} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
             <Form.Label column sm="2">Token URL</Form.Label>
-            <Col sm="4">
+            <Col sm="9">
               <Form.Control type="url" placeholder="https://..." value={this.state.tokenUrl} onChange={(e: any) => this.setState({ tokenUrl: e.target.value })} required={true} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
             <Form.Label column sm="2">Auth Style</Form.Label>
-            <Col sm="4">
+            <Col sm="9">
               <Form.Control as="select" value={this.state.authStyle} onChange={(e: any) => this.setState({ authStyle: parseInt(e.target.value) })} required={true}>
                 <option value="0">{this.props.t("automatic")}</option>
                 <option value="1">Parameter (HTTP POST body)</option>
@@ -222,41 +235,42 @@ class EditAuthProvider extends React.Component<Props, State> {
           </Form.Group>
           <Form.Group as={Row}>
             <Form.Label column sm="2">Scopes</Form.Label>
-            <Col sm="4">
+            <Col sm="9">
               <Form.Control type="text" placeholder="scope1,scope2,..." value={this.state.scopes} onChange={(e: any) => this.setState({ scopes: e.target.value })} required={true} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
             <Form.Label column sm="2">Client ID</Form.Label>
-            <Col sm="4">
+            <Col sm="9">
               <Form.Control type="text" placeholder="Client ID" value={this.state.clientId} onChange={(e: any) => this.setState({ clientId: e.target.value })} required={true} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
             <Form.Label column sm="2">Client Secret</Form.Label>
-            <Col sm="4">
+            <Col sm="9">
               <Form.Control type="text" placeholder="Client Secret" value={this.state.clientSecret} onChange={(e: any) => this.setState({ clientSecret: e.target.value })} required={true} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
             <Form.Label column sm="2">Userinfo URL</Form.Label>
-            <Col sm="4">
+            <Col sm="9">
               <Form.Control type="url" placeholder="https://..." value={this.state.userInfoUrl} onChange={(e: any) => this.setState({ userInfoUrl: e.target.value })} required={true} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("userinfoEmailField")}</Form.Label>
-            <Col sm="4">
+            <Col sm="9">
               <Form.Control type="text" placeholder="email" value={this.state.userInfoEmailField} onChange={(e: any) => this.setState({ userInfoEmailField: e.target.value })} required={true} />
             </Col>
           </Form.Group>
           {urlInfo}
           <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("templates")}</Form.Label>
-            <Col sm="4">
+            <Col sm="9">
               <ButtonGroup>
                 <Button variant="outline-secondary" onClick={this.templateGoogle}>Google</Button>
                 <Button variant="outline-secondary" onClick={this.templateMicrosoft}>Microsoft</Button>
+                <Button variant="outline-secondary" onClick={this.templateKeycloak}>Keycloak</Button>
               </ButtonGroup>
             </Col>
           </Form.Group>

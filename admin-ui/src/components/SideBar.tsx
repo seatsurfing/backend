@@ -1,6 +1,6 @@
 import React from 'react';
 import './SideBar.css';
-import { Home as IconHome, Users as IconUsers, Map as IconMap, Book as IconBook, Settings as IconSettings, Box as IconBox, Activity as IconAnalysis } from 'react-feather';
+import { Home as IconHome, Users as IconUsers, Map as IconMap, Book as IconBook, Settings as IconSettings, Box as IconBox, Activity as IconAnalysis, ExternalLink as IconExternalLink } from 'react-feather';
 import { NavLink } from 'react-router-dom';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
@@ -64,6 +64,9 @@ class SideBar extends React.Component<Props, State> {
                     <ul className="nav flex-column">
                         <li className="nav-item">
                             <NavLink to="/dashboard" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}><IconHome className="feather" /> {this.props.t("dashboard")}</NavLink>
+                        </li>
+                        <li className="nav-item">
+                            <NavLink to="/bookingui" onClick={() => {window.location.href="/ui/"}} className={({isActive}) => "nav-link " + (isActive ? "active" : "")}><IconExternalLink className="feather" /> {this.props.t("bookingui")}</NavLink>
                         </li>
                         <li className="nav-item">
                             <NavLink to="/locations" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}><IconMap className="feather" /> {this.props.t("areas")}</NavLink>

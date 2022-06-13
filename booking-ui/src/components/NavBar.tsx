@@ -18,6 +18,7 @@ interface State {
     invalidTargetUserEmail: boolean
     mergeRequests: MergeRequest[]
     allowMergeInit: boolean
+    allowAdmin: boolean
 }
 
 interface Props {
@@ -37,7 +38,8 @@ class NavBar extends React.Component<Props, State> {
             targetUserEmail: "",
             invalidTargetUserEmail: false,
             mergeRequests: [],
-            allowMergeInit: false
+            allowMergeInit: false,
+            allowAdmin: false
         };
     }
 
@@ -53,6 +55,9 @@ class NavBar extends React.Component<Props, State> {
             if (user.email === user.atlassianId) {
                 this.setState({ allowMergeInit: true });
             }
+            if (user.role >= User.UserRoleSpaceAdmin) {
+                this.setState({ allowAdmin: true });
+            }
         });
     }
 
@@ -64,6 +69,11 @@ class NavBar extends React.Component<Props, State> {
                 redirect: "/login"
             });
         });
+    }
+
+    gotoAdmin = (e: any) => {
+        e.preventDefault();
+        window.location.href="/admin/dashboard/";
     }
 
     showMergeModal = (e: any) => {
@@ -118,11 +128,15 @@ class NavBar extends React.Component<Props, State> {
         }
 
         let signOffButton = <></>;
+        let adminButton = <></>;
         let initMergeButton = <></>;
         let mergeRequestsButton = <></>;
         let userInfo = <></>;
         let collapsable = <></>;
-
+        
+        if (this.state.allowAdmin){
+            adminButton = <Nav.Link onClick={this.gotoAdmin}>{this.props.t("administration")}</Nav.Link>;
+        }
         if (!RuntimeConfig.EMBEDDED) {
             signOffButton = <Nav.Link onClick={this.logOut}>{this.props.t("signout")}</Nav.Link>;
             userInfo = <Navbar.Text>{this.context.username}</Navbar.Text>;
@@ -141,6 +155,7 @@ class NavBar extends React.Component<Props, State> {
                     <NavLink to="/search" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}>{RuntimeConfig.EMBEDDED ? <IconPlus className="feather feather-lg" /> : this.props.t("bookSeat")}</NavLink>
                     <NavLink to="/bookings" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}>{RuntimeConfig.EMBEDDED ? <IconCalendar className="feather feather-lg" /> : this.props.t("myBookings")}</NavLink>
                     <NavLink to="/preferences" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}>{RuntimeConfig.EMBEDDED ? <IconSettings className="feather feather-lg" /> : this.props.t("preferences")}</NavLink>
+                    {adminButton}
                     {signOffButton}
                 </Nav>
                 <Nav className="ms-auto">

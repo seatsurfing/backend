@@ -132,6 +132,7 @@ const resources = {
             "analysis": "Auswertung",
             "all": "Alle",
             "confirmCancelBooking": "Buchung stornieren?",
+            "bookingui": "Buchungsseite"
         }
     },
     en: {
@@ -263,6 +264,7 @@ const resources = {
             "analysis": "Analysis",
             "all": "All",
             "confirmCancelBooking": "Cancel booking?",
+            "bookingui": "Bookingpage",
         }
     }
 };
