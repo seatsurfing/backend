@@ -66,9 +66,6 @@ class SideBar extends React.Component<Props, State> {
                             <NavLink to="/dashboard" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}><IconHome className="feather" /> {this.props.t("dashboard")}</NavLink>
                         </li>
                         <li className="nav-item">
-                            <NavLink to="/bookingui" onClick={() => {window.location.href="/ui/"}} className={({isActive}) => "nav-link " + (isActive ? "active" : "")}><IconExternalLink className="feather" /> {this.props.t("bookingui")}</NavLink>
-                        </li>
-                        <li className="nav-item">
                             <NavLink to="/locations" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}><IconMap className="feather" /> {this.props.t("areas")}</NavLink>
                         </li>
                         <li className="nav-item">
@@ -79,6 +76,9 @@ class SideBar extends React.Component<Props, State> {
                         </li>
                         {orgAdminItems}
                         {orgItem}
+                        <li className="nav-item">
+                            <NavLink to="/bookingui" onClick={() => {window.location.href="/ui/"}} className={({isActive}) => "nav-link " + (isActive ? "active" : "")}><IconExternalLink className="feather" /> {this.props.t("bookingui")}</NavLink>
+                        </li>
                     </ul>
                 </div>
             </nav>

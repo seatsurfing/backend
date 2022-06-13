@@ -73,7 +73,7 @@ class NavBar extends React.Component<Props, State> {
 
     gotoAdmin = (e: any) => {
         e.preventDefault();
-        window.location.href="/admin/dashboard/";
+        window.location.href = "/admin/dashboard/";
     }
 
     showMergeModal = (e: any) => {
@@ -134,10 +134,10 @@ class NavBar extends React.Component<Props, State> {
         let userInfo = <></>;
         let collapsable = <></>;
         
-        if (this.state.allowAdmin){
-            adminButton = <Nav.Link onClick={this.gotoAdmin}>{this.props.t("administration")}</Nav.Link>;
-        }
         if (!RuntimeConfig.EMBEDDED) {
+            if (this.state.allowAdmin) {
+                adminButton = <Nav.Link onClick={this.gotoAdmin}>{this.props.t("administration")}</Nav.Link>;
+            }
             signOffButton = <Nav.Link onClick={this.logOut}>{this.props.t("signout")}</Nav.Link>;
             userInfo = <Navbar.Text>{this.context.username}</Navbar.Text>;
             if (this.state.mergeRequests.length > 0) {
@@ -179,7 +179,7 @@ class NavBar extends React.Component<Props, State> {
 
         return (
             <>
-                <Navbar bg="dark" variant="dark" fixed="top" expand={RuntimeConfig.EMBEDDED ? true : "sm"}>
+                <Navbar bg="dark" variant="dark" fixed="top" expand={RuntimeConfig.EMBEDDED ? true : "xl"}>
                     <Container fluid={true}>
                         <Navbar.Brand as={NavLink} to="/search"><img src="/ui/seatsurfing_white.svg" alt="Seatsurfing" /></Navbar.Brand>
                         {collapsable}
