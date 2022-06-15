@@ -97,9 +97,14 @@ func SendJSON(w http.ResponseWriter, v interface{}) {
 		SendInternalServerError(w)
 		return
 	}
-	//log.Println(string(json))
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(json)
+}
+
+func SendTextNotFound(w http.ResponseWriter, contentType string, b []byte) {
+	w.Header().Set("Content-Type", contentType)
+	w.WriteHeader(http.StatusNotFound)
+	w.Write(b)
 }
 
 func UnmarshalBody(r *http.Request, o interface{}) error {
