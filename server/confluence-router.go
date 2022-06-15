@@ -29,7 +29,7 @@ func (router *ConfluenceRouter) serverLogin(w http.ResponseWriter, r *http.Reque
 	vars := mux.Vars(r)
 	org, err := GetOrganizationRepository().GetOne(vars["orgID"])
 	if err != nil || org == nil {
-		SendNotFound(w)
+		SendTextNotFound(w, "text/plain", router.getOrgNotFoundBody())
 		return
 	}
 	sharedSecret, err := GetSettingsRepository().Get(org.ID, SettingConfluenceServerSharedSecret.Name)
@@ -100,6 +100,20 @@ func (router *ConfluenceRouter) serverLogin(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	SendTemporaryRedirect(w, GetConfig().FrontendURL+"ui/login/success/"+authState.ID)
+}
+
+func (router *ConfluenceRouter) getOrgNotFoundBody() []byte {
+	var sb strings.Builder
+	sb.WriteString("Instance ID could not be found at this instance: ")
+	sb.WriteString(GetConfig().PublicURL)
+	sb.WriteString("\n\n")
+	sb.WriteString("To get your Intance ID, log in to the Admin interface (i.e. " + GetConfig().FrontendURL + "admin/), go to Settings and copy the Instance ID.")
+	sb.WriteString("\n\n")
+	sb.WriteString("Make sure the Instance ID is set under 'Seatsurfing Configuration' in your Confluence installation.")
+	sb.WriteString("\n\n")
+	sb.WriteString("For more information, please read the documentation at: https://docs.seatsurfing.app/")
+	sb.WriteString("\n")
+	return []byte(sb.String())
 }
 
 func (router *ConfluenceRouter) getUserEmailServer(org *Organization, claims *ConfluenceServerClaims, allowAnonymous bool) string {
