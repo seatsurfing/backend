@@ -34,11 +34,15 @@ class LoginSuccess extends React.Component<Props, State> {
     if (this.props.params.id) {
       return Ajax.get("/auth/verify/" + this.props.params.id).then(res => {
         if (res.json && res.json.accessToken) {
+          alert(res.json);
           Ajax.CREDENTIALS = {
             accessToken: res.json.accessToken,
             refreshToken: res.json.refreshToken,
             accessTokenExpiry: new Date(new Date().getTime() + Ajax.ACCESS_TOKEN_EXPIRY_OFFSET)
           };
+          if (res.json.longLived) {
+            Ajax.PERSISTER.persistRefreshTokenInLocalStorage(Ajax.CREDENTIALS);
+          }
           Ajax.PERSISTER.updateCredentialsSessionStorage(Ajax.CREDENTIALS).then(() => {
             RuntimeConfig.setLoginDetails(this.context).then(() => {
               this.setState({

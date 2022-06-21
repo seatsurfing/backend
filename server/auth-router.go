@@ -18,6 +18,7 @@ import (
 type JWTResponse struct {
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
+	LongLived    bool   `json:"longLived"`
 }
 
 type Claims struct {
@@ -292,6 +293,7 @@ func (router *AuthRouter) verify(w http.ResponseWriter, r *http.Request) {
 	res := &JWTResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
+		LongLived:    payload.LongLived,
 	}
 	SendJSON(w, res)
 }
