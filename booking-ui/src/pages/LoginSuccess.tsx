@@ -34,7 +34,6 @@ class LoginSuccess extends React.Component<Props, State> {
     if (this.props.params.id) {
       return Ajax.get("/auth/verify/" + this.props.params.id).then(res => {
         if (res.json && res.json.accessToken) {
-          alert(res.json);
           Ajax.CREDENTIALS = {
             accessToken: res.json.accessToken,
             refreshToken: res.json.refreshToken,
