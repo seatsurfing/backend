@@ -5,11 +5,13 @@ export default class Formatting {
             "today": "Heute",
             "tomorrow": "Morgen",
             "inXdays": "In {{x}} Tagen",
+            "hour12": false,
         },
         "en": {
             "today": "Today",
             "tomorrow": "Tomorrow",
             "inXdays": "In {{x}} days",
+            "hour12": true,
         },
     };
 
@@ -25,6 +27,11 @@ export default class Formatting {
         }
         return res;
     }
+    
+    static tbool(s: string) {
+        let res: boolean = Formatting.I18n[Formatting.Language][s];
+        return res;
+    }
 
     static getFormatter(local?: boolean): Intl.DateTimeFormat {
         let formatter = new Intl.DateTimeFormat(Formatting.Language, {
@@ -35,7 +42,7 @@ export default class Formatting {
             day: '2-digit',
             hour: 'numeric',
             minute: 'numeric',
-            hour12: false
+            hour12: this.tbool("hour12")
           });
         return formatter;
     }
