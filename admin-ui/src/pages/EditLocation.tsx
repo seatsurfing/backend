@@ -385,7 +385,7 @@ class EditLocation extends React.Component<Props, State> {
             <Col sm="4">
               <Form.Select value={this.state.timezone} onChange={(e: any) => this.setState({ timezone: e.target.value })}>
                 <option value="">({this.props.t("default")})</option>
-                {this.timezones.map(tz => <option value={tz}>{tz}</option>)}
+                {this.timezones.map(tz => <option key={tz} value={tz}>{tz}</option>)}
               </Form.Select>
             </Col>
           </Form.Group>

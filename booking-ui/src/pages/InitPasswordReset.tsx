@@ -4,6 +4,7 @@ import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 import { Ajax } from 'flexspace-commons';
 import { Button, Form } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 interface State {
   loading: boolean
@@ -75,6 +76,7 @@ class InitPasswordReset extends React.Component<Props, State> {
             <Form.Control type="email" placeholder={this.props.t("emailPlaceholder")} value={this.state.email} onChange={(e: any) => this.setState({ email: e.target.value })} required={true} autoFocus={true} />
           </Form.Group>
           <Button className="margin-top-10" variant="primary" type="submit" disabled={this.state.loading}>{this.props.t("changePassword")}</Button>
+          <p className="margin-top-50"><Link to="/login">{this.props.t("back")}</Link></p>
         </Form>
       </div>
     );

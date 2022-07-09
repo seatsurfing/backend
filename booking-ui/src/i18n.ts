@@ -99,7 +99,8 @@ const resources = {
             "showList": "Zeige Liste",
             "showMap": "Zeige Plan",
             "gotoBooking": "Gehe zur Buchung",
-            "administration": "Administration"
+            "administration": "Administration",
+            "datePickerFormat": "dd.MM.y HH:mm"
         }
     },
     en: {
@@ -197,7 +198,8 @@ const resources = {
             "showList": "Show List",
             "showMap": "Show Map",
             "gotoBooking": "Show Booking",
-            "administration": "Administration"
+            "administration": "Administration",
+            "datePickerFormat": "y-MM-dd HH:mm"
         }
     }
 };

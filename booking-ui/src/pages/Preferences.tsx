@@ -170,7 +170,7 @@ class Preferences extends React.Component<Props, State> {
               <Form.Label>{this.props.t("workdays")}</Form.Label>
               <div className="text-left">
                 {[0, 1, 2, 3, 4, 5, 6].map(day => (
-                  <Form.Check type="checkbox" id={"workday-" + day} label={this.props.t("workday-" + day)} checked={this.state.workdays[day]} onChange={(e: any) => this.onWorkdayCheck(day, e.target.checked)} />
+                  <Form.Check type="checkbox" key={"workday-" + day} id={"workday-" + day} label={this.props.t("workday-" + day)} checked={this.state.workdays[day]} onChange={(e: any) => this.onWorkdayCheck(day, e.target.checked)} />
                 ))}
               </div>
             </Form.Group>
@@ -178,7 +178,7 @@ class Preferences extends React.Component<Props, State> {
               <Form.Label>{this.props.t("preferredLocation")}</Form.Label>
               <Form.Select value={this.state.locationId} onChange={(e: any) => this.setState({ locationId: e.target.value })}>
                 <option value="">({this.props.t("none")})</option>
-                {this.locations.map(location => <option value={location.id}>{location.name}</option>)}
+                {this.locations.map(location => <option key={"location-" + location.id} value={location.id}>{location.name}</option>)}
               </Form.Select>
             </Form.Group>
             <Button className="margin-top-15" type="submit">{this.props.t("save")}</Button>

@@ -123,6 +123,32 @@
     display: none;
 }
 
+.space-list {
+    text-align: left;
+}
+
+.space {
+    color: white;
+}
+
+.space-available {
+    background-color: rgba(48, 209, 88, 0.9) !important;
+}
+
+.space-notavailable {
+    background-color: rgba(255, 69, 58, 0.9) !important;
+}
+
+.space-mydesk {
+    background-color: rgba(184, 37, 222, 0.9) !important;
+}
+
+.space-list-item-content {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
 @media only screen and (max-width: 600px) {
     .container-map {
         margin-left: auto;

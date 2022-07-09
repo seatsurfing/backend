@@ -1,6 +1,6 @@
 import React, { RefObject } from 'react';
 import './Login.css';
-import { Form, Alert, Col, Row, Modal, Button, ListGroup } from 'react-bootstrap';
+import { Form, Alert, Col, Row, Modal, Button, ListGroup, Badge } from 'react-bootstrap';
 import { Location, Booking, Ajax, Formatting, Space, AjaxError, UserPreference } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
@@ -105,9 +105,10 @@ class Search extends React.Component<Props, State> {
             }
           })
         }
-        this.setState({ locationId: defaultLocationId });
-        this.loadMap(this.state.locationId).then(() => {
-          this.setState({ loading: false });
+        this.setState({ locationId: defaultLocationId }, () => {
+          this.loadMap(this.state.locationId).then(() => {
+            this.setState({ loading: false });
+          });
         });
       } else {
         this.setState({ loading: false });
@@ -374,7 +375,7 @@ class Search extends React.Component<Props, State> {
 
   getAvailibilityStyle = (item: Space, bookings: Booking[]) => {
     const mydesk = (bookings.find(b => b.user.email === this.context.username ));
-    return (mydesk ? " space-mydesk" : (item.available ? " space-available" : " space-notavailable"));
+    return (mydesk ? "space-mydesk" : (item.available ? "space-available" : "space-notavailable"));
   }
   
   getBookersList = (bookings: Booking[]) => {
@@ -402,7 +403,7 @@ class Search extends React.Component<Props, State> {
     };
     const className = "space space-box" 
       + ((item.width < item.height) ? " space-box-vertical" : "")
-      + this.getAvailibilityStyle(item, bookings);
+      + " " + this.getAvailibilityStyle(item, bookings);
     return (
       <div key={item.id} style={boxStyle} className={className}
         onClick={() => this.onSpaceSelect(item)}
@@ -415,13 +416,20 @@ class Search extends React.Component<Props, State> {
   renderListItem = (item: Space) => {
     let bookings: Booking[] = [];
     bookings = Booking.createFromRawArray(item.rawBookings);
-    const className = "space space-listitem" + this.getAvailibilityStyle(item, bookings);
+    const className = this.getAvailibilityStyle(item, bookings);
+    let bookerCount = 0;
+    if (className === "space-mydesk") {
+      bookerCount = 1;
+    } else if (className === "space-notavailable") {
+      bookerCount = (bookings.length > 0 ? bookings.length : 1);
+    }
     return (
-      <ListGroup.Item key={item.id} action={true} onClick={(e) => { e.preventDefault(); this.onSpaceSelect(item); }}>
-        <p className={className}>
-          <span key={item.id} className="space-listitem-title">{item.name}</span>
-          {bookings.map((booking, index) => <span key={booking.user.id}><br/>{booking.user.email}</span>)}
-        </p>
+      <ListGroup.Item key={item.id} action={true} onClick={(e) => { e.preventDefault(); this.onSpaceSelect(item); }} className="d-flex justify-content-between align-items-start space-list-item">
+        <div className="ms-2 me-auto">
+          <div className="fw-bold space-list-item-content">{item.name}</div>
+          {bookings.map((booking) => <div key={booking.user.id} className="space-list-item-content">{booking.user.email}</div>)}
+        </div>
+        <Badge className={className} pill={true}>{bookerCount}</Badge>
       </ListGroup.Item>
     );
   }
@@ -483,7 +491,11 @@ class Search extends React.Component<Props, State> {
   }
 
   toggleListView = () => {
-    this.setState({ listView: !this.state.listView });
+    this.setState({ listView: !this.state.listView }, () => {
+      if (!this.state.listView) {
+        this.centerMapView();
+      }
+    });
   }
 
   render() {
@@ -495,13 +507,13 @@ class Search extends React.Component<Props, State> {
         </Form.Group>
       );
     }
-    let enterDatePicker = <DateTimePicker value={this.state.enter} onChange={(value: Date) => this.setEnterDate(value)} clearIcon={null} required={true} />;
+    let enterDatePicker = <DateTimePicker value={this.state.enter} onChange={(value: Date) => this.setEnterDate(value)} clearIcon={null} required={true} format={this.props.t("datePickerFormat")} />;
     if (this.context.dailyBasisBooking) {
-      enterDatePicker = <DatePicker value={this.state.enter} onChange={(value: Date | Date[]) => this.setEnterDate(value)} clearIcon={null} required={true} />;
+      enterDatePicker = <DatePicker value={this.state.enter} onChange={(value: Date | Date[]) => this.setEnterDate(value)} clearIcon={null} required={true} format={this.props.t("datePickerFormat")} />;
     }
-    let leaveDatePicker = <DateTimePicker value={this.state.leave} onChange={(value: Date) => this.setLeaveDate(value)} clearIcon={null} required={true} />;
+    let leaveDatePicker = <DateTimePicker value={this.state.leave} onChange={(value: Date) => this.setLeaveDate(value)} clearIcon={null} required={true} format={this.props.t("datePickerFormat")} />;
     if (this.context.dailyBasisBooking) {
-      leaveDatePicker = <DatePicker value={this.state.leave} onChange={(value: Date | Date[]) => this.setLeaveDate(value)} clearIcon={null} required={true} />;
+      leaveDatePicker = <DatePicker value={this.state.leave} onChange={(value: Date | Date[]) => this.setLeaveDate(value)} clearIcon={null} required={true} format={this.props.t("datePickerFormat")} />;
     }
 
     let listOrMap = <></>;
@@ -509,7 +521,7 @@ class Search extends React.Component<Props, State> {
       listOrMap = (
         <div className="container-signin">
           <Form className="form-signin">
-            <ListGroup>
+            <ListGroup className="space-list">
               {this.data.map(item => this.renderListItem(item))}
             </ListGroup>
           </Form>
