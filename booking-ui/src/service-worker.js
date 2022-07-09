@@ -47,7 +47,7 @@ registerRoute(
 
 // Cache floor plans / maps
 registerRoute(
-  ({ url }) => url.pathname.match(new RegExp('\/location\/.+?\/map$')),
+  ({ url }) => url.pathname.match(new RegExp('/location/.+?/map$')),
   new StaleWhileRevalidate({
     cacheName: 'maps',
     plugins: [
