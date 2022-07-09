@@ -140,7 +140,7 @@ class Login extends React.Component<Props, State> {
               <Button variant="primary" type="submit">&#10148;</Button>
             </InputGroup>
             <Form.Control.Feedback type="invalid">{this.props.t("errorInvalidPassword")}</Form.Control.Feedback>
-            <Button variant="secondary" className="btn-auth-provider btn-back" onClick={this.cancelPasswordLogin}>{this.props.t("back")}</Button>
+            <p className="margin-top-50"><Button variant="link" onClick={this.cancelPasswordLogin}>{this.props.t("back")}</Button></p>
           </Form>
         </div>
       );
@@ -158,7 +158,7 @@ class Login extends React.Component<Props, State> {
             <img src="./seatsurfing.svg" alt="Seatsurfing" className="logo" />
             {providerSelection}
             {buttons}
-            <Button variant="secondary" className="btn-auth-provider" onClick={() => this.setState({ providers: null })}>{this.props.t("back")}</Button>
+            <p className="margin-top-50"><Button variant="link" onClick={() => this.setState({ providers: null })}>{this.props.t("back")}</Button></p>
           </Form>
         </div>
       );
