@@ -9,6 +9,7 @@ import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
 import RuntimeConfig from '../components/RuntimeConfig';
 import { AuthContext } from '../AuthContextData';
+import Loading from '../components/Loading';
 
 interface State {
   email: string
@@ -18,6 +19,9 @@ interface State {
   redirect: string | null
   requirePassword: boolean
   providers: AuthProvider[] | null
+  inPreflight: boolean
+  inPasswordSubmit: boolean
+  inAuthProviderLogin: boolean
 }
 
 interface Props {
@@ -38,7 +42,10 @@ class Login extends React.Component<Props, State> {
       invalid: false,
       redirect: null,
       requirePassword: false,
-      providers: null
+      providers: null,
+      inPreflight: false,
+      inPasswordSubmit: false,
+      inAuthProviderLogin: false
     };
   }
 
@@ -49,6 +56,9 @@ class Login extends React.Component<Props, State> {
       // Error
       return;
     }
+    this.setState({
+      inPreflight: true
+    });
     let payload = {
       email: this.state.email
     };
@@ -57,17 +67,22 @@ class Login extends React.Component<Props, State> {
       this.org.deserialize(res.json.organization);
       this.setState({
         providers: res.json.authProviders,
-        requirePassword: res.json.requirePassword
+        requirePassword: res.json.requirePassword,
+        inPreflight: false
       });
     }).catch(() => {
       this.setState({
-        invalid: true
+        invalid: true,
+        inPreflight: false
       });
     });
   }
 
   onPasswordSubmit = (e: any) => {
     e.preventDefault();
+    this.setState({
+      inPasswordSubmit: true
+    });
     let payload = {
       email: this.state.email,
       password: this.state.password,
@@ -91,7 +106,8 @@ class Login extends React.Component<Props, State> {
       });
     }).catch(() => {
       this.setState({
-        invalid: true
+        invalid: true,
+        inPasswordSubmit: false
       });
     });
   }
@@ -108,12 +124,15 @@ class Login extends React.Component<Props, State> {
   renderAuthProviderButton = (provider: AuthProvider) => {
     return (
       <p key={provider.id}>
-        <Button variant="primary" className="btn-auth-provider" onClick={() => this.useProvider(provider)}>{provider.name}</Button>
+        <Button variant="primary" className="btn-auth-provider" onClick={() => this.useProvider(provider)}>{this.state.inAuthProviderLogin ? <Loading showText={false} paddingTop={false} /> : provider.name }</Button>
       </p>
     );
   }
 
   useProvider = (provider: AuthProvider) => {
+    this.setState({
+      inAuthProviderLogin: true
+    });
     let target = Ajax.getBackendUrl() + "/auth/" + provider.id + "/login/ui";
     if (this.state.rememberMe) {
       target += "/1"
@@ -136,8 +155,8 @@ class Login extends React.Component<Props, State> {
             <img src="./seatsurfing.svg" alt="Seatsurfing" className="logo" />
             <p>{this.props.t("signinAsAt", { user: this.state.email, org: this.org?.name })}</p>
             <InputGroup>
-              <Form.Control type="password" placeholder={this.props.t("password")} value={this.state.password} onChange={(e: any) => this.setState({ password: e.target.value, invalid: false })} required={true} isInvalid={this.state.invalid} minLength={8} autoFocus={true} />
-              <Button variant="primary" type="submit">&#10148;</Button>
+              <Form.Control type="password" readOnly={this.state.inPasswordSubmit} placeholder={this.props.t("password")} value={this.state.password} onChange={(e: any) => this.setState({ password: e.target.value, invalid: false })} required={true} isInvalid={this.state.invalid} minLength={8} autoFocus={true} />
+              <Button variant="primary" type="submit">{this.state.inPasswordSubmit ? <Loading showText={false} paddingTop={false} /> : <div className="feather-btn">&#10148;</div> }</Button>
             </InputGroup>
             <Form.Control.Feedback type="invalid">{this.props.t("errorInvalidPassword")}</Form.Control.Feedback>
             <p className="margin-top-50"><Button variant="link" onClick={this.cancelPasswordLogin}>{this.props.t("back")}</Button></p>
@@ -170,8 +189,8 @@ class Login extends React.Component<Props, State> {
           <img src="./seatsurfing.svg" alt="Seatsurfing" className="logo" />
           <h3>{this.props.t("findYourPlace")}</h3>
           <InputGroup>
-            <Form.Control type="email" placeholder={this.props.t("emailPlaceholder")} value={this.state.email} onChange={(e: any) => this.setState({ email: e.target.value, invalid: false })} required={true} isInvalid={this.state.invalid} autoFocus={true} />
-            <Button variant="primary" type="submit">&#10148;</Button>
+            <Form.Control type="email" readOnly={this.state.inPreflight} placeholder={this.props.t("emailPlaceholder")} value={this.state.email} onChange={(e: any) => this.setState({ email: e.target.value, invalid: false })} required={true} isInvalid={this.state.invalid} autoFocus={true} />
+            <Button variant="primary" type="submit">{this.state.inPreflight ? <Loading showText={false} paddingTop={false} /> : <div className="feather-btn">&#10148;</div> }</Button>
           </InputGroup>
           <Form.Control.Feedback type="invalid">{this.props.t("errorInvalidEmail")}</Form.Control.Feedback>
           <Form.Check type="checkbox" id="check-rememberme" label={this.props.t("rememberMe")} checked={this.state.rememberMe} onChange={(e: any) => this.setState({ rememberMe: e.target.checked })} />

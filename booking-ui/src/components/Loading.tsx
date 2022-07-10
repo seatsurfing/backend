@@ -8,12 +8,14 @@ interface State {
 
 interface Props {
     t: TFunction
+    showText: boolean
+    paddingTop: boolean
 }
 
 class Loading extends React.Component<Props, State> {
     render() {
         return (
-            <div className="padding-top center"><IconLoad className="feather loader" /> {this.props.t("loadingHint")}</div>
+            <div className={this.props.paddingTop === undefined || this.props.paddingTop === true ? "padding-top center" : "center"}><IconLoad className="feather loader" />{this.props.showText === undefined || this.props.showText === true ? " " + this.props.t("loadingHint") : ""}</div>
         );
     }
 }

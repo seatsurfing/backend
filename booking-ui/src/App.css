@@ -3,6 +3,12 @@
     height: 24px;
 }
 
+.feather-btn {
+    width: 16px;
+    height: 16px;
+    line-height: 1.0;
+}
+
 .button-link {
     margin: 0;
     padding: 0;
