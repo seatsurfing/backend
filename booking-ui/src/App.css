@@ -1,12 +1,12 @@
-.feather {
-    width: 16px;
-    height: 16px;
-    vertical-align: text-bottom;
-}
-
 .feather-lg {
     width: 24px;
     height: 24px;
+}
+
+.feather-btn {
+    width: 16px;
+    height: 16px;
+    line-height: 1.0;
 }
 
 .button-link {
@@ -48,35 +48,10 @@ h2 {
     margin-top: 100px;
 }
 
-.loader {
-    -webkit-animation: spin 4s linear infinite;
-    -moz-animation: spin 4s linear infinite;
-    animation: spin 4s linear infinite;
-}
-
 .padding-top {
     padding-top: 75px;
 }
 
 .center {
     text-align: center;
-}
-
-@-moz-keyframes spin {
-    100% {
-        -moz-transform: rotate(360deg);
-    }
-}
-
-@-webkit-keyframes spin {
-    100% {
-        -webkit-transform: rotate(360deg);
-    }
-}
-
-@keyframes spin {
-    100% {
-        -webkit-transform: rotate(360deg);
-        transform: rotate(360deg);
-    }
 }
