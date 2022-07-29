@@ -185,7 +185,7 @@ class EditLocation extends React.Component<Props, State> {
   }
 
   addRect = (e?: Space): number => {
-    let spaces = [...this.state.spaces];
+    let spaces = this.state.spaces;
     let space: SpaceState = {
       id: (e ? e.id : ""),
       name: (e ? e.name : this.props.t("unnamed")),
@@ -201,7 +201,7 @@ class EditLocation extends React.Component<Props, State> {
   }
 
   setSpacePosition = (i: number, x: number, y: number) => {
-    let spaces = [...this.state.spaces];
+    let spaces = this.state.spaces;
     let space = { ...spaces[i] };
     space.x = x;
     space.y = y;
@@ -210,7 +210,7 @@ class EditLocation extends React.Component<Props, State> {
   }
 
   setSpaceDimensions = (i: number, width: string, height: string) => {
-    let spaces = [...this.state.spaces];
+    let spaces = this.state.spaces;
     let space = { ...spaces[i] };
     space.width = width;
     space.height = height;
@@ -219,7 +219,7 @@ class EditLocation extends React.Component<Props, State> {
   }
 
   setSpaceName = (i: number, name: string) => {
-    let spaces = [...this.state.spaces];
+    let spaces = this.state.spaces;
     let space = { ...spaces[i] };
     space.name = name;
     spaces[i] = space;
@@ -232,7 +232,7 @@ class EditLocation extends React.Component<Props, State> {
 
   copySpace = () => {
     if (this.state.selectedSpace != null) {
-      let spaces = [...this.state.spaces];
+      let spaces = this.state.spaces;
       let space = { ...spaces[this.state.selectedSpace] };
       let newSpace: SpaceState = Object.assign({}, space);
       newSpace.id = "";
@@ -246,7 +246,7 @@ class EditLocation extends React.Component<Props, State> {
 
   deleteSpace = () => {
     if (this.state.selectedSpace != null) {
-      let spaces = [...this.state.spaces];
+      let spaces = this.state.spaces;
       let space = { ...spaces[this.state.selectedSpace] };
       if (space.id) {
         let deleteIds = [...this.state.deleteIds];
