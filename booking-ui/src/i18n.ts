@@ -100,7 +100,8 @@ const resources = {
             "showMap": "Zeige Plan",
             "gotoBooking": "Gehe zur Buchung",
             "administration": "Administration",
-            "datePickerFormat": "dd.MM.y HH:mm"
+            "datePickerFormat": "dd.MM.y HH:mm",
+            "datePickerFormatDailyBasisBooking": "dd.MM.y"
         }
     },
     en: {
@@ -199,7 +200,8 @@ const resources = {
             "showMap": "Show Map",
             "gotoBooking": "Show Booking",
             "administration": "Administration",
-            "datePickerFormat": "y-MM-dd HH:mm"
+            "datePickerFormat": "y-MM-dd HH:mm",
+            "datePickerFormatDailyBasisBooking": "y-MM-dd"
         }
     }
 };
