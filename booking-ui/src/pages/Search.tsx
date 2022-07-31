@@ -509,11 +509,11 @@ class Search extends React.Component<Props, State> {
     }
     let enterDatePicker = <DateTimePicker value={this.state.enter} onChange={(value: Date) => this.setEnterDate(value)} clearIcon={null} required={true} format={this.props.t("datePickerFormat")} />;
     if (this.context.dailyBasisBooking) {
-      enterDatePicker = <DatePicker value={this.state.enter} onChange={(value: Date | Date[]) => this.setEnterDate(value)} clearIcon={null} required={true} format={this.props.t("datePickerFormat")} />;
+      enterDatePicker = <DatePicker value={this.state.enter} onChange={(value: Date | Date[]) => this.setEnterDate(value)} clearIcon={null} required={true} format={this.props.t("datePickerFormatDailyBasisBooking")} />;
     }
     let leaveDatePicker = <DateTimePicker value={this.state.leave} onChange={(value: Date) => this.setLeaveDate(value)} clearIcon={null} required={true} format={this.props.t("datePickerFormat")} />;
     if (this.context.dailyBasisBooking) {
-      leaveDatePicker = <DatePicker value={this.state.leave} onChange={(value: Date | Date[]) => this.setLeaveDate(value)} clearIcon={null} required={true} format={this.props.t("datePickerFormat")} />;
+      leaveDatePicker = <DatePicker value={this.state.leave} onChange={(value: Date | Date[]) => this.setLeaveDate(value)} clearIcon={null} required={true} format={this.props.t("datePickerFormatDailyBasisBooking")} />;
     }
 
     let listOrMap = <></>;
