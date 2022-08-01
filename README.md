@@ -11,11 +11,9 @@ Seatsurfing is a software which enables your organisation's employees to book se
 
 This repository contains the Backend, which consists of:
 * The Server (REST API Backend) written in Go
+* User Self-Service Booking Web Interface ("Booking UI"), built as a Progressive Web Application (PWA) which can be installed on mobile devices
 * Admin Web Interface ("Admin UI")
-* User Self-Service Booking Web Interface ("Booking UI")
 * Common TypeScript files for the two TypeScript/React web frontends
-
-The mobile app is maintained in a [separate repository](https://github.com/seatsurfing/app).
 
 **[Visit project's website for more information.](https://seatsurfing.app)**
 
@@ -27,15 +25,11 @@ The mobile app is maintained in a [separate repository](https://github.com/seats
 ### Web Booking UI
 ![Seatsurfing Web Booking UI](https://raw.githubusercontent.com/seatsurfing/backend/master/.github/booking-ui.png)
 
-### Mobile App (iOS and Android)
-![Seatsurfing Mobile App](https://raw.githubusercontent.com/seatsurfing/backend/master/.github/app.png)
-
 ## Quick reference
 * **Maintained by:** [Seatsurfing.app](https://seatsurfing.app/)
-* **Where to get help:** [Documentation](https://docs.seatsurfing.app/)
+* **Where to get help:** [Documentation](https://seatsurfing.app/docs/)
 * **Docker architectures:** [amd64, arm64, arm v7](http://hub.docker.com/r/seatsurfing/backend)
 * **License:** [GPL 3.0](https://github.com/seatsurfing/backend/blob/master/LICENSE)
-* **Mobile apps:** [Apple App Store](https://apps.apple.com/app/seatsurfing/id1579071273) and [Google Play](https://play.google.com/store/apps/details?id=de.seatsurfing.app)
 
 ## How to use the Docker image
 
@@ -92,7 +86,7 @@ This starts...
 Please refer to our [Kubernetes documentation](https://docs.seatsurfing.app/kubernetes/).
 
 ## Environment variables
-Please check out the [documentation](https://docs.seatsurfing.app/) for the latest information on available environment variables and further guidance.
+Please check out the [documentation](https://seatsurfing.app/docs/) for the latest information on available environment variables and further guidance.
 
 | Environment Variable | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -105,7 +99,13 @@ Please check out the [documentation](https://docs.seatsurfing.app/) for the late
 | STATIC_BOOKING_UI_PATH | string | /app/bookingui | Path to compiled Booking UI files |
 | POSTGRES_URL | string | postgres://postgres:root @ localhost/seatsurfing?sslmode=disable | PostgreSQL Connection |
 | JWT_SIGNING_KEY | string | random string | JWT Signing Key |
-| SMTP_HOST | string | 127.0.0.1:25 | SMTP server address and port (authentication is not supported at this time) |
+| SMTP_HOST | string | 127.0.0.1 | SMTP server address |
+| SMTP_PORT | int | 25 | SMTP server port |
+| SMTP_START_TLS | bool | 0 | Use SMTP STARTTLS extension, set to 1 to enable |
+| SMTP_INSECURE_SKIP_VERIFY | bool | 0 | Disable SMTP TLS certificate validation |
+| SMTP_AUTH | bool | 0 | SMTP authentication, set to 1 to enable |
+| SMTP_AUTH_USER | string |  | SMTP auth username |
+| SMTP_AUTH_PASS | string |  | SMTP auth password |
 | SMTP_SENDER_ADDRESS | string | no-reply@seatsurfing.local | SMTP sender address |
 | MOCK_SENDMAIL | bool | 0 | SMTP mocking, set to 1 to enable |
 | PRINT_CONFIG | bool | 0 | Print configuration on startup, set to 1 to enable |
@@ -119,3 +119,4 @@ Please check out the [documentation](https://docs.seatsurfing.app/) for the late
 | ORG_SIGNUP_DOMAIN | string | .on.seatsurfing.local | Signup domain suffix |
 | ORG_SIGNUP_ADMIN | string | admin | Admin username for new signups |
 | ORG_SIGNUP_MAX_USERS | int | 50 | Maximum number of users for new organisations |
+| ORG_SIGNUP_DELETE | bool | 0 | Allow admins to delete their own organisation |
