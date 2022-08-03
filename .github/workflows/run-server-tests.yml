@@ -1,4 +1,4 @@
-name: Run Tests
+name: Run Server Tests
 
 on: [pull_request, workflow_dispatch]
 
