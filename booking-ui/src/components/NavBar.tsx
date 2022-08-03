@@ -161,7 +161,6 @@ class NavBar extends React.Component<Props, State> {
                 <Nav className="ms-auto">
                     {initMergeButton}
                     {mergeRequestsButton}
-                    {userInfo}
                 </Nav>
             </>
         );
@@ -179,9 +178,9 @@ class NavBar extends React.Component<Props, State> {
 
         return (
             <>
-                <Navbar bg="dark" variant="dark" fixed="top" expand={RuntimeConfig.EMBEDDED ? true : "xl"}>
+                <Navbar bg="light" variant="light" fixed="top" expand={RuntimeConfig.EMBEDDED ? true : "xl"}>
                     <Container fluid={true}>
-                        <Navbar.Brand as={NavLink} to="/search"><img src="/ui/seatsurfing_white.svg" alt="Seatsurfing" /></Navbar.Brand>
+                        <Navbar.Brand as={NavLink} to="/search"><img src="/ui/seatsurfing.svg" alt="Seatsurfing" /></Navbar.Brand>
                         {collapsable}
                     </Container>
                 </Navbar>

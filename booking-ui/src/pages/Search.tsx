@@ -10,7 +10,7 @@ import DatePicker from 'react-date-picker';
 import './Search.css';
 import { AuthContext } from '../AuthContextData';
 import Loading from '../components/Loading';
-import { EnterOutline as EnterIcon, ExitOutline as ExitIcon, LocationOutline as LocationIcon, ChevronUpOutline as CollapseIcon, SettingsOutline as SettingsIcon, MapOutline as MapIcon, ListOutline as ListIcon } from 'react-ionicons'
+import { EnterOutline as EnterIcon, ExitOutline as ExitIcon, LocationOutline as LocationIcon, ChevronUpOutline as CollapseIcon, ChevronDownOutline as CollapseIcon2, SettingsOutline as SettingsIcon, MapOutline as MapIcon, ListOutline as ListIcon } from 'react-ionicons'
 import ErrorText from '../types/ErrorText';
 import { NavigateFunction } from 'react-router-dom';
 import { withNavigate } from '../types/withNavigate';
@@ -44,8 +44,8 @@ interface Props {
 class Search extends React.Component<Props, State> {
   static contextType = AuthContext;
   static PreferenceEnterTimeNow: number = 1;
-	static PreferenceEnterTimeNextDay: number = 2;
-	static PreferenceEnterTimeNextWorkday: number = 3;
+  static PreferenceEnterTimeNextDay: number = 2;
+  static PreferenceEnterTimeNextWorkday: number = 3;
 
   data: Space[];
   locations: Location[]
@@ -166,7 +166,7 @@ class Search extends React.Component<Props, State> {
       let nextDayFound = false;
       let lookFor = enter.getDay();
       while (!nextDayFound) {
-        if (this.state.prefWorkdays.includes(lookFor) || add > 7) {
+        if (this.state.prefWorkdays.includes(lookFor) || add > 7) {
           nextDayFound = true;
         } else {
           add++;
@@ -374,17 +374,17 @@ class Search extends React.Component<Props, State> {
   }
 
   getAvailibilityStyle = (item: Space, bookings: Booking[]) => {
-    const mydesk = (bookings.find(b => b.user.email === this.context.username ));
+    const mydesk = (bookings.find(b => b.user.email === this.context.username));
     return (mydesk ? "space-mydesk" : (item.available ? "space-available" : "space-notavailable"));
   }
-  
+
   getBookersList = (bookings: Booking[]) => {
     if (!bookings.length) return "";
     let str = "";
     bookings.forEach(b => {
       str += (str ? ", " : "") + b.user.email
-     });
-     return str;
+    });
+    return str;
   }
 
   renderItem = (item: Space) => {
@@ -401,7 +401,7 @@ class Search extends React.Component<Props, State> {
     const textStyle: React.CSSProperties = {
       textAlign: "center"
     };
-    const className = "space space-box" 
+    const className = "space space-box"
       + ((item.width < item.height) ? " space-box-vertical" : "")
       + " " + this.getAvailibilityStyle(item, bookings);
     return (
@@ -551,8 +551,24 @@ class Search extends React.Component<Props, State> {
     let configContainer = (
       <div className="container-search-config" ref={this.searchContainerRef}>
         <div className="collapse-bar" onClick={() => this.toggleSearchContainer()}>
-          <CollapseIcon color={'#000'} height="20px" width="20px" cssClasses="collapse-icon" />
-          <SettingsIcon color={'#555'} height="26px" width="26px" cssClasses="expand-icon" />
+          <CollapseIcon color={'#000'} height="20px" width="20px" cssClasses="collapse-icon collapse-icon-bigscreen" />
+          <CollapseIcon2 color={'#000'} height="20px" width="20px" cssClasses="collapse-icon collapse-icon-smallscreen" />
+          <SettingsIcon color={'#555'} height="26px" width="26px" cssClasses="expand-icon expand-icon-bigscreen" />
+          <CollapseIcon color={'#555'} height="20px" width="20px" cssClasses="expand-icon expand-icon-smallscreen" />
+        </div>
+        <div className="content-minimized">
+          <Row>
+            <Col xs="2"><LocationIcon title={this.props.t("area")} color={'#555'} height="20px" width="20px" /></Col>
+            <Col xs="10">{this.getLocationName()}</Col>
+          </Row>
+          <Row>
+            <Col xs="2"><EnterIcon title={this.props.t("enter")} color={'#555'} height="20px" width="20px" /></Col>
+            <Col xs="10">{Formatting.getFormatterShort().format(Formatting.convertToFakeUTCDate(new Date(this.state.enter)))}</Col>
+          </Row>
+          <Row>
+            <Col xs="2"><ExitIcon title={this.props.t("leave")} color={'#555'} height="20px" width="20px" /></Col>
+            <Col xs="10">{Formatting.getFormatterShort().format(Formatting.convertToFakeUTCDate(new Date(this.state.leave)))}</Col>
+          </Row>
         </div>
         <div className="content">
           <Form>
@@ -577,11 +593,13 @@ class Search extends React.Component<Props, State> {
               </Col>
             </Form.Group>
             {hint}
+            <Form.Group as={Row} className="margin-top-10">
+              <Col xs="2"><MapIcon title={this.props.t("map")} color={'#555'} height="20px" width="20px" /></Col>
+              <Col xs="10">
+                <Form.Check type="switch" checked={!this.state.listView} onChange={() => this.toggleListView()} label={this.state.listView ? this.props.t("showList") : this.props.t("showMap")} />
+              </Col>
+            </Form.Group>
           </Form>
-          <Button variant="outline-dark" onClick={() => this.toggleListView()} className="margin-top-10">
-            <MapIcon title={this.props.t("showMap")} color={'#555'} height="26px" width="26px" style={{ "display": this.state.listView ? "" : "none" }} />
-            <ListIcon title={this.props.t("showList")} color={'#555'} height="26px" width="26px" style={{ "display": this.state.listView ? "none" : "" }} />
-          </Button>
         </div>
       </div>
     );
@@ -611,13 +629,13 @@ class Search extends React.Component<Props, State> {
     if (this.state.selectedSpace) {
       bookings = Booking.createFromRawArray(this.state.selectedSpace.rawBookings);
     }
-    const myBooking = (bookings.find(b => b.user.email === this.context.username ));
+    const myBooking = (bookings.find(b => b.user.email === this.context.username));
     let gotoBooking;
-    if (myBooking){
+    if (myBooking) {
       gotoBooking = (
         <Button variant="secondary" onClick={() => {
           this.setState({ showBookingNames: false })
-          this.props.navigate("/bookings#"+myBooking.id)
+          this.props.navigate("/bookings#" + myBooking.id)
         }}>
           {this.props.t("gotoBooking")}
         </Button>
@@ -637,7 +655,7 @@ class Search extends React.Component<Props, State> {
           <Button variant="primary" onClick={() => this.setState({ showBookingNames: false })}>
             {this.props.t("ok")}
           </Button>
-        {gotoBooking}
+          {gotoBooking}
         </Modal.Footer>
       </Modal>
     );
@@ -656,7 +674,7 @@ class Search extends React.Component<Props, State> {
           <Button variant="secondary" onClick={() => {
             this.setState({ showSuccess: false });
             this.refreshPage();
-            }}>
+          }}>
             {this.props.t("ok").toString()}
           </Button>
         </Modal.Footer>
