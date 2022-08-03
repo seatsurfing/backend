@@ -593,11 +593,13 @@ class Search extends React.Component<Props, State> {
               </Col>
             </Form.Group>
             {hint}
+            <Form.Group as={Row} className="margin-top-10">
+              <Col xs="2"><MapIcon title={this.props.t("map")} color={'#555'} height="20px" width="20px" /></Col>
+              <Col xs="10">
+                <Form.Check type="switch" checked={!this.state.listView} onChange={() => this.toggleListView()} label={this.state.listView ? this.props.t("showList") : this.props.t("showMap")} />
+              </Col>
+            </Form.Group>
           </Form>
-          <Button variant="outline-dark" onClick={() => this.toggleListView()} className="margin-top-10">
-            <MapIcon title={this.props.t("showMap")} color={'#555'} height="26px" width="26px" style={{ "display": this.state.listView ? "" : "none" }} />
-            <ListIcon title={this.props.t("showList")} color={'#555'} height="26px" width="26px" style={{ "display": this.state.listView ? "none" : "" }} />
-          </Button>
         </div>
       </div>
     );
