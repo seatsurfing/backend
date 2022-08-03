@@ -55,3 +55,8 @@ h2 {
 .center {
     text-align: center;
 }
+
+.btn:focus, .btn:active {
+    background-color: #fff;
+    box-shadow: none;
+}
