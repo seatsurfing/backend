@@ -6,7 +6,7 @@ jobs:
 
   container-job:
     runs-on: ubuntu-latest
-    container: golang:1.17-alpine
+    container: golang:1.18-alpine
 
     services:
       postgres:
@@ -31,21 +31,3 @@ jobs:
       env:
         POSTGRES_URL: postgres://postgres:root@postgres/seatsurfing_test?sslmode=disable
         CGO_ENABLED: 0
-    - uses: actions/setup-node@v3
-      with:
-        node-version: '16'
-    - name: Build TypeScript commons
-      working-directory: ./commons/ts
-      run: npm install && npm run build
-    - name: Install Booking UI dependencies
-      working-directory: ./booking-ui
-      run: npm install
-    - name: Run Booking UI linting
-      working-directory: ./booking-ui
-      run: npm run lint
-    - name: Install Admin UI dependencies
-      working-directory: ./admin-ui
-      run: npm install
-    - name: Run Admin UI linting
-      working-directory: ./admin-ui
-      run: npm run lint
