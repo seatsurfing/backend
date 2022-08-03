@@ -131,7 +131,6 @@ class NavBar extends React.Component<Props, State> {
         let adminButton = <></>;
         let initMergeButton = <></>;
         let mergeRequestsButton = <></>;
-        let userInfo = <></>;
         let collapsable = <></>;
         
         if (!RuntimeConfig.EMBEDDED) {
@@ -139,7 +138,6 @@ class NavBar extends React.Component<Props, State> {
                 adminButton = <Nav.Link onClick={this.gotoAdmin}>{this.props.t("administration")}</Nav.Link>;
             }
             signOffButton = <Nav.Link onClick={this.logOut}>{this.props.t("signout")}</Nav.Link>;
-            userInfo = <Navbar.Text>{this.context.username}</Navbar.Text>;
             if (this.state.mergeRequests.length > 0) {
                 mergeRequestsButton = <Nav.Link onClick={this.showMergeRequestsModal} className="icon-link"><IconAlert className="feather feather-lg" /><Badge pill={true} bg="light" className="badge-top">{this.state.mergeRequests.length}</Badge></Nav.Link>;
             }
