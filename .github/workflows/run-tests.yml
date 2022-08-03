@@ -22,7 +22,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Install dependencies
+    - name: Install server dependencies
       working-directory: ./server
       run: go get -d -v ./...
     - name: Run server tests
@@ -31,3 +31,18 @@ jobs:
       env:
         POSTGRES_URL: postgres://postgres:root@postgres/seatsurfing_test?sslmode=disable
         CGO_ENABLED: 0
+    - name: Build TypeScript commons
+      working-directory: ./commons/ts
+      run: npm install && npm run build
+    - name: Install Booking UI dependencies
+      working-directory: ./booking-ui
+      run: npm install
+    - name: Run Booking UI linting
+      working-directory: ./booking-ui
+      run: npm run lint
+    - name: Install Admin UI dependencies
+      working-directory: ./admin-ui
+      run: npm install
+    - name: Run Admin UI linting
+      working-directory: ./admin-ui
+      run: npm run lint
