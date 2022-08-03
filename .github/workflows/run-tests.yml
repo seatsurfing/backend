@@ -31,6 +31,9 @@ jobs:
       env:
         POSTGRES_URL: postgres://postgres:root@postgres/seatsurfing_test?sslmode=disable
         CGO_ENABLED: 0
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '16'
     - name: Build TypeScript commons
       working-directory: ./commons/ts
       run: npm install && npm run build
