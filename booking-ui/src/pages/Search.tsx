@@ -10,7 +10,7 @@ import DatePicker from 'react-date-picker';
 import './Search.css';
 import { AuthContext } from '../AuthContextData';
 import Loading from '../components/Loading';
-import { EnterOutline as EnterIcon, ExitOutline as ExitIcon, LocationOutline as LocationIcon, ChevronUpOutline as CollapseIcon, ChevronDownOutline as CollapseIcon2, SettingsOutline as SettingsIcon, MapOutline as MapIcon, ListOutline as ListIcon } from 'react-ionicons'
+import { EnterOutline as EnterIcon, ExitOutline as ExitIcon, LocationOutline as LocationIcon, ChevronUpOutline as CollapseIcon, ChevronDownOutline as CollapseIcon2, SettingsOutline as SettingsIcon, MapOutline as MapIcon } from 'react-ionicons'
 import ErrorText from '../types/ErrorText';
 import { NavigateFunction } from 'react-router-dom';
 import { withNavigate } from '../types/withNavigate';
