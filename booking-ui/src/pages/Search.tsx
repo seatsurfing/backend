@@ -1,6 +1,6 @@
 import React, { RefObject } from 'react';
 import './Login.css';
-import { Form, Alert, Col, Row, Modal, Button, ListGroup, Badge } from 'react-bootstrap';
+import { Form, Col, Row, Modal, Button, ListGroup, Badge } from 'react-bootstrap';
 import { Location, Booking, Ajax, Formatting, Space, AjaxError, UserPreference } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
@@ -314,7 +314,7 @@ class Search extends React.Component<Props, State> {
       }, () => dateChangedCb());
     };
     window.clearTimeout(this.enterChangeTimer);
-    this.enterChangeTimer = window.setTimeout(performChange, 2000);
+    this.enterChangeTimer = window.setTimeout(performChange, 1000);
   }
 
   setLeaveDate = (value: Date | Date[]) => {
@@ -343,7 +343,7 @@ class Search extends React.Component<Props, State> {
       }, () => dateChangedCb());
     };
     window.clearTimeout(this.leaveChangeTimer);
-    this.leaveChangeTimer = window.setTimeout(performChange, 2000);
+    this.leaveChangeTimer = window.setTimeout(performChange, 1000);
   }
 
   changeLocation = (id: string) => {
@@ -502,8 +502,11 @@ class Search extends React.Component<Props, State> {
     let hint = <></>;
     if ((!this.state.canSearch) && (this.state.canSearchHint)) {
       hint = (
-        <Form.Group>
-          <Alert variant="warning">{this.state.canSearchHint}</Alert>
+        <Form.Group as={Row} className="margin-top-10">
+          <Col xs="2"></Col>
+          <Col xs="10">
+            <div className="invalid-search-config">{this.state.canSearchHint}</div>
+          </Col>
         </Form.Group>
       );
     }

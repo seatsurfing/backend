@@ -168,6 +168,13 @@
     white-space: nowrap;
 }
 
+.invalid-search-config {
+    width: 100%;
+
+    font-size: .875em;
+    color: #dc3545;
+}
+
 @media only screen and (max-width: 600px), only screen and (max-height: 500px) {
     .space-list {
         padding-bottom: 130px;
