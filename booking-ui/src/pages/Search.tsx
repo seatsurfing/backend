@@ -314,7 +314,7 @@ class Search extends React.Component<Props, State> {
       }, () => dateChangedCb());
     };
     window.clearTimeout(this.enterChangeTimer);
-    this.enterChangeTimer = window.setTimeout(performChange, 2000);
+    this.enterChangeTimer = window.setTimeout(performChange, 1000);
   }
 
   setLeaveDate = (value: Date | Date[]) => {
@@ -343,7 +343,7 @@ class Search extends React.Component<Props, State> {
       }, () => dateChangedCb());
     };
     window.clearTimeout(this.leaveChangeTimer);
-    this.leaveChangeTimer = window.setTimeout(performChange, 2000);
+    this.leaveChangeTimer = window.setTimeout(performChange, 1000);
   }
 
   changeLocation = (id: string) => {
