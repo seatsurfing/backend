@@ -1,8 +1,8 @@
 import React from 'react';
 import FullLayout from '../components/FullLayout';
 import Loading from '../components/Loading';
-import { Stats, User } from 'flexspace-commons';
-import { Card, Row, Col, ProgressBar } from 'react-bootstrap';
+import { Ajax, Stats, User } from 'flexspace-commons';
+import { Card, Row, Col, ProgressBar, Alert } from 'react-bootstrap';
 import './Dashboard.css';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
@@ -13,6 +13,7 @@ interface State {
   redirect: string
   spaceAdmin: boolean
   orgAdmin: boolean
+  latestVersion: any
 }
 
 interface Props {
@@ -30,16 +31,36 @@ class Dashboard extends React.Component<Props, State> {
       redirect: "",
       spaceAdmin: false,
       orgAdmin: false,
+      latestVersion: null
     };
   }
 
   componentDidMount = () => {
     let promises = [
       this.loadItems(),
-      this.getUserInfo()
+      this.getUserInfo(),
+      this.checkUpdates()
     ];
     Promise.all(promises).then(() => {
       this.setState({ loading: false });
+    });
+  }
+
+  checkUpdates = async(): Promise<void> => {
+    let self = this;
+    return new Promise<void>(function (resolve, reject) {
+      Ajax.get("/uc/").then(res => {
+        console.log(JSON.stringify(res))
+        self.setState({
+          latestVersion: res.json
+        }, () => resolve());
+      }).catch(() => {
+        console.warn("Could not check for updates.")
+        let res = {version: "", updateAvailable: false};
+        self.setState({
+          latestVersion: res
+        }, () => resolve());
+      });
     });
   }
 
@@ -114,8 +135,14 @@ class Dashboard extends React.Component<Props, State> {
       );
     }
 
+    let updateHint = <></>;
+    if (this.state.latestVersion && this.state.latestVersion.updateAvailable) {
+      updateHint = <Alert variant="warning"><a href="https://github.com/seatsurfing/backend/releases" target="_blank" rel="noreferrer">{this.props.t("updateAvailable", {version: this.state.latestVersion.version})}</a></Alert>;
+    }
+
     return (
       <FullLayout headline="Dashboard">
+        {updateHint}
         <Row className="mb-4">
           {this.renderStatsCard(this.stats?.numUsers, this.props.t("users"), (this.state.orgAdmin ? "/users/": ""))}
           {this.renderStatsCard(this.stats?.numLocations, this.props.t("areas"), "/locations/")}

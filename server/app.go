@@ -51,6 +51,7 @@ func (a *App) InitializeRouter() {
 	routers["/search/"] = &SearchRouter{}
 	routers["/setting/"] = &SettingsRouter{}
 	routers["/confluence/"] = &ConfluenceRouter{}
+	routers["/uc/"] = &CheckUpdateRouter{}
 	if config.OrgSignupEnabled {
 		routers["/signup/"] = &SignupRouter{}
 	}
@@ -97,6 +98,7 @@ func (a *App) InitializeDefaultOrg() {
 }
 
 func (a *App) InitializeTimers() {
+	GetUpdateChecker().InitializeVersionUpdateTimer()
 	a.CleanupTicker = time.NewTicker(time.Minute * 5)
 	go func() {
 		for {

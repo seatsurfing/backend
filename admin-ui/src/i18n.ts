@@ -132,7 +132,8 @@ const resources = {
             "analysis": "Auswertung",
             "all": "Alle",
             "confirmCancelBooking": "Buchung stornieren?",
-            "bookingui": "Buchungsseite"
+            "bookingui": "Buchungsseite",
+            "updateAvailable": "Bitte aktualisiere Seatsurfing auf die neuste Version {{version}}.",
         }
     },
     en: {
@@ -265,6 +266,7 @@ const resources = {
             "all": "All",
             "confirmCancelBooking": "Cancel booking?",
             "bookingui": "Booking Site",
+            "updateAvailable": "Please update Seatsurfing to the latest version {{version}}.",
         }
     }
 };
