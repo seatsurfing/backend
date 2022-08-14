@@ -1,6 +1,6 @@
 import React, { RefObject } from 'react';
 import './Login.css';
-import { Form, Alert, Col, Row, Modal, Button, ListGroup, Badge } from 'react-bootstrap';
+import { Form, Col, Row, Modal, Button, ListGroup, Badge } from 'react-bootstrap';
 import { Location, Booking, Ajax, Formatting, Space, AjaxError, UserPreference } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
