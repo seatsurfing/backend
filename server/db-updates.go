@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"strconv"
+
+	"github.com/google/uuid"
 )
 
 func RunDBSchemaUpdates() {
@@ -31,6 +33,14 @@ func RunDBSchemaUpdates() {
 		repository.RunSchemaUpgrade(curVersion, targetVersion)
 	}
 	GetSettingsRepository().SetGlobal(SettingDatabaseVersion.Name, strconv.Itoa(targetVersion))
+	SetGlobalInstallID()
+}
+
+func SetGlobalInstallID() {
+	ID, err := GetSettingsRepository().GetGlobalString(SettingInstallID.Name)
+	if (err != nil) || (ID == "") {
+		GetSettingsRepository().SetGlobal(SettingInstallID.Name, uuid.New().String())
+	}
 }
 
 func InitDefaultOrgSettings() {
