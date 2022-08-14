@@ -502,8 +502,11 @@ class Search extends React.Component<Props, State> {
     let hint = <></>;
     if ((!this.state.canSearch) && (this.state.canSearchHint)) {
       hint = (
-        <Form.Group>
-          <Alert variant="warning">{this.state.canSearchHint}</Alert>
+        <Form.Group as={Row} className="margin-top-10">
+          <Col xs="2"></Col>
+          <Col xs="10">
+            <div className="invalid-search-config">{this.state.canSearchHint}</div>
+          </Col>
         </Form.Group>
       );
     }
