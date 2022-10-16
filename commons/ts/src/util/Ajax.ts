@@ -104,8 +104,12 @@ export default class Ajax {
                 reject(new AjaxError(response.status, 0));
               });
             } else {
-              release();
-              reject(new AjaxError(response.status, 0));
+              // token invalid
+              Ajax.CREDENTIALS = new AjaxCredentials();
+              Ajax.PERSISTER.deleteCredentialsFromSessionStorage().then(() => {
+                resolve(Ajax.CREDENTIALS);
+                release();
+              });
             }
           }).catch(err => {
             release();
