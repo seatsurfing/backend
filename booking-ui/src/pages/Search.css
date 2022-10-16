@@ -177,6 +177,9 @@
 
 @media only screen and (max-width: 600px), only screen and (max-height: 500px) {
     .space-list {
+        padding-bottom: 250px;
+    }
+    .space-list.maximized {
         padding-bottom: 130px;
     }
 
@@ -186,6 +189,9 @@
         padding-top: 70px;
         padding-left: 10px;
         padding-right: 10px;
+        padding-bottom: 250px;
+    }
+    .container-map.maximized {
         padding-bottom: 130px;
     }
 

@@ -488,6 +488,11 @@ class Search extends React.Component<Props, State> {
   toggleSearchContainer = () => {
     const ref = this.searchContainerRef.current;
     ref.classList.toggle("minimized");
+    
+    const map = document.querySelector('.container-map');
+    if (map) map.classList.toggle("maximized");
+    const list = document.querySelector('.space-list');
+    if (list) list.classList.toggle("maximized");
   }
 
   toggleListView = () => {
