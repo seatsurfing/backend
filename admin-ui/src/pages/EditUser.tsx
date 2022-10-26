@@ -2,7 +2,7 @@ import React from 'react';
 import FullLayout from '../components/FullLayout';
 import { Form, Col, Row, Button, Alert, InputGroup } from 'react-bootstrap';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete } from 'react-feather';
-import { Link, Navigate, NavigateFunction, Params, RouteProps } from 'react-router-dom';
+import { Link, Navigate, NavigateFunction, Params, PathRouteProps } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { User, Settings as OrgSettings, Domain } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
@@ -24,7 +24,7 @@ interface State {
   domain: string
 }
 
-interface Props extends RouteProps {
+interface Props extends PathRouteProps {
   navigate: NavigateFunction
   params: Readonly<Params<string>>
   t: TFunction

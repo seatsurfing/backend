@@ -1,7 +1,7 @@
 import React from 'react';
 import FullLayout from '../components/FullLayout';
 import Loading from '../components/Loading';
-import { Link, Params, RouteProps } from 'react-router-dom';
+import { Link, Params, PathRouteProps } from 'react-router-dom';
 import { Search } from 'flexspace-commons';
 import { Card, ListGroup, Col, Row } from 'react-bootstrap';
 import { withTranslation } from 'react-i18next';
@@ -12,7 +12,7 @@ interface State {
   loading: boolean
 }
 
-interface Props extends RouteProps {
+interface Props extends PathRouteProps {
   params: Readonly<Params<string>>
   t: TFunction
 }

@@ -3,14 +3,14 @@ import './Login.css';
 import Loading from '../components/Loading';
 import { Form } from 'react-bootstrap';
 import { Ajax, JwtDecoder, User } from 'flexspace-commons';
-import { Navigate, Params, RouteProps } from 'react-router-dom';
+import { Navigate, Params, PathRouteProps } from 'react-router-dom';
 import { withRouter } from '../types/withRouter';
 
 interface State {
   redirect: string | null
 }
 
-interface Props extends RouteProps {
+interface Props extends PathRouteProps {
   params: Readonly<Params<string>>
   id: string
 }

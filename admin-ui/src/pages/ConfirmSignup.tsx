@@ -3,7 +3,7 @@ import './CenterContent.css';
 import { Loader as IconLoad } from 'react-feather';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
-import { Link, Params, RouteProps } from 'react-router-dom';
+import { Link, Params, PathRouteProps } from 'react-router-dom';
 import { Ajax } from 'flexspace-commons';
 import { withRouter } from '../types/withRouter';
 
@@ -12,7 +12,7 @@ interface State {
   success: boolean
 }
 
-interface Props extends RouteProps {
+interface Props extends PathRouteProps {
   params: Readonly<Params<string>>
   t: TFunction
 }

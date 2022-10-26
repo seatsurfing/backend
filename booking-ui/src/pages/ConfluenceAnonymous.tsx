@@ -3,12 +3,12 @@ import './Login.css';
 import { Form, Alert } from 'react-bootstrap';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
-import { RouteProps } from 'react-router-dom';
+import { PathRouteProps } from 'react-router-dom';
 
 interface State {
 }
 
-interface Props extends RouteProps {
+interface Props extends PathRouteProps {
   t: TFunction
 }
 
