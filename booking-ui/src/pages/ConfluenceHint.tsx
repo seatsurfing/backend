@@ -4,13 +4,13 @@ import { Button } from 'react-bootstrap';
 import { Copy as IconCopy } from 'react-feather';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
-import { Params, RouteProps } from 'react-router-dom';
+import { Params, PathRouteProps } from 'react-router-dom';
 import { withRouter } from '../types/withRouter';
 
 interface State {
 }
 
-interface Props extends RouteProps {
+interface Props extends PathRouteProps {
   params: Readonly<Params<string>>
   t: TFunction
 }

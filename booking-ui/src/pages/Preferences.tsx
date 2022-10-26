@@ -2,7 +2,7 @@ import React from 'react';
 import { Location, UserPreference } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
-import { RouteProps } from 'react-router-dom';
+import { PathRouteProps } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { Alert, Button, Col, Form, Row } from 'react-bootstrap';
 
@@ -18,7 +18,7 @@ interface State {
   locationId: string
 }
 
-interface Props extends RouteProps {
+interface Props extends PathRouteProps {
   t: TFunction
 }
 

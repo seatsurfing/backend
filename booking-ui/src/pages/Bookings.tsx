@@ -2,7 +2,7 @@ import React from 'react';
 import { Booking, Formatting } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
-import { RouteProps } from 'react-router-dom';
+import { PathRouteProps } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { Button, Form, ListGroup, Modal } from 'react-bootstrap';
 import { LogIn as IconEnter, LogOut as IconLeave, MapPin as IconLocation } from 'react-feather';
@@ -12,7 +12,7 @@ interface State {
   selectedItem: Booking | null
 }
 
-interface Props extends RouteProps {
+interface Props extends PathRouteProps {
   t: TFunction
 }
 

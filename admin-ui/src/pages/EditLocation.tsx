@@ -2,7 +2,7 @@ import React from 'react';
 import FullLayout from '../components/FullLayout';
 import { Form, Col, Row, Button, Alert, InputGroup } from 'react-bootstrap';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete, MapPin as IconMap, Copy as IconCopy, Loader as IconLoad } from 'react-feather';
-import { Link, RouteProps, Params, NavigateFunction, Navigate } from 'react-router-dom';
+import { Link, PathRouteProps, Params, NavigateFunction, Navigate } from 'react-router-dom';
 import Loading from '../components/Loading';
 import { Ajax, Location, Space } from 'flexspace-commons';
 import { Rnd } from 'react-rnd';
@@ -40,7 +40,7 @@ interface State {
   changed: boolean
 }
 
-interface Props extends RouteProps {
+interface Props extends PathRouteProps {
   navigate: NavigateFunction
   params: Readonly<Params<string>>
   t: TFunction
