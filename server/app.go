@@ -99,11 +99,10 @@ func (a *App) InitializeDefaultOrg() {
 
 func (a *App) InitializeTimers() {
 	GetUpdateChecker().InitializeVersionUpdateTimer()
-	a.CleanupTicker = time.NewTicker(time.Minute * 5)
+	a.CleanupTicker = time.NewTicker(time.Minute * 1)
 	go func() {
 		for {
 			<-a.CleanupTicker.C
-			log.Println("Cleaning up expired database entries...")
 			if err := GetAuthStateRepository().DeleteExpired(); err != nil {
 				log.Println(err)
 			}
@@ -111,6 +110,9 @@ func (a *App) InitializeTimers() {
 				log.Println(err)
 			}
 			if err := GetRefreshTokenRepository().DeleteExpired(); err != nil {
+				log.Println(err)
+			}
+			if err := GetUserRepository().enableUsersWithExpiredBan(); err != nil {
 				log.Println(err)
 			}
 		}

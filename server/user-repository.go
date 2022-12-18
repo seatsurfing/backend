@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -29,8 +30,8 @@ type User struct {
 	HashedPassword NullString
 	AuthProviderID NullString
 	Role           UserRole
-	//OrgAdmin       bool
-	//SuperAdmin     bool
+	Disabled       bool
+	BanExpiry      *time.Time
 }
 
 var userRepository *UserRepository
@@ -100,15 +101,22 @@ func (r *UserRepository) RunSchemaUpgrade(curVersion, targetVersion int) {
 			panic(err)
 		}
 	}
+	if curVersion < 14 {
+		if _, err := GetDatabase().DB().Exec("ALTER TABLE users " +
+			"ADD COLUMN disabled boolean NOT NULL DEFAULT FALSE, " +
+			"ADD COLUMN ban_expiry TIMESTAMP NULL DEFAULT NULL"); err != nil {
+			panic(err)
+		}
+	}
 }
 
 func (r *UserRepository) Create(e *User) error {
 	var id string
 	err := GetDatabase().DB().QueryRow("INSERT INTO users "+
-		"(organization_id, email, role, password, auth_provider_id, atlassian_id) "+
-		"VALUES ($1, $2, $3, $4, $5, $6) "+
+		"(organization_id, email, role, password, auth_provider_id, atlassian_id, disabled, ban_expiry) "+
+		"VALUES ($1, $2, $3, $4, $5, $6, $7, $8) "+
 		"RETURNING id",
-		e.OrganizationID, strings.ToLower(e.Email), e.Role, CheckNullString(e.HashedPassword), CheckNullString(e.AuthProviderID), CheckNullString(e.AtlassianID)).Scan(&id)
+		e.OrganizationID, strings.ToLower(e.Email), e.Role, CheckNullString(e.HashedPassword), CheckNullString(e.AuthProviderID), CheckNullString(e.AtlassianID), e.Disabled, e.BanExpiry).Scan(&id)
 	if err != nil {
 		return err
 	}
@@ -119,10 +127,10 @@ func (r *UserRepository) Create(e *User) error {
 
 func (r *UserRepository) GetOne(id string) (*User, error) {
 	e := &User{}
-	err := GetDatabase().DB().QueryRow("SELECT id, organization_id, email, role, password, auth_provider_id, atlassian_id "+
+	err := GetDatabase().DB().QueryRow("SELECT id, organization_id, email, role, password, auth_provider_id, atlassian_id, disabled, ban_expiry "+
 		"FROM users "+
 		"WHERE id = $1",
-		id).Scan(&e.ID, &e.OrganizationID, &e.Email, &e.Role, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
+		id).Scan(&e.ID, &e.OrganizationID, &e.Email, &e.Role, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID, &e.Disabled, &e.BanExpiry)
 	if err != nil {
 		return nil, err
 	}
@@ -131,10 +139,10 @@ func (r *UserRepository) GetOne(id string) (*User, error) {
 
 func (r *UserRepository) GetByEmail(email string) (*User, error) {
 	e := &User{}
-	err := GetDatabase().DB().QueryRow("SELECT id, organization_id, email, role, password, auth_provider_id, atlassian_id "+
+	err := GetDatabase().DB().QueryRow("SELECT id, organization_id, email, role, password, auth_provider_id, atlassian_id, disabled, ban_expiry "+
 		"FROM users "+
 		"WHERE LOWER(email) = $1",
-		strings.ToLower(email)).Scan(&e.ID, &e.OrganizationID, &e.Email, &e.Role, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
+		strings.ToLower(email)).Scan(&e.ID, &e.OrganizationID, &e.Email, &e.Role, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID, &e.Disabled, &e.BanExpiry)
 	if err != nil {
 		return nil, err
 	}
@@ -142,10 +150,10 @@ func (r *UserRepository) GetByEmail(email string) (*User, error) {
 }
 func (r *UserRepository) GetByAtlassianID(atlassianID string) (*User, error) {
 	e := &User{}
-	err := GetDatabase().DB().QueryRow("SELECT id, organization_id, email, role, password, auth_provider_id, atlassian_id "+
+	err := GetDatabase().DB().QueryRow("SELECT id, organization_id, email, role, password, auth_provider_id, atlassian_id, disabled, ban_expiry "+
 		"FROM users "+
 		"WHERE LOWER(atlassian_id) = $1",
-		strings.ToLower(atlassianID)).Scan(&e.ID, &e.OrganizationID, &e.Email, &e.Role, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
+		strings.ToLower(atlassianID)).Scan(&e.ID, &e.OrganizationID, &e.Email, &e.Role, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID, &e.Disabled, &e.BanExpiry)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +162,7 @@ func (r *UserRepository) GetByAtlassianID(atlassianID string) (*User, error) {
 
 func (r *UserRepository) GetUsersWithAtlassianID(organizationID string) ([]*User, error) {
 	var result []*User
-	rows, err := GetDatabase().DB().Query("SELECT id, organization_id, email, role, password, auth_provider_id, atlassian_id "+
+	rows, err := GetDatabase().DB().Query("SELECT id, organization_id, email, role, password, auth_provider_id, atlassian_id, disabled, ban_expiry "+
 		"FROM users "+
 		"WHERE organization_id = $1 AND (atlassian_id IS NOT NULL OR atlassian_id != '') "+
 		"ORDER BY email", organizationID)
@@ -164,7 +172,7 @@ func (r *UserRepository) GetUsersWithAtlassianID(organizationID string) ([]*User
 	defer rows.Close()
 	for rows.Next() {
 		e := &User{}
-		err = rows.Scan(&e.ID, &e.OrganizationID, &e.Email, &e.Role, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
+		err = rows.Scan(&e.ID, &e.OrganizationID, &e.Email, &e.Role, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID, &e.Disabled, &e.BanExpiry)
 		if err != nil {
 			return nil, err
 		}
@@ -192,7 +200,7 @@ func (r *UserRepository) UpdateAtlassianClientID(organizationID, oldClientID, ne
 
 func (r *UserRepository) GetByKeyword(organizationID string, keyword string) ([]*User, error) {
 	var result []*User
-	rows, err := GetDatabase().DB().Query("SELECT id, organization_id, email, role, password, auth_provider_id, atlassian_id "+
+	rows, err := GetDatabase().DB().Query("SELECT id, organization_id, email, role, password, auth_provider_id, atlassian_id, disabled, ban_expiry "+
 		"FROM users "+
 		"WHERE organization_id = $1 AND LOWER(email) LIKE '%' || $2 || '%' "+
 		"ORDER BY email", organizationID, strings.ToLower(keyword))
@@ -202,7 +210,7 @@ func (r *UserRepository) GetByKeyword(organizationID string, keyword string) ([]
 	defer rows.Close()
 	for rows.Next() {
 		e := &User{}
-		err = rows.Scan(&e.ID, &e.OrganizationID, &e.Email, &e.Role, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
+		err = rows.Scan(&e.ID, &e.OrganizationID, &e.Email, &e.Role, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID, &e.Disabled, &e.BanExpiry)
 		if err != nil {
 			return nil, err
 		}
@@ -213,7 +221,7 @@ func (r *UserRepository) GetByKeyword(organizationID string, keyword string) ([]
 
 func (r *UserRepository) GetAll(organizationID string, maxResults int, offset int) ([]*User, error) {
 	var result []*User
-	rows, err := GetDatabase().DB().Query("SELECT id, organization_id, email, role, password, auth_provider_id, atlassian_id "+
+	rows, err := GetDatabase().DB().Query("SELECT id, organization_id, email, role, password, auth_provider_id, atlassian_id, disabled, ban_expiry "+
 		"FROM users "+
 		"WHERE organization_id = $1 "+
 		"ORDER BY email "+
@@ -224,7 +232,7 @@ func (r *UserRepository) GetAll(organizationID string, maxResults int, offset in
 	defer rows.Close()
 	for rows.Next() {
 		e := &User{}
-		err = rows.Scan(&e.ID, &e.OrganizationID, &e.Email, &e.Role, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID)
+		err = rows.Scan(&e.ID, &e.OrganizationID, &e.Email, &e.Role, &e.HashedPassword, &e.AuthProviderID, &e.AtlassianID, &e.Disabled, &e.BanExpiry)
 		if err != nil {
 			return nil, err
 		}
@@ -259,9 +267,11 @@ func (r *UserRepository) Update(e *User) error {
 		"role = $3, "+
 		"password = $4, "+
 		"auth_provider_id = $5, "+
-		"atlassian_id = $6 "+
-		"WHERE id = $7",
-		e.OrganizationID, strings.ToLower(e.Email), e.Role, CheckNullString(e.HashedPassword), CheckNullString(e.AuthProviderID), CheckNullString(e.AtlassianID), e.ID)
+		"atlassian_id = $6, "+
+		"disabled = $7, "+
+		"ban_expiry = $8 "+
+		"WHERE id = $9",
+		e.OrganizationID, strings.ToLower(e.Email), e.Role, CheckNullString(e.HashedPassword), CheckNullString(e.AuthProviderID), CheckNullString(e.AtlassianID), e.Disabled, e.BanExpiry, e.ID)
 	return err
 }
 
@@ -316,6 +326,13 @@ func (r *UserRepository) mergeUsers(source, target *User) error {
 		return err
 	}
 	return nil
+}
+
+func (r *UserRepository) enableUsersWithExpiredBan() error {
+	_, err := GetDatabase().DB().Exec("UPDATE users "+
+		"SET disabled = FALSE, ban_expiry = NULL "+
+		"WHERE disabled = TRUE AND ban_expiry <= $1", time.Now())
+	return err
 }
 
 func (r *UserRepository) canCreateUser(org *Organization) bool {

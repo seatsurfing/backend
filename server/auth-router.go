@@ -100,6 +100,10 @@ func (router *AuthRouter) refreshAccessToken(w http.ResponseWriter, r *http.Requ
 		SendNotFound(w)
 		return
 	}
+	if user.Disabled {
+		SendNotFound(w)
+		return
+	}
 	claims := router.createClaims(user)
 	longLived := refreshToken.Expiry.Sub(refreshToken.Created) > time.Duration(time.Minute*60*25)
 	accessToken := router.createAccessToken(claims)
@@ -124,6 +128,10 @@ func (router *AuthRouter) initPasswordReset(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	if user.HashedPassword == "" {
+		SendNotFound(w)
+		return
+	}
+	if user.Disabled {
 		SendNotFound(w)
 		return
 	}
@@ -165,6 +173,10 @@ func (router *AuthRouter) completePasswordReset(w http.ResponseWriter, r *http.R
 		return
 	}
 	if user.HashedPassword == "" {
+		SendNotFound(w)
+		return
+	}
+	if user.Disabled {
 		SendNotFound(w)
 		return
 	}
@@ -210,10 +222,16 @@ func (router *AuthRouter) loginPassword(w http.ResponseWriter, r *http.Request) 
 		SendNotFound(w)
 		return
 	}
-	if !GetUserRepository().CheckPassword(string(user.HashedPassword), m.Password) {
+	if user.Disabled {
 		SendNotFound(w)
 		return
 	}
+	if !GetUserRepository().CheckPassword(string(user.HashedPassword), m.Password) {
+		GetAuthAttemptRepository().RecordLoginAttempt(user, false)
+		SendNotFound(w)
+		return
+	}
+	GetAuthAttemptRepository().RecordLoginAttempt(user, true)
 	claims := router.createClaims(user)
 	accessToken := router.createAccessToken(claims)
 	refreshToken := router.createRefreshToken(claims, m.LongLived)
@@ -228,6 +246,10 @@ func (router *AuthRouter) handleAtlassianVerify(authState *AuthState, w http.Res
 	payload := unmarshalAuthStateLoginPayload(authState.Payload)
 	user, err := GetUserRepository().GetByAtlassianID(payload.UserID)
 	if err != nil {
+		SendNotFound(w)
+		return
+	}
+	if user.Disabled {
 		SendNotFound(w)
 		return
 	}
@@ -284,6 +306,10 @@ func (router *AuthRouter) verify(w http.ResponseWriter, r *http.Request) {
 	}
 	if user.OrganizationID != provider.OrganizationID {
 		SendBadRequest(w)
+		return
+	}
+	if user.Disabled {
+		SendNotFound(w)
 		return
 	}
 	GetAuthStateRepository().Delete(authState)
@@ -380,9 +406,7 @@ func (router *AuthRouter) callback(w http.ResponseWriter, r *http.Request) {
 }
 
 func (router *AuthRouter) getRedirectSuccessUrl(loginType string, authState *AuthState) string {
-	if loginType == "app" {
-		return GetConfig().AppURL + "login/success/" + authState.ID
-	} else if loginType == "ui" {
+	if loginType == "ui" {
 		return GetConfig().FrontendURL + "ui/login/success/" + authState.ID
 	} else {
 		return GetConfig().FrontendURL + "admin/login/success/" + authState.ID
@@ -390,9 +414,7 @@ func (router *AuthRouter) getRedirectSuccessUrl(loginType string, authState *Aut
 }
 
 func (router *AuthRouter) getRedirectFailedUrl(loginType string) string {
-	if loginType == "app" {
-		return GetConfig().AppURL + "login/failed"
-	} else if loginType == "ui" {
+	if loginType == "ui" {
 		return GetConfig().FrontendURL + "ui/login/failed"
 	} else {
 		return GetConfig().FrontendURL + "admin/login/failed"

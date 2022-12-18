@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 	"sync"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -53,6 +54,7 @@ func (db *Database) Close() {
 }
 
 type NullString string
+type NullTime *time.Time
 
 func (s *NullString) Scan(value interface{}) error {
 	if value == nil {
