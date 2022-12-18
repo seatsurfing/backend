@@ -28,6 +28,7 @@ func TestMain(m *testing.M) {
 	os.Setenv("MOCK_SENDMAIL", "1")
 	os.Setenv("ORG_SIGNUP_ENABLED", "1")
 	os.Setenv("ORG_SIGNUP_DELETE", "1")
+	os.Setenv("LOGIN_PROTECTION_MAX_FAILS", "3")
 	GetConfig().ReadConfig()
 	db := GetDatabase()
 	dropTestDB()
@@ -186,7 +187,7 @@ func dropTestDB() {
 }
 
 func clearTestDB() {
-	tables := []string{"auth_providers", "auth_states", "bookings", "spaces", "locations", "organizations_domains", "organizations", "users", "signups", "settings", "subscription_events"}
+	tables := []string{"auth_providers", "auth_states", "auth_attempts", "bookings", "spaces", "locations", "organizations_domains", "organizations", "users", "users_preferences", "signups", "settings", "subscription_events"}
 	for _, s := range tables {
 		GetDatabase().DB().Exec("TRUNCATE " + s)
 	}

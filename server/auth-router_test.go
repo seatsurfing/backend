@@ -39,6 +39,43 @@ func TestAuthPasswordLogin(t *testing.T) {
 	checkTestString(t, user.Email, resBody2.Email)
 }
 
+func TestAuthPasswordLoginBan(t *testing.T) {
+	clearTestDB()
+
+	org := createTestOrg("test.com")
+	user := createTestUserInOrg(org)
+	user.HashedPassword = NullString(GetUserRepository().GetHashedPassword("12345678"))
+	GetUserRepository().Update(user)
+
+	// Attempt 1
+	payload := "{ \"email\": \"" + user.Email + "\", \"password\": \"12345670\" }"
+	req := newHTTPRequest("POST", "/auth/login", "", bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNotFound, res.Code)
+	checkTestBool(t, false, authAttemptRepositoryIsUserDisabled(t, user.ID))
+
+	// Attempt 2
+	payload = "{ \"email\": \"" + user.Email + "\", \"password\": \"12345679\" }"
+	req = newHTTPRequest("POST", "/auth/login", "", bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNotFound, res.Code)
+	checkTestBool(t, false, authAttemptRepositoryIsUserDisabled(t, user.ID))
+
+	// Attempt 3
+	payload = "{ \"email\": \"" + user.Email + "\", \"password\": \"12345671\" }"
+	req = newHTTPRequest("POST", "/auth/login", "", bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNotFound, res.Code)
+	checkTestBool(t, true, authAttemptRepositoryIsUserDisabled(t, user.ID))
+
+	// Would be successful, but fails cause banned
+	payload = "{ \"email\": \"" + user.Email + "\", \"password\": \"12345678\" }"
+	req = newHTTPRequest("POST", "/auth/login", "", bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNotFound, res.Code)
+	checkTestBool(t, true, authAttemptRepositoryIsUserDisabled(t, user.ID))
+}
+
 func TestAuthRefresh(t *testing.T) {
 	clearTestDB()
 
