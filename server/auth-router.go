@@ -433,7 +433,7 @@ func (router *AuthRouter) getUserInfo(provider *AuthProvider, state string, code
 	// Verify state string
 	authState, err := GetAuthStateRepository().GetOne(state)
 	if err != nil {
-		return nil, nil, fmt.Errorf("state not found for id %s", state)
+		return nil, nil, fmt.Errorf("state not found for id %s", strings.Replace(strings.Replace(state, "\r", "", -1), "\n", "", -1))
 	}
 	if authState.AuthProviderID != provider.ID {
 		return nil, nil, fmt.Errorf("auth providers don't match")
