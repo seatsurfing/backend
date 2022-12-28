@@ -103,6 +103,7 @@ func (a *App) InitializeTimers() {
 	go func() {
 		for {
 			<-a.CleanupTicker.C
+			log.Println("Cleaning up expired database entries...")
 			if err := GetAuthStateRepository().DeleteExpired(); err != nil {
 				log.Println(err)
 			}
@@ -114,6 +115,13 @@ func (a *App) InitializeTimers() {
 			}
 			if err := GetUserRepository().enableUsersWithExpiredBan(); err != nil {
 				log.Println(err)
+			}
+			num, err := GetUserRepository().DeleteObsoleteConfluenceAnonymousUsers()
+			if err != nil {
+				log.Println(err)
+			}
+			if num > 0 {
+				log.Printf("Deleted %d anonymous Confluence users", num)
 			}
 		}
 	}()

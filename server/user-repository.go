@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -351,4 +352,33 @@ func (r *UserRepository) isOrgAdmin(user *User) bool {
 
 func (r *UserRepository) isSuperAdmin(user *User) bool {
 	return int(user.Role) >= int(UserRoleSuperAdmin)
+}
+
+func (r *UserRepository) DeleteObsoleteConfluenceAnonymousUsers() (int, error) {
+	timestamp := time.Now().Add(-24 * time.Hour)
+	rows, err := GetDatabase().DB().Query("DELETE FROM users u "+
+		"WHERE u.email LIKE 'confluence-anonymous-%' and "+
+		"u.id not in (select distinct aa.user_id from auth_attempts aa where aa.successful = true and aa.timestamp > $1) "+
+		"RETURNING u.id",
+		timestamp)
+	if err != nil {
+		return 0, err
+	}
+	var userIDs []string
+	defer rows.Close()
+	for rows.Next() {
+		var ID string
+		err = rows.Scan(&ID)
+		if err != nil {
+			return 0, err
+		}
+		userIDs = append(userIDs, ID)
+	}
+	if len(userIDs) > 0 {
+		if _, err := GetDatabase().DB().Exec("DELETE FROM bookings WHERE "+
+			"bookings.user_id = ANY($1)", pq.Array(&userIDs)); err != nil {
+			return 0, err
+		}
+	}
+	return len(userIDs), nil
 }
