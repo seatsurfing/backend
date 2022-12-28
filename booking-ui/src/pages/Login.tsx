@@ -22,6 +22,9 @@ interface State {
   inPreflight: boolean
   inPasswordSubmit: boolean
   inAuthProviderLogin: boolean
+  singleOrgMode: boolean
+  noPasswords: boolean
+  loading: boolean
 }
 
 interface Props {
@@ -45,8 +48,40 @@ class Login extends React.Component<Props, State> {
       providers: null,
       inPreflight: false,
       inPasswordSubmit: false,
-      inAuthProviderLogin: false
+      inAuthProviderLogin: false,
+      singleOrgMode: false,
+      noPasswords: false,
+      loading: true
     };
+  }
+
+  componentDidMount = () => {
+    this.checkSingleOrg();
+  }
+  
+  checkSingleOrg = () => {
+    Ajax.get("/auth/singleorg").then((res) => {
+      this.org = new Organization();
+      this.org.deserialize(res.json.organization);
+      if ((res.json.authProviders) && (res.json.authProviders.length > 0)) {
+        this.setState({
+          providers: res.json.authProviders,
+          noPasswords: !res.json.requirePassword,
+          singleOrgMode: true,
+          loading: false
+        }, () => {
+          if ((this.state.noPasswords) && (this.state.providers) && (this.state.providers.length === 1)) {
+            this.useProvider(this.state.providers[0].id);
+          } else {
+            this.setState({ loading: false });
+          }
+        });
+      } else {
+        this.setState({ loading: false });
+      }
+    }).catch(() => {
+      this.setState({ loading: false });
+    });
   }
 
   onSubmit = (e: any) => {
@@ -124,16 +159,16 @@ class Login extends React.Component<Props, State> {
   renderAuthProviderButton = (provider: AuthProvider) => {
     return (
       <p key={provider.id}>
-        <Button variant="primary" className="btn-auth-provider" onClick={() => this.useProvider(provider)}>{this.state.inAuthProviderLogin ? <Loading showText={false} paddingTop={false} /> : provider.name }</Button>
+        <Button variant="primary" className="btn-auth-provider" onClick={() => this.useProvider(provider.id)}>{this.state.inAuthProviderLogin ? <Loading showText={false} paddingTop={false} /> : provider.name }</Button>
       </p>
     );
   }
 
-  useProvider = (provider: AuthProvider) => {
+  useProvider = (providerId: string) => {
     this.setState({
       inAuthProviderLogin: true
     });
-    let target = Ajax.getBackendUrl() + "/auth/" + provider.id + "/login/ui";
+    let target = Ajax.getBackendUrl() + "/auth/" + providerId + "/login/ui";
     if (this.state.rememberMe) {
       target += "/1"
     }
@@ -146,6 +181,14 @@ class Login extends React.Component<Props, State> {
     }
     if (Ajax.CREDENTIALS.accessToken) {
       return <Navigate replace={true} to="/search" />
+    }
+
+    if (this.state.loading) {
+      return (
+        <>
+          <Loading />
+        </>
+      );
     }
 
     if (this.state.requirePassword) {
@@ -168,6 +211,9 @@ class Login extends React.Component<Props, State> {
     if (this.state.providers != null) {
       let buttons = this.state.providers.map(provider => this.renderAuthProviderButton(provider));
       let providerSelection = <p>{this.props.t("signinAsAt", { user: this.state.email, org: this.org?.name })}</p>;
+      if (this.state.singleOrgMode) {
+        providerSelection = <p>{this.props.t("signinAt", { org: this.org?.name })}</p>;
+      }
       if (buttons.length === 0) {
         providerSelection = <p>{this.props.t("errorNoAuthProviders")}</p>
       }

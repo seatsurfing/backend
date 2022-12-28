@@ -174,3 +174,28 @@ func TestAuthPasswordReset(t *testing.T) {
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusOK, res.Code)
 }
+
+func TestAuthSingleOrg(t *testing.T) {
+	clearTestDB()
+	createTestOrg("test.com")
+
+	req := newHTTPRequestWithAccessToken("GET", "/auth/singleorg", "", nil)
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusOK, res.Code)
+
+	var resBody *AuthPreflightResponse
+	json.Unmarshal(res.Body.Bytes(), &resBody)
+	checkTestBool(t, false, resBody.RequirePassword)
+	checkTestBool(t, false, resBody.Organization == nil)
+	checkTestString(t, "Test Org", resBody.Organization.Name)
+}
+
+func TestAuthSingleOrgWithMultipleOrgs(t *testing.T) {
+	clearTestDB()
+	createTestOrg("test1.com")
+	createTestOrg("test2.com")
+
+	req := newHTTPRequestWithAccessToken("GET", "/auth/singleorg", "", nil)
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNotFound, res.Code)
+}

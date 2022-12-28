@@ -73,8 +73,8 @@ func (a *App) RedirectRootPath(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) InitializeDefaultOrg() {
-	ids, err := GetOrganizationRepository().GetAllIDs()
-	if err == nil && len(ids) == 0 {
+	numOrgs, err := GetOrganizationRepository().GetNumOrgs()
+	if err == nil && numOrgs == 0 {
 		log.Println("Creating first organization...")
 		config := GetConfig()
 		org := &Organization{
