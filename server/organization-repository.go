@@ -177,6 +177,15 @@ func (r *OrganizationRepository) GetAll() ([]*Organization, error) {
 	return result, nil
 }
 
+func (r *OrganizationRepository) GetNumOrgs() (int, error) {
+	var result int
+	err := GetDatabase().DB().QueryRow("SELECT COUNT(*) FROM organizations").Scan(&result)
+	if err != nil {
+		return 0, err
+	}
+	return result, nil
+}
+
 func (r *OrganizationRepository) GetAllIDs() ([]string, error) {
 	var result []string
 	rows, err := GetDatabase().DB().Query("SELECT id " +

@@ -78,6 +78,41 @@ func (router *AuthRouter) setupRoutes(s *mux.Router) {
 	s.HandleFunc("/initpwreset", router.initPasswordReset).Methods("POST")
 	s.HandleFunc("/pwreset/{id}", router.completePasswordReset).Methods("POST")
 	s.HandleFunc("/refresh", router.refreshAccessToken).Methods("POST")
+	s.HandleFunc("/singleorg", router.singleOrg).Methods("GET")
+}
+
+func (router *AuthRouter) singleOrg(w http.ResponseWriter, r *http.Request) {
+	numOrgs, err := GetOrganizationRepository().GetNumOrgs()
+	if err != nil {
+		SendInternalServerError(w)
+		return
+	}
+	if numOrgs != 1 {
+		SendNotFound(w)
+		return
+	}
+	list, err := GetOrganizationRepository().GetAll()
+	if err != nil {
+		SendInternalServerError(w)
+		return
+	}
+	if len(list) != 1 {
+		SendInternalServerError(w)
+		return
+	}
+	org := list[0]
+	res := router.getPreflightResponseForOrg(org)
+	if res == nil {
+		SendInternalServerError(w)
+		return
+	}
+	requirePassword, err := GetUserRepository().HasAnyUserInOrgPasswordSet(org.ID)
+	if err != nil {
+		SendInternalServerError(w)
+		return
+	}
+	res.RequirePassword = requirePassword
+	SendJSON(w, res)
 }
 
 func (router *AuthRouter) refreshAccessToken(w http.ResponseWriter, r *http.Request) {
@@ -556,11 +591,7 @@ func (router *AuthRouter) getOrgForEmail(email string) *Organization {
 	return org
 }
 
-func (router *AuthRouter) getPreflightResponse(req *AuthPreflightRequest) *AuthPreflightResponse {
-	org := router.getOrgForEmail(req.Email)
-	if org == nil {
-		return nil
-	}
+func (router *AuthRouter) getPreflightResponseForOrg(org *Organization) *AuthPreflightResponse {
 	list, err := GetAuthProviderRepository().GetAll(org.ID)
 	if err != nil {
 		return nil
@@ -583,6 +614,14 @@ func (router *AuthRouter) getPreflightResponse(req *AuthPreflightRequest) *AuthP
 		res.AuthProviders = append(res.AuthProviders, m)
 	}
 	return res
+}
+
+func (router *AuthRouter) getPreflightResponse(req *AuthPreflightRequest) *AuthPreflightResponse {
+	org := router.getOrgForEmail(req.Email)
+	if org == nil {
+		return nil
+	}
+	return router.getPreflightResponseForOrg(org)
 }
 
 func marshalAuthStateLoginPayload(payload *AuthStateLoginPayload) string {

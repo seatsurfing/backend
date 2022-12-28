@@ -382,3 +382,13 @@ func (r *UserRepository) DeleteObsoleteConfluenceAnonymousUsers() (int, error) {
 	}
 	return len(userIDs), nil
 }
+
+func (r *UserRepository) HasAnyUserInOrgPasswordSet(organizationID string) (bool, error) {
+	var result int
+	err := GetDatabase().DB().QueryRow("SELECT COUNT(*) FROM users WHERE "+
+		"organization_id = $1 AND password IS NOT NULL AND password != ''", organizationID).Scan(&result)
+	if err != nil {
+		return false, err
+	}
+	return result > 0, nil
+}
