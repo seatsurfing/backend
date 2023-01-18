@@ -1,3 +1,4 @@
+import { Formatting } from 'flexspace-commons';
 import i18n from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
@@ -281,5 +282,9 @@ i18n
     fallbackLng: "en",
     keySeparator: false
 });
+Formatting.Language = i18n.language.split("-")[0].toLowerCase();
+if (!resources.hasOwnProperty(Formatting.Language)) {
+    Formatting.Language = "en";
+}
 
 export default i18n;

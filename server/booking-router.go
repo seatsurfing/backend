@@ -158,7 +158,12 @@ func (router *BookingRouter) getOne(w http.ResponseWriter, r *http.Request) {
 		SendNotFound(w)
 		return
 	}
-	if e.UserID != GetRequestUserID(r) {
+	requestUser := GetRequestUser(r)
+	if !CanAccessOrg(requestUser, requestUser.OrganizationID) && e.UserID != GetRequestUserID(r) {
+		SendForbidden(w)
+		return
+	}
+	if e.UserID != GetRequestUserID(r) && !CanSpaceAdminOrg(requestUser, requestUser.OrganizationID) {
 		SendForbidden(w)
 		return
 	}
@@ -208,17 +213,16 @@ func (router *BookingRouter) update(w http.ResponseWriter, r *http.Request) {
 		SendForbidden(w)
 		return
 	}
-	if e.UserID != GetRequestUserID(r) {
-		SendForbidden(w)
-		return
-	}
 	eNew, err := router.copyFromRestModel(&m, location)
 	if err != nil {
 		SendInternalServerError(w)
 		return
 	}
 	eNew.ID = e.ID
-	eNew.UserID = GetRequestUserID(r)
+	eNew.UserID = e.UserID
+	if m.UserEmail != "" && m.UserEmail != requestUser.Email {
+		eNew.UserID = router.bookForUser(requestUser, m.UserEmail, w)
+	}
 	bookingReq := &BookingRequest{
 		Enter: eNew.Enter,
 		Leave: eNew.Leave,
@@ -353,52 +357,7 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 	}
 	e.UserID = GetRequestUserID(r)
 	if m.UserEmail != "" && m.UserEmail != requestUser.Email {
-		if !CanSpaceAdminOrg(requestUser, location.OrganizationID) {
-			SendForbidden(w)
-			return
-		}
-		bookForUser, err := GetUserRepository().GetByEmail(m.UserEmail)
-		if bookForUser == nil || err != nil {
-			org, err := GetOrganizationRepository().GetOne(location.OrganizationID)
-			if err != nil || org == nil {
-				SendInternalServerError(w)
-				return
-			}
-			if allowed, _ := GetSettingsRepository().GetBool(org.ID, SettingAllowBookingsNonExistingUsers.Name); !allowed {
-				SendForbidden(w)
-				return
-			}
-			if !GetUserRepository().canCreateUser(org) {
-				SendInternalServerError(w)
-				return
-			}
-			if !GetOrganizationRepository().isValidEmailForOrg(m.UserEmail, org) {
-				SendBadRequest(w)
-				return
-			}
-			user := &User{
-				Email:          m.UserEmail,
-				AtlassianID:    NullString(""),
-				OrganizationID: org.ID,
-				Role:           UserRoleUser,
-			}
-			err = GetUserRepository().Create(user)
-			if err != nil {
-				SendInternalServerError(w)
-				return
-			}
-			bookForUser, err = GetUserRepository().GetByEmail(m.UserEmail)
-			if err != nil {
-				SendInternalServerError(w)
-				return
-			}
-		}
-
-		if bookForUser == nil {
-			SendNotFound(w)
-			return
-		}
-		e.UserID = bookForUser.ID
+		e.UserID = router.bookForUser(requestUser, m.UserEmail, w)
 	}
 	bookingReq := &BookingRequest{
 		Enter: e.Enter,
@@ -425,6 +384,55 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	SendCreated(w, e.ID)
+}
+
+func (router *BookingRouter) bookForUser(requestUser *User, userEmail string, w http.ResponseWriter) string {
+	if !CanSpaceAdminOrg(requestUser, requestUser.OrganizationID) {
+		SendForbidden(w)
+		return ""
+	}
+	bookForUser, err := GetUserRepository().GetByEmail(userEmail)
+	if bookForUser == nil || err != nil {
+		org, err := GetOrganizationRepository().GetOne(bookForUser.OrganizationID)
+		if err != nil || org == nil {
+			SendInternalServerError(w)
+			return ""
+		}
+		if allowed, _ := GetSettingsRepository().GetBool(org.ID, SettingAllowBookingsNonExistingUsers.Name); !allowed {
+			SendForbidden(w)
+			return ""
+		}
+		if !GetUserRepository().canCreateUser(org) {
+			SendInternalServerError(w)
+			return ""
+		}
+		if !GetOrganizationRepository().isValidEmailForOrg(userEmail, org) {
+			SendBadRequest(w)
+			return ""
+		}
+		user := &User{
+			Email:          bookForUser.Email,
+			AtlassianID:    NullString(""),
+			OrganizationID: org.ID,
+			Role:           UserRoleUser,
+		}
+		err = GetUserRepository().Create(user)
+		if err != nil {
+			SendInternalServerError(w)
+			return ""
+		}
+		bookForUser, err = GetUserRepository().GetByEmail(userEmail)
+		if err != nil {
+			SendInternalServerError(w)
+			return ""
+		}
+	}
+
+	if bookForUser == nil {
+		SendNotFound(w)
+		return ""
+	}
+	return bookForUser.ID
 }
 
 func (router *BookingRouter) getPresenceReport(w http.ResponseWriter, r *http.Request) {

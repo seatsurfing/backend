@@ -20,6 +20,7 @@ import Users from './pages/Users';
 import EditUser from './pages/EditUser';
 import Settings from './pages/Settings';
 import Bookings from './pages/Bookings';
+import EditBooking from './pages/EditBooking';
 import SearchResult from './pages/SearchResult';
 import ConfirmSignup from './pages/ConfirmSignup';
 import Organizations from './pages/Organizations';
@@ -81,6 +82,9 @@ class App extends React.Component<Props, State> {
             <Route path="/settings/auth-providers/add" element={<ProtectedRoute><EditAuthProvider /></ProtectedRoute>} />
             <Route path="/settings/auth-providers/:id" element={<ProtectedRoute><EditAuthProvider /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            
+            <Route path="/bookings/add" element={<ProtectedRoute><EditBooking /></ProtectedRoute>} />
+            <Route path="/bookings/:id" element={<ProtectedRoute><EditBooking /></ProtectedRoute>} />
             <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
             <Route path="/report/analysis" element={<ProtectedRoute><ReportAnalysis /></ProtectedRoute>} />
             <Route path="/organizations/add" element={<ProtectedRoute><EditOrganization /></ProtectedRoute>} />

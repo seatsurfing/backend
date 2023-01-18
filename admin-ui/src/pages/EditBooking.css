@@ -1,0 +1,25 @@
+.react-date-picker,
+.react-datetime-picker {
+    padding: 10px;
+    padding-top: 5px;
+    padding-bottom: 4px;
+    display: block;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.react-date-picker__wrapper,
+.react-datetime-picker__wrapper {
+    border: 0;
+}
+
+.react-datetime-picker__inputGroup {
+    white-space: nowrap;
+}
