@@ -27,7 +27,7 @@ type Claims struct {
 	SpaceAdmin bool   `json:"spaceAdmin"`
 	OrgAdmin   bool   `json:"admin"`
 	Role       int    `json:"role"`
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 type AuthPreflightRequest struct {
@@ -550,8 +550,8 @@ func (router *AuthRouter) createClaims(user *User) *Claims {
 }
 
 func (router *AuthRouter) createAccessToken(claims *Claims) string {
-	claims.StandardClaims = jwt.StandardClaims{
-		ExpiresAt: time.Now().Add(15 * time.Minute).Unix(),
+	claims.RegisteredClaims = jwt.RegisteredClaims{
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(15 * time.Minute)),
 	}
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
 	jwtString, err := accessToken.SignedString([]byte(GetConfig().JwtSigningKey))

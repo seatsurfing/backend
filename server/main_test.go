@@ -44,8 +44,8 @@ func getTestJWT(userID string) string {
 	claims := &Claims{
 		Email:  userID,
 		UserID: userID,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(60 * 24 * 14 * time.Minute).Unix(),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(60 * 24 * 14 * time.Minute)),
 		},
 	}
 	router := &AuthRouter{}
