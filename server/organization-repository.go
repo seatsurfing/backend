@@ -1,7 +1,7 @@
 package main
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -323,7 +323,7 @@ func (r *OrganizationRepository) createSampleData(org *Organization) error {
 		return err
 	}
 	mapFile, _ := filepath.Abs("./res/floorplan.jpg")
-	mapData, err := ioutil.ReadFile(mapFile)
+	mapData, err := os.ReadFile(mapFile)
 	if err != nil {
 		return err
 	}

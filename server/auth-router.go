@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -492,7 +492,7 @@ func (router *AuthRouter) getUserInfo(provider *AuthProvider, state string, code
 		return nil, nil, fmt.Errorf("failed getting user info: %s", err.Error())
 	}
 	defer response.Body.Close()
-	contents, err := ioutil.ReadAll(response.Body)
+	contents, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed reading response body: %s", err.Error())
 	}

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -12,7 +11,7 @@ var _productVersion = ""
 func GetProductVersion() string {
 	if _productVersion == "" {
 		path, _ := filepath.Abs("./res/version.txt")
-		data, err := ioutil.ReadFile(path)
+		data, err := os.ReadFile(path)
 		if err != nil {
 			return "UNKNOWN"
 		}

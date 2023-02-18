@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"image"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 
@@ -207,7 +207,7 @@ func (router *LocationRouter) setMap(w http.ResponseWriter, r *http.Request) {
 		SendForbidden(w)
 		return
 	}
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
 		SendBadRequest(w)
