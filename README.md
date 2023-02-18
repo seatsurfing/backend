@@ -4,7 +4,7 @@
 [![](https://img.shields.io/github/release-date/seatsurfing/backend)](https://github.com/seatsurfing/backend/releases)
 [![](https://img.shields.io/docker/v/seatsurfing/backend)](https://hub.docker.com/r/seatsurfing/backend)
 [![](https://img.shields.io/docker/image-size/seatsurfing/backend)](https://hub.docker.com/r/seatsurfing/backend)
-[![](https://img.shields.io/github/workflow/status/seatsurfing/backend/Docker%20Image%20CI)](https://github.com/seatsurfing/backend/actions)
+[![](https://img.shields.io/github/actions/workflow/status/seatsurfing/backend/release.yml?branch=master)](https://github.com/seatsurfing/backend/actions)
 [![](https://img.shields.io/github/license/seatsurfing/backend)](https://github.com/seatsurfing/backend/blob/master/LICENSE)
 
 Seatsurfing is a software which enables your organisation's employees to book seats, desks and rooms.
