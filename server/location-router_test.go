@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 )
@@ -149,7 +149,7 @@ func TestLocationsUpload(t *testing.T) {
 		t.Fatal("Could not load example image")
 	}
 	checkTestResponseCode(t, http.StatusOK, resp.StatusCode)
-	data, err := ioutil.ReadAll(resp.Body)
+	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatal("Could not read body from example image")
 	}

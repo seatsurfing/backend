@@ -2,8 +2,8 @@ package main
 
 import (
 	"crypto/tls"
-	"io/ioutil"
 	"net/smtp"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -31,7 +31,7 @@ func sendEmail(recipient, sender, templateFile, language string, vars map[string
 }
 
 func compileEmailTemplate(templateFile string, vars map[string]string) (string, error) {
-	data, err := ioutil.ReadFile(templateFile)
+	data, err := os.ReadFile(templateFile)
 	if err != nil {
 		return "", err
 	}
