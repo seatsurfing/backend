@@ -1,3 +1,4 @@
+import { Formatting } from 'flexspace-commons';
 import i18n from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
@@ -135,6 +136,15 @@ const resources = {
             "confirmCancelBooking": "Buchung stornieren?",
             "bookingui": "Buchungsseite",
             "updateAvailable": "Bitte aktualisiere Seatsurfing auf die neuste Version {{version}}.",
+            "editBooking": "Buchung bearbeiten",
+            "errorBookingLimit": "Das Limit von {{num}} Buchungen wurde erreicht.",
+            "errorPickArea": "Bitte einen Bereich auswählen.",
+            "errorEnterFuture": "Der Beginn muss in der Zukunft liegen.",
+            "errorLeaveAfterEnter": "Das Ende muss nach dem Beginn liegen.",
+            "errorDaysAdvance": "Die Buchung darf maximal {{num}} Tage in der Zukunft liegen.",
+            "errorBookingDuration": "Die maximale Buchungsdauer beträgt {{num}} Stunden.",
+            "errorTooManyConcurrent": "Kapazitätsgrenze des gewählten Bereichs ist erreicht.",
+            "errorUnknown": "Unbekannter Fehler, bitte versuche es später erneut.",
         }
     },
     en: {
@@ -269,6 +279,15 @@ const resources = {
             "confirmCancelBooking": "Cancel booking?",
             "bookingui": "Booking Site",
             "updateAvailable": "Please update Seatsurfing to the latest version {{version}}.",
+            "editBooking": "Edit Booking",
+            "errorBookingLimit": "You've reached the limit of {{num}} bookings.",
+            "errorPickArea": "Please pick an area.",
+            "errorEnterFuture": "Enter date must be in the future.",
+            "errorLeaveAfterEnter": "Leave date must be after enter date.",
+            "errorDaysAdvance": "Your booking must not be more than {{num}} days in advance.",
+            "errorBookingDuration": "The maximum booking duration is {{num}} hours.",
+            "errorTooManyConcurrent": "Capacity limit reached in selected area.",
+            "errorUnknown": "Unknown error, please try again later.",
         }
     }
 };
@@ -281,5 +300,9 @@ i18n
     fallbackLng: "en",
     keySeparator: false
 });
+Formatting.Language = i18n.language.split("-")[0].toLowerCase();
+if (!resources.hasOwnProperty(Formatting.Language)) {
+    Formatting.Language = "en";
+}
 
 export default i18n;

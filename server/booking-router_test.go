@@ -74,7 +74,7 @@ func TestBookingsCRUD(t *testing.T) {
 	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-01T08:45:00Z\", \"leave\": \"2030-09-01T18:15:00Z\"}"
 	req = newHTTPRequest("PUT", "/booking/"+id, loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
-	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+	checkTestResponseCode(t, http.StatusForbidden, res.Code)
 
 	// Read
 	req = newHTTPRequest("GET", "/booking/"+id, loginResponse.UserID, nil)
