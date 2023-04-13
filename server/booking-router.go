@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"math"
 	"net/http"
@@ -420,7 +419,6 @@ func (router *BookingRouter) bookForUser(requestUser *User, userEmail string, w 
 			return "", errors.New("InternalServerError")
 		}
 		if !GetOrganizationRepository().isValidEmailForOrg(userEmail, org) {
-			fmt.Println("GetOrganizationRepository().isValidEmailForOrg(userEmail, org): bad request", userEmail, org)
 			SendBadRequest(w)
 			return "", errors.New("BadRequest")
 		}

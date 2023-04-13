@@ -31,6 +31,10 @@ interface State {
     users: User[]
     locations: Location[]
     spaces: Space[]
+    isDisabledLocation: boolean
+    isDisabledSpace: boolean
+    canSearch: boolean
+    canSearchHint: string
 }
 
 interface Props extends PathRouteProps {
@@ -42,13 +46,24 @@ interface Props extends PathRouteProps {
 class EditBooking extends React.Component<Props, State> {
     entity: Booking = new Booking();
     authProviders: { [key: string]: string } = {};
-    dailyBasisBooking: boolean
-    isNewBooking: boolean
+    dailyBasisBooking: boolean;
+    maxBookingsPerUser: number
+    maxDaysInAdvance: number
+    maxBookingDurationHours: number
+    isNewBooking: boolean;
+    enterChangeTimer: number | undefined;
+    leaveChangeTimer: number | undefined;
+    curBookingCount: number = 0;
 
     constructor(props: any) {
         super(props);
         this.dailyBasisBooking = false;
+        this.maxBookingsPerUser = 0;
+        this.maxBookingDurationHours = 0;
+        this.maxDaysInAdvance = 0;
         this.isNewBooking = false;
+        this.enterChangeTimer = undefined;
+        this.leaveChangeTimer = undefined;
         this.state = {
             loading: true,
             submitting: false,
@@ -66,6 +81,10 @@ class EditBooking extends React.Component<Props, State> {
             users: [],
             locations: [],
             spaces: [],
+            isDisabledLocation: true,
+            isDisabledSpace: true,
+            canSearch: false,
+            canSearchHint: "",
         }
     }
 
@@ -81,8 +100,6 @@ class EditBooking extends React.Component<Props, State> {
           });
     }
 
-    // TODO: load locations maxBookings !!!
-
     loadData = async (id?: string): Promise<void> => {
         if (!id) {
             id = this.props.params.id;
@@ -97,7 +114,7 @@ class EditBooking extends React.Component<Props, State> {
                     selectedLocationId: this.entity.space.locationId,
                     selectedSpaceId: this.entity.space.id,
                     selectedUserEmail: this.entity.user.email,
-                    loading: false,
+                    // loading: false,
                 });
                 this.loadSpaces(this.entity.space.locationId, this.entity.enter, this.entity.leave);
                 this.isNewBooking = false;
@@ -108,20 +125,22 @@ class EditBooking extends React.Component<Props, State> {
     }
 
     loadSpaces = async (selectedLocationId: string, enter: Date, leave: Date): Promise<void> => {
-        this.setState({ loading: true });
+        // this.setState({ loading: true });
         return Space.listAvailability(selectedLocationId, enter, leave).then(list => {
             this.setState({ 
                 spaces: list, 
-                loading: false });
+                // loading: false
+            });
         });
     }
 
     loadSettings = async (): Promise<void> => {
         return OrgSettings.list().then(settings => {
             settings.forEach(s => {
-                if (s.name === "daily_basis_booking") {
-                    this.dailyBasisBooking = (s.value === "1")
-                }
+                if (s.name === "daily_basis_booking") {this.dailyBasisBooking = (s.value === "1")};
+                if (s.name === "max_bookings_per_user") {this.maxBookingsPerUser = window.parseInt(s.value)};
+                if (s.name === "max_days_in_advance") {this.maxDaysInAdvance = window.parseInt(s.value)};
+                if (s.name === "max_booking_duration_hours") {this.maxBookingDurationHours = window.parseInt(s.value)};
                 // this.setState({ loading: false });
             });
         });
@@ -145,6 +164,14 @@ class EditBooking extends React.Component<Props, State> {
             // this.setState({ loading: false });
         });
     }
+
+    //TODO: modify to init according to selcted user
+    // initCurrentBookingCount = () => {
+    //     Booking.list().then(list => {
+    //         this.curBookingCount = list.length;
+    //         this.updateCanSearch();
+    //     });
+    // }
     
     onSubmit = (e: any) => {
         e.preventDefault();
@@ -169,7 +196,6 @@ class EditBooking extends React.Component<Props, State> {
         }
 
         if (this.isNewBooking) {
-            console.log("saving new booking: this.isNewBooking", this.isNewBooking);
             let booking = new Booking();
             booking.enter = this.state.enter;
             booking.leave = this.state.leave;
@@ -179,20 +205,25 @@ class EditBooking extends React.Component<Props, State> {
                 // this.props.navigate("/bookings/");
                 this.setState({ saved: true });
             }).catch(() => {
-                this.setState({ error: true });
+                this.setState({ 
+                    error: true,
+                    saved: false
+                });
             });    
         } else {
-            console.log("updating existing booking: this.isNewBooking", this.isNewBooking);
             this.entity.enter = this.state.enter;
             this.entity.leave = this.state.leave;
             this.entity.space.id = this.state.selectedSpaceId;
             this.entity.user.email = this.state.selectedUserEmail;
-            console.log(this.entity);
-            this.entity.update().then(() => {
-                this.props.navigate("/bookings/" + this.entity.id);
+            this.entity.save().then(() => {
+                // this.props.navigate("/bookings/" + this.entity.id);
+                this.loadData();
                 this.setState({ saved: true });
             }).catch(() => {
-                this.setState({ error: true });
+                this.setState({
+                    error: true,
+                    saved: false
+                });
             });
         }
     }
@@ -205,18 +236,149 @@ class EditBooking extends React.Component<Props, State> {
         }
     }
 
+    updateCanSearch = async () => {
+        let res = true;
+        let hint = "";
+        if (this.curBookingCount >= this.maxBookingsPerUser) {
+            res = false;
+            hint = this.props.t("errorBookingLimit", { "num": this.maxBookingsPerUser });
+        }
+        // if (!this.state.selectedLocationId && !this.entity.location.id) {
+        //     res = false;
+        //     hint = this.props.t("errorPickArea");
+        // }
+        let now = new Date();
+        let enterTime = new Date(this.state.enter);
+        if (this.dailyBasisBooking) {
+            enterTime.setHours(23, 59, 59);
+        }
+        if (enterTime.getTime() < now.getTime()) {
+            res = false;
+            hint = this.props.t("errorEnterFuture");
+        }
+        if (this.state.leave.getTime() <= this.state.enter.getTime()) {
+            res = false;
+            hint = this.props.t("errorLeaveAfterEnter");
+        }
+        const MS_PER_MINUTE = 1000 * 60;
+        const MS_PER_HOUR = MS_PER_MINUTE * 60;
+        const MS_PER_DAY = MS_PER_HOUR * 24;
+        let bookingAdvanceDays = Math.floor((this.state.enter.getTime() - new Date().getTime()) / MS_PER_DAY);
+        if (bookingAdvanceDays > this.maxDaysInAdvance) {
+            res = false;
+            hint = this.props.t("errorDaysAdvance", { "num": this.maxDaysInAdvance });
+        }
+        let bookingDurationHours = Math.floor((this.state.leave.getTime() - this.state.enter.getTime()) / MS_PER_MINUTE) / 60;
+        if (bookingDurationHours > this.maxBookingDurationHours) {
+            res = false;
+            hint = this.props.t("errorBookingDuration", { "num": this.maxBookingDurationHours });
+        }
+        let self = this;
+        return new Promise<void>(function (resolve, reject) {
+            self.setState({
+                canSearch: res,
+                canSearchHint: hint
+            }, () => resolve());
+        });
+    }
+
+    setEnterDate = (value: Date | Date[]) => {
+        let dateChangedCb = () => {
+            this.updateCanSearch().then(() => {
+                if (!this.state.canSearch) {
+                    this.setState({ loading: false });
+                } else {
+                    // let promises = [
+                    //     this.initCurrentBookingCount(),
+                    //     this.loadSpaces(this.state.locationId),
+                    // ];
+                    // Promise.all(promises).then(() => {
+                    //     this.setState({ loading: false });
+                    // });
+                }
+            });
+        };
+        let performChange = () => {
+            let enter = (value instanceof Date) ? value : value[0];
+            let leave = new Date(enter);
+            leave.setHours(leave.getHours()+1);
+            if (this.dailyBasisBooking) {
+                enter.setHours(0, 0, 0);
+                leave.setHours(23, 59, 59);
+            }
+            this.setState({
+                enter: enter,
+                leave: leave,
+                isDisabledLocation: false
+            }, () => dateChangedCb());
+
+            if (this.state.selectedLocationId) {
+                this.loadSpaces(this.state.selectedLocationId, this.state.enter, this.state.leave)
+            }
+        };
+        window.clearTimeout(this.leaveChangeTimer);
+        this.leaveChangeTimer = window.setTimeout(performChange, 1000);
+    }
+
+    setLeaveDate = (value: Date | Date[]) => {
+        let dateChangedCb = () => {
+            //TODO: check for parameters *maxBookingDur ...
+
+            this.updateCanSearch().then(() => {
+                if (!this.state.canSearch) {
+                    this.setState({ loading: false });
+                } else {
+                    // let promises = [
+                    //     this.initCurrentBookingCount(),
+                    //     this.loadSpaces(this.state.locationId),
+                    // ];
+                    // Promise.all(promises).then(() => {
+                    //     this.setState({ loading: false });
+                    // });
+                }
+            });
+        };
+        let performChange = () => {
+            let date = (value instanceof Date) ? value : value[0];
+            if (this.dailyBasisBooking) {
+                date.setHours(23, 59, 59);
+            }
+            this.setState({
+                leave: date,
+                isDisabledLocation: false
+            }, () => dateChangedCb());
+            if (this.state.selectedLocationId) {
+                this.loadSpaces(this.state.selectedLocationId, this.state.enter, date)
+            }
+        };
+        window.clearTimeout(this.leaveChangeTimer);
+        this.leaveChangeTimer = window.setTimeout(performChange, 1000);
+    }
+    
     render() {
         if (this.state.goBack) {
             return <Navigate replace={true} to={`/bookings`} />
         }
 
-        let enterDatePicker = <DateTimePicker value={this.state.enter} onChange={(value: Date) => this.setState({enter: value})} clearIcon={null} required={true}  />;
-        if (this.dailyBasisBooking) {
-            enterDatePicker = <DatePicker value={this.state.enter} onChange={(value: Date ) => this.setState({enter: value})} clearIcon={null} required={true}  />;
+        let hint = <></>;
+        if ((!this.state.canSearch) && (this.state.canSearchHint)) {
+            hint = (
+                <Form.Group as={Row} className="margin-top-10">
+                <Col xs="2"></Col>
+                <Col xs="10">
+                    <div className="invalid-search-config">{this.state.canSearchHint}</div>
+                </Col>
+                </Form.Group>
+            );
         }
-        let leaveDatePicker = <DateTimePicker value={this.state.leave} onChange={(value: Date) => this.setState({leave: value})} clearIcon={null} required={true}  />;
+
+        let enterDatePicker = <DateTimePicker value={this.state.enter} onChange={(value: Date) => this.setEnterDate(value)} clearIcon={null} required={true}  />;
         if (this.dailyBasisBooking) {
-            leaveDatePicker = <DatePicker value={this.state.leave} onChange={(value: Date ) => this.setState({leave: value})} clearIcon={null} required={true}  />;
+            enterDatePicker = <DatePicker value={this.state.enter} onChange={(value: Date | Date[]) => this.setEnterDate(value)} clearIcon={null} required={true}  />;
+        }
+        let leaveDatePicker = <DateTimePicker value={this.state.leave} onChange={(value: Date) => this.setLeaveDate(value)} clearIcon={null} required={true}  />;
+        if (this.dailyBasisBooking) {
+            leaveDatePicker = <DatePicker value={this.state.leave} onChange={(value: Date | Date[]) => this.setLeaveDate(value)} clearIcon={null} required={true}  />;
         }
 
         let backButton = <Link to="/bookings" className="btn btn-sm btn-outline-secondary"><IconBack className="feather" /> {this.props.t("back")}</Link>;
@@ -224,16 +386,16 @@ class EditBooking extends React.Component<Props, State> {
 
         if (this.state.loading) {
             return (
-                // TODO: add to TFunction
-                <FullLayout headline={"Edit booking"} buttons={buttons}>
+                <FullLayout headline={this.props.t("editBooking")} buttons={buttons}>
                     <Loading />
                 </FullLayout>
             );
         }
 
-        let hint = <></>;
         if (this.state.saved) {
             hint = <Alert variant="success">{this.props.t("entryUpdated")}</Alert>
+        } else if (this.state.canSearchHint) {
+            hint = <Alert variant="danger">{this.props.t(this.state.canSearchHint)}</Alert>
         } else if (this.state.error) {
             hint = <Alert variant="danger">{this.props.t("errorSave")}</Alert>
         }
@@ -247,9 +409,9 @@ class EditBooking extends React.Component<Props, State> {
         }
 
         return (
-            // TODO: add to TFunction
-            <FullLayout headline={"Edit booking"} buttons={buttons}>
+            <FullLayout headline={this.props.t("editBooking")} buttons={buttons}>
                 <Form onSubmit={this.onSubmit} id="form">
+
                     {hint}
 
                     <Form.Group as={Row}>
@@ -282,7 +444,7 @@ class EditBooking extends React.Component<Props, State> {
                     <Form.Group as={Row}>
                         <Form.Label column sm="2">{this.props.t("location")}</Form.Label>
                         <Col sm="4">
-                            <Form.Select required={true} value={this.state.selectedLocationId} onChange={(e: any) => {this.setState({ selectedLocationId: e.target.value }); this.loadSpaces(e.target.value, this.state.enter, this.state.leave)}}>
+                            <Form.Select disabled={this.state.isDisabledLocation} required={true} value={this.state.selectedLocationId} onChange={(e: any) => {this.setState({ selectedLocationId: e.target.value, isDisabledSpace: false }); this.loadSpaces(e.target.value, this.state.enter, this.state.leave)}}>
                                 <option disabled={true} value={this.entity.space.location.id}>{this.entity.space.location.name}</option>
                                 {this.state.locations.map((location: {name: string | undefined; id: string | undefined}) => (
                                     <option value={location.id}>{location.name}</option>
@@ -294,7 +456,7 @@ class EditBooking extends React.Component<Props, State> {
                     <Form.Group as={Row}>
                         <Form.Label column sm="2">{this.props.t("space")}</Form.Label>
                         <Col sm="4">
-                            <Form.Select required={true} value={this.state.selectedSpaceId} onChange={(e: any) => this.setState({ selectedSpaceId: e.target.value })}>
+                            <Form.Select disabled={this.state.isDisabledSpace} required={true} value={this.state.selectedSpaceId} onChange={(e: any) => this.setState({ selectedSpaceId: e.target.value })}>
                                 <option disabled={true} value={this.entity.space.id}>{this.entity.space.name}</option>
                                 {this.state.spaces.map(function(space: { id: string | undefined; name: string | null | undefined; available: boolean}){ 
                                     if(space.available){

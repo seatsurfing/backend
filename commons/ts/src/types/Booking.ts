@@ -68,10 +68,6 @@ export default class Booking extends Entity {
         return Ajax.saveEntity(this, this.getBackendUrl()).then(() => this);
     }
 
-    async update(): Promise<Booking> {
-        return Ajax.saveEntity(this, this.getBackendUrl()).then(() => this);
-    }
-
     async delete(): Promise<void> {
         return Ajax.delete(this.getBackendUrl() + this.id).then(() => undefined);
     }
