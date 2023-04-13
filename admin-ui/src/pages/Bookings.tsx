@@ -35,7 +35,7 @@ class Bookings extends React.Component<Props, State> {
       selectedItem: "",
       loading: true,
       start: Formatting.getISO8601(start),
-      end: Formatting.getISO8601(end)
+      end: Formatting.getISO8601(end),
     };
   }
 
@@ -53,19 +53,20 @@ class Bookings extends React.Component<Props, State> {
   }
 
   cancelBooking = (booking: Booking) => {
-    if (!window.confirm(this.props.t("confirmCancelBooking"))) {
-      return;
-    }
-    this.setState({
-      loading: true
-    });
-    booking.delete().then(() => {
-      this.loadItems();
-    });
+      if (!window.confirm(this.props.t("confirmCancelBooking"))) {
+        return;
+      }
+      this.setState({
+        loading: true
+      });
+      booking.delete().then(() => {
+        this.loadItems();
+      });
   }
 
   onItemSelect = (booking: Booking) => {
-    this.setState({ selectedItem: booking.id });
+      this.setState({ selectedItem: booking.id });
+      return window.location.replace("/admin/bookings/"+booking.id);
   }
 
   renderItem = (booking: Booking) => {
@@ -81,7 +82,7 @@ class Bookings extends React.Component<Props, State> {
         <td>{booking.space.name}</td>
         <td>{Formatting.getFormatterShort().format(booking.enter)}</td>
         <td>{Formatting.getFormatterShort().format(booking.leave)}</td>
-        <td><Button variant="danger" style={btnStyle} onClick={() => this.cancelBooking(booking)}><IconX className="feather" /></Button></td>
+        <td><Button variant="danger" id="cancelBookingButton" style={btnStyle} onClick={e => { e.stopPropagation(); this.cancelBooking(booking); }}><IconX className="feather" /></Button></td>
       </tr>
     );
   }
@@ -100,9 +101,6 @@ class Bookings extends React.Component<Props, State> {
   }
 
   render() {
-    if (this.state.selectedItem) {
-      return <Navigate replace={true} to={`/bookings/${this.state.selectedItem}`} />
-    }
     let searchButton = <Button className="btn-sm" variant="outline-secondary" type="submit" form="form"><IconSearch className="feather" /> {this.props.t("search")}</Button>;
     // eslint-disable-next-line
     let downloadButton = <a download="seatsurfing-bookings.xlsx" href="#" className="btn btn-sm btn-outline-secondary" onClick={this.exportTable}><IconDownload className="feather" /> {this.props.t("download")}</a>;

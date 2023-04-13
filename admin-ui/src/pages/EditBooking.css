@@ -23,3 +23,10 @@
 .react-datetime-picker__inputGroup {
     white-space: nowrap;
 }
+
+.invalid-search-config {
+    width: 100%;
+
+    font-size: .875em;
+    color: #dc3545;
+}
