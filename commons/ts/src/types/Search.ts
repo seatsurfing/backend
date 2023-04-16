@@ -16,21 +16,21 @@ export default class Search {
 
     deserialize(input: any): void {
         if (input.users) {
-            this.users = input.users.map(user => {
+            this.users = input.users.map((user: any) => {
                 let e = new User();
                 e.deserialize(user);
                 return e;
             });
         }
         if (input.locations) {
-            this.locations = input.locations.map(location => {
+            this.locations = input.locations.map((location: any) => {
                 let e = new Location();
                 e.deserialize(location);
                 return e;
             });
         }
         if (input.spaces) {
-            this.spaces = input.spaces.map(space => {
+            this.spaces = input.spaces.map((space: any) => {
                 let e = new Space();
                 e.deserialize(space);
                 return e;
