@@ -9,7 +9,7 @@
     "async-mutex": "^0.4.0"
   },
   "devDependencies": {
-    "typescript": "~4.9.5"
+    "typescript": "~5.0.4"
   },
   "private": true,
   "files": [

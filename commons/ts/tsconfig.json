@@ -6,6 +6,7 @@
         "outDir": "./dist",
         "strict": true,
         "noImplicitAny": false,
+        "isolatedModules": true,
         "lib": [
             "esnext",
             "dom"
