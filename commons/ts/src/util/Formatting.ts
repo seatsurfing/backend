@@ -30,6 +30,7 @@ export default class Formatting {
     }
     
     static tbool(s: string) {
+        // @ts-ignore
         let res: boolean = Formatting.I18n[Formatting.Language][s];
         return res;
     }
