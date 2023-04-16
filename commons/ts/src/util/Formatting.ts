@@ -16,6 +16,7 @@ export default class Formatting {
     };
 
     static t(s: string, vars?: { [key: string]: any }) {
+        // @ts-ignore
         let res: string = Formatting.I18n[Formatting.Language][s];
         if (!res) {
             return s;
