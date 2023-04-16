@@ -4,7 +4,6 @@ import { Navigate, NavLink } from 'react-router-dom';
 import { Ajax, User, MergeRequest, AjaxCredentials } from 'flexspace-commons';
 import { withTranslation } from 'react-i18next';
 import { TFunction } from 'i18next';
-import './NavBar.css';
 import RuntimeConfig from './RuntimeConfig';
 import { Users as IconMerge, Bell as IconAlert, Settings as IconSettings, Calendar as IconCalendar, PlusSquare as IconPlus } from 'react-feather';
 import { AuthContext } from '../AuthContextData';
@@ -73,7 +72,9 @@ class NavBar extends React.Component<Props, State> {
 
     gotoAdmin = (e: any) => {
         e.preventDefault();
-        window.location.href = "/admin/dashboard/";
+        if (typeof window !== 'undefined') {
+            window.location.href = "/admin/dashboard/";
+        }
     }
 
     showMergeModal = (e: any) => {
@@ -100,7 +101,9 @@ class NavBar extends React.Component<Props, State> {
     }
 
     openWebUI = () => {
-        window.open(process.env.PUBLIC_URL);
+        if (typeof window !== 'undefined') {
+            window.open(process.env.PUBLIC_URL);
+        }
     }
 
     acceptMergeRequest = (id: string) => {

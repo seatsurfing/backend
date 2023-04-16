@@ -4,11 +4,15 @@
   "private": true,
   "dependencies": {
     "@types/react-dom": "^18.0.11",
-    "@types/react-router-dom": "^5.3.3",
     "bootstrap": "^5.2.3",
     "flexspace-commons": "file:../commons/ts",
     "i18next": "^22.4.14",
     "i18next-browser-languagedetector": "^7.0.1",
+    "i18next-chained-backend": "^4.2.0",
+    "i18next-http-backend": "^2.2.0",
+    "i18next-localstorage-backend": "^4.1.1",
+    "next": "^13.3.0",
+    "next-i18next": "^13.2.2",
     "react": "^18.2.0",
     "react-bootstrap": "^2.7.3",
     "react-date-picker": "^10.0.3",
@@ -17,15 +21,11 @@
     "react-feather": "^2.0.10",
     "react-i18next": "^12.2.0",
     "react-ionicons": "^4.2.0",
-    "react-router-dom": "^6.10.0",
-    "react-scripts": "5.0.1",
-    "typescript": "^4.9.5"
+    "typescript": "^5.0.4"
   },
   "scripts": {
-    "start": "PORT=3001 GENERATE_SOURCEMAP=false REACT_APP_PRODUCT_VERSION=0.0.1-dev react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "start": "PORT=3001 GENERATE_SOURCEMAP=false NEXT_PUBLIC_PRODUCT_VERSION=0.0.1-dev next dev",
+    "build": "next build",
     "lint": "eslint --ext .ts --ext .tsx .",
     "install-commons": "npm remove --save flexspace-commons && npm install --save ../commons/ts"
   },
@@ -44,5 +44,8 @@
       "last 1 safari version"
     ]
   },
-  "homepage": "/ui/"
+  "homepage": "/ui/",
+  "devDependencies": {
+    "@types/node": "18.15.11"
+  }
 }

@@ -1,15 +1,11 @@
+import { WithTranslation, withTranslation } from 'next-i18next';
 import React from 'react';
-import './Login.css';
 import { Form, Alert } from 'react-bootstrap';
-import { withTranslation } from 'react-i18next';
-import { TFunction } from 'i18next';
-import { PathRouteProps } from 'react-router-dom';
 
 interface State {
 }
 
-interface Props extends PathRouteProps {
-  t: TFunction
+interface Props extends WithTranslation {
 }
 
 class ConfluenceAnonymous extends React.Component<Props, State> {

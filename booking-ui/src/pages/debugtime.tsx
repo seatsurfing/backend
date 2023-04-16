@@ -1,9 +1,8 @@
 import React from 'react';
-import './CenterContent.css';
-import { withTranslation } from 'react-i18next';
-import { TFunction } from 'i18next';
+import { withTranslation, WithTranslation } from 'next-i18next';
 import { Ajax, Formatting } from 'flexspace-commons';
 import Loading from '../components/Loading';
+import dynamic from 'next/dynamic';
 
 interface State {
   loading: boolean
@@ -12,8 +11,7 @@ interface State {
   res: any
 }
 
-interface Props {
-  t: TFunction
+interface Props extends WithTranslation {
 }
 
 class DebugTimeIssues extends React.Component<Props, State> {
@@ -66,8 +64,8 @@ class DebugTimeIssues extends React.Component<Props, State> {
     return (
       <div className="container-center">
         <div className="container-center-inner-wide">
-          <p>User Agent:<br />{window.navigator.userAgent}</p>
-          <p>Browser Language:<br />{window.navigator.language}</p>
+          <p>User Agent:<br />{typeof window !== 'undefined' ? window.navigator.userAgent : ''}</p>
+          <p>Browser Language:<br />{typeof window !== 'undefined' ? window.navigator.language : ''}</p>
           <hr />
           <p>Current Browser Time:<br />{this.state.now.toString()}</p>
           <p>Current Browser Time ISO String:<br />{this.state.now.toISOString()}</p>
@@ -81,4 +79,6 @@ class DebugTimeIssues extends React.Component<Props, State> {
   }
 }
 
+//const NoSSRDebugTimeIssues = dynamic(async () => DebugTimeIssues, {ssr: false});
+//export default withTranslation()(NoSSRDebugTimeIssues as any);
 export default withTranslation()(DebugTimeIssues as any);

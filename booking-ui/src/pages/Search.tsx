@@ -1,22 +1,18 @@
 import React, { RefObject } from 'react';
-import './Login.css';
 import { Form, Col, Row, Modal, Button, ListGroup, Badge } from 'react-bootstrap';
 import { Location, Booking, Ajax, Formatting, Space, AjaxError, UserPreference } from 'flexspace-commons';
-import { withTranslation } from 'react-i18next';
-import { TFunction } from 'i18next';
 // @ts-ignore
 import DateTimePicker from 'react-datetime-picker';
 import DatePicker from 'react-date-picker';
 import 'react-datetime-picker/dist/DateTimePicker.css';
 import 'react-calendar/dist/Calendar.css';
 import 'react-clock/dist/Clock.css';
-import './Search.css';
 import { AuthContext } from '../AuthContextData';
 import Loading from '../components/Loading';
 import { EnterOutline as EnterIcon, ExitOutline as ExitIcon, LocationOutline as LocationIcon, ChevronUpOutline as CollapseIcon, ChevronDownOutline as CollapseIcon2, SettingsOutline as SettingsIcon, MapOutline as MapIcon } from 'react-ionicons'
 import ErrorText from '../types/ErrorText';
-import { NavigateFunction } from 'react-router-dom';
-import { withNavigate } from '../types/withNavigate';
+import { NextRouter, withRouter } from 'next/router';
+import { WithTranslation, withTranslation } from 'next-i18next';
 
 interface State {
   enter: Date
@@ -39,9 +35,8 @@ interface State {
   prefLocationId: string
 }
 
-interface Props {
-  navigate: NavigateFunction
-  t: TFunction
+interface Props extends WithTranslation {
+  router: NextRouter
 }
 
 class Search extends React.Component<Props, State> {
@@ -89,6 +84,10 @@ class Search extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
+    if (!Ajax.CREDENTIALS.accessToken) {
+      this.props.router.push("/login");
+      return;
+    }
     this.loadItems();
   }
 
@@ -125,10 +124,12 @@ class Search extends React.Component<Props, State> {
       UserPreference.list().then(list => {
         let state: any = {};
         list.forEach(s => {
-          if (s.name === "enter_time") state.prefEnterTime = window.parseInt(s.value);
-          if (s.name === "workday_start") state.prefWorkdayStart = window.parseInt(s.value);
-          if (s.name === "workday_end") state.prefWorkdayEnd = window.parseInt(s.value);
-          if (s.name === "workdays") state.prefWorkdays = s.value.split(",").map(val => window.parseInt(val));
+          if (typeof window !== 'undefined') {
+            if (s.name === "enter_time") state.prefEnterTime = window.parseInt(s.value);
+            if (s.name === "workday_start") state.prefWorkdayStart = window.parseInt(s.value);
+            if (s.name === "workday_end") state.prefWorkdayEnd = window.parseInt(s.value);
+            if (s.name === "workdays") state.prefWorkdays = s.value.split(",").map(val => window.parseInt(val));
+          }
           if (s.name === "location_id") state.prefLocationId = s.value;
         });
         if (self.context.dailyBasisBooking) {
@@ -216,16 +217,18 @@ class Search extends React.Component<Props, State> {
   }
 
   centerMapView = () => {
-    let timer: number | undefined = undefined;
-    let cb = () => {
-      const el = document.querySelector('.mapScrollContainer');
-      if (el) {
-        window.clearInterval(timer);
-        el.scrollLeft = (this.mapData ? this.mapData.width : 0) / 2 - (window.innerWidth / 2);
-        el.scrollTop = (this.mapData ? this.mapData.height : 0) / 2 - (window.innerHeight / 2);
-      }
-    };
-    timer = window.setInterval(cb, 10);
+    if (typeof window !== 'undefined') {
+      let timer: number | undefined = undefined;
+      let cb = () => {
+        const el = document.querySelector('.mapScrollContainer');
+        if (el) {
+          window.clearInterval(timer);
+          el.scrollLeft = (this.mapData ? this.mapData.width : 0) / 2 - (window.innerWidth / 2);
+          el.scrollTop = (this.mapData ? this.mapData.height : 0) / 2 - (window.innerHeight / 2);
+        }
+      };
+      timer = window.setInterval(cb, 10);
+    }
   }
 
   loadSpaces = async (locationId: string) => {
@@ -319,8 +322,10 @@ class Search extends React.Component<Props, State> {
         leave: leave
       }, () => dateChangedCb());
     };
-    window.clearTimeout(this.enterChangeTimer);
-    this.enterChangeTimer = window.setTimeout(performChange, 1000);
+    if (typeof window !== 'undefined') {
+      window.clearTimeout(this.enterChangeTimer);
+      this.enterChangeTimer = window.setTimeout(performChange, 1000);
+    }
   }
 
   setLeaveDate = (value: Date | [Date | null, Date | null]) => {
@@ -351,8 +356,10 @@ class Search extends React.Component<Props, State> {
         leave: date
       }, () => dateChangedCb());
     };
-    window.clearTimeout(this.leaveChangeTimer);
-    this.leaveChangeTimer = window.setTimeout(performChange, 1000);
+    if (typeof window !== 'undefined') {
+      window.clearTimeout(this.leaveChangeTimer);
+      this.leaveChangeTimer = window.setTimeout(performChange, 1000);
+    }
   }
 
   changeLocation = (id: string) => {
@@ -652,7 +659,7 @@ class Search extends React.Component<Props, State> {
       gotoBooking = (
         <Button variant="secondary" onClick={() => {
           this.setState({ showBookingNames: false })
-          this.props.navigate("/bookings#" + myBooking.id)
+          this.props.router.push("/bookings#" + myBooking.id)
         }}>
           {this.props.t("gotoBooking")}
         </Button>
@@ -685,7 +692,7 @@ class Search extends React.Component<Props, State> {
           <p>{this.props.t("bookingConfirmed")}</p>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={() => this.props.navigate("/bookings")}>
+          <Button variant="primary" onClick={() => this.props.router.push("/bookings")}>
             {this.props.t("myBookings").toString()}
           </Button>
           <Button variant="secondary" onClick={() => {
@@ -706,7 +713,7 @@ class Search extends React.Component<Props, State> {
           <p>{this.state.errorText}</p>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={() => this.props.navigate("/bookings")}>
+          <Button variant="primary" onClick={() => this.props.router.push("/bookings")}>
             {this.props.t("myBookings").toString()}
           </Button>
         </Modal.Footer>
@@ -744,4 +751,4 @@ class Search extends React.Component<Props, State> {
   }
 }
 
-export default withNavigate(withTranslation()(Search as any));
+export default withTranslation()(withRouter(Search as any));
