@@ -1,15 +1,11 @@
 import React from 'react';
 import { Form, Button, InputGroup } from 'react-bootstrap';
-import {
-  Link, Navigate
-} from "react-router-dom";
-import './Login.css';
 import { Organization, AuthProvider, Ajax } from 'flexspace-commons';
-import { withTranslation } from 'react-i18next';
-import { TFunction } from 'i18next';
-import RuntimeConfig from '../components/RuntimeConfig';
-import { AuthContext } from '../AuthContextData';
-import Loading from '../components/Loading';
+import { withTranslation, WithTranslation } from 'next-i18next';
+import RuntimeConfig from '../../components/RuntimeConfig';
+import Loading from '../../components/Loading';
+import { NextRouter, withRouter } from 'next/router';
+import Link from 'next/link';
 
 interface State {
   email: string
@@ -27,12 +23,11 @@ interface State {
   loading: boolean
 }
 
-interface Props {
-  t: TFunction
+interface Props extends WithTranslation {
+  router: NextRouter
 }
 
 class Login extends React.Component<Props, State> {
-  static contextType = AuthContext;
   org: Organization | null;
 
   constructor(props: any) {
@@ -133,7 +128,7 @@ class Login extends React.Component<Props, State> {
         if (this.state.rememberMe) {
           Ajax.PERSISTER.persistRefreshTokenInLocalStorage(Ajax.CREDENTIALS);
         }
-        RuntimeConfig.setLoginDetails(this.context).then(() => {
+        RuntimeConfig.setLoginDetails().then(() => {
           this.setState({
             redirect: "/search"
           });
@@ -177,13 +172,15 @@ class Login extends React.Component<Props, State> {
 
   render() {
     if (this.state.redirect != null) {
-      return <Navigate replace={true} to={this.state.redirect} />
+      this.props.router.push(this.state.redirect);
+      return <></>
     }
     if (Ajax.CREDENTIALS.accessToken) {
-      return <Navigate replace={true} to="/search" />
+      this.props.router.push("/search");
+      return <></>
     }
 
-    if (this.state.loading) {
+    if (this.state.loading || !this.props.tReady) {
       return (
         <>
           <Loading />
@@ -195,7 +192,7 @@ class Login extends React.Component<Props, State> {
       return (
         <div className="container-signin">
           <Form className="form-signin" onSubmit={this.onPasswordSubmit}>
-            <img src="./seatsurfing.svg" alt="Seatsurfing" className="logo" />
+            <img src="/ui/seatsurfing.svg" alt="Seatsurfing" className="logo" />
             <p>{this.props.t("signinAsAt", { user: this.state.email, org: this.org?.name })}</p>
             <InputGroup>
               <Form.Control type="password" readOnly={this.state.inPasswordSubmit} placeholder={this.props.t("password")} value={this.state.password} onChange={(e: any) => this.setState({ password: e.target.value, invalid: false })} required={true} isInvalid={this.state.invalid} minLength={8} autoFocus={true} />
@@ -220,7 +217,7 @@ class Login extends React.Component<Props, State> {
       return (
         <div className="container-signin">
           <Form className="form-signin">
-            <img src="./seatsurfing.svg" alt="Seatsurfing" className="logo" />
+            <img src="/ui/seatsurfing.svg" alt="Seatsurfing" className="logo" />
             {providerSelection}
             {buttons}
             <p className="margin-top-50"><Button variant="link" onClick={() => this.setState({ providers: null })}>{this.props.t("back")}</Button></p>
@@ -232,7 +229,7 @@ class Login extends React.Component<Props, State> {
     return (
       <div className="container-signin">
         <Form className="form-signin" onSubmit={this.onSubmit}>
-          <img src="./seatsurfing.svg" alt="Seatsurfing" className="logo" />
+          <img src="/ui/seatsurfing.svg" alt="Seatsurfing" className="logo" />
           <h3>{this.props.t("findYourPlace")}</h3>
           <InputGroup>
             <Form.Control type="email" readOnly={this.state.inPreflight} placeholder={this.props.t("emailPlaceholder")} value={this.state.email} onChange={(e: any) => this.setState({ email: e.target.value, invalid: false })} required={true} isInvalid={this.state.invalid} autoFocus={true} />
@@ -240,12 +237,12 @@ class Login extends React.Component<Props, State> {
           </InputGroup>
           <Form.Control.Feedback type="invalid">{this.props.t("errorInvalidEmail")}</Form.Control.Feedback>
           <Form.Check type="checkbox" id="check-rememberme" label={this.props.t("rememberMe")} checked={this.state.rememberMe} onChange={(e: any) => this.setState({ rememberMe: e.target.checked })} />
-          <p className="margin-top-50"><Link to="/resetpw">{this.props.t("forgotPassword")}</Link></p>
+          <p className="margin-top-50"><Link href="/resetpw">{this.props.t("forgotPassword")}</Link></p>
         </Form>
-        <p className="copyright-footer">&copy; Seatsurfing &#183; Version {process.env.REACT_APP_PRODUCT_VERSION}</p>
+        <p className="copyright-footer">&copy; Seatsurfing &#183; Version {process.env.NEXT_PUBLIC_PRODUCT_VERSION}</p>
       </div>
     );
   }
 }
 
-export default withTranslation()(Login as any);
+export default withTranslation()(withRouter(Login as any));

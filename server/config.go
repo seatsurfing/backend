@@ -16,7 +16,7 @@ type Config struct {
 	PostgresURL                         string
 	JwtSigningKey                       string
 	StaticAdminUiPath                   string
-	StaticBookingUiPath                 string
+	BookingUiBackend                    string
 	SMTPHost                            string
 	SMTPPort                            int
 	SMTPSenderAddress                   string
@@ -67,7 +67,7 @@ func (c *Config) ReadConfig() {
 	}
 	c.FrontendURL = strings.TrimSuffix(c.FrontendURL, "/") + "/"
 	c.StaticAdminUiPath = strings.TrimSuffix(c.getEnv("STATIC_ADMIN_UI_PATH", "/app/adminui"), "/") + "/"
-	c.StaticBookingUiPath = strings.TrimSuffix(c.getEnv("STATIC_BOOKING_UI_PATH", "/app/bookingui"), "/") + "/"
+	c.BookingUiBackend = c.getEnv("BOOKING_UI_BACKEND", "localhost:3001")
 	c.PostgresURL = c.getEnv("POSTGRES_URL", "postgres://postgres:root@localhost/seatsurfing?sslmode=disable")
 	c.JwtSigningKey = c.getEnv("JWT_SIGNING_KEY", "cX32hEwZDCLZ6bCR")
 	c.SMTPHost = c.getEnv("SMTP_HOST", "127.0.0.1")

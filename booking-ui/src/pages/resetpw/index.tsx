@@ -1,10 +1,8 @@
 import React from 'react';
-import './CenterContent.css';
-import { withTranslation } from 'react-i18next';
-import { TFunction } from 'i18next';
 import { Ajax } from 'flexspace-commons';
 import { Button, Form } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { withTranslation, WithTranslation } from 'next-i18next';
+import Link from 'next/link';
 
 interface State {
   loading: boolean
@@ -13,8 +11,7 @@ interface State {
   email: string
 }
 
-interface Props {
-  t: TFunction
+interface Props extends WithTranslation {
 }
 
 class InitPasswordReset extends React.Component<Props, State> {
@@ -51,7 +48,7 @@ class InitPasswordReset extends React.Component<Props, State> {
         return (
           <div className="container-center">
             <div className="container-center-inner">
-              <img src="./seatsurfing.svg" alt="Seatsurfing" className="logo" />
+              <img src="/ui/seatsurfing.svg" alt="Seatsurfing" className="logo" />
               <p>{this.props.t("initPasswordResetEmail")}</p>
             </div>
           </div>
@@ -60,7 +57,7 @@ class InitPasswordReset extends React.Component<Props, State> {
         return (
           <div className="container-center">
             <div className="container-center-inner">
-              <img src="./seatsurfing.svg" alt="Seatsurfing" className="logo" />
+              <img src="/ui/seatsurfing.svg" alt="Seatsurfing" className="logo" />
               <p>{this.props.t("initPasswordResetFailed")}</p>
             </div>
           </div>
@@ -71,12 +68,12 @@ class InitPasswordReset extends React.Component<Props, State> {
     return (
       <div className="container-center">
         <Form className="container-center-inner" onSubmit={this.onPasswordSubmit}>
-          <img src="./seatsurfing.svg" alt="Seatsurfing" className="logo" />
+          <img src="/ui/seatsurfing.svg" alt="Seatsurfing" className="logo" />
           <Form.Group>
             <Form.Control type="email" placeholder={this.props.t("emailPlaceholder")} value={this.state.email} onChange={(e: any) => this.setState({ email: e.target.value })} required={true} autoFocus={true} />
           </Form.Group>
           <Button className="margin-top-10" variant="primary" type="submit" disabled={this.state.loading}>{this.props.t("changePassword")}</Button>
-          <p className="margin-top-50"><Link to="/login">{this.props.t("back")}</Link></p>
+          <p className="margin-top-50"><Link href="/login">{this.props.t("back")}</Link></p>
         </Form>
       </div>
     );

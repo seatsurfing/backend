@@ -1,19 +1,17 @@
 import React from 'react';
-import './Login.css';
-import Loading from '../components/Loading';
 import { Form } from 'react-bootstrap';
 import { Ajax } from 'flexspace-commons';
-import RuntimeConfig from '../components/RuntimeConfig';
-import { AuthContext } from '../AuthContextData';
-import { Navigate, Params } from 'react-router-dom';
-import { withRouter } from '../types/withRouter';
+import { AuthContext } from '@/AuthContextData';
+import RuntimeConfig from '@/components/RuntimeConfig';
+import Loading from '@/components/Loading';
+import { NextRouter, withRouter } from 'next/router';
 
 interface State {
   redirect: string | null
 }
 
 interface Props {
-  params: Readonly<Params<string>>
+  router: NextRouter
 }
 
 class LoginSuccess extends React.Component<Props, State> {
@@ -31,8 +29,9 @@ class LoginSuccess extends React.Component<Props, State> {
   }
 
   loadData = () => {
-    if (this.props.params.id) {
-      return Ajax.get("/auth/verify/" + this.props.params.id).then(res => {
+    const { id } = this.props.router.query;
+    if (id) {
+      return Ajax.get("/auth/verify/" + id).then(res => {
         if (res.json && res.json.accessToken) {
           Ajax.CREDENTIALS = {
             accessToken: res.json.accessToken,
@@ -64,7 +63,8 @@ class LoginSuccess extends React.Component<Props, State> {
 
   render() {
     if (this.state.redirect != null) {
-      return <Navigate replace={true} to={this.state.redirect} />
+      this.props.router.push(this.state.redirect);
+      return <></>
     }
 
     return (

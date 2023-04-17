@@ -4,7 +4,10 @@ export default class JwtDecoder {
         if (tokens.length != 3) {
             return null;
         }
-        let payload = window.atob(tokens[1]);
+        let payload = '{}';
+        if (typeof window !== 'undefined') {
+            window.atob(tokens[1]);
+        }
         let json = JSON.parse(payload);
         return json;
     }

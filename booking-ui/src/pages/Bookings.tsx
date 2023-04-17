@@ -1,19 +1,19 @@
 import React from 'react';
-import { Booking, Formatting } from 'flexspace-commons';
-import { withTranslation } from 'react-i18next';
-import { TFunction } from 'i18next';
-import { PathRouteProps } from 'react-router-dom';
+import { Ajax, Booking, Formatting } from 'flexspace-commons';
 import Loading from '../components/Loading';
 import { Button, Form, ListGroup, Modal } from 'react-bootstrap';
 import { LogIn as IconEnter, LogOut as IconLeave, MapPin as IconLocation } from 'react-feather';
+import { WithTranslation, withTranslation } from 'next-i18next';
+import { NextRouter, withRouter } from 'next/router';
+import NavBar from '@/components/NavBar';
 
 interface State {
   loading: boolean
   selectedItem: Booking | null
 }
 
-interface Props extends PathRouteProps {
-  t: TFunction
+interface Props extends WithTranslation {
+  router: NextRouter
 }
 
 class Bookings extends React.Component<Props, State> {
@@ -29,6 +29,10 @@ class Bookings extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
+    if (!Ajax.CREDENTIALS.accessToken) {
+      this.props.router.push("/login");
+      return;
+    }
     this.loadData();
   }
 
@@ -43,7 +47,7 @@ class Bookings extends React.Component<Props, State> {
     this.setState({ selectedItem: item });
   }
 
-  cancelBooking = (item: Booking | null) => {
+  cancelBooking = (item: Booking | null) => {
     this.setState({
       loading: true
     });
@@ -74,15 +78,19 @@ class Bookings extends React.Component<Props, State> {
     }
     if (this.data.length === 0) {
       return (
-        <div className="container-signin">
-          <Form className="form-signin">
-            <p>{this.props.t("noBookings")}</p>
-          </Form>
-        </div>
+        <>
+          <NavBar />
+          <div className="container-signin">
+            <Form className="form-signin">
+              <p>{this.props.t("noBookings")}</p>
+            </Form>
+          </div>
+        </>
       );
     }
     return (
       <>
+        <NavBar />
         <div className="container-signin">
           <Form className="form-signin">
             <ListGroup>
@@ -95,7 +103,7 @@ class Bookings extends React.Component<Props, State> {
             <Modal.Title>{this.props.t("cancelBooking")}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <p>{this.props.t("confirmCancelBooking", {enter: Formatting.getFormatter().format(this.state.selectedItem?.enter), interpolation: {escapeValue: false}})}</p>
+            <p>{this.props.t("confirmCancelBooking", { enter: Formatting.getFormatter().format(this.state.selectedItem?.enter), interpolation: { escapeValue: false } })}</p>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={() => this.setState({ selectedItem: null })}>
@@ -111,4 +119,4 @@ class Bookings extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(Bookings as any);
+export default withTranslation()(withRouter(Bookings as any));

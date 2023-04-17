@@ -1,10 +1,10 @@
 import React from 'react';
-import { Location, UserPreference } from 'flexspace-commons';
-import { withTranslation } from 'react-i18next';
-import { TFunction } from 'i18next';
-import { PathRouteProps } from 'react-router-dom';
+import { Ajax, Location, UserPreference } from 'flexspace-commons';
 import Loading from '../components/Loading';
 import { Alert, Button, Col, Form, Row } from 'react-bootstrap';
+import { WithTranslation, withTranslation } from 'next-i18next';
+import { NextRouter, withRouter } from 'next/router';
+import NavBar from '@/components/NavBar';
 
 interface State {
   loading: boolean
@@ -18,8 +18,8 @@ interface State {
   locationId: string
 }
 
-interface Props extends PathRouteProps {
-  t: TFunction
+interface Props extends WithTranslation {
+  router: NextRouter
 }
 
 class Preferences extends React.Component<Props, State> {
@@ -42,6 +42,10 @@ class Preferences extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
+    if (!Ajax.CREDENTIALS.accessToken) {
+      this.props.router.push("/login");
+      return;
+    }
     let promises = [
       this.loadPreferences(),
       this.loadLocations(),
@@ -57,9 +61,11 @@ class Preferences extends React.Component<Props, State> {
       UserPreference.list().then(list => {
         let state: any = {};
         list.forEach(s => {
-          if (s.name === "enter_time") state.enterTime = window.parseInt(s.value);
-          if (s.name === "workday_start") state.workdayStart = window.parseInt(s.value);
-          if (s.name === "workday_end") state.workdayEnd = window.parseInt(s.value);
+          if (typeof window !== 'undefined') {
+            if (s.name === "enter_time") state.enterTime = window.parseInt(s.value);
+            if (s.name === "workday_start") state.workdayStart = window.parseInt(s.value);
+            if (s.name === "workday_end") state.workdayEnd = window.parseInt(s.value);
+          }
           if (s.name === "workdays") {
             state.workdays = [];
             for (let i = 0; i <= 6; i++) {
@@ -141,6 +147,7 @@ class Preferences extends React.Component<Props, State> {
 
     return (
       <>
+        <NavBar />
         <div className="container-center">
           <Form className="container-center-inner" onSubmit={this.onSubmit}>
             {hint}
@@ -156,7 +163,7 @@ class Preferences extends React.Component<Props, State> {
               <Form.Label>{this.props.t("workingHours")}</Form.Label>
               <Row>
                 <Col>
-                  <Form.Control type="number" value={this.state.workdayStart} onChange={(e: any) => this.setState({ workdayStart: window.parseInt(e.target.value) })} min="0" max="23" />
+                  <Form.Control type="number" value={this.state.workdayStart} onChange={(e: any) => this.setState({ workdayStart: typeof window !== 'undefined' ? window.parseInt(e.target.value) : 0 })} min="0" max="23" />
                 </Col>
                 <Col>
                   <Form.Control plaintext={true} readOnly={true} defaultValue={this.props.t("to").toString()} />
@@ -189,4 +196,4 @@ class Preferences extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(Preferences as any);
+export default withTranslation()(withRouter(Preferences as any));

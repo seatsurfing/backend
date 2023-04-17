@@ -1,11 +1,9 @@
 import React from 'react';
-import './CenterContent.css';
-import { withTranslation } from 'react-i18next';
-import { TFunction } from 'i18next';
-import { Link, Params, PathRouteProps } from 'react-router-dom';
 import { Ajax } from 'flexspace-commons';
 import { Button, Form } from 'react-bootstrap';
-import { withRouter } from '../types/withRouter';
+import { WithTranslation, withTranslation } from 'next-i18next';
+import { NextRouter, withRouter } from 'next/router';
+import Link from 'next/link';
 
 interface State {
   loading: boolean
@@ -14,9 +12,8 @@ interface State {
   newPassword: string
 }
 
-interface Props extends PathRouteProps {
-  params: Readonly<Params<string>>
-  t: TFunction
+interface Props extends WithTranslation {
+  router: NextRouter
 }
 
 class CompletePasswordReset extends React.Component<Props, State> {
@@ -32,7 +29,7 @@ class CompletePasswordReset extends React.Component<Props, State> {
 
   onPasswordSubmit = (e: any) => {
     e.preventDefault();
-    let id = this.props.params.id;
+    const { id } = this.props.router.query;
     if (!id || this.state.newPassword.length < 8) {
       return;
     }
@@ -56,9 +53,9 @@ class CompletePasswordReset extends React.Component<Props, State> {
       return (
         <div className="container-center">
           <div className="container-center-inner">
-            <img src="./seatsurfing.svg" alt="Seatsurfing" className="logo" />
+            <img src="/ui/seatsurfing.svg" alt="Seatsurfing" className="logo" />
             <p>{this.props.t("passwordChanged")}</p>
-            <p><Link to="/login" className="btn btn-primary">{this.props.t("proceedToLogin")}</Link></p>
+            <p><Link href="/login" className="btn btn-primary">{this.props.t("proceedToLogin")}</Link></p>
           </div>
         </div>
       );
@@ -79,4 +76,4 @@ class CompletePasswordReset extends React.Component<Props, State> {
   }
 }
 
-export default withRouter(withTranslation()(CompletePasswordReset as any));
+export default withTranslation()(withRouter(CompletePasswordReset as any));
