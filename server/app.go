@@ -172,7 +172,7 @@ func (a *App) bookingUIProxyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	r.Body = ioutil.NopCloser(bytes.NewReader(body))
-	url := fmt.Sprintf("%s://%s%s", "http", "localhost:3001", r.RequestURI)
+	url := fmt.Sprintf("%s://%s%s", "http", GetConfig().BookingUiBackend, r.RequestURI)
 	log.Println("Forwarding request to " + url)
 	proxyReq, err := http.NewRequest(r.Method, url, bytes.NewReader(body))
 	if err != nil {
