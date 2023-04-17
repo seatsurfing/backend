@@ -53,7 +53,7 @@ jobs:
       with:
         build-args: CI_VERSION=${{ env.CI_VERSION }}
         context: ./booking-ui
-        platforms: linux/amd64,linux/arm64,linux/arm/v7
+        platforms: linux/amd64,linux/arm64
         push: true
         tags: |
           seatsurfing/booking-ui:${{ env.CI_VERSION }}
@@ -64,7 +64,7 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
-        platforms: linux/amd64,linux/arm64,linux/arm/v7
+        platforms: linux/amd64,linux/arm64
         push: true
         tags: |
           seatsurfing/backend:${{ env.CI_VERSION }}
