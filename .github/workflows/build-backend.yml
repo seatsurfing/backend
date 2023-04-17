@@ -1,4 +1,4 @@
-name: Build Booking UI (dev)
+name: Build Backend (dev)
 
 on:
   workflow_dispatch:
@@ -37,11 +37,10 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
-        build-args: CI_VERSION="${{ env.CI_VERSION }}-dev"
-        context: ./booking-ui
+        context: .
         platforms: linux/amd64,linux/arm64
         push: true
         tags: |
-          seatsurfing/booking-ui:dev
+          seatsurfing/backend:dev
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
