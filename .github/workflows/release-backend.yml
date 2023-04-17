@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: release-backend
 
 on:
   workflow_dispatch:
@@ -20,16 +20,16 @@ jobs:
       run: cat docker-readme.md | sed "s/{{version}}/${CI_VERSION}/g" | sed "s/{{date}}/${TODAY}/g" > docker-readme-modified.md
     - uses: actions/setup-node@v3
       with:
-        node-version: '16'
+        node-version: '18'
     - name: Build TypeScript commons
       working-directory: ./commons/ts
       run: npm install && npm run build
     - name: Build Admin UI
       working-directory: ./admin-ui
       run: npm install && REACT_APP_PRODUCT_VERSION=$(cat ../server/res/version.txt | awk NF) npm run build
-    - name: Build Booking UI
-      working-directory: ./booking-ui
-      run: npm install && REACT_APP_PRODUCT_VERSION=$(cat ../server/res/version.txt | awk NF) npm run build
+#    - name: Build Booking UI
+#      working-directory: ./booking-ui
+      run: npm install && NEXT_PUBLIC_PRODUCT_VERSION=$(cat ../server/res/version.txt | awk NF) npm run build
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx
@@ -49,7 +49,19 @@ jobs:
         username: seatsurfing
         password: ${{ secrets.CI_REGISTRY_PASSWORD }}
     - name: Build and push
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v4
+      with:
+        build-args: CI_VERSION=${{ env.CI_VERSION }}
+        context: ./booking-ui
+        platforms: linux/amd64,linux/arm64,linux/arm/v7
+        push: true
+        tags: |
+          seatsurfing/booking-ui:${{ env.CI_VERSION }}
+          seatsurfing/booking-ui:latest
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache-new
+    - name: Build and push
+      uses: docker/build-push-action@v4
       with:
         context: .
         platforms: linux/amd64,linux/arm64,linux/arm/v7

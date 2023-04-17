@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -60,7 +63,8 @@ func (a *App) InitializeRouter() {
 		router.setupRoutes(subRouter)
 	}
 	a.setupStaticAdminRoutes(a.Router)
-	a.setupStaticUserRoutes(a.Router)
+	//a.setupStaticUserRoutes(a.Router)
+	a.setupBookingUIProxy(a.Router)
 	a.Router.Path("/").Methods("GET").HandlerFunc(a.RedirectRootPath)
 	a.Router.PathPrefix("/").Methods("OPTIONS").HandlerFunc(CorsHandler)
 	a.Router.Use(CorsMiddleware)
@@ -161,23 +165,49 @@ func (a *App) setupStaticAdminRoutes(router *mux.Router) {
 	router.PathPrefix(basePath + "/").Handler(http.StripPrefix(basePath+"/", fs))
 }
 
-func (a *App) setupStaticUserRoutes(router *mux.Router) {
+func (a *App) bookingUIProxyHandler(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	r.Body = ioutil.NopCloser(bytes.NewReader(body))
+	url := fmt.Sprintf("%s://%s%s", "http", "localhost:3001", r.RequestURI)
+	log.Println("Forwarding request to " + url)
+	proxyReq, err := http.NewRequest(r.Method, url, bytes.NewReader(body))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	proxyReq.Header = make(http.Header)
+	for h, val := range r.Header {
+		proxyReq.Header[h] = val
+	}
+	proxyReq.Header.Set("X-Forwarded-For", r.RemoteAddr)
+	resp, err := http.DefaultClient.Do(proxyReq)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadGateway)
+		return
+	}
+	defer resp.Body.Close()
+	bodyRes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	for h, vals := range resp.Header {
+		for _, val := range vals {
+			w.Header().Set(h, val)
+		}
+	}
+	w.WriteHeader(resp.StatusCode)
+	w.Write(bodyRes)
+}
+
+func (a *App) setupBookingUIProxy(router *mux.Router) {
 	const basePath = "/ui"
-	paths := []string{
-		"/login",
-		"/search",
-		"/bookings",
-		"/preferences",
-		"/resetpw",
-		"/debugtime",
-	}
-	fs := http.FileServer(http.Dir(GetConfig().StaticBookingUiPath))
-	for _, path := range paths {
-		path = basePath + path
-		router.PathPrefix(path).Handler(a.stripStaticPrefix(fs, path))
-	}
-	router.Path(basePath + "/").Handler(a.stripStaticPrefix(fs, basePath+"/"))
-	router.PathPrefix(basePath + "/").Handler(http.StripPrefix(basePath+"/", fs))
+	router.Path(basePath + "/").HandlerFunc(a.bookingUIProxyHandler)
+	router.PathPrefix(basePath + "/").HandlerFunc(a.bookingUIProxyHandler)
 }
 
 func (a *App) Run(publicListenAddr string) {

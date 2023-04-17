@@ -3,7 +3,6 @@ import { Form, Button, InputGroup } from 'react-bootstrap';
 import { Organization, AuthProvider, Ajax } from 'flexspace-commons';
 import { withTranslation, WithTranslation } from 'next-i18next';
 import RuntimeConfig from '../../components/RuntimeConfig';
-import { AuthContext } from '../../AuthContextData';
 import Loading from '../../components/Loading';
 import { NextRouter, withRouter } from 'next/router';
 import Link from 'next/link';
@@ -29,7 +28,6 @@ interface Props extends WithTranslation {
 }
 
 class Login extends React.Component<Props, State> {
-  static contextType = AuthContext;
   org: Organization | null;
 
   constructor(props: any) {
@@ -130,7 +128,7 @@ class Login extends React.Component<Props, State> {
         if (this.state.rememberMe) {
           Ajax.PERSISTER.persistRefreshTokenInLocalStorage(Ajax.CREDENTIALS);
         }
-        RuntimeConfig.setLoginDetails(this.context).then(() => {
+        RuntimeConfig.setLoginDetails().then(() => {
           this.setState({
             redirect: "/search"
           });
@@ -241,7 +239,7 @@ class Login extends React.Component<Props, State> {
           <Form.Check type="checkbox" id="check-rememberme" label={this.props.t("rememberMe")} checked={this.state.rememberMe} onChange={(e: any) => this.setState({ rememberMe: e.target.checked })} />
           <p className="margin-top-50"><Link href="/resetpw">{this.props.t("forgotPassword")}</Link></p>
         </Form>
-        <p className="copyright-footer">&copy; Seatsurfing &#183; Version {process.env.REACT_APP_PRODUCT_VERSION}</p>
+        <p className="copyright-footer">&copy; Seatsurfing &#183; Version {process.env.NEXT_PUBLIC_PRODUCT_VERSION}</p>
       </div>
     );
   }

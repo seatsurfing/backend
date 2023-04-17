@@ -14,7 +14,7 @@
     "next": "^13.3.0",
     "next-i18next": "^13.2.2",
     "react": "^18.2.0",
-    "react-bootstrap": "^2.7.3",
+    "react-bootstrap": "^2.7.4",
     "react-date-picker": "^10.0.3",
     "react-datetime-picker": "^5.0.3",
     "react-dom": "^18.2.0",
@@ -24,13 +24,11 @@
     "typescript": "^5.0.4"
   },
   "scripts": {
-    "start": "PORT=3001 GENERATE_SOURCEMAP=false NEXT_PUBLIC_PRODUCT_VERSION=0.0.1-dev next dev",
+    "start": "PORT=3001 next start",
     "build": "next build",
-    "lint": "eslint --ext .ts --ext .tsx .",
+    "dev": "PORT=3001 NEXT_PUBLIC_PRODUCT_VERSION=0.0.1-dev next dev",
+    "lint": "next lint",
     "install-commons": "npm remove --save flexspace-commons && npm install --save ../commons/ts"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
   },
   "browserslist": {
     "production": [
@@ -46,6 +44,8 @@
   },
   "homepage": "/ui/",
   "devDependencies": {
-    "@types/node": "18.15.11"
+    "@types/node": "18.15.11",
+    "eslint": "^8.38.0",
+    "eslint-config-next": "13.3.0"
   }
 }

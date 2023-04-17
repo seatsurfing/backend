@@ -7,12 +7,13 @@ import DatePicker from 'react-date-picker';
 import 'react-datetime-picker/dist/DateTimePicker.css';
 import 'react-calendar/dist/Calendar.css';
 import 'react-clock/dist/Clock.css';
-import { AuthContext } from '../AuthContextData';
 import Loading from '../components/Loading';
 import { EnterOutline as EnterIcon, ExitOutline as ExitIcon, LocationOutline as LocationIcon, ChevronUpOutline as CollapseIcon, ChevronDownOutline as CollapseIcon2, SettingsOutline as SettingsIcon, MapOutline as MapIcon } from 'react-ionicons'
 import ErrorText from '../types/ErrorText';
 import { NextRouter, withRouter } from 'next/router';
 import { WithTranslation, withTranslation } from 'next-i18next';
+import NavBar from '@/components/NavBar';
+import RuntimeConfig from '@/components/RuntimeConfig';
 
 interface State {
   enter: Date
@@ -40,7 +41,6 @@ interface Props extends WithTranslation {
 }
 
 class Search extends React.Component<Props, State> {
-  static contextType = AuthContext;
   static PreferenceEnterTimeNow: number = 1;
   static PreferenceEnterTimeNextDay: number = 2;
   static PreferenceEnterTimeNextWorkday: number = 3;
@@ -84,6 +84,7 @@ class Search extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
+    console.log(RuntimeConfig.INFOS);
     if (!Ajax.CREDENTIALS.accessToken) {
       this.props.router.push("/login");
       return;
@@ -132,7 +133,7 @@ class Search extends React.Component<Props, State> {
           }
           if (s.name === "location_id") state.prefLocationId = s.value;
         });
-        if (self.context.dailyBasisBooking) {
+        if (RuntimeConfig.INFOS.dailyBasisBooking) {
           state.prefWorkdayStart = 0;
           state.prefWorkdayEnd = 23;
         }
@@ -187,7 +188,7 @@ class Search extends React.Component<Props, State> {
     let leave = new Date(enter);
     leave.setHours(this.state.prefWorkdayEnd, 0, 0);
 
-    if (this.context.dailyBasisBooking) {
+    if (RuntimeConfig.INFOS.dailyBasisBooking) {
       enter.setHours(0, 0, 0, 0);
       leave.setHours(23, 59, 59, 0);
     }
@@ -241,9 +242,9 @@ class Search extends React.Component<Props, State> {
   updateCanSearch = async () => {
     let res = true;
     let hint = "";
-    if (this.curBookingCount >= this.context.maxBookingsPerUser) {
+    if (this.curBookingCount >= RuntimeConfig.INFOS.maxBookingsPerUser) {
       res = false;
-      hint = this.props.t("errorBookingLimit", { "num": this.context.maxBookingsPerUser });
+      hint = this.props.t("errorBookingLimit", { "num": RuntimeConfig.INFOS.maxBookingsPerUser });
     }
     if (!this.state.locationId) {
       res = false;
@@ -251,7 +252,7 @@ class Search extends React.Component<Props, State> {
     }
     let now = new Date();
     let enterTime = new Date(this.state.enter);
-    if (this.context.dailyBasisBooking) {
+    if (RuntimeConfig.INFOS.dailyBasisBooking) {
       enterTime.setHours(23, 59, 59);
     }
     if (enterTime.getTime() <= now.getTime()) {
@@ -266,14 +267,14 @@ class Search extends React.Component<Props, State> {
     const MS_PER_HOUR = MS_PER_MINUTE * 60;
     const MS_PER_DAY = MS_PER_HOUR * 24;
     let bookingAdvanceDays = Math.floor((this.state.enter.getTime() - new Date().getTime()) / MS_PER_DAY);
-    if (bookingAdvanceDays > this.context.maxDaysInAdvance) {
+    if (bookingAdvanceDays > RuntimeConfig.INFOS.maxDaysInAdvance) {
       res = false;
-      hint = this.props.t("errorDaysAdvance", { "num": this.context.maxDaysInAdvance });
+      hint = this.props.t("errorDaysAdvance", { "num": RuntimeConfig.INFOS.maxDaysInAdvance });
     }
     let bookingDurationHours = Math.floor((this.state.leave.getTime() - this.state.enter.getTime()) / MS_PER_MINUTE) / 60;
-    if (bookingDurationHours > this.context.maxBookingDurationHours) {
+    if (bookingDurationHours > RuntimeConfig.INFOS.maxBookingDurationHours) {
       res = false;
-      hint = this.props.t("errorBookingDuration", { "num": this.context.maxBookingDurationHours });
+      hint = this.props.t("errorBookingDuration", { "num": RuntimeConfig.INFOS.maxBookingDurationHours });
     }
     let self = this;
     return new Promise<void>(function (resolve, reject) {
@@ -312,7 +313,7 @@ class Search extends React.Component<Props, State> {
       if (date == null) {
         return;
       }
-      if (this.context.dailyBasisBooking) {
+      if (RuntimeConfig.INFOS.dailyBasisBooking) {
         date.setHours(0, 0, 0);
       }
       let leave = new Date();
@@ -349,7 +350,7 @@ class Search extends React.Component<Props, State> {
       if (date == null) {
         return;
       }
-      if (this.context.dailyBasisBooking) {
+      if (RuntimeConfig.INFOS.dailyBasisBooking) {
         date.setHours(23, 59, 59);
       }
       this.setState({
@@ -390,7 +391,7 @@ class Search extends React.Component<Props, State> {
   }
 
   getAvailibilityStyle = (item: Space, bookings: Booking[]) => {
-    const mydesk = (bookings.find(b => b.user.email === this.context.username));
+    const mydesk = (bookings.find(b => b.user.email === RuntimeConfig.INFOS.username));
     return (mydesk ? "space-mydesk" : (item.available ? "space-available" : "space-notavailable"));
   }
 
@@ -486,7 +487,7 @@ class Search extends React.Component<Props, State> {
       this.setState({
         loading: false,
         showError: true,
-        errorText: ErrorText.getTextForAppCode(code, this.props.t, this.context)
+        errorText: ErrorText.getTextForAppCode(code, this.props.t)
       });
     });
   }
@@ -532,11 +533,11 @@ class Search extends React.Component<Props, State> {
       );
     }
     let enterDatePicker = <DateTimePicker value={this.state.enter} onChange={(value: Date | null) => { if (value != null) this.setEnterDate(value) }} clearIcon={null} required={true} format={this.props.t("datePickerFormat")} />;
-    if (this.context.dailyBasisBooking) {
+    if (RuntimeConfig.INFOS.dailyBasisBooking) {
       enterDatePicker = <DatePicker value={this.state.enter} onChange={(value: Date | null | [Date | null, Date | null]) => { if (value != null) this.setEnterDate(value) }} clearIcon={null} required={true} format={this.props.t("datePickerFormatDailyBasisBooking")} />;
     }
     let leaveDatePicker = <DateTimePicker value={this.state.leave} onChange={(value: Date | null) => { if (value != null) this.setLeaveDate(value) }} clearIcon={null} required={true} format={this.props.t("datePickerFormat")} />;
-    if (this.context.dailyBasisBooking) {
+    if (RuntimeConfig.INFOS.dailyBasisBooking) {
       leaveDatePicker = <DatePicker value={this.state.leave} onChange={(value: Date | null | [Date | null, Date | null]) => { if (value != null) this.setLeaveDate(value) }} clearIcon={null} required={true} format={this.props.t("datePickerFormatDailyBasisBooking")} />;
     }
 
@@ -653,7 +654,7 @@ class Search extends React.Component<Props, State> {
     if (this.state.selectedSpace) {
       bookings = Booking.createFromRawArray(this.state.selectedSpace.rawBookings);
     }
-    const myBooking = (bookings.find(b => b.user.email === this.context.username));
+    const myBooking = (bookings.find(b => b.user.email === RuntimeConfig.INFOS.username));
     let gotoBooking;
     if (myBooking) {
       gotoBooking = (
@@ -731,6 +732,7 @@ class Search extends React.Component<Props, State> {
 
     return (
       <>
+        <NavBar />
         {confirmModal}
         {bookingNamesModal}
         {successModal}

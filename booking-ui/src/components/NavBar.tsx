@@ -1,12 +1,10 @@
 import React from 'react';
-import { Navbar, Nav, Modal, Button, Form, Badge, Container } from 'react-bootstrap';
-import { Navigate, NavLink } from 'react-router-dom';
+import { Navbar, Nav, Modal, Button, Form, Badge, Container, NavLink } from 'react-bootstrap';
 import { Ajax, User, MergeRequest, AjaxCredentials } from 'flexspace-commons';
-import { withTranslation } from 'react-i18next';
-import { TFunction } from 'i18next';
 import RuntimeConfig from './RuntimeConfig';
 import { Users as IconMerge, Bell as IconAlert, Settings as IconSettings, Calendar as IconCalendar, PlusSquare as IconPlus } from 'react-feather';
-import { AuthContext } from '../AuthContextData';
+import { WithTranslation, withTranslation } from 'next-i18next';
+import { NextRouter, withRouter } from 'next/router';
 
 interface State {
     redirect: string | null
@@ -20,13 +18,11 @@ interface State {
     allowAdmin: boolean
 }
 
-interface Props {
-    t: TFunction
+interface Props extends WithTranslation {
+    router: NextRouter
 }
 
 class NavBar extends React.Component<Props, State> {
-    static contextType = AuthContext;
-
     constructor(props: any) {
         super(props);
         this.state = {
@@ -127,7 +123,8 @@ class NavBar extends React.Component<Props, State> {
         if (this.state.redirect != null) {
             let target = this.state.redirect;
             this.setState({ redirect: null });
-            return <Navigate replace={true} to={target} />
+            this.props.router.push(target);
+            return <></>;
         }
 
         let signOffButton = <></>;
@@ -152,10 +149,10 @@ class NavBar extends React.Component<Props, State> {
 
         collapsable = (
             <>
-                <Nav>
-                    <NavLink to="/search" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}>{RuntimeConfig.EMBEDDED ? <IconPlus className="feather feather-lg" /> : this.props.t("bookSeat")}</NavLink>
-                    <NavLink to="/bookings" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}>{RuntimeConfig.EMBEDDED ? <IconCalendar className="feather feather-lg" /> : this.props.t("myBookings")}</NavLink>
-                    <NavLink to="/preferences" className={({isActive}) => "nav-link " + (isActive ? "active" : "")}>{RuntimeConfig.EMBEDDED ? <IconSettings className="feather feather-lg" /> : this.props.t("preferences")}</NavLink>
+                <Nav activeKey={this.props.router.pathname}>
+                    <Nav.Link eventKey="/search" onClick={() => this.props.router.push("/search")}>{RuntimeConfig.EMBEDDED ? <IconPlus className="feather feather-lg" /> : this.props.t("bookSeat")}</Nav.Link>
+                    <Nav.Link eventKey="/bookings" onClick={() => this.props.router.push("/bookings")}>{RuntimeConfig.EMBEDDED ? <IconCalendar className="feather feather-lg" /> : this.props.t("myBookings")}</Nav.Link>
+                    <Nav.Link eventKey="/preferences" onClick={() => this.props.router.push("/preferences")} >{RuntimeConfig.EMBEDDED ? <IconSettings className="feather feather-lg" /> : this.props.t("preferences")}</Nav.Link>
                     {adminButton}
                     {signOffButton}
                 </Nav>
@@ -230,4 +227,4 @@ class NavBar extends React.Component<Props, State> {
     }
 }
 
-export default withTranslation()(NavBar as any);
+export default withTranslation()(withRouter(NavBar as any));

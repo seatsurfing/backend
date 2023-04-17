@@ -11,26 +11,33 @@ import { WithTranslation, appWithTranslation } from 'next-i18next'
 import { Ajax, AjaxCredentials, User, Settings as OrgSettings } from 'flexspace-commons'
 import RuntimeConfig from '@/components/RuntimeConfig'
 import React from 'react'
-import { AuthContextData } from '@/AuthContextData'
+//import { AuthContextData, AuthContextProvider } from '@/AuthContextData'
 import Loading from '@/components/Loading'
 import dynamic from 'next/dynamic'
+import Head from 'next/head'
+
+interface State {
+  isLoading: boolean;
+}
 
 interface Props extends WithTranslation, AppProps {
 }
 
-class App extends React.Component<Props, AuthContextData> {
+class App extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      username: "",
       isLoading: true,
+      /*
+      username: "",
       maxBookingsPerUser: 0,
       maxDaysInAdvance: 0,
       maxBookingDurationHours: 0,
       dailyBasisBooking: false,
       showNames: false,
       defaultTimezone: "",
-      setDetails: this.setDetails
+      */
+      //setDetails: this.setDetails
     };
     if (typeof window !== 'undefined') {
       if (process.env.NODE_ENV.toLowerCase() === "development") {
@@ -41,10 +48,13 @@ class App extends React.Component<Props, AuthContextData> {
       }
     }
     setTimeout(() => {
-      this.verifyToken();
+      RuntimeConfig.verifyToken(() => {
+        this.setState({isLoading: false});
+      });
     }, 10);
   }
 
+  /*
   verifyToken = async () => {
     Ajax.CREDENTIALS = await Ajax.PERSISTER.readCredentialsFromSessionStorage();
     if (!Ajax.CREDENTIALS.accessToken) {
@@ -100,6 +110,7 @@ class App extends React.Component<Props, AuthContextData> {
       });
     });
   }
+  */
 
   render() {
     if (typeof window !== 'undefined') {
@@ -120,11 +131,32 @@ class App extends React.Component<Props, AuthContextData> {
     }
 
     const { Component, pageProps } = this.props;
-    return <Component {...pageProps} />
+    return (
+      <>
+        <Head>
+          <link rel="icon" href="/ui/favicon.ico" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <meta name="theme-color" content="#343a40" />
+          <link rel="manifest" href="/ui/manifest.json" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+          <link rel="shortcut icon" href="/ui/favicon-192.png" />
+          <link rel="apple-touch-icon" href="/ui/favicon-192.png" />
+          <link rel="apple-touch-startup-image" href="/ui/favicon-1024.png" />
+          <title>Seatsurfing</title>
+        </Head>
+        <Component {...pageProps} />
+      </>
+    );
   }
+  /*
+  <AuthContextProvider>
+    <Component {...pageProps} />
+  </AuthContextProvider>
+  */
 }
 
-const NoSSRApp = dynamic(async () => App, {ssr: false});
+const NoSSRApp = dynamic(async () => App, { ssr: false });
 export default appWithTranslation(NoSSRApp, nextI18nConfig);
 
 

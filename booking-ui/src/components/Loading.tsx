@@ -1,13 +1,11 @@
+import { WithTranslation, withTranslation } from 'next-i18next';
 import React from 'react';
 import { Loader as IconLoad } from 'react-feather';
-import { withTranslation } from 'react-i18next';
-import { TFunction } from 'i18next';
 
 interface State {
 }
 
-interface Props {
-    t: TFunction
+interface Props extends WithTranslation {
     showText: boolean
     paddingTop: boolean
 }

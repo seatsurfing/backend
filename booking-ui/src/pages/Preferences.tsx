@@ -4,6 +4,7 @@ import Loading from '../components/Loading';
 import { Alert, Button, Col, Form, Row } from 'react-bootstrap';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import { NextRouter, withRouter } from 'next/router';
+import NavBar from '@/components/NavBar';
 
 interface State {
   loading: boolean
@@ -146,6 +147,7 @@ class Preferences extends React.Component<Props, State> {
 
     return (
       <>
+        <NavBar />
         <div className="container-center">
           <Form className="container-center-inner" onSubmit={this.onSubmit}>
             {hint}
