@@ -1,4 +1,4 @@
-name: release-backend
+name: Release
 
 on:
   workflow_dispatch:
