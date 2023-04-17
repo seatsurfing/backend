@@ -8,10 +8,9 @@ import '@/styles/Search.css'
 import type { AppProps } from 'next/app'
 import nextI18nConfig from '../../next-i18next.config'
 import { WithTranslation, appWithTranslation } from 'next-i18next'
-import { Ajax, AjaxCredentials, User, Settings as OrgSettings } from 'flexspace-commons'
+import { Ajax } from 'flexspace-commons'
 import RuntimeConfig from '@/components/RuntimeConfig'
 import React from 'react'
-//import { AuthContextData, AuthContextProvider } from '@/AuthContextData'
 import Loading from '@/components/Loading'
 import dynamic from 'next/dynamic'
 import Head from 'next/head'
@@ -27,17 +26,7 @@ class App extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      isLoading: true,
-      /*
-      username: "",
-      maxBookingsPerUser: 0,
-      maxDaysInAdvance: 0,
-      maxBookingDurationHours: 0,
-      dailyBasisBooking: false,
-      showNames: false,
-      defaultTimezone: "",
-      */
-      //setDetails: this.setDetails
+      isLoading: true
     };
     if (typeof window !== 'undefined') {
       if (process.env.NODE_ENV.toLowerCase() === "development") {
@@ -53,64 +42,6 @@ class App extends React.Component<Props, State> {
       });
     }, 10);
   }
-
-  /*
-  verifyToken = async () => {
-    Ajax.CREDENTIALS = await Ajax.PERSISTER.readCredentialsFromSessionStorage();
-    if (!Ajax.CREDENTIALS.accessToken) {
-      Ajax.CREDENTIALS = await Ajax.PERSISTER.readRefreshTokenFromLocalStorage();
-      if (Ajax.CREDENTIALS.refreshToken) {
-        await Ajax.refreshAccessToken(Ajax.CREDENTIALS.refreshToken);
-      }
-    }
-    if (Ajax.CREDENTIALS.accessToken) {
-      User.getSelf().then(user => {
-        this.loadSettings().then(() => {
-          this.setDetails(user.email);
-          this.setState({ isLoading: false });
-        });
-      }).catch((e) => {
-        Ajax.CREDENTIALS = new AjaxCredentials();
-        Ajax.PERSISTER.deleteCredentialsFromSessionStorage().then(() => {
-          this.setState({ isLoading: false });
-        });
-      });
-    } else {
-      this.setState({ isLoading: false });
-    }
-  }
-
-  loadSettings = async (): Promise<void> => {
-    let self = this;
-    return new Promise<void>(function (resolve, reject) {
-      OrgSettings.list().then(settings => {
-        let state: any = {};
-        settings.forEach(s => {
-          if (typeof window !== 'undefined') {
-            if (s.name === "max_bookings_per_user") state.maxBookingsPerUser = window.parseInt(s.value);
-            if (s.name === "max_days_in_advance") state.maxDaysInAdvance = window.parseInt(s.value);
-            if (s.name === "max_booking_duration_hours") state.maxBookingDurationHours = window.parseInt(s.value);
-          }
-          if (s.name === "daily_basis_booking") state.dailyBasisBooking = (s.value === "1");
-          if (s.name === "show_names") state.showNames = (s.value === "1");
-          if (s.name === "default_timezone") state.defaultTimezone = s.value;
-        });
-        self.setState({
-          ...self.state,
-          ...state
-        }, () => resolve());
-      });
-    });
-  }
-
-  setDetails = (username: string) => {
-    this.loadSettings().then(() => {
-      this.setState({
-        username: username
-      });
-    });
-  }
-  */
 
   render() {
     if (typeof window !== 'undefined') {
@@ -149,11 +80,6 @@ class App extends React.Component<Props, State> {
       </>
     );
   }
-  /*
-  <AuthContextProvider>
-    <Component {...pageProps} />
-  </AuthContextProvider>
-  */
 }
 
 const NoSSRApp = dynamic(async () => App, { ssr: false });

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Form } from 'react-bootstrap';
 import { Ajax } from 'flexspace-commons';
-import { AuthContext } from '@/AuthContextData';
 import RuntimeConfig from '@/components/RuntimeConfig';
 import Loading from '@/components/Loading';
 import { NextRouter, withRouter } from 'next/router';
@@ -15,8 +14,6 @@ interface Props {
 }
 
 class LoginSuccess extends React.Component<Props, State> {
-  static contextType = AuthContext;
-  
   constructor(props: any) {
     super(props);
     this.state = {
@@ -42,7 +39,7 @@ class LoginSuccess extends React.Component<Props, State> {
             Ajax.PERSISTER.persistRefreshTokenInLocalStorage(Ajax.CREDENTIALS);
           }
           Ajax.PERSISTER.updateCredentialsSessionStorage(Ajax.CREDENTIALS).then(() => {
-            RuntimeConfig.setLoginDetails(this.context).then(() => {
+            RuntimeConfig.setLoginDetails().then(() => {
               this.setState({
                 redirect: "/search"
               });
