@@ -62,9 +62,8 @@ func (a *App) InitializeRouter() {
 		subRouter := a.Router.PathPrefix(route).Subrouter()
 		router.setupRoutes(subRouter)
 	}
-	a.setupStaticAdminRoutes(a.Router)
-	//a.setupStaticUserRoutes(a.Router)
 	a.setupBookingUIProxy(a.Router)
+	a.setupAdminUIProxy(a.Router)
 	a.Router.Path("/").Methods("GET").HandlerFunc(a.RedirectRootPath)
 	a.Router.PathPrefix("/").Methods("OPTIONS").HandlerFunc(CorsHandler)
 	a.Router.Use(CorsMiddleware)
@@ -142,37 +141,22 @@ func (a *App) stripStaticPrefix(fs http.Handler, prefix string) http.HandlerFunc
 	})
 }
 
-func (a *App) setupStaticAdminRoutes(router *mux.Router) {
-	const basePath = "/admin"
-	paths := []string{
-		"/login",
-		"/dashboard",
-		"/locations",
-		"/users",
-		"/settings",
-		"/bookings",
-		"/report",
-		"/search",
-		"/confirm",
-		"/organizations",
-	}
-	fs := http.FileServer(http.Dir(GetConfig().StaticAdminUiPath))
-	for _, path := range paths {
-		path = basePath + path
-		router.PathPrefix(path).Handler(a.stripStaticPrefix(fs, path))
-	}
-	router.Path(basePath + "/").Handler(a.stripStaticPrefix(fs, basePath+"/"))
-	router.PathPrefix(basePath + "/").Handler(http.StripPrefix(basePath+"/", fs))
+func (a *App) bookingUIProxyHandler(w http.ResponseWriter, r *http.Request) {
+	a.proxyHandler(w, r, GetConfig().BookingUiBackend)
 }
 
-func (a *App) bookingUIProxyHandler(w http.ResponseWriter, r *http.Request) {
+func (a *App) adminUIProxyHandler(w http.ResponseWriter, r *http.Request) {
+	a.proxyHandler(w, r, GetConfig().AdminUiBackend)
+}
+
+func (a *App) proxyHandler(w http.ResponseWriter, r *http.Request, backend string) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	r.Body = ioutil.NopCloser(bytes.NewReader(body))
-	url := fmt.Sprintf("%s://%s%s", "http", GetConfig().BookingUiBackend, r.RequestURI)
+	url := fmt.Sprintf("%s://%s%s", "http", backend, r.RequestURI)
 	log.Println("Forwarding request to " + url)
 	proxyReq, err := http.NewRequest(r.Method, url, bytes.NewReader(body))
 	if err != nil {
@@ -208,6 +192,12 @@ func (a *App) setupBookingUIProxy(router *mux.Router) {
 	const basePath = "/ui"
 	router.Path(basePath + "/").HandlerFunc(a.bookingUIProxyHandler)
 	router.PathPrefix(basePath + "/").HandlerFunc(a.bookingUIProxyHandler)
+}
+
+func (a *App) setupAdminUIProxy(router *mux.Router) {
+	const basePath = "/admin"
+	router.Path(basePath + "/").HandlerFunc(a.adminUIProxyHandler)
+	router.PathPrefix(basePath + "/").HandlerFunc(a.adminUIProxyHandler)
 }
 
 func (a *App) Run(publicListenAddr string) {

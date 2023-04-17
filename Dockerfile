@@ -10,8 +10,6 @@ RUN CGO_ENABLED=0 go build -ldflags="-w -s" -o main .
 
 FROM gcr.io/distroless/static-debian11
 COPY --from=server-builder /go/src/app/server/main /app/
-ADD admin-ui/build/ /app/adminui/
-# COPY booking-ui/build/ /app/bookingui/
 COPY server/res/ /app/res
 WORKDIR /app
 EXPOSE 8080
