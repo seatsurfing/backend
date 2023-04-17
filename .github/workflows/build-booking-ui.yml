@@ -1,4 +1,4 @@
-name: release-backend
+name: Build Booking UI (dev)
 
 on:
   workflow_dispatch:
