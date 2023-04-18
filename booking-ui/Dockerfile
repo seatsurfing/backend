@@ -21,14 +21,13 @@ RUN npm install
 RUN npm install --save ./commons/ts
 RUN npm run build
 
-FROM node:18-alpine
+FROM gcr.io/distroless/nodejs18-debian11
 ENV NODE_ENV=production
 ENV PORT=3001
 WORKDIR /app
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=65532:65532 /app/build/standalone ./
 COPY --from=builder --chown=65532:65532 /app/build/static ./build/static
-RUN mkdir "/.npm" && chown -R 65532:65532 "/.npm"
 EXPOSE 3001
 USER 65532:65532
-CMD ["node", "server.js"]
+CMD ["server.js"]
