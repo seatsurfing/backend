@@ -11,6 +11,9 @@ RUN npm install
 RUN npm run build
 
 FROM node:18-alpine AS builder
+ARG CI_VERSION
+ENV NEXT_PUBLIC_PRODUCT_VERSION=$CI_VERSION
+ENV NODE_ENV=production
 COPY --from=commons-builder /app/commons/ts/ /app/commons/ts
 ADD . /app/
 WORKDIR /app
@@ -19,8 +22,6 @@ RUN npm install --save ./commons/ts
 RUN npm run build
 
 FROM node:18-alpine
-ARG CI_VERSION
-ENV NEXT_PUBLIC_PRODUCT_VERSION=$CI_VERSION
 ENV NODE_ENV=production
 ENV PORT=3001
 WORKDIR /app
