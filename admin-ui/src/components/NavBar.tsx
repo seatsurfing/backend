@@ -1,18 +1,17 @@
 import React from 'react';
 import { Nav, Button, Form } from 'react-bootstrap';
-import './NavBar.css';
-import { Link, Navigate } from 'react-router-dom';
 import { Ajax, AjaxCredentials } from 'flexspace-commons';
-import { withTranslation } from 'react-i18next';
-import { TFunction } from 'i18next';
+import { WithTranslation, withTranslation } from 'next-i18next';
+import { NextRouter, withRouter } from 'next/router';
+import Link from 'next/link';
 
 interface State {
     search: string
     redirect: string | null
 }
 
-interface Props {
-    t: TFunction
+interface Props extends WithTranslation {
+    router: NextRouter
 }
 
 class NavBar extends React.Component<Props, State> {
@@ -56,12 +55,13 @@ class NavBar extends React.Component<Props, State> {
         if (this.state.redirect != null) {
             let target = this.state.redirect;
             this.setState({ redirect: null });
-            return <Navigate replace={true} to={target} />
+            this.props.router.push(target);
+            return <></>
         }
 
         return (
             <Nav className="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-                <Link className="navbar-brand col-md-3 col-lg-2 me-0 px-3" to="/dashboard"><img src="./seatsurfing_white.svg" alt="Seatsurfing" /></Link>
+                <Link className="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="/dashboard"><img src="./seatsurfing_white.svg" alt="Seatsurfing" /></Link>
                 <button className="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
                     <span className="navbar-toggler-icon"></span>
                 </button>
@@ -78,4 +78,4 @@ class NavBar extends React.Component<Props, State> {
     }
 }
 
-export default withTranslation()(NavBar as any);
+export default withTranslation()(withRouter(NavBar as any));

@@ -15,6 +15,7 @@ type Config struct {
 	FrontendURL                         string
 	PostgresURL                         string
 	JwtSigningKey                       string
+	DisableUiProxy                      bool
 	AdminUiBackend                      string
 	BookingUiBackend                    string
 	SMTPHost                            string
@@ -66,6 +67,7 @@ func (c *Config) ReadConfig() {
 		c.FrontendURL = c.getEnv("FRONTEND_URL", "http://localhost:8080")
 	}
 	c.FrontendURL = strings.TrimSuffix(c.FrontendURL, "/") + "/"
+	c.DisableUiProxy = (c.getEnv("DISABLE_UI_PROXY", "0") == "1")
 	c.AdminUiBackend = c.getEnv("ADMIN_UI_BACKEND", "localhost:3000")
 	c.BookingUiBackend = c.getEnv("BOOKING_UI_BACKEND", "localhost:3001")
 	c.PostgresURL = c.getEnv("POSTGRES_URL", "postgres://postgres:root@localhost/seatsurfing?sslmode=disable")

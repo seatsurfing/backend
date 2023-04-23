@@ -79,6 +79,4 @@ class DebugTimeIssues extends React.Component<Props, State> {
   }
 }
 
-//const NoSSRDebugTimeIssues = dynamic(async () => DebugTimeIssues, {ssr: false});
-//export default withTranslation()(NoSSRDebugTimeIssues as any);
 export default withTranslation()(DebugTimeIssues as any);

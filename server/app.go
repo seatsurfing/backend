@@ -62,8 +62,10 @@ func (a *App) InitializeRouter() {
 		subRouter := a.Router.PathPrefix(route).Subrouter()
 		router.setupRoutes(subRouter)
 	}
-	a.setupBookingUIProxy(a.Router)
-	a.setupAdminUIProxy(a.Router)
+	if !GetConfig().DisableUiProxy {
+		a.setupBookingUIProxy(a.Router)
+		a.setupAdminUIProxy(a.Router)
+	}
 	a.Router.Path("/").Methods("GET").HandlerFunc(a.RedirectRootPath)
 	a.Router.PathPrefix("/").Methods("OPTIONS").HandlerFunc(CorsHandler)
 	a.Router.Use(CorsMiddleware)
