@@ -1,12 +1,10 @@
 import React from 'react';
-import FullLayout from '../components/FullLayout';
-import Loading from '../components/Loading';
 import { Ajax, Stats, User } from 'flexspace-commons';
 import { Card, Row, Col, ProgressBar, Alert } from 'react-bootstrap';
-import './Dashboard.css';
-import { withTranslation } from 'react-i18next';
-import { TFunction } from 'i18next';
-import { Navigate } from 'react-router-dom';
+import { WithTranslation, withTranslation } from 'next-i18next';
+import { NextRouter, withRouter } from 'next/router';
+import FullLayout from '@/components/FullLayout';
+import Loading from '@/components/Loading';
 
 interface State {
   loading: boolean
@@ -16,8 +14,8 @@ interface State {
   latestVersion: any
 }
 
-interface Props {
-  t: TFunction
+interface Props extends WithTranslation {
+  router: NextRouter
 }
 
 class Dashboard extends React.Component<Props, State> {
@@ -124,7 +122,8 @@ class Dashboard extends React.Component<Props, State> {
 
   render() {
     if (this.state.redirect) {
-      return <Navigate replace={true} to={this.state.redirect} />
+      this.props.router.push(this.state.redirect);
+      return <></>
     }
 
     if (this.state.loading) {
@@ -173,4 +172,4 @@ class Dashboard extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(Dashboard as any);
+export default withTranslation()(withRouter(Dashboard as any));

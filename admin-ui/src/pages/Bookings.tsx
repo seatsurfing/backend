@@ -4,10 +4,8 @@ import Loading from '../components/Loading';
 import { Booking, Formatting } from 'flexspace-commons';
 import { Table, Form, Col, Row, Button } from 'react-bootstrap';
 import { Search as IconSearch, Download as IconDownload, X as IconX } from 'react-feather';
-import ExcellentExport from 'excellentexport';
-import { withTranslation } from 'react-i18next';
-import { TFunction } from 'i18next';
 import type * as CSS from 'csstype';
+import { WithTranslation, withTranslation } from 'next-i18next';
 
 interface State {
   loading: boolean
@@ -15,8 +13,7 @@ interface State {
   end: string
 }
 
-interface Props {
-  t: TFunction
+interface Props extends WithTranslation {
 }
 
 class Bookings extends React.Component<Props, State> {
@@ -84,7 +81,8 @@ class Bookings extends React.Component<Props, State> {
     this.loadItems();
   }
 
-  exportTable = (e: any) => {
+  exportTable = async (e: any) => {
+    const ExcellentExport = (await import('excellentexport')).default
     return ExcellentExport.convert(
       { anchor: e.target, filename: "seatsurfing-bookings", format: "xlsx"},
       [{name: "Seatsurfing Bookings", from: {table: "datatable"}}]
