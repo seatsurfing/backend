@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@types/react-dom": "^18.0.11",
+    "@types/react-dom": "^18.2.1",
     "bootstrap": "^5.2.3",
     "excellentexport": "^3.9.4",
     "flexspace-commons": "file:../commons/ts",
@@ -18,7 +18,7 @@
     "react-bootstrap": "^2.7.4",
     "react-dom": "^18.2.0",
     "react-feather": "^2.0.10",
-    "react-i18next": "^12.2.0",
+    "react-i18next": "^12.2.2",
     "react-rnd": "^10.4.1",
     "typescript": "^5.0.4"
   },
@@ -43,7 +43,7 @@
   },
   "homepage": "/admin/",
   "devDependencies": {
-    "@types/node": "18.16.0",
+    "@types/node": "18.16.2",
     "eslint": "^8.39.0",
     "eslint-config-next": "^13.3.1"
   }
