@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Col, Row, Button, Alert, ButtonGroup } from 'react-bootstrap';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete } from 'react-feather';
-import { AuthProvider } from 'flexspace-commons';
+import { Ajax, AuthProvider } from 'flexspace-commons';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import { NextRouter, withRouter } from 'next/router';
 import FullLayout from '@/components/FullLayout';
@@ -53,6 +53,10 @@ class EditAuthProvider extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
+    if (!Ajax.CREDENTIALS.accessToken) {
+      this.props.router.push("/login");
+      return;
+    }
     this.loadData();
   }
 

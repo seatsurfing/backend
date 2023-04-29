@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Col, Row, Button, Alert, InputGroup } from 'react-bootstrap';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete } from 'react-feather';
-import { User, Settings as OrgSettings, Domain } from 'flexspace-commons';
+import { User, Settings as OrgSettings, Domain, Ajax } from 'flexspace-commons';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import { NextRouter, withRouter } from 'next/router';
 import FullLayout from '@/components/FullLayout';
@@ -50,6 +50,10 @@ class EditUser extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
+    if (!Ajax.CREDENTIALS.accessToken) {
+      this.props.router.push("/login");
+      return;
+    }
     this.loadData();
   }
 

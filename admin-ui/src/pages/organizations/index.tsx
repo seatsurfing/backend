@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table } from 'react-bootstrap';
 import { Plus as IconPlus } from 'react-feather';
-import { Organization } from 'flexspace-commons';
+import { Ajax, Organization } from 'flexspace-commons';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import FullLayout from '@/components/FullLayout';
 import Loading from '@/components/Loading';
@@ -29,6 +29,10 @@ class Organizations extends React.Component<Props, State> {
   }
   
   componentDidMount = () => {
+    if (!Ajax.CREDENTIALS.accessToken) {
+      this.props.router.push("/login");
+      return;
+    }
     this.loadItems();
   }
 

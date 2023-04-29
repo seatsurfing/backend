@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table } from 'react-bootstrap';
 import { Plus as IconPlus, Download as IconDownload } from 'react-feather';
-import { Location } from 'flexspace-commons';
+import { Ajax, Location } from 'flexspace-commons';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import FullLayout from '@/components/FullLayout';
 import { NextRouter, withRouter } from 'next/router';
@@ -30,6 +30,10 @@ class Locations extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
+    if (!Ajax.CREDENTIALS.accessToken) {
+      this.props.router.push("/login");
+      return;
+    }
     import('excellentexport').then(imp => this.ExcellentExport = imp.default);
     this.loadItems();
   }

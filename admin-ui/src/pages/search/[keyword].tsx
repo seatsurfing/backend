@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search } from 'flexspace-commons';
+import { Ajax, Search } from 'flexspace-commons';
 import { Card, ListGroup, Col, Row } from 'react-bootstrap';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import { NextRouter, withRouter } from 'next/router';
@@ -27,6 +27,10 @@ class SearchResult extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
+    if (!Ajax.CREDENTIALS.accessToken) {
+      this.props.router.push("/login");
+      return;
+    }
     this.loadItems();
   }
 

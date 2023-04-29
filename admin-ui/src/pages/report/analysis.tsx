@@ -5,6 +5,7 @@ import { Search as IconSearch, Download as IconDownload, Check as IconCheck } fr
 import { WithTranslation, withTranslation } from 'next-i18next';
 import FullLayout from '@/components/FullLayout';
 import Loading from '@/components/Loading';
+import { NextRouter, withRouter } from 'next/router';
 
 interface State {
   loading: boolean
@@ -14,6 +15,7 @@ interface State {
 }
 
 interface Props extends WithTranslation {
+  router: NextRouter
 }
 
 class ReportAnalysis extends React.Component<Props, State> {
@@ -37,6 +39,10 @@ class ReportAnalysis extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
+    if (!Ajax.CREDENTIALS.accessToken) {
+      this.props.router.push("/login");
+      return;
+    }
     Location.list().then(locations => this.locations = locations);
     import('excellentexport').then(imp => this.ExcellentExport = imp.default);
     this.loadItems();
@@ -165,4 +171,4 @@ class ReportAnalysis extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(ReportAnalysis as any);
+export default withTranslation()(withRouter(ReportAnalysis as any));

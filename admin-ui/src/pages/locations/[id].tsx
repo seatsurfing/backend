@@ -69,6 +69,10 @@ class EditLocation extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
+    if (!Ajax.CREDENTIALS.accessToken) {
+      this.props.router.push("/login");
+      return;
+    }
     let promises = [
       this.loadData(),
       this.loadTimezones(),
