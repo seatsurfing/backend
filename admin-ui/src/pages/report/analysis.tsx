@@ -19,6 +19,7 @@ interface Props extends WithTranslation {
 class ReportAnalysis extends React.Component<Props, State> {
   locations: Location[];
   data: any;
+  ExcellentExport: any;
 
   constructor(props: any) {
     super(props);
@@ -37,6 +38,7 @@ class ReportAnalysis extends React.Component<Props, State> {
 
   componentDidMount = () => {
     Location.list().then(locations => this.locations = locations);
+    import('excellentexport').then(imp => this.ExcellentExport = imp.default);
     this.loadItems();
   }
 
@@ -58,7 +60,7 @@ class ReportAnalysis extends React.Component<Props, State> {
     return this.data.users.map((user: any, i: number) => {
       let cols = this.data.presences[i].map((num: number) => {
         let val = num > 0 ? <IconCheck className="feather" /> : "-";
-        return <td key={'row-'+num} className="center">{val}</td>;
+        return <td key={'row-' + num} className="center">{val}</td>;
       });
       return (
         <tr key={user.userId}>
@@ -75,7 +77,7 @@ class ReportAnalysis extends React.Component<Props, State> {
     this.loadItems();
   }
 
-  exportTable = async (e: any) => {
+  exportTable = (e: any) => {
     let fixFn = (value: string, row: number, col: number) => {
       if (value.startsWith("<")) {
         return "1";
@@ -85,8 +87,7 @@ class ReportAnalysis extends React.Component<Props, State> {
       }
       return value;
     }
-    const ExcellentExport = (await import('excellentexport')).default
-    return ExcellentExport.convert(
+    return this.ExcellentExport.convert(
       { anchor: e.target, filename: "seatsurfing-analysis", format: "xlsx" },
       [{ name: "Seatsurfing Analysis", from: { table: "datatable" }, fixValue: fixFn }]
     );

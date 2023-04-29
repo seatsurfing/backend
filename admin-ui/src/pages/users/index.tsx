@@ -20,6 +20,7 @@ interface Props extends WithTranslation {
 class Users extends React.Component<Props, State> {
   authProviders: { [key: string]: string } = {};
   data: User[] = [];
+  ExcellentExport: any;
 
   constructor(props: any) {
     super(props);
@@ -28,8 +29,9 @@ class Users extends React.Component<Props, State> {
       loading: true
     };
   }
-  
+
   componentDidMount = () => {
+    import('excellentexport').then(imp => this.ExcellentExport = imp.default);
     this.loadItems();
   }
 
@@ -72,11 +74,10 @@ class Users extends React.Component<Props, State> {
     );
   }
 
-  exportTable = async (e: any) => {
-    const ExcellentExport = (await import('excellentexport')).default
-    return ExcellentExport.convert(
-      { anchor: e.target, filename: "seatsurfing-users", format: "xlsx"},
-      [{name: "Seatsurfing Users", from: {table: "datatable"}}]
+  exportTable = (e: any) => {
+    return this.ExcellentExport.convert(
+      { anchor: e.target, filename: "seatsurfing-users", format: "xlsx" },
+      [{ name: "Seatsurfing Users", from: { table: "datatable" } }]
     );
   }
 

@@ -18,6 +18,7 @@ interface Props extends WithTranslation {
 
 class Bookings extends React.Component<Props, State> {
   data: Booking[];
+  ExcellentExport: any;
 
   constructor(props: any) {
     super(props);
@@ -33,6 +34,7 @@ class Bookings extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
+    import('excellentexport').then(imp => this.ExcellentExport = imp.default);
     this.loadItems();
   }
 
@@ -81,11 +83,10 @@ class Bookings extends React.Component<Props, State> {
     this.loadItems();
   }
 
-  exportTable = async (e: any) => {
-    const ExcellentExport = (await import('excellentexport')).default
-    return ExcellentExport.convert(
-      { anchor: e.target, filename: "seatsurfing-bookings", format: "xlsx"},
-      [{name: "Seatsurfing Bookings", from: {table: "datatable"}}]
+  exportTable = (e: any) => {
+    return this.ExcellentExport.convert(
+      { anchor: e.target, filename: "seatsurfing-bookings", format: "xlsx" },
+      [{ name: "Seatsurfing Bookings", from: { table: "datatable" } }]
     );
   }
 
