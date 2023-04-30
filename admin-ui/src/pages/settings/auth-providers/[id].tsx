@@ -63,7 +63,7 @@ class EditAuthProvider extends React.Component<Props, State> {
 
   loadData = () => {
     const { id } = this.props.router.query;
-    if ((id) && (typeof id === 'string')) {
+    if (id && (typeof id === "string") && (id !== 'add')) {
       AuthProvider.get(id).then(authProvider => {
         this.entity = authProvider;
         this.setState({

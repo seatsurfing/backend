@@ -67,7 +67,7 @@ class EditUser extends React.Component<Props, State> {
       })
     ];
     const { id } = this.props.router.query;
-    if ((id) && (typeof id === 'string')) {
+    if (id && (typeof id === "string") && (id !== 'add')) {
       promises.push(User.get(id));
     }
     Promise.all(promises).then(values => {

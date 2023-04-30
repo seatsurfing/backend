@@ -61,7 +61,7 @@ class EditOrganization extends React.Component<Props, State> {
 
   loadData = () => {
     const { id } = this.props.router.query;
-    if ((id) && (typeof id === "string")) {
+    if (id && (typeof id === "string") && (id !== 'add')) {
       Organization.get(id).then(org => {
         this.entity = org;
         this.setState({

@@ -33,7 +33,7 @@ interface State {
   fileLabel: string
   files: FileList | null
   spaces: SpaceState[]
-  selectedSpace: number | null
+  selectedSpace: number | null
   deleteIds: string[]
   changed: boolean
 }
@@ -94,12 +94,8 @@ class EditLocation extends React.Component<Props, State> {
   loadData = async (locationId?: string): Promise<void> => {
     if (!locationId) {
       const { id } = this.props.router.query;
-      console.log("--------> " + this.props.router.isReady);
-      console.log("--------> " + id);
-      if (id) {
-        if (typeof id === "string") {
-          locationId = id;
-        }
+      if (id && (typeof id === "string") && (id !== 'add')) {
+        locationId = id;
       }
     }
     if (locationId) {
@@ -154,7 +150,7 @@ class EditLocation extends React.Component<Props, State> {
 
   onSubmit = (e: any) => {
     e.preventDefault();
-    this.setState({submitting: true});
+    this.setState({ submitting: true });
     this.entity.name = this.state.name;
     this.entity.description = this.state.description;
     this.entity.maxConcurrentBookings = (this.state.limitConcurrentBookings ? this.state.maxConcurrentBookings : 0);
@@ -203,7 +199,7 @@ class EditLocation extends React.Component<Props, State> {
       rotation: 0
     };
     let i = spaces.push(space);
-    this.setState({ spaces: spaces, changed: this.state.changed || (e ? false : true) });
+    this.setState({ spaces: spaces, changed: this.state.changed || (e ? false : true) });
     return i;
   }
 
