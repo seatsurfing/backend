@@ -3,7 +3,8 @@ import { Form } from 'react-bootstrap';
 import { Ajax } from 'flexspace-commons';
 import RuntimeConfig from '@/components/RuntimeConfig';
 import Loading from '@/components/Loading';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   redirect: string | null
@@ -74,4 +75,4 @@ class LoginSuccess extends React.Component<Props, State> {
   }
 }
 
-export default withRouter(LoginSuccess as any);
+export default withReadyRouter(LoginSuccess as any);

@@ -1,5 +1,6 @@
+import withReadyRouter from '@/components/withReadyRouter';
 import { WithTranslation, withTranslation } from 'next-i18next';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
 import React from 'react';
 import { Button } from 'react-bootstrap';
 import { Copy as IconCopy } from 'react-feather';
@@ -74,4 +75,4 @@ class ConfluenceHint extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(ConfluenceHint as any));
+export default withTranslation()(withReadyRouter(ConfluenceHint as any));

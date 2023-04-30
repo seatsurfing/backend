@@ -2,8 +2,9 @@ import React from 'react';
 import { Nav, Button, Form } from 'react-bootstrap';
 import { Ajax, AjaxCredentials } from 'flexspace-commons';
 import { WithTranslation, withTranslation } from 'next-i18next';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
 import Link from 'next/link';
+import withReadyRouter from './withReadyRouter';
 
 interface State {
     search: string
@@ -78,4 +79,4 @@ class NavBar extends React.Component<Props, State> {
     }
 }
 
-export default withTranslation()(withRouter(NavBar as any));
+export default withTranslation()(withReadyRouter(NavBar as any));

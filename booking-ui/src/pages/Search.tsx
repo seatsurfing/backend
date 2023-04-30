@@ -10,10 +10,11 @@ import 'react-clock/dist/Clock.css';
 import Loading from '../components/Loading';
 import { EnterOutline as EnterIcon, ExitOutline as ExitIcon, LocationOutline as LocationIcon, ChevronUpOutline as CollapseIcon, ChevronDownOutline as CollapseIcon2, SettingsOutline as SettingsIcon, MapOutline as MapIcon } from 'react-ionicons'
 import ErrorText from '../types/ErrorText';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import NavBar from '@/components/NavBar';
 import RuntimeConfig from '@/components/RuntimeConfig';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   enter: Date
@@ -753,4 +754,4 @@ class Search extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(Search as any));
+export default withTranslation()(withReadyRouter(Search as any));

@@ -6,7 +6,8 @@ import { Table, Form, Col, Row, Button } from 'react-bootstrap';
 import { Search as IconSearch, Download as IconDownload, X as IconX } from 'react-feather';
 import type * as CSS from 'csstype';
 import { WithTranslation, withTranslation } from 'next-i18next';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   loading: boolean
@@ -164,4 +165,4 @@ class Bookings extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(Bookings as any));
+export default withTranslation()(withReadyRouter(Bookings as any));

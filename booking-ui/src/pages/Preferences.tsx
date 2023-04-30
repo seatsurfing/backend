@@ -3,8 +3,9 @@ import { Ajax, Location, UserPreference } from 'flexspace-commons';
 import Loading from '../components/Loading';
 import { Alert, Button, Col, Form, Row } from 'react-bootstrap';
 import { WithTranslation, withTranslation } from 'next-i18next';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
 import NavBar from '@/components/NavBar';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   loading: boolean
@@ -196,4 +197,4 @@ class Preferences extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(Preferences as any));
+export default withTranslation()(withReadyRouter(Preferences as any));

@@ -2,10 +2,11 @@ import React from 'react';
 import { Ajax, Search } from 'flexspace-commons';
 import { Card, ListGroup, Col, Row } from 'react-bootstrap';
 import { WithTranslation, withTranslation } from 'next-i18next';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
 import FullLayout from '@/components/FullLayout';
 import Loading from '@/components/Loading';
 import Link from 'next/link';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   loading: boolean
@@ -152,4 +153,4 @@ class SearchResult extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(SearchResult as any));
+export default withTranslation()(withReadyRouter(SearchResult as any));

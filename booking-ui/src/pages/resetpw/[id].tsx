@@ -2,8 +2,9 @@ import React from 'react';
 import { Ajax } from 'flexspace-commons';
 import { Button, Form } from 'react-bootstrap';
 import { WithTranslation, withTranslation } from 'next-i18next';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
 import Link from 'next/link';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   loading: boolean
@@ -76,4 +77,4 @@ class CompletePasswordReset extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(CompletePasswordReset as any));
+export default withTranslation()(withReadyRouter(CompletePasswordReset as any));

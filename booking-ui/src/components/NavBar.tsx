@@ -4,7 +4,8 @@ import { Ajax, User, MergeRequest, AjaxCredentials } from 'flexspace-commons';
 import RuntimeConfig from './RuntimeConfig';
 import { Users as IconMerge, Bell as IconAlert, Settings as IconSettings, Calendar as IconCalendar, PlusSquare as IconPlus } from 'react-feather';
 import { WithTranslation, withTranslation } from 'next-i18next';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
+import withReadyRouter from './withReadyRouter';
 
 interface State {
     redirect: string | null
@@ -227,4 +228,4 @@ class NavBar extends React.Component<Props, State> {
     }
 }
 
-export default withTranslation()(withRouter(NavBar as any));
+export default withTranslation()(withReadyRouter(NavBar as any));

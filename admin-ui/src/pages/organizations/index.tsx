@@ -6,7 +6,8 @@ import { WithTranslation, withTranslation } from 'next-i18next';
 import FullLayout from '@/components/FullLayout';
 import Loading from '@/components/Loading';
 import Link from 'next/link';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   selectedItem: string
@@ -96,4 +97,4 @@ class Organizations extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(Organizations as any));
+export default withTranslation()(withReadyRouter(Organizations as any));

@@ -4,9 +4,10 @@ import { Plus as IconPlus, Download as IconDownload } from 'react-feather';
 import { Ajax, Location } from 'flexspace-commons';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import FullLayout from '@/components/FullLayout';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
 import Link from 'next/link';
 import Loading from '@/components/Loading';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   selectedItem: string
@@ -114,4 +115,4 @@ class Locations extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(Locations as any));
+export default withTranslation()(withReadyRouter(Locations as any));

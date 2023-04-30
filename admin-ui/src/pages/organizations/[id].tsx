@@ -2,11 +2,12 @@ import React from 'react';
 import { Form, Col, Row, Button, Alert, InputGroup } from 'react-bootstrap';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete } from 'react-feather';
 import { Ajax, Domain, Organization, User } from 'flexspace-commons';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import FullLayout from '@/components/FullLayout';
 import Loading from '@/components/Loading';
 import Link from 'next/link';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   loading: boolean
@@ -240,4 +241,4 @@ class EditOrganization extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(EditOrganization as any));
+export default withTranslation()(withReadyRouter(EditOrganization as any));

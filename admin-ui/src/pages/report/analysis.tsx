@@ -5,7 +5,8 @@ import { Search as IconSearch, Download as IconDownload, Check as IconCheck } fr
 import { WithTranslation, withTranslation } from 'next-i18next';
 import FullLayout from '@/components/FullLayout';
 import Loading from '@/components/Loading';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   loading: boolean
@@ -171,4 +172,4 @@ class ReportAnalysis extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(ReportAnalysis as any));
+export default withTranslation()(withReadyRouter(ReportAnalysis as any));

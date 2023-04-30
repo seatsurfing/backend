@@ -3,7 +3,8 @@ import { Form, Button, InputGroup } from 'react-bootstrap';
 import { Organization, AuthProvider, Ajax, JwtDecoder, User } from 'flexspace-commons';
 import Loading from '../../components/Loading';
 import { WithTranslation, withTranslation } from 'next-i18next';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   email: string
@@ -216,4 +217,4 @@ class Login extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(Login as any));
+export default withTranslation()(withReadyRouter(Login as any));

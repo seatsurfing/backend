@@ -4,8 +4,9 @@ import { Organization, AuthProvider, Ajax } from 'flexspace-commons';
 import { withTranslation, WithTranslation } from 'next-i18next';
 import RuntimeConfig from '../../components/RuntimeConfig';
 import Loading from '../../components/Loading';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
 import Link from 'next/link';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   email: string
@@ -245,4 +246,4 @@ class Login extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(Login as any));
+export default withTranslation()(withReadyRouter(Login as any));

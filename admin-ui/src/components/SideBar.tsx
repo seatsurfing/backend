@@ -3,7 +3,8 @@ import { Home as IconHome, Users as IconUsers, Map as IconMap, Book as IconBook,
 import { User } from 'flexspace-commons';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import { Nav } from 'react-bootstrap';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
+import withReadyRouter from './withReadyRouter';
 
 interface State {
     superAdmin: boolean
@@ -103,4 +104,4 @@ class SideBar extends React.Component<Props, State> {
     }
 }
 
-export default withTranslation()(withRouter(SideBar as any));
+export default withTranslation()(withReadyRouter(SideBar as any));

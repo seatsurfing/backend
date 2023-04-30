@@ -2,11 +2,12 @@ import React from 'react';
 import { User, Organization, AuthProvider, Settings as OrgSettings, Domain, Ajax, AjaxCredentials } from 'flexspace-commons';
 import { Form, Col, Row, Table, Button, Alert, InputGroup, Popover, OverlayTrigger } from 'react-bootstrap';
 import { Plus as IconPlus, Save as IconSave } from 'react-feather';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import FullLayout from '@/components/FullLayout';
 import Link from 'next/link';
 import Loading from '@/components/Loading';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   allowAnyUser: boolean
@@ -477,4 +478,4 @@ class Settings extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(Settings as any));
+export default withTranslation()(withReadyRouter(Settings as any));
