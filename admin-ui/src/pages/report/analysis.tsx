@@ -5,6 +5,8 @@ import { Search as IconSearch, Download as IconDownload, Check as IconCheck } fr
 import { WithTranslation, withTranslation } from 'next-i18next';
 import FullLayout from '@/components/FullLayout';
 import Loading from '@/components/Loading';
+import { NextRouter } from 'next/router';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   loading: boolean
@@ -14,11 +16,13 @@ interface State {
 }
 
 interface Props extends WithTranslation {
+  router: NextRouter
 }
 
 class ReportAnalysis extends React.Component<Props, State> {
   locations: Location[];
   data: any;
+  ExcellentExport: any;
 
   constructor(props: any) {
     super(props);
@@ -36,7 +40,12 @@ class ReportAnalysis extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
+    if (!Ajax.CREDENTIALS.accessToken) {
+      this.props.router.push("/login");
+      return;
+    }
     Location.list().then(locations => this.locations = locations);
+    import('excellentexport').then(imp => this.ExcellentExport = imp.default);
     this.loadItems();
   }
 
@@ -58,7 +67,7 @@ class ReportAnalysis extends React.Component<Props, State> {
     return this.data.users.map((user: any, i: number) => {
       let cols = this.data.presences[i].map((num: number) => {
         let val = num > 0 ? <IconCheck className="feather" /> : "-";
-        return <td key={'row-'+num} className="center">{val}</td>;
+        return <td key={'row-' + num} className="center">{val}</td>;
       });
       return (
         <tr key={user.userId}>
@@ -75,7 +84,7 @@ class ReportAnalysis extends React.Component<Props, State> {
     this.loadItems();
   }
 
-  exportTable = async (e: any) => {
+  exportTable = (e: any) => {
     let fixFn = (value: string, row: number, col: number) => {
       if (value.startsWith("<")) {
         return "1";
@@ -85,8 +94,7 @@ class ReportAnalysis extends React.Component<Props, State> {
       }
       return value;
     }
-    const ExcellentExport = (await import('excellentexport')).default
-    return ExcellentExport.convert(
+    return this.ExcellentExport.convert(
       { anchor: e.target, filename: "seatsurfing-analysis", format: "xlsx" },
       [{ name: "Seatsurfing Analysis", from: { table: "datatable" }, fixValue: fixFn }]
     );
@@ -164,4 +172,4 @@ class ReportAnalysis extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(ReportAnalysis as any);
+export default withTranslation()(withReadyRouter(ReportAnalysis as any));

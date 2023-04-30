@@ -2,8 +2,9 @@ import React from 'react';
 import { Loader as IconLoad } from 'react-feather';
 import { Ajax } from 'flexspace-commons';
 import { WithTranslation, withTranslation } from 'next-i18next';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
 import Link from 'next/link';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   loading: boolean
@@ -78,4 +79,4 @@ class ConfirmSignup extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(ConfirmSignup as any));
+export default withTranslation()(withReadyRouter(ConfirmSignup as any));

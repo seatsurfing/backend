@@ -1,12 +1,13 @@
 import React from 'react';
 import { Form, Col, Row, Button, Alert, InputGroup } from 'react-bootstrap';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete } from 'react-feather';
-import { User, Settings as OrgSettings, Domain } from 'flexspace-commons';
+import { User, Settings as OrgSettings, Domain, Ajax } from 'flexspace-commons';
 import { WithTranslation, withTranslation } from 'next-i18next';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
 import FullLayout from '@/components/FullLayout';
 import Link from 'next/link';
 import Loading from '@/components/Loading';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   loading: boolean
@@ -50,6 +51,10 @@ class EditUser extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
+    if (!Ajax.CREDENTIALS.accessToken) {
+      this.props.router.push("/login");
+      return;
+    }
     this.loadData();
   }
 
@@ -220,4 +225,4 @@ class EditUser extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(EditUser as any));
+export default withTranslation()(withReadyRouter(EditUser as any));

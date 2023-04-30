@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import FullLayout from '../../components/FullLayout';
 import { Form, Col, Row, Button, Alert, InputGroup } from 'react-bootstrap';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete, MapPin as IconMap, Copy as IconCopy, Loader as IconLoad } from 'react-feather';
@@ -6,8 +6,9 @@ import Loading from '../../components/Loading';
 import { Ajax, Location, Space } from 'flexspace-commons';
 import { Rnd } from 'react-rnd';
 import { WithTranslation, withTranslation } from 'next-i18next';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
 import Link from 'next/link';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface SpaceState {
   id: string
@@ -69,6 +70,10 @@ class EditLocation extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
+    if (!Ajax.CREDENTIALS.accessToken) {
+      this.props.router.push("/login");
+      return;
+    }
     let promises = [
       this.loadData(),
       this.loadTimezones(),
@@ -89,6 +94,8 @@ class EditLocation extends React.Component<Props, State> {
   loadData = async (locationId?: string): Promise<void> => {
     if (!locationId) {
       const { id } = this.props.router.query;
+      console.log("--------> " + this.props.router.isReady);
+      console.log("--------> " + id);
       if (id) {
         if (typeof id === "string") {
           locationId = id;
@@ -412,4 +419,4 @@ class EditLocation extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(EditLocation as any));
+export default withTranslation()(withReadyRouter(EditLocation as any));

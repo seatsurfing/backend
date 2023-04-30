@@ -2,9 +2,10 @@ import React from 'react';
 import { Ajax, Stats, User } from 'flexspace-commons';
 import { Card, Row, Col, ProgressBar, Alert } from 'react-bootstrap';
 import { WithTranslation, withTranslation } from 'next-i18next';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
 import FullLayout from '@/components/FullLayout';
 import Loading from '@/components/Loading';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   loading: boolean
@@ -34,6 +35,10 @@ class Dashboard extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
+    if (!Ajax.CREDENTIALS.accessToken) {
+      this.props.router.push("/login");
+      return;
+    }
     let promises = [
       this.loadItems(),
       this.getUserInfo(),
@@ -172,4 +177,4 @@ class Dashboard extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(Dashboard as any));
+export default withTranslation()(withReadyRouter(Dashboard as any));

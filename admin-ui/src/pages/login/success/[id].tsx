@@ -2,8 +2,9 @@ import React from 'react';
 import Loading from '../../../components/Loading';
 import { Form } from 'react-bootstrap';
 import { Ajax, JwtDecoder, User } from 'flexspace-commons';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
 import { WithTranslation, withTranslation } from 'next-i18next';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   redirect: string | null
@@ -79,4 +80,4 @@ class LoginSuccess extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(LoginSuccess as any));
+export default withTranslation()(withReadyRouter(LoginSuccess as any));

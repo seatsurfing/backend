@@ -1,12 +1,13 @@
 import React from 'react';
 import { Form, Col, Row, Button, Alert, ButtonGroup } from 'react-bootstrap';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete } from 'react-feather';
-import { AuthProvider } from 'flexspace-commons';
+import { Ajax, AuthProvider } from 'flexspace-commons';
 import { WithTranslation, withTranslation } from 'next-i18next';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
 import FullLayout from '@/components/FullLayout';
 import Link from 'next/link';
 import Loading from '@/components/Loading';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   loading: boolean
@@ -53,6 +54,10 @@ class EditAuthProvider extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
+    if (!Ajax.CREDENTIALS.accessToken) {
+      this.props.router.push("/login");
+      return;
+    }
     this.loadData();
   }
 
@@ -275,4 +280,4 @@ class EditAuthProvider extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(EditAuthProvider as any));
+export default withTranslation()(withReadyRouter(EditAuthProvider as any));

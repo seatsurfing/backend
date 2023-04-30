@@ -1,12 +1,13 @@
 import React from 'react';
 import { Table } from 'react-bootstrap';
 import { Plus as IconPlus, Download as IconDownload } from 'react-feather';
-import { User, AuthProvider } from 'flexspace-commons';
+import { User, AuthProvider, Ajax } from 'flexspace-commons';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import FullLayout from '@/components/FullLayout';
 import Loading from '@/components/Loading';
 import Link from 'next/link';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   selectedItem: string
@@ -20,6 +21,7 @@ interface Props extends WithTranslation {
 class Users extends React.Component<Props, State> {
   authProviders: { [key: string]: string } = {};
   data: User[] = [];
+  ExcellentExport: any;
 
   constructor(props: any) {
     super(props);
@@ -28,8 +30,13 @@ class Users extends React.Component<Props, State> {
       loading: true
     };
   }
-  
+
   componentDidMount = () => {
+    if (!Ajax.CREDENTIALS.accessToken) {
+      this.props.router.push("/login");
+      return;
+    }
+    import('excellentexport').then(imp => this.ExcellentExport = imp.default);
     this.loadItems();
   }
 
@@ -72,11 +79,10 @@ class Users extends React.Component<Props, State> {
     );
   }
 
-  exportTable = async (e: any) => {
-    const ExcellentExport = (await import('excellentexport')).default
-    return ExcellentExport.convert(
-      { anchor: e.target, filename: "seatsurfing-users", format: "xlsx"},
-      [{name: "Seatsurfing Users", from: {table: "datatable"}}]
+  exportTable = (e: any) => {
+    return this.ExcellentExport.convert(
+      { anchor: e.target, filename: "seatsurfing-users", format: "xlsx" },
+      [{ name: "Seatsurfing Users", from: { table: "datatable" } }]
     );
   }
 
@@ -129,4 +135,4 @@ class Users extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(Users as any));
+export default withTranslation()(withReadyRouter(Users as any));

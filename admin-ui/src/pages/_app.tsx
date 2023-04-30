@@ -74,29 +74,5 @@ class App extends React.Component<Props, State> {
   }
 }
 
-/*
-<Route path="/login/success/:id" element={<LoginSuccess />} />
-<Route path="/login/failed" element={<LoginFailed />} />
-<Route path="/login" element={<Login />} />
-<Route path="/confirm/:id" element={<ConfirmSignup />} />
-
-<Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-<Route path="/locations/add" element={<ProtectedRoute><EditLocation /></ProtectedRoute>} />
-<Route path="/locations/:id" element={<ProtectedRoute><EditLocation /></ProtectedRoute>} />
-<Route path="/locations" element={<ProtectedRoute><Locations /></ProtectedRoute>} />
-<Route path="/users/add" element={<ProtectedRoute><EditUser /></ProtectedRoute>} />
-<Route path="/users/:id" element={<ProtectedRoute><EditUser /></ProtectedRoute>} />
-<Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
-<Route path="/settings/auth-providers/add" element={<ProtectedRoute><EditAuthProvider /></ProtectedRoute>} />
-<Route path="/settings/auth-providers/:id" element={<ProtectedRoute><EditAuthProvider /></ProtectedRoute>} />
-<Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-<Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
-<Route path="/report/analysis" element={<ProtectedRoute><ReportAnalysis /></ProtectedRoute>} />
-<Route path="/organizations/add" element={<ProtectedRoute><EditOrganization /></ProtectedRoute>} />
-<Route path="/organizations/:id" element={<ProtectedRoute><EditOrganization /></ProtectedRoute>} />
-<Route path="/organizations" element={<ProtectedRoute><Organizations /></ProtectedRoute>} />
-<Route path="/search/:keyword" element={<ProtectedRoute><SearchResult /></ProtectedRoute>} />
-*/
-
 const NoSSRApp = dynamic(async () => App, { ssr: false });
 export default appWithTranslation(NoSSRApp, nextI18nConfig);

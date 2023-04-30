@@ -1,11 +1,13 @@
 import React from 'react';
 import FullLayout from '../components/FullLayout';
 import Loading from '../components/Loading';
-import { Booking, Formatting } from 'flexspace-commons';
+import { Ajax, Booking, Formatting } from 'flexspace-commons';
 import { Table, Form, Col, Row, Button } from 'react-bootstrap';
 import { Search as IconSearch, Download as IconDownload, X as IconX } from 'react-feather';
 import type * as CSS from 'csstype';
 import { WithTranslation, withTranslation } from 'next-i18next';
+import { NextRouter } from 'next/router';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   loading: boolean
@@ -14,10 +16,12 @@ interface State {
 }
 
 interface Props extends WithTranslation {
+  router: NextRouter
 }
 
 class Bookings extends React.Component<Props, State> {
   data: Booking[];
+  ExcellentExport: any;
 
   constructor(props: any) {
     super(props);
@@ -33,6 +37,11 @@ class Bookings extends React.Component<Props, State> {
   }
 
   componentDidMount = () => {
+    if (!Ajax.CREDENTIALS.accessToken) {
+      this.props.router.push("/login");
+      return;
+    }
+    import('excellentexport').then(imp => this.ExcellentExport = imp.default);
     this.loadItems();
   }
 
@@ -81,11 +90,10 @@ class Bookings extends React.Component<Props, State> {
     this.loadItems();
   }
 
-  exportTable = async (e: any) => {
-    const ExcellentExport = (await import('excellentexport')).default
-    return ExcellentExport.convert(
-      { anchor: e.target, filename: "seatsurfing-bookings", format: "xlsx"},
-      [{name: "Seatsurfing Bookings", from: {table: "datatable"}}]
+  exportTable = (e: any) => {
+    return this.ExcellentExport.convert(
+      { anchor: e.target, filename: "seatsurfing-bookings", format: "xlsx" },
+      [{ name: "Seatsurfing Bookings", from: { table: "datatable" } }]
     );
   }
 
@@ -157,4 +165,4 @@ class Bookings extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(Bookings as any);
+export default withTranslation()(withReadyRouter(Bookings as any));

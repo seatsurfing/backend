@@ -2,8 +2,9 @@ import React from 'react';
 import { Nav, Button, Form } from 'react-bootstrap';
 import { Ajax, AjaxCredentials } from 'flexspace-commons';
 import { WithTranslation, withTranslation } from 'next-i18next';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
 import Link from 'next/link';
+import withReadyRouter from './withReadyRouter';
 
 interface State {
     search: string
@@ -61,7 +62,7 @@ class NavBar extends React.Component<Props, State> {
 
         return (
             <Nav className="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-                <Link className="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="/dashboard"><img src="./seatsurfing_white.svg" alt="Seatsurfing" /></Link>
+                <Link className="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="/dashboard"><img src="/admin/seatsurfing_white.svg" alt="Seatsurfing" /></Link>
                 <button className="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
                     <span className="navbar-toggler-icon"></span>
                 </button>
@@ -78,4 +79,4 @@ class NavBar extends React.Component<Props, State> {
     }
 }
 
-export default withTranslation()(withRouter(NavBar as any));
+export default withTranslation()(withReadyRouter(NavBar as any));

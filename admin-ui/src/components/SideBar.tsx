@@ -3,7 +3,8 @@ import { Home as IconHome, Users as IconUsers, Map as IconMap, Book as IconBook,
 import { User } from 'flexspace-commons';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import { Nav } from 'react-bootstrap';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
+import withReadyRouter from './withReadyRouter';
 
 interface State {
     superAdmin: boolean
@@ -35,12 +36,30 @@ class SideBar extends React.Component<Props, State> {
         });
     }
 
+    getActiveKey = () => {
+        const startPaths = [
+            '/organizations',
+            '/users',
+            '/settings',
+            '/locations',
+            '/bookings'
+        ];
+        let path = this.props.router.pathname;
+        let result = path;
+        startPaths.forEach(startPath => {
+            if (path.startsWith(startPath)) {
+                result = startPath;
+            }
+        });
+        return result;
+    }
+
     render() {
         let orgItem = <></>;
         if (this.state.superAdmin) {
             orgItem = (
                 <li className="nav-item">
-                    <Nav.Link onClick={() => this.props.router.push("/organizations")}><IconBox className="feather" /> {this.props.t("organizations")}</Nav.Link>
+                    <Nav.Link eventKey="/organizations" onClick={() => this.props.router.push("/organizations")}><IconBox className="feather" /> {this.props.t("organizations")}</Nav.Link>
                 </li>
             );
         }
@@ -49,34 +68,34 @@ class SideBar extends React.Component<Props, State> {
             orgAdminItems = (
                 <>
                     <li className="nav-item">
-                        <Nav.Link onClick={() => this.props.router.push("/users")}><IconUsers className="feather" /> {this.props.t("users")}</Nav.Link>
+                        <Nav.Link eventKey="/users" onClick={() => this.props.router.push("/users")}><IconUsers className="feather" /> {this.props.t("users")}</Nav.Link>
                     </li>
                     <li className="nav-item">
-                        <Nav.Link onClick={() => this.props.router.push("/settings")}><IconSettings className="feather" /> {this.props.t("settings")}</Nav.Link>
+                        <Nav.Link eventKey="/settings" onClick={() => this.props.router.push("/settings")}><IconSettings className="feather" /> {this.props.t("settings")}</Nav.Link>
                     </li>
                 </>
             );
         }
         return (
-            <Nav id="sidebarMenu" className="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse" activeKey={this.props.router.pathname}>
+            <Nav id="sidebarMenu" className="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse" activeKey={this.getActiveKey()}>
                 <div className="sidebar-sticky pt-3">
                     <ul className="nav flex-column">
                         <li className="nav-item">
-                            <Nav.Link onClick={() => this.props.router.push("/dashboard")}><IconHome className="feather" /> {this.props.t("dashboard")}</Nav.Link>
+                            <Nav.Link eventKey="/dashboard" onClick={() => this.props.router.push("/dashboard")}><IconHome className="feather" /> {this.props.t("dashboard")}</Nav.Link>
                         </li>
                         <li className="nav-item">
-                            <Nav.Link onClick={() => this.props.router.push("/locations")}><IconMap className="feather" /> {this.props.t("areas")}</Nav.Link>
+                            <Nav.Link eventKey="/locations" onClick={() => this.props.router.push("/locations")}><IconMap className="feather" /> {this.props.t("areas")}</Nav.Link>
                         </li>
                         <li className="nav-item">
-                            <Nav.Link onClick={() => this.props.router.push("/bookings")}><IconBook className="feather" /> {this.props.t("bookings")}</Nav.Link>
+                            <Nav.Link eventKey="/bookings" onClick={() => this.props.router.push("/bookings")}><IconBook className="feather" /> {this.props.t("bookings")}</Nav.Link>
                         </li>
                         <li className="nav-item">
-                            <Nav.Link onClick={() => this.props.router.push("/report/analysis")}><IconAnalysis className="feather" /> {this.props.t("analysis")}</Nav.Link>
+                            <Nav.Link eventKey="/report/analysis" onClick={() => this.props.router.push("/report/analysis")}><IconAnalysis className="feather" /> {this.props.t("analysis")}</Nav.Link>
                         </li>
                         {orgAdminItems}
                         {orgItem}
                         <li className="nav-item">
-                            <Nav.Link onClick={() => {window.location.href="/ui/"}}><IconExternalLink className="feather" /> {this.props.t("bookingui")}</Nav.Link>
+                            <Nav.Link onClick={(e) => {e.preventDefault(); window.location.href="/ui/";}}><IconExternalLink className="feather" /> {this.props.t("bookingui")}</Nav.Link>
                         </li>
                     </ul>
                 </div>
@@ -85,4 +104,4 @@ class SideBar extends React.Component<Props, State> {
     }
 }
 
-export default withTranslation()(withRouter(SideBar as any));
+export default withTranslation()(withReadyRouter(SideBar as any));

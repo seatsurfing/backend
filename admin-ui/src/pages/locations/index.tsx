@@ -1,12 +1,13 @@
 import React from 'react';
 import { Table } from 'react-bootstrap';
 import { Plus as IconPlus, Download as IconDownload } from 'react-feather';
-import { Location } from 'flexspace-commons';
+import { Ajax, Location } from 'flexspace-commons';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import FullLayout from '@/components/FullLayout';
-import { NextRouter, withRouter } from 'next/router';
+import { NextRouter } from 'next/router';
 import Link from 'next/link';
 import Loading from '@/components/Loading';
+import withReadyRouter from '@/components/withReadyRouter';
 
 interface State {
   selectedItem: string
@@ -19,6 +20,7 @@ interface Props extends WithTranslation {
 
 class Locations extends React.Component<Props, State> {
   data: Location[] = [];
+  ExcellentExport: any;
 
   constructor(props: any) {
     super(props);
@@ -27,8 +29,13 @@ class Locations extends React.Component<Props, State> {
       loading: true
     };
   }
-  
+
   componentDidMount = () => {
+    if (!Ajax.CREDENTIALS.accessToken) {
+      this.props.router.push("/login");
+      return;
+    }
+    import('excellentexport').then(imp => this.ExcellentExport = imp.default);
     this.loadItems();
   }
 
@@ -52,11 +59,10 @@ class Locations extends React.Component<Props, State> {
     );
   }
 
-  exportTable = async (e: any) => {
-    const ExcellentExport = (await import('excellentexport')).default
-    return ExcellentExport.convert(
-      { anchor: e.target, filename: "seatsurfing-areas", format: "xlsx"},
-      [{name: "Seatsurfing Areas", from: {table: "datatable"}}]
+  exportTable = (e: any) => {
+    return this.ExcellentExport.convert(
+      { anchor: e.target, filename: "seatsurfing-areas", format: "xlsx" },
+      [{ name: "Seatsurfing Areas", from: { table: "datatable" } }]
     );
   }
 
@@ -109,4 +115,4 @@ class Locations extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withRouter(Locations as any));
+export default withTranslation()(withReadyRouter(Locations as any));
