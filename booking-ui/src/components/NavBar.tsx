@@ -6,6 +6,7 @@ import { Users as IconMerge, Bell as IconAlert, Settings as IconSettings, Calend
 import { WithTranslation, withTranslation } from 'next-i18next';
 import { NextRouter } from 'next/router';
 import withReadyRouter from './withReadyRouter';
+import Link from 'next/link';
 
 interface State {
     redirect: string | null
@@ -151,9 +152,9 @@ class NavBar extends React.Component<Props, State> {
         collapsable = (
             <>
                 <Nav activeKey={this.props.router.pathname}>
-                    <Nav.Link eventKey="/search" onClick={() => this.props.router.push("/search")}>{RuntimeConfig.EMBEDDED ? <IconPlus className="feather feather-lg" /> : this.props.t("bookSeat")}</Nav.Link>
-                    <Nav.Link eventKey="/bookings" onClick={() => this.props.router.push("/bookings")}>{RuntimeConfig.EMBEDDED ? <IconCalendar className="feather feather-lg" /> : this.props.t("myBookings")}</Nav.Link>
-                    <Nav.Link eventKey="/preferences" onClick={() => this.props.router.push("/preferences")} >{RuntimeConfig.EMBEDDED ? <IconSettings className="feather feather-lg" /> : this.props.t("preferences")}</Nav.Link>
+                    <Nav.Link as={Link} eventKey="/search" href="/search">{RuntimeConfig.EMBEDDED ? <IconPlus className="feather feather-lg" /> : this.props.t("bookSeat")}</Nav.Link>
+                    <Nav.Link as={Link} eventKey="/bookings" href="/bookings">{RuntimeConfig.EMBEDDED ? <IconCalendar className="feather feather-lg" /> : this.props.t("myBookings")}</Nav.Link>
+                    <Nav.Link as={Link} eventKey="/preferences" href="/preferences">{RuntimeConfig.EMBEDDED ? <IconSettings className="feather feather-lg" /> : this.props.t("preferences")}</Nav.Link>
                     {adminButton}
                     {signOffButton}
                 </Nav>
