@@ -274,7 +274,7 @@ func (r *OrganizationRepository) GetDomains(e *Organization) ([]*Domain, error) 
 	var result []*Domain
 	rows, err := GetDatabase().DB().Query("SELECT domain, organization_id, active, verify_token "+
 		"FROM organizations_domains "+
-		"WHERE organization_id = $1"+
+		"WHERE organization_id = $1 "+
 		"ORDER BY domain",
 		e.ID)
 	if err != nil {
