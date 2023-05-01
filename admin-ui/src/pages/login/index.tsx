@@ -211,7 +211,7 @@ class Login extends React.Component<Props, State> {
           </InputGroup>
           <Form.Control.Feedback type="invalid">{this.props.t("errorInvalidEmail")}</Form.Control.Feedback>
         </Form>
-        <p className="copyright-footer">&copy; Seatsurfing &#183; Version {process.env.REACT_APP_PRODUCT_VERSION}</p>
+        <p className="copyright-footer">&copy; Seatsurfing &#183; Version {process.env.NEXT_PUBLIC_PRODUCT_VERSION}</p>
       </div>
     );
   }

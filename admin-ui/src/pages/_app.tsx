@@ -13,7 +13,6 @@ import { WithTranslation, appWithTranslation, withTranslation } from 'next-i18ne
 import { Ajax } from 'flexspace-commons'
 import React from 'react'
 import Loading from '@/components/Loading'
-import dynamic from 'next/dynamic'
 import Head from 'next/head'
 
 interface State {
@@ -74,5 +73,4 @@ class App extends React.Component<Props, State> {
   }
 }
 
-const NoSSRApp = dynamic(async () => withTranslation()(App), { ssr: false });
-export default appWithTranslation(NoSSRApp, nextI18nConfig);
+export default appWithTranslation(withTranslation()(App), nextI18nConfig);
