@@ -7,23 +7,14 @@ Seat booking server software which enables your organisation's employees to book
 * **Where to get help:** [Documentation](https://docs.seatsurfing.app/)
 * **Supported architectures:** amd64, arm64, arm v7
 * **Terms of use:** [License information](https://seatsurfing.app/terms/)
-* **Mobile apps:** [Apple App Store](https://apps.apple.com/app/seatsurfing/id1579071273) and [Google Play](https://play.google.com/store/apps/details?id=de.seatsurfing.app)
 
 ## Supported tags
 * ```latest``` refers to Seatsurfing Backend {{version}} as of {{date}}
 * ```{{version}}``` as of {{date}}
 
 ## How to use this image
-### Start using ```docker run```
-```
-docker run \
-    --rm \
-    -p 8080:8080 \
-    -e "POSTGRES_URL=postgres://seatsurfing:DB_PASSWORD@db/seatsurfing?sslmode=disable" \
-    seatsurfing/backend
-```
-
-This starts the Seatsurfing Backend, connects to a PostgreSQL Database on host "db" and exposes port 8080.
+## Breaking change in version 1.13
+Up to version 1.12, the ```backend``` Docker image included all the static web resources for the Booking and Admin interfaces. With version 1.13, we separated the web interfaces from the backend server. You therefore need to start the ```booking-ui``` and ```admin-ui``` Docker images separately. The backend has an integrated HTTP proxy which forwards incoming requests for ```/ui/``` and ```/admin/``` to the corresponding backends. If you prefer to handle request routing with a preceding reverse proxy (such as Traefik or nginx), you can disable proxy functionality by setting the environment variable ```DISABLE_UI_PROXY=1```.
 
 ### Start using Docker Compose
 ```
@@ -35,11 +26,24 @@ services:
     restart: always
     networks:
       sql:
+      http:
     ports:
       - 8080:8080
     environment:
       POSTGRES_URL: 'postgres://seatsurfing:DB_PASSWORD@db/seatsurfing?sslmode=disable'
       JWT_SIGNING_KEY: 'some_random_string'
+      BOOKING_UI_BACKEND: 'booking-ui:3001'
+      ADMIN_UI_BACKEND: 'admin-ui:3000'
+  booking-ui:
+    image: seatsurfing/booking-ui
+    restart: always
+    networks:
+      http:
+  admin-ui:
+    image: seatsurfing/admin-ui
+    restart: always
+    networks:
+      http:
   db:
     image: postgres:12
     restart: always
@@ -57,11 +61,14 @@ volumes:
 
 networks:
   sql:
+  http:
 ```
 
 This starts...
 * a PostgreSQL database with data stored on Docker volume "db"
 * a Seatsurfing Backend instance with port 8080 exposed.
+* a Seatsurfing Booking UI instance which is accessible through the Backend instance at: :8080/ui/
+* a Seatsurfing Admin UI instance which is accessible through the Backend instance at: :8080/admin/
 
 ### Running on Kubernetes
 Please refer to our [Kubernetes documentation](https://docs.seatsurfing.app/kubernetes/).
@@ -76,11 +83,18 @@ Please check out the [documentation](https://docs.seatsurfing.app/) for the late
 | PUBLIC_URL | string | http://localhost:8080 | Public URL |
 | FRONTEND_URL | string | http://localhost:8080 | Frontend URL (usually matches the Public URL) |
 | APP_URL | string | seatsurfing:/// | App URL (should not be changed) |
-| STATIC_ADMIN_UI_PATH | string | /app/adminui | Path to compiled Admin UI files |
-| STATIC_BOOKING_UI_PATH | string | /app/bookingui | Path to compiled Booking UI files |
+| ADMIN_UI_BACKEND | string | localhost:3000 | Host serving the Admin UI frontend |
+| BOOKING_UI_BACKEND | string | localhost:3001 | Host serving the Booking UI frontend |
+| DISABLE_UI_PROXY | bool | 0 | Disable proxy for admin and booking UI, set to 1 to disable the proxy |
 | POSTGRES_URL | string | postgres://postgres:root @ localhost/seatsurfing?sslmode=disable | PostgreSQL Connection |
 | JWT_SIGNING_KEY | string | random string | JWT Signing Key |
-| SMTP_HOST | string | 127.0.0.1:25 | SMTP server address and port (authentication is not supported at this time) |
+| SMTP_HOST | string | 127.0.0.1 | SMTP server address |
+| SMTP_PORT | int | 25 | SMTP server port |
+| SMTP_START_TLS | bool | 0 | Use SMTP STARTTLS extension, set to 1 to enable |
+| SMTP_INSECURE_SKIP_VERIFY | bool | 0 | Disable SMTP TLS certificate validation |
+| SMTP_AUTH | bool | 0 | SMTP authentication, set to 1 to enable |
+| SMTP_AUTH_USER | string |  | SMTP auth username |
+| SMTP_AUTH_PASS | string |  | SMTP auth password |
 | SMTP_SENDER_ADDRESS | string | no-reply@seatsurfing.local | SMTP sender address |
 | MOCK_SENDMAIL | bool | 0 | SMTP mocking, set to 1 to enable |
 | PRINT_CONFIG | bool | 0 | Print configuration on startup, set to 1 to enable |
@@ -94,3 +108,4 @@ Please check out the [documentation](https://docs.seatsurfing.app/) for the late
 | ORG_SIGNUP_DOMAIN | string | .on.seatsurfing.local | Signup domain suffix |
 | ORG_SIGNUP_ADMIN | string | admin | Admin username for new signups |
 | ORG_SIGNUP_MAX_USERS | int | 50 | Maximum number of users for new organisations |
+| ORG_SIGNUP_DELETE | bool | 0 | Allow admins to delete their own organisation |

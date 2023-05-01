@@ -7,7 +7,7 @@ import '@/styles/Login.css'
 import '@/styles/Search.css'
 import type { AppProps } from 'next/app'
 import nextI18nConfig from '../../next-i18next.config'
-import { WithTranslation, appWithTranslation } from 'next-i18next'
+import { WithTranslation, appWithTranslation, withTranslation } from 'next-i18next'
 import { Ajax } from 'flexspace-commons'
 import RuntimeConfig from '@/components/RuntimeConfig'
 import React from 'react'
@@ -57,7 +57,7 @@ class App extends React.Component<Props, State> {
       }
     }
 
-    if (this.state.isLoading) {
+    if ((this.state.isLoading) || (!this.props.tReady)) {
       return <Loading />;
     }
 
@@ -82,7 +82,7 @@ class App extends React.Component<Props, State> {
   }
 }
 
-const NoSSRApp = dynamic(async () => App, { ssr: false });
+const NoSSRApp = dynamic(async () => withTranslation()(App), { ssr: false });
 export default appWithTranslation(NoSSRApp, nextI18nConfig);
 
 

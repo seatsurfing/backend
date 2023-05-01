@@ -159,7 +159,6 @@ func (a *App) proxyHandler(w http.ResponseWriter, r *http.Request, backend strin
 	}
 	r.Body = ioutil.NopCloser(bytes.NewReader(body))
 	url := fmt.Sprintf("%s://%s%s", "http", backend, r.RequestURI)
-	log.Println("Forwarding request to " + url)
 	proxyReq, err := http.NewRequest(r.Method, url, bytes.NewReader(body))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
