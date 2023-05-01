@@ -154,7 +154,7 @@ class Login extends React.Component<Props, State> {
       return <></>
     }
 
-    if (this.state.loading) {
+    if (this.state.loading || !this.props.tReady) {
       return (
         <>
           <Loading />
