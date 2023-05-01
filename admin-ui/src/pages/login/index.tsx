@@ -116,7 +116,7 @@ class Login extends React.Component<Props, State> {
       };
       Ajax.PERSISTER.updateCredentialsSessionStorage(Ajax.CREDENTIALS).then(() => {
         this.setState({
-          redirect: "/dashboard"
+          redirect: "/Dashboard"
         });
       });
     }).catch((e) => {
