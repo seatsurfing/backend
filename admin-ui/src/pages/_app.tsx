@@ -9,7 +9,7 @@ import '@/styles/Settings.css'
 import '@/styles/SideBar.css'
 import type { AppProps } from 'next/app'
 import nextI18nConfig from '../../next-i18next.config'
-import { WithTranslation, appWithTranslation } from 'next-i18next'
+import { WithTranslation, appWithTranslation, withTranslation } from 'next-i18next'
 import { Ajax } from 'flexspace-commons'
 import React from 'react'
 import Loading from '@/components/Loading'
@@ -49,7 +49,7 @@ class App extends React.Component<Props, State> {
   }
 
   render() {
-    if (this.state.isLoading) {
+    if ((this.state.isLoading) || (!this.props.tReady)) {
       return <Loading />;
     }
 
@@ -74,5 +74,5 @@ class App extends React.Component<Props, State> {
   }
 }
 
-const NoSSRApp = dynamic(async () => App, { ssr: false });
+const NoSSRApp = dynamic(async () => withTranslation()(App), { ssr: false });
 export default appWithTranslation(NoSSRApp, nextI18nConfig);
