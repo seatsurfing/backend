@@ -6,11 +6,11 @@ jobs:
 
   container-job:
     runs-on: ubuntu-latest
-    container: golang:1.19-alpine
+    container: golang:1.20-alpine
 
     services:
       postgres:
-        image: postgres:13-alpine
+        image: postgres:15-alpine
         env:
           POSTGRES_PASSWORD: root
           POSTGRES_DB: seatsurfing_test
@@ -21,7 +21,7 @@ jobs:
           --health-retries 5
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Install server dependencies
       working-directory: ./server
       run: go get -d -v ./...
