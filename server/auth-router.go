@@ -289,6 +289,7 @@ func (router *AuthRouter) handleAtlassianVerify(authState *AuthState, w http.Res
 		return
 	}
 	GetAuthStateRepository().Delete(authState)
+	GetAuthAttemptRepository().RecordLoginAttempt(user, true)
 	claims := router.createClaims(user)
 	accessToken := router.createAccessToken(claims)
 	refreshToken := router.createRefreshToken(claims, payload.LongLived)
@@ -348,6 +349,7 @@ func (router *AuthRouter) verify(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	GetAuthStateRepository().Delete(authState)
+	GetAuthAttemptRepository().RecordLoginAttempt(user, true)
 	claims := router.createClaims(user)
 	accessToken := router.createAccessToken(claims)
 	refreshToken := router.createRefreshToken(claims, payload.LongLived)
