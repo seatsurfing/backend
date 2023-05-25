@@ -69,17 +69,14 @@ func (router *UserRouter) setupRoutes(s *mux.Router) {
 
 func (router *UserRouter) getMergeRequests(w http.ResponseWriter, r *http.Request) {
 	target := GetRequestUser(r)
-	log.Printf("target user id = %s\n", target.ID)
 	list, err := GetAuthStateRepository().GetByAuthProviderID(target.ID)
 	if err != nil {
 		log.Println(err)
 		SendInternalServerError(w)
 		return
 	}
-	log.Printf("num of found auth state entries = %d\n", len(list))
 	res := []*GetMergeRequestResponse{}
 	for _, e := range list {
-		log.Printf("processing merge request = %s\n", e.Payload)
 		source, err := GetUserRepository().GetOne(e.Payload)
 		if err == nil && source != nil {
 			m := &GetMergeRequestResponse{
@@ -88,11 +85,8 @@ func (router *UserRouter) getMergeRequests(w http.ResponseWriter, r *http.Reques
 				Email:  source.Email,
 			}
 			res = append(res, m)
-		} else {
-			log.Printf("error while loading user = %s\n", err.Error())
 		}
 	}
-	log.Printf("num of entries in result = %d\n", len(res))
 	SendJSON(w, res)
 }
 
