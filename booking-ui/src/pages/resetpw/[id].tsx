@@ -65,7 +65,7 @@ class CompletePasswordReset extends React.Component<Props, State> {
     return (
       <div className="container-center">
         <Form className="container-center-inner" onSubmit={this.onPasswordSubmit}>
-          <img src="./seatsurfing.svg" alt="Seatsurfing" className="logo" />
+          <img src="/ui/seatsurfing.svg" alt="Seatsurfing" className="logo" />
           <Form.Group>
             <Form.Control type="password" placeholder={this.props.t("newPassword")} value={this.state.newPassword} onChange={(e: any) => this.setState({ newPassword: e.target.value, complete: false })} required={true} autoFocus={true} minLength={8} disabled={this.state.loading} isInvalid={this.state.complete && !this.state.success} />
             <Form.Control.Feedback type="invalid">{this.props.t("errorInvalidPassword")}</Form.Control.Feedback>

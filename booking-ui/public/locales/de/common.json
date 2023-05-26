@@ -95,5 +95,9 @@
     "gotoBooking": "Gehe zur Buchung",
     "administration": "Administration",
     "datePickerFormat": "dd.MM.y HH:mm",
-    "datePickerFormatDailyBasisBooking": "dd.MM.y"
+    "datePickerFormatDailyBasisBooking": "dd.MM.y",
+    "today": "Heute",
+    "tomorrow": "Morgen",
+    "inXdays": "In {{x}} Tagen",
+    "hour12": "0"
 }

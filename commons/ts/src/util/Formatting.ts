@@ -1,38 +1,11 @@
-export default class Formatting {
-    static Language: string = "de";
-    static I18n = {
-        "de": {
-            "today": "Heute",
-            "tomorrow": "Morgen",
-            "inXdays": "In {{x}} Tagen",
-            "hour12": false,
-        },
-        "en": {
-            "today": "Today",
-            "tomorrow": "Tomorrow",
-            "inXdays": "In {{x}} days",
-            "hour12": true,
-        },
-    };
+import { TFunction } from "i18next";
 
-    static t(s: string, vars?: { [key: string]: any }) {
-        // @ts-ignore
-        let res: string = Formatting.I18n[Formatting.Language][s];
-        if (!res) {
-            return s;
-        }
-        if (vars) {
-            for (const k in vars) {
-                res = res.replaceAll("{{"+k+"}}", vars[k]);
-            }
-        }
-        return res;
-    }
+export default class Formatting {
+    static Language: string = "en";
+    static t: TFunction;
     
     static tbool(s: string) {
-        // @ts-ignore
-        let res: boolean = Formatting.I18n[Formatting.Language][s];
-        return res;
+        return Formatting.t(s) === "1";
     }
 
     static getFormatter(local?: boolean): Intl.DateTimeFormat {

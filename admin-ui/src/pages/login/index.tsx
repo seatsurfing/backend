@@ -166,7 +166,7 @@ class Login extends React.Component<Props, State> {
       return (
         <div className="container-signin">
           <Form className="form-signin" onSubmit={this.onPasswordSubmit}>
-            <img src="./seatsurfing.svg" alt="Seatsurfing" className="logo" />
+            <img src="/admin/seatsurfing.svg" alt="Seatsurfing" className="logo" />
             <p>{this.props.t("signinAsAt", { user: this.state.email, org: this.org?.name })}</p>
             <InputGroup>
               <Form.Control type="password" placeholder={this.props.t("password")} value={this.state.password} onChange={(e: any) => this.setState({ password: e.target.value, invalid: false })} required={true} isInvalid={this.state.invalid} minLength={8} autoFocus={true} />
@@ -191,7 +191,7 @@ class Login extends React.Component<Props, State> {
       return (
         <div className="container-signin">
           <Form className="form-signin">
-            <img src="./seatsurfing.svg" alt="Seatsurfing" className="logo" />
+            <img src="/admin/seatsurfing.svg" alt="Seatsurfing" className="logo" />
             {providerSelection}
             {buttons}
             <Button variant="secondary" className="btn-auth-provider" onClick={() => this.setState({ providers: null })}>{this.props.t("back")}</Button>
@@ -203,7 +203,7 @@ class Login extends React.Component<Props, State> {
     return (
       <div className="container-signin">
         <Form className="form-signin" onSubmit={this.onSubmit}>
-          <img src="./seatsurfing.svg" alt="Seatsurfing" className="logo" />
+          <img src="/admin/seatsurfing.svg" alt="Seatsurfing" className="logo" />
           <h3>{this.props.t("mangageOrgHeadline")}</h3>
           <InputGroup>
             <Form.Control type="email" placeholder={this.props.t("emailAddress")} value={this.state.email} onChange={(e: any) => this.setState({ email: e.target.value, invalid: false })} required={true} isInvalid={this.state.invalid} autoFocus={true} />
