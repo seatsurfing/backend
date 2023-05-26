@@ -206,7 +206,7 @@ class EditUser extends React.Component<Props, State> {
           <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("password")}</Form.Label>
             <Col sm="4">
-              <Form.Control type="password" value={this.state.password} onChange={(e: any) => this.setState({ password: e.target.value })} required={!this.entity.id || this.state.changePassword} disabled={!this.state.changePassword} />
+              <Form.Control type="password" value={this.state.password} onChange={(e: any) => this.setState({ password: e.target.value })} required={!this.entity.id || this.state.changePassword} disabled={!this.state.changePassword} minLength={8} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
