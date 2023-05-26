@@ -5,7 +5,9 @@ const PUBLIC_FILE = /\.(.*)$/;
 export async function middleware(req: NextRequest) {
   if (
     req.nextUrl.pathname.startsWith('/_next') ||
+    req.nextUrl.pathname.startsWith('/ui/_next') ||
     req.nextUrl.pathname.includes('/api/') ||
+    req.nextUrl.pathname.includes('/ui/api/') ||
     PUBLIC_FILE.test(req.nextUrl.pathname)
   ) {
     return;
@@ -16,7 +18,7 @@ export async function middleware(req: NextRequest) {
  
     return NextResponse.redirect(
       new URL(
-        `/${locale}${req.nextUrl.pathname}${req.nextUrl.search}`,
+        `/ui/${locale}${req.nextUrl.pathname}${req.nextUrl.search}`,
         req.url,
       ),
     );
