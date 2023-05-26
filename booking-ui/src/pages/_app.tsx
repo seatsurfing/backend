@@ -8,7 +8,7 @@ import '@/styles/Search.css'
 import type { AppProps } from 'next/app'
 import nextI18nConfig from '../../next-i18next.config'
 import { WithTranslation, appWithTranslation, withTranslation } from 'next-i18next'
-import { Ajax } from 'flexspace-commons'
+import { Ajax, Formatting } from 'flexspace-commons'
 import RuntimeConfig from '@/components/RuntimeConfig'
 import React from 'react'
 import Loading from '@/components/Loading'
@@ -61,6 +61,8 @@ class App extends React.Component<Props, State> {
     }
 
     const { Component, pageProps } = this.props;
+    Formatting.Language = this.props.i18n.language;
+    Formatting.t = this.props.t;
     return (
       <>
         <Head>

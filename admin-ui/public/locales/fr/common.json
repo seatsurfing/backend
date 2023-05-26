@@ -128,5 +128,8 @@
     "all": "Tout",
     "confirmCancelBooking": "Annuler la réservation?",
     "bookingui": "Site de réservation",
-    "updateAvailable": "Veuillez mettre à jour Seatsurfing vers la dernière version {{version}}."
+    "updateAvailable": "Veuillez mettre à jour Seatsurfing vers la dernière version {{version}}.",
+    "tomorrow": "Demain",
+    "inXdays": "Dans {{x}} de jours",
+    "hour12": "0"
 }
