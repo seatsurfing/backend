@@ -5,6 +5,7 @@ import { Location, Booking, Ajax, Formatting, Space, AjaxError, UserPreference }
 import DateTimePicker from 'react-datetime-picker';
 import DatePicker from 'react-date-picker';
 import 'react-datetime-picker/dist/DateTimePicker.css';
+import 'react-date-picker/dist/DatePicker.css';
 import 'react-calendar/dist/Calendar.css';
 import 'react-clock/dist/Clock.css';
 import Loading from '../components/Loading';
