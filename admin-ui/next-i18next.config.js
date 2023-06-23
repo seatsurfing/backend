@@ -20,6 +20,7 @@ module.exports = {
   i18n: {
     defaultLocale: 'default',
     locales: ['default', 'en', 'de', 'fr'],
+    defaultNS: 'admin'
   },
   serializeConfig: false,
   use: isBrowser ? [ChainedBackend] : [],
