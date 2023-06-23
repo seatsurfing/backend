@@ -241,4 +241,4 @@ class EditOrganization extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withReadyRouter(EditOrganization as any));
+export default withTranslation(['admin'])(withReadyRouter(EditOrganization as any));

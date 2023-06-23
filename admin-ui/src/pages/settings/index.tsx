@@ -478,4 +478,4 @@ class Settings extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withReadyRouter(Settings as any));
+export default withTranslation(['admin'])(withReadyRouter(Settings as any));

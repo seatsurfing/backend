@@ -79,4 +79,4 @@ class ConfirmSignup extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withReadyRouter(ConfirmSignup as any));
+export default withTranslation(['admin'])(withReadyRouter(ConfirmSignup as any));

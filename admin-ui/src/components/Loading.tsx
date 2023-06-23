@@ -22,4 +22,4 @@ class Loading extends React.Component<Props, State> {
     }
 }
 
-export default withTranslation()(Loading as any);
+export default withTranslation(['admin'])(Loading as any);

@@ -217,4 +217,4 @@ class Login extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withReadyRouter(Login as any));
+export default withTranslation(['admin'])(withReadyRouter(Login as any));

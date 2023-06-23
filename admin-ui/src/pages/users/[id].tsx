@@ -225,4 +225,4 @@ class EditUser extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withReadyRouter(EditUser as any));
+export default withTranslation(['admin'])(withReadyRouter(EditUser as any));

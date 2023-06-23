@@ -177,4 +177,4 @@ class Dashboard extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withReadyRouter(Dashboard as any));
+export default withTranslation(['admin'])(withReadyRouter(Dashboard as any));

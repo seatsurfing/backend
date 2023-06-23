@@ -105,4 +105,4 @@ class SideBar extends React.Component<Props, State> {
     }
 }
 
-export default withTranslation()(withReadyRouter(SideBar as any));
+export default withTranslation(['admin'])(withReadyRouter(SideBar as any));

@@ -165,4 +165,4 @@ class Bookings extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withReadyRouter(Bookings as any));
+export default withTranslation(['admin'])(withReadyRouter(Bookings as any));

@@ -23,4 +23,4 @@ class LoginFailed extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(LoginFailed as any);
+export default withTranslation(['admin'])(LoginFailed as any);
