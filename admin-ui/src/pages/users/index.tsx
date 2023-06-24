@@ -135,4 +135,4 @@ class Users extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withReadyRouter(Users as any));
+export default withTranslation(['admin'])(withReadyRouter(Users as any));

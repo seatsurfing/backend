@@ -79,4 +79,4 @@ class NavBar extends React.Component<Props, State> {
     }
 }
 
-export default withTranslation()(withReadyRouter(NavBar as any));
+export default withTranslation(['admin'])(withReadyRouter(NavBar as any));

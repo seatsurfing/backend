@@ -97,4 +97,4 @@ class Organizations extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withReadyRouter(Organizations as any));
+export default withTranslation(['admin'])(withReadyRouter(Organizations as any));

@@ -415,4 +415,4 @@ class EditLocation extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withReadyRouter(EditLocation as any));
+export default withTranslation(['admin'])(withReadyRouter(EditLocation as any));

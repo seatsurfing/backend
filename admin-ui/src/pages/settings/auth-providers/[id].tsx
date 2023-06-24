@@ -280,4 +280,4 @@ class EditAuthProvider extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withReadyRouter(EditAuthProvider as any));
+export default withTranslation(['admin'])(withReadyRouter(EditAuthProvider as any));

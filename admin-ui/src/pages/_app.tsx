@@ -15,6 +15,7 @@ import React from 'react'
 import Loading from '@/components/Loading'
 import Head from 'next/head'
 
+
 interface State {
   isLoading: boolean;
 }
@@ -75,4 +76,4 @@ class App extends React.Component<Props, State> {
   }
 }
 
-export default appWithTranslation(withTranslation()(App), nextI18nConfig);
+export default appWithTranslation(withTranslation(['admin'])(App), nextI18nConfig);

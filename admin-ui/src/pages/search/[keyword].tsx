@@ -153,4 +153,4 @@ class SearchResult extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withReadyRouter(SearchResult as any));
+export default withTranslation(['admin'])(withReadyRouter(SearchResult as any));

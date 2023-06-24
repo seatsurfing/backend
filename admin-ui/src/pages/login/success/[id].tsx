@@ -80,4 +80,4 @@ class LoginSuccess extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withReadyRouter(LoginSuccess as any));
+export default withTranslation(['admin'])(withReadyRouter(LoginSuccess as any));

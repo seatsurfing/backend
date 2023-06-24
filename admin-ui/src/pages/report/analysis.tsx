@@ -172,4 +172,4 @@ class ReportAnalysis extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation()(withReadyRouter(ReportAnalysis as any));
+export default withTranslation(['admin'])(withReadyRouter(ReportAnalysis as any));
