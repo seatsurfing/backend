@@ -24,6 +24,7 @@ RUN npm run build
 FROM gcr.io/distroless/nodejs18-debian11
 ENV NODE_ENV=production
 ENV PORT=3001
+ENV HOSTNAME=127.0.0.1
 WORKDIR /app
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=65532:65532 /app/build/standalone ./
