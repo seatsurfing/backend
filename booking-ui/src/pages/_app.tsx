@@ -56,12 +56,13 @@ class App extends React.Component<Props, State> {
       }
     }
 
-    if ((this.state.isLoading) || (!this.props.tReady)) {
+    if ((this.state.isLoading) || (!this.props.tReady)) {
       return <Loading />;
     }
 
     const { Component, pageProps } = this.props;
     Formatting.Language = this.props.i18n.language;
+    // @ts-ignore
     Formatting.t = this.props.t;
     return (
       <>
