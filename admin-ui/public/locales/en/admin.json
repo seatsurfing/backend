@@ -120,6 +120,7 @@
     "roleUser": "User",
     "roleSpaceAdmin": "Floor plan administrator",
     "roleOrgAdmin": "Organisation administrator",
+    "roleSuperAdmin": "Super administrator",
     "user": "User",
     "area": "Area",
     "space": "Space",

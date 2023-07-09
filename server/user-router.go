@@ -256,6 +256,9 @@ func (router *UserRouter) update(w http.ResponseWriter, r *http.Request) {
 	}
 	eNew := router.copyFromRestModel(&m)
 	eNew.ID = e.ID
+	if eNew.Role > user.Role {
+		eNew.Role = e.Role
+	}
 	eNew.OrganizationID = e.OrganizationID
 	eNew.HashedPassword = e.HashedPassword
 	org, err := GetOrganizationRepository().GetOne(e.OrganizationID)
@@ -315,6 +318,9 @@ func (router *UserRouter) create(w http.ResponseWriter, r *http.Request) {
 	if e.OrganizationID == "" || !GetUserRepository().isSuperAdmin(user) {
 		e.OrganizationID = user.OrganizationID
 	}
+	if e.Role > user.Role {
+		e.Role = UserRoleUser
+	}
 	org, err := GetOrganizationRepository().GetOne(e.OrganizationID)
 	if err != nil {
 		log.Println(err)
@@ -341,9 +347,6 @@ func (router *UserRouter) copyFromRestModel(m *CreateUserRequest) *User {
 	e := &User{}
 	e.Email = m.Email
 	e.Role = UserRole(m.Role)
-	if e.Role == UserRoleSuperAdmin {
-		e.Role = UserRoleUser
-	}
 	if m.Password != "" {
 		e.HashedPassword = NullString(GetUserRepository().GetHashedPassword(m.Password))
 		e.AuthProviderID = NullString("")

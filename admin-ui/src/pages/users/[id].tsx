@@ -32,6 +32,7 @@ class EditUser extends React.Component<Props, State> {
   usersMax: number = 0;
   usersCur: number = -1;
   domains: Domain[] = [];
+  adminUserRole: number = 0;
 
   constructor(props: any) {
     super(props);
@@ -63,7 +64,9 @@ class EditUser extends React.Component<Props, State> {
       OrgSettings.getOne("subscription_max_users"),
       User.getCount(),
       User.getSelf().then(me => {
-        return Domain.list(me.organizationId);
+        return Domain.list(me.organizationId).then(domains => {
+          return [me, domains];
+        });
       })
     ];
     const { id } = this.props.router.query;
@@ -73,7 +76,8 @@ class EditUser extends React.Component<Props, State> {
     Promise.all(promises).then(values => {
       this.usersMax = window.parseInt(values[0]);
       this.usersCur = values[1];
-      this.domains = values[2];
+      this.adminUserRole = values[2][0].role;
+      this.domains = values[2][1];
       let selectedDomain = "";
       this.domains.forEach(domain => {
         if (!selectedDomain && domain.active) {
@@ -187,6 +191,29 @@ class EditUser extends React.Component<Props, State> {
         </Col>
       </Form.Group>
     );
+    let roleSelect = <></>;
+    if (this.adminUserRole >= this.state.role) {
+      roleSelect = (
+        <Form.Select value={this.state.role} onChange={(e: any) => this.setState({ role: parseInt(e.target.value) })}>
+          <option value={User.UserRoleUser}>{this.props.t("roleUser")}</option>
+          { this.adminUserRole >= User.UserRoleSpaceAdmin ? <option value={User.UserRoleSpaceAdmin}>{this.props.t("roleSpaceAdmin")}</option> : <></> }
+          { this.adminUserRole >= User.UserRoleOrgAdmin ? <option value={User.UserRoleOrgAdmin}>{this.props.t("roleOrgAdmin")}</option> : <></> }
+          { this.adminUserRole >= User.UserRoleSuperAdmin ? <option value={User.UserRoleSuperAdmin}>{this.props.t("roleSuperAdmin")}</option> : <></> }
+        </Form.Select>
+      );
+    } else {
+      let role = this.props.t("roleUser");
+      if (this.state.role === User.UserRoleSpaceAdmin) {
+        role = this.props.t("roleSpaceAdmin");
+      }
+      if (this.state.role === User.UserRoleOrgAdmin) {
+        role = this.props.t("roleOrgAdmin");
+      }
+      if (this.state.role === User.UserRoleSuperAdmin) {
+        role = this.props.t("roleSuperAdmin");
+      }
+      roleSelect = <Form.Control plaintext={true} readOnly={true} defaultValue={role} />;
+    }
     return (
       <FullLayout headline={this.props.t("editUser")} buttons={buttons}>
         <Form onSubmit={this.onSubmit} id="form">
@@ -212,11 +239,7 @@ class EditUser extends React.Component<Props, State> {
           <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("role")}</Form.Label>
             <Col sm="4">
-              <Form.Select value={this.state.role} onChange={(e: any) => this.setState({ role: parseInt(e.target.value) })}>
-                <option value={User.UserRoleUser}>{this.props.t("roleUser")}</option>
-                <option value={User.UserRoleSpaceAdmin}>{this.props.t("roleSpaceAdmin")}</option>
-                <option value={User.UserRoleOrgAdmin}>{this.props.t("roleOrgAdmin")}</option>
-              </Form.Select>
+              {roleSelect}
             </Col>
           </Form.Group>
         </Form>
