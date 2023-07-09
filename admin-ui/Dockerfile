@@ -20,6 +20,10 @@ WORKDIR /app
 RUN npm install
 RUN npm install --save ./commons/ts
 RUN npm run build
+# Workaround for these bugs:
+# https://github.com/vercel/next.js/issues/51684
+# https://github.com/tiredofit/docker-collabora-online/pull/28
+RUN sed -i "s/const hostname = process.env.HOSTNAME || 'localhost'/const hostname = '127.0.0.1'/g" /app/build/standalone/server.js
 
 FROM gcr.io/distroless/nodejs18-debian11
 ENV NODE_ENV=production
