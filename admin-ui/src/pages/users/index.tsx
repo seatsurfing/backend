@@ -70,6 +70,9 @@ class Users extends React.Component<Props, State> {
     if (user.role === User.UserRoleOrgAdmin) {
       role = this.props.t("roleOrgAdmin");
     }
+    if (user.role === User.UserRoleSuperAdmin) {
+      role = this.props.t("roleSuperAdmin");
+    }
     return (
       <tr key={user.id} onClick={() => this.onItemSelect(user)}>
         <td>{user.email}</td>

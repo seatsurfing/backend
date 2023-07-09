@@ -120,6 +120,7 @@
     "roleUser": "Utilisateur",
     "roleSpaceAdmin": "Administrateur du plan d’étage",
     "roleOrgAdmin": "Administrateur de l’organisation",
+    "roleSuperAdmin": "Administrateur super",
     "user": "Utilisateur",
     "area": "Zone",
     "space": "Espace",
