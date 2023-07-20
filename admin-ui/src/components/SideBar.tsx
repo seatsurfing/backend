@@ -1,6 +1,6 @@
 import React from 'react';
 import { Home as IconHome, Users as IconUsers, Map as IconMap, Book as IconBook, Settings as IconSettings, Box as IconBox, Activity as IconAnalysis, ExternalLink as IconExternalLink } from 'react-feather';
-import { User } from 'flexspace-commons';
+import { Ajax, AjaxCredentials, User } from 'flexspace-commons';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import { Nav } from 'react-bootstrap';
 import { NextRouter } from 'next/router';
@@ -29,6 +29,13 @@ class SideBar extends React.Component<Props, State> {
 
     componentDidMount = () => {
         User.getSelf().then(user => {
+            if (user.role === 0) {
+                Ajax.CREDENTIALS = new AjaxCredentials();
+                Ajax.PERSISTER.deleteCredentialsFromSessionStorage().then(() => {
+                    this.props.router.push("/login");
+                });
+                return;
+            }
             this.setState({
                 superAdmin: user.superAdmin,
                 spaceAdmin: user.spaceAdmin,

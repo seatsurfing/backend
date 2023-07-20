@@ -46,6 +46,8 @@ class Dashboard extends React.Component<Props, State> {
     ];
     Promise.all(promises).then(() => {
       this.setState({ loading: false });
+    }).catch(e => {
+      // something went wrong
     });
   }
 
