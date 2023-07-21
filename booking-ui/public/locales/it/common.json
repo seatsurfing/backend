@@ -99,5 +99,6 @@
     "today": "Oggi",
     "tomorrow": "Domani",
     "inXdays": "Fra {{x}} giorni",
-    "hour12": "0"
+    "hour12": "0",
+    "passwordChange": "Cambia password"
 }

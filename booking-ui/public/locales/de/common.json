@@ -99,5 +99,6 @@
     "today": "Heute",
     "tomorrow": "Morgen",
     "inXdays": "In {{x}} Tagen",
-    "hour12": "0"
+    "hour12": "0",
+    "passwordChange": "Kennwort ändern"
 }

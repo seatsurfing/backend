@@ -156,12 +156,16 @@ func (router *UserRouter) setPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	vars := mux.Vars(r)
-	e, err := GetUserRepository().GetOne(vars["id"])
-	if err != nil {
-		SendBadRequest(w)
-		return
-	}
 	user := GetRequestUser(r)
+	e := user
+	if vars["id"] != "me" {
+		eUser, err := GetUserRepository().GetOne(vars["id"])
+		if err != nil {
+			SendBadRequest(w)
+			return
+		}
+		e = eUser
+	}
 	if !CanAdminOrg(user, e.OrganizationID) && (user.ID != e.ID) {
 		SendForbidden(w)
 		return
