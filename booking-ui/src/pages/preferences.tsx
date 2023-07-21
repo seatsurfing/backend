@@ -1,5 +1,5 @@
 import React from 'react';
-import { Ajax, Location, UserPreference } from 'flexspace-commons';
+import { Ajax, Location, User, UserPreference } from 'flexspace-commons';
 import Loading from '../components/Loading';
 import { Alert, Button, Col, Form, Row } from 'react-bootstrap';
 import { WithTranslation, withTranslation } from 'next-i18next';
@@ -17,6 +17,8 @@ interface State {
   workdayEnd: number
   workdays: boolean[]
   locationId: string
+  changePassword: boolean
+  password: string
 }
 
 interface Props extends WithTranslation {
@@ -39,6 +41,8 @@ class Preferences extends React.Component<Props, State> {
       workdayEnd: 0,
       workdays: [],
       locationId: "",
+      changePassword: false,
+      password: "",
     };
   }
 
@@ -115,9 +119,21 @@ class Preferences extends React.Component<Props, State> {
       new UserPreference("location_id", this.state.locationId),
     ];
     UserPreference.setAll(payload).then(() => {
-      this.setState({
-        submitting: false,
-        saved: true
+      let onSaveComplete = function(this: Preferences) {
+        this.setState({
+          submitting: false,
+          saved: true
+        });
+      };
+      if (!this.state.changePassword) {
+        onSaveComplete.call(this);
+        return;
+      }
+      let payload = {
+        password: this.state.password
+      };
+      Ajax.putData("/user/me/password", payload).then(() => {
+        onSaveComplete.call(this);
       });
     }).catch(() => {
       this.setState({
@@ -188,6 +204,10 @@ class Preferences extends React.Component<Props, State> {
                 <option value="">({this.props.t("none")})</option>
                 {this.locations.map(location => <option key={"location-" + location.id} value={location.id}>{location.name}</option>)}
               </Form.Select>
+            </Form.Group>
+            <Form.Group className="margin-top-15">
+              <Form.Check type="checkbox" inline={true} id="check-changePassword" label={this.props.t("passwordChange")} checked={this.state.changePassword} onChange={(e: any) => this.setState({ changePassword: e.target.checked })} />
+              <Form.Control type="password" value={this.state.password} onChange={(e: any) => this.setState({ password: e.target.value })} required={this.state.changePassword} disabled={!this.state.changePassword} minLength={8} />
             </Form.Group>
             <Button className="margin-top-15" type="submit">{this.props.t("save")}</Button>
           </Form>
