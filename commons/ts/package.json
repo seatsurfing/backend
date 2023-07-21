@@ -7,10 +7,10 @@
   },
   "dependencies": {
     "async-mutex": "^0.4.0",
-    "i18next": "^23.2.3"
+    "i18next": "^23.2.11"
   },
   "devDependencies": {
-    "typescript": "~5.1.3"
+    "typescript": "~5.1.6"
   },
   "private": true,
   "files": [
