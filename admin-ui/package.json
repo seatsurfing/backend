@@ -3,22 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@types/react-dom": "^18.2.6",
+    "@types/react-dom": "^18.2.7",
     "bootstrap": "^5.3.0",
     "excellentexport": "^3.9.6",
     "flexspace-commons": "file:../commons/ts",
-    "i18next": "^23.2.8",
+    "i18next": "^23.2.11",
     "i18next-browser-languagedetector": "^7.1.0",
     "i18next-chained-backend": "^4.4.0",
     "i18next-http-backend": "^2.2.1",
     "i18next-localstorage-backend": "^4.1.1",
-    "next": "^13.4.9",
+    "next": "^13.4.11",
     "next-i18next": "^14.0.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.8.0",
     "react-dom": "^18.2.0",
     "react-feather": "^2.0.10",
-    "react-i18next": "^13.0.1",
+    "react-i18next": "^13.0.2",
     "react-rnd": "^10.4.1",
     "typescript": "^5.1.6"
   },
@@ -43,8 +43,8 @@
   },
   "homepage": "/admin/",
   "devDependencies": {
-    "@types/node": "20.4.1",
-    "eslint": "^8.44.0",
-    "eslint-config-next": "^13.4.9"
+    "@types/node": "20.4.2",
+    "eslint": "^8.45.0",
+    "eslint-config-next": "^13.4.11"
   }
 }
