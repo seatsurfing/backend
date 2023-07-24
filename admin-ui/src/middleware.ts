@@ -19,7 +19,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(
       new URL(
         `/admin/${locale}${req.nextUrl.pathname}${req.nextUrl.search}`,
-        req.url,
+        "http://localhost:3000", // https://github.com/seatsurfing/backend/issues/166
       ),
     );
   }
