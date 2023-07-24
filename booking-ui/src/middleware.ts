@@ -15,11 +15,11 @@ export async function middleware(req: NextRequest) {
  
   if (req.nextUrl.locale === 'default') {
     const locale = req.cookies.get('NEXT_LOCALE')?.value || 'en';
- 
+
     return NextResponse.redirect(
       new URL(
         `/ui/${locale}${req.nextUrl.pathname}${req.nextUrl.search}`,
-        req.url,
+        "http://localhost:3001", // https://github.com/seatsurfing/backend/issues/166
       ),
     );
   }
