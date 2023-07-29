@@ -33,7 +33,7 @@ This repository contains the Backend, which consists of:
 
 ## How to use the Docker image
 
-## Breaking change in version 1.13
+### Breaking change in version 1.13
 Up to version 1.12, the ```backend``` Docker image included all the static web resources for the Booking and Admin interfaces. With version 1.13, we separated the web interfaces from the backend server. You therefore need to start the ```booking-ui``` and ```admin-ui``` Docker images separately. The backend has an integrated HTTP proxy which forwards incoming requests for ```/ui/``` and ```/admin/``` to the corresponding backends. If you prefer to handle request routing with a preceding reverse proxy (such as Traefik or nginx), you can disable proxy functionality by setting the environment variable ```DISABLE_UI_PROXY=1```.
 
 ### Start using Docker Compose
@@ -54,16 +54,22 @@ services:
       JWT_SIGNING_KEY: 'some_random_string'
       BOOKING_UI_BACKEND: 'booking-ui:3001'
       ADMIN_UI_BACKEND: 'admin-ui:3000'
+      PUBLIC_URL: 'https://seatsurfing.your-domain.com'
+      FRONTEND_URL: 'https://seatsurfing.your-domain.com'
   booking-ui:
     image: seatsurfing/booking-ui
     restart: always
     networks:
       http:
+    environment:
+      FRONTEND_URL: 'https://seatsurfing.your-domain.com'
   admin-ui:
     image: seatsurfing/admin-ui
     restart: always
     networks:
       http:
+    environment:
+      FRONTEND_URL: 'https://seatsurfing.your-domain.com'
   db:
     image: postgres:12
     restart: always
@@ -96,13 +102,13 @@ Please refer to our [Kubernetes documentation](https://docs.seatsurfing.app/kube
 ## Environment variables
 Please check out the [documentation](https://seatsurfing.app/docs/) for the latest information on available environment variables and further guidance.
 
+### Backend
 | Environment Variable | Type | Default | Description |
 | --- | --- | --- | --- |
 | DEV | bool | 0 | Development Mode, set to 1 to enable  |
 | PUBLIC_LISTEN_ADDR | string | 0.0.0.0:8080 | TCP/IP listen address and port |
 | PUBLIC_URL | string | http://localhost:8080 | Public URL |
 | FRONTEND_URL | string | http://localhost:8080 | Frontend URL (usually matches the Public URL) |
-| APP_URL | string | seatsurfing:/// | App URL (should not be changed) |
 | ADMIN_UI_BACKEND | string | localhost:3000 | Host serving the Admin UI frontend |
 | BOOKING_UI_BACKEND | string | localhost:3001 | Host serving the Booking UI frontend |
 | DISABLE_UI_PROXY | bool | 0 | Disable proxy for admin and booking UI, set to 1 to disable the proxy |
@@ -129,3 +135,9 @@ Please check out the [documentation](https://seatsurfing.app/docs/) for the late
 | ORG_SIGNUP_ADMIN | string | admin | Admin username for new signups |
 | ORG_SIGNUP_MAX_USERS | int | 50 | Maximum number of users for new organisations |
 | ORG_SIGNUP_DELETE | bool | 0 | Allow admins to delete their own organisation |
+
+### Frontend (Admin UI, Booking UI)
+| Environment Variable | Type | Default | Description |
+| --- | --- | --- | --- |
+| FRONTEND_URL | string | ```req.url``` | Frontend URL |
+| PORT | int | 3000 (Admin UI), 3001 (Booking UI) | The server's HTTP port |
