@@ -305,7 +305,6 @@ func (r *BookingRepository) GetConcurrent(location *Location, enter time.Time, l
 		timestamp = timestamp.Add(time.Minute * 1)
 	}
 
-	//log.Printf("GetConcurrent for location %s with enter = %s and leave = %s has %d overlaps\n", location.Name, enter, leave, max)
 	return max, nil
 }
 
@@ -329,10 +328,10 @@ func (r *BookingRepository) GetPresenceReport(organizationID string, location *L
 		times = append(times, curTime)
 		cols.WriteString(", ")
 		cols.WriteString("(SELECT COUNT(*) FROM bookings b2 WHERE b2.user_id = b.user_id AND DATE(b2.enter_time) = '" + curTime.Format(DateFormat) + "'::DATE)")
-		curTime = curTime.Add(time.Hour * 24)
+		curTime = curTime.AddDate(0, 0, 1)
 	}
 
-	// Prepapre result
+	// Prepare result
 	res := make([]*BookingPresenceItem, len(users))
 	for i, user := range users {
 		presence := make(map[string]int)
