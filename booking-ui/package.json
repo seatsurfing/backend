@@ -3,24 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@types/react-dom": "^18.2.7",
-    "bootstrap": "^5.3.0",
+    "@types/react-dom": "^18.2.14",
+    "bootstrap": "^5.3.2",
     "flexspace-commons": "file:../commons/ts",
-    "i18next": "^23.2.11",
-    "i18next-chained-backend": "^4.4.0",
-    "i18next-http-backend": "^2.2.1",
-    "i18next-localstorage-backend": "^4.1.1",
-    "next": "^13.4.11",
-    "next-i18next": "^14.0.0",
+    "i18next": "^23.6.0",
+    "i18next-chained-backend": "^4.5.0",
+    "i18next-http-backend": "^2.2.2",
+    "i18next-localstorage-backend": "^4.2.0",
+    "next": "^13.5.6",
+    "next-i18next": "^14.0.3",
     "react": "^18.2.0",
-    "react-bootstrap": "^2.8.0",
-    "react-date-picker": "^10.2.1",
-    "react-datetime-picker": "^5.2.2",
+    "react-bootstrap": "^2.9.1",
+    "react-date-picker": "^10.5.2",
+    "react-datetime-picker": "^5.5.3",
     "react-dom": "^18.2.0",
     "react-feather": "^2.0.10",
-    "react-i18next": "^13.0.2",
+    "react-i18next": "^13.3.1",
     "react-ionicons": "^4.2.1",
-    "typescript": "^5.1.6"
+    "typescript": "^5.2.2"
   },
   "scripts": {
     "start": "PORT=3001 next start",
@@ -43,8 +43,8 @@
   },
   "homepage": "/ui/",
   "devDependencies": {
-    "@types/node": "20.4.2",
-    "eslint": "^8.45.0",
-    "eslint-config-next": "13.4.11"
+    "@types/node": "20.8.8",
+    "eslint": "^8.52.0",
+    "eslint-config-next": "13.5.6"
   }
 }
