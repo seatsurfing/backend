@@ -1462,6 +1462,7 @@ func TestBookingsPresenceReport(t *testing.T) {
 	GetBookingRepository().Create(b2_1)
 
 	end := tomorrow.Add(24 * 7 * time.Hour)
+	end = time.Date(end.Year(), end.Month(), end.Day(), 8, 0, 0, 0, end.Location())
 	payload := "{\"start\": \"" + tomorrow.Format(JsDateTimeFormatWithTimezone) + "\", \"end\": \"" + end.Format(JsDateTimeFormatWithTimezone) + "\"}"
 	req := newHTTPRequest("POST", "/booking/report/presence/", user3.ID, bytes.NewBufferString(payload))
 	res := executeTestRequest(req)
