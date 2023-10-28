@@ -10,9 +10,9 @@
     "i18next": "^23.6.0",
     "i18next-browser-languagedetector": "^7.1.0",
     "i18next-chained-backend": "^4.5.0",
-    "i18next-http-backend": "^2.2.2",
+    "i18next-http-backend": "^2.3.0",
     "i18next-localstorage-backend": "^4.2.0",
-    "next": "^13.5.6",
+    "next": "^14.0.0",
     "next-i18next": "^14.0.3",
     "react": "^18.2.0",
     "react-bootstrap": "^2.9.1",
@@ -43,8 +43,8 @@
   },
   "homepage": "/admin/",
   "devDependencies": {
-    "@types/node": "20.8.8",
+    "@types/node": "20.8.9",
     "eslint": "^8.52.0",
-    "eslint-config-next": "^13.5.6"
+    "eslint-config-next": "^14.0.0"
   }
 }
