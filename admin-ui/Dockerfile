@@ -1,4 +1,4 @@
-FROM node:18-alpine AS commons-builder
+FROM node:20-alpine AS commons-builder
 WORKDIR /app
 RUN apk add git
 RUN git init && \
@@ -10,7 +10,7 @@ WORKDIR /app/commons/ts
 RUN npm install
 RUN npm run build
 
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 ARG CI_VERSION
 ENV NEXT_PUBLIC_PRODUCT_VERSION=$CI_VERSION
 ENV NODE_ENV=production
