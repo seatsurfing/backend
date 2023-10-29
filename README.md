@@ -141,3 +141,6 @@ Please check out the [documentation](https://seatsurfing.app/docs/) for the late
 | --- | --- | --- | --- |
 | FRONTEND_URL | string | ```req.url``` | Frontend URL |
 | PORT | int | 3000 (Admin UI), 3001 (Booking UI) | The server's HTTP port |
+| LISTEN_ADDR | string | | TCP/IP listen address (defaults to NextJS' ```hostname``` setting) |
+
+**Hint**: When running in an IPV6-only Docker/Podman environment with multiple network interfaces bound to the Frontend containers, setting the ```LISTEN_ADDR``` environment variable can be necessary as NextJS binds to only one network interface by default. Set it to ```::``` to bind to any address.
