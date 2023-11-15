@@ -1030,6 +1030,70 @@ func TestBookingsMaxConcurrentOK(t *testing.T) {
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
 }
 
+func TestBookingsSwitchToWinterTime(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	GetSettingsRepository().Set(org.ID, SettingDailyBasisBooking.Name, "1")
+	GetSettingsRepository().Set(org.ID, SettingMaxBookingDurationHours.Name, "24")
+	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "1000")
+	user1 := createTestUserInOrg(org)
+
+	l := &Location{
+		Name:                  "Test",
+		MaxConcurrentBookings: 2,
+		OrganizationID:        org.ID,
+	}
+	GetLocationRepository().Create(l)
+	s1 := &Space{Name: "Test 1", LocationID: l.ID}
+	GetSpaceRepository().Create(s1)
+
+	now := time.Now().UTC()
+	enter := time.Date(2025, 10, 26, 0, 0, 0, 0, now.Location())
+	leave := time.Date(2025, 10, 26, 23, 59, 59, 0, now.Location())
+	if now.Compare(enter) > 0 {
+		// Skip test
+		t.Log("Skipping test TestBookingsSwitchToWinterTime")
+		return
+	}
+
+	payload := "{\"spaceId\": \"" + s1.ID + "\", \"enter\": \"" + enter.Format(JsDateTimeFormatWithTimezone) + "\", \"leave\": \"" + leave.Format(JsDateTimeFormatWithTimezone) + "\"}"
+	req := newHTTPRequest("POST", "/booking/", user1.ID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+}
+
+func TestBookingsSwitchToSummerTime(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	GetSettingsRepository().Set(org.ID, SettingDailyBasisBooking.Name, "1")
+	GetSettingsRepository().Set(org.ID, SettingMaxBookingDurationHours.Name, "24")
+	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "1000")
+	user1 := createTestUserInOrg(org)
+
+	l := &Location{
+		Name:                  "Test",
+		MaxConcurrentBookings: 2,
+		OrganizationID:        org.ID,
+	}
+	GetLocationRepository().Create(l)
+	s1 := &Space{Name: "Test 1", LocationID: l.ID}
+	GetSpaceRepository().Create(s1)
+
+	now := time.Now().UTC()
+	enter := time.Date(2026, 3, 29, 0, 0, 0, 0, now.Location())
+	leave := time.Date(2026, 3, 29, 23, 59, 59, 0, now.Location())
+	if now.Compare(enter) > 0 {
+		// Skip test
+		t.Log("Skipping test TestBookingsSwitchToSummerTime")
+		return
+	}
+
+	payload := "{\"spaceId\": \"" + s1.ID + "\", \"enter\": \"" + enter.Format(JsDateTimeFormatWithTimezone) + "\", \"leave\": \"" + leave.Format(JsDateTimeFormatWithTimezone) + "\"}"
+	req := newHTTPRequest("POST", "/booking/", user1.ID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+}
+
 func TestBookingsSameDay(t *testing.T) {
 	clearTestDB()
 	org := createTestOrg("test.com")
