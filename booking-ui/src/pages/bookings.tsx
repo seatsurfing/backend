@@ -7,6 +7,7 @@ import { WithTranslation, withTranslation } from 'next-i18next';
 import { NextRouter } from 'next/router';
 import NavBar from '@/components/NavBar';
 import withReadyRouter from '@/components/withReadyRouter';
+import RuntimeConfig from '@/components/RuntimeConfig';
 
 interface State {
   loading: boolean
@@ -60,14 +61,17 @@ class Bookings extends React.Component<Props, State> {
   }
 
   renderItem = (item: Booking) => {
-    console.log(item.enter.toISOString());
+    let formatter = Formatting.getFormatter();
+    if (RuntimeConfig.INFOS.dailyBasisBooking) {
+      formatter = Formatting.getFormatterNoTime();
+    }
     return (
       <ListGroup.Item key={item.id} action={true} onClick={(e) => { e.preventDefault(); this.onItemPress(item); }}>
         <h5>{Formatting.getDateOffsetText(item.enter, item.leave)}</h5>
         <p>
           <IconLocation className="feather" />&nbsp;{item.space.location.name}, {item.space.name}<br />
-          <IconEnter className="feather" />&nbsp;{Formatting.getFormatter().format(item.enter)}<br />
-          <IconLeave className="feather" />&nbsp;{Formatting.getFormatter().format(item.leave)}
+          <IconEnter className="feather" />&nbsp;{formatter.format(item.enter)}<br />
+          <IconLeave className="feather" />&nbsp;{formatter.format(item.leave)}
         </p>
       </ListGroup.Item>
     );
@@ -89,6 +93,10 @@ class Bookings extends React.Component<Props, State> {
         </>
       );
     }
+    let formatter = Formatting.getFormatter();
+    if (RuntimeConfig.INFOS.dailyBasisBooking) {
+      formatter = Formatting.getFormatterNoTime();
+    }
     return (
       <>
         <NavBar />
@@ -104,7 +112,7 @@ class Bookings extends React.Component<Props, State> {
             <Modal.Title>{this.props.t("cancelBooking")}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <p>{this.props.t("confirmCancelBooking", { enter: Formatting.getFormatter().format(this.state.selectedItem?.enter), interpolation: { escapeValue: false } })}</p>
+            <p>{this.props.t("confirmCancelBooking", { enter: formatter.format(this.state.selectedItem?.enter), interpolation: { escapeValue: false } })}</p>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={() => this.setState({ selectedItem: null })}>
