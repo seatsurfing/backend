@@ -491,13 +491,17 @@ func (router *BookingRouter) isValidBookingDuration(m *BookingRequest, orgID str
 	if dailyBasisBooking && (maxDurationHours%24 != 0) {
 		maxDurationHours += (24 - (maxDurationHours % 24))
 	}
+
+	// Due to daylight saving time, days can have more or less than 24 hours
+	hoursOnDate := router.getHoursOnDate(&m.Leave)
+	durationNotRounded := int(math.Round(m.Leave.Sub(m.Enter).Minutes()) / 60)
+	if dailyBasisBooking {
+		return durationNotRounded%hoursOnDate == 0
+	}
+
+	// For non-daily-basis bookings, check exact duration
 	duration := math.Floor(m.Leave.Sub(m.Enter).Minutes()) / 60
 	if duration < 0 || duration > float64(maxDurationHours) {
-		return false
-	}
-	durationNotRounded := int(math.Round(m.Leave.Sub(m.Enter).Minutes()) / 60)
-	hoursOnDate := router.getHoursOnDate(&m.Leave)
-	if dailyBasisBooking && (durationNotRounded%hoursOnDate != 0) {
 		return false
 	}
 	return true
