@@ -4,9 +4,9 @@ Seat booking server software which enables your organisation's employees to book
 
 ## Quick reference
 * **Maintained by:** [Seatsurfing.app](https://seatsurfing.app/)
-* **Where to get help:** [Documentation](https://docs.seatsurfing.app/)
+* **Where to get help:** [Documentation](https://seatsurfing.app/docs/)
 * **Supported architectures:** amd64, arm64, arm v7
-* **Terms of use:** [License information](https://seatsurfing.app/terms/)
+* **License:** [GPL 3.0](https://github.com/seatsurfing/backend/blob/master/LICENSE)
 
 ## Supported tags
 * ```latest``` refers to Seatsurfing Backend {{version}} as of {{date}}
@@ -34,16 +34,22 @@ services:
       JWT_SIGNING_KEY: 'some_random_string'
       BOOKING_UI_BACKEND: 'booking-ui:3001'
       ADMIN_UI_BACKEND: 'admin-ui:3000'
+      PUBLIC_URL: 'https://seatsurfing.your-domain.com'
+      FRONTEND_URL: 'https://seatsurfing.your-domain.com'
   booking-ui:
     image: seatsurfing/booking-ui
     restart: always
     networks:
       http:
+    environment:
+      FRONTEND_URL: 'https://seatsurfing.your-domain.com'
   admin-ui:
     image: seatsurfing/admin-ui
     restart: always
     networks:
       http:
+    environment:
+      FRONTEND_URL: 'https://seatsurfing.your-domain.com'
   db:
     image: postgres:12
     restart: always
@@ -74,15 +80,15 @@ This starts...
 Please refer to our [Kubernetes documentation](https://docs.seatsurfing.app/kubernetes/).
 
 ## Environment variables
-Please check out the [documentation](https://docs.seatsurfing.app/) for the latest information on available environment variables and further guidance.
+Please check out the [documentation](https://seatsurfing.app/docs/) for the latest information on available environment variables and further guidance.
 
+### Backend
 | Environment Variable | Type | Default | Description |
 | --- | --- | --- | --- |
 | DEV | bool | 0 | Development Mode, set to 1 to enable  |
 | PUBLIC_LISTEN_ADDR | string | 0.0.0.0:8080 | TCP/IP listen address and port |
 | PUBLIC_URL | string | http://localhost:8080 | Public URL |
 | FRONTEND_URL | string | http://localhost:8080 | Frontend URL (usually matches the Public URL) |
-| APP_URL | string | seatsurfing:/// | App URL (should not be changed) |
 | ADMIN_UI_BACKEND | string | localhost:3000 | Host serving the Admin UI frontend |
 | BOOKING_UI_BACKEND | string | localhost:3001 | Host serving the Booking UI frontend |
 | DISABLE_UI_PROXY | bool | 0 | Disable proxy for admin and booking UI, set to 1 to disable the proxy |
@@ -109,3 +115,12 @@ Please check out the [documentation](https://docs.seatsurfing.app/) for the late
 | ORG_SIGNUP_ADMIN | string | admin | Admin username for new signups |
 | ORG_SIGNUP_MAX_USERS | int | 50 | Maximum number of users for new organisations |
 | ORG_SIGNUP_DELETE | bool | 0 | Allow admins to delete their own organisation |
+
+### Frontend (Admin UI, Booking UI)
+| Environment Variable | Type | Default | Description |
+| --- | --- | --- | --- |
+| FRONTEND_URL | string | ```req.url``` | Frontend URL |
+| PORT | int | 3000 (Admin UI), 3001 (Booking UI) | The server's HTTP port |
+| LISTEN_ADDR | string | | TCP/IP listen address (defaults to NextJS' ```hostname``` setting) |
+
+**Hint**: When running in an IPV6-only Docker/Podman environment with multiple network interfaces bound to the Frontend containers, setting the ```LISTEN_ADDR``` environment variable can be necessary as NextJS binds to only one network interface by default. Set it to ```::``` to bind to any address.
