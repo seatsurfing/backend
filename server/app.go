@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"os/signal"
 	"strings"
@@ -130,17 +129,6 @@ func (a *App) InitializeTimers() {
 			}
 		}
 	}()
-}
-
-func (a *App) stripStaticPrefix(fs http.Handler, prefix string) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		r2 := new(http.Request)
-		*r2 = *r
-		r2.URL = new(url.URL)
-		*r2.URL = *r.URL
-		r2.URL.Path = "/"
-		fs.ServeHTTP(w, r2)
-	})
 }
 
 func (a *App) bookingUIProxyHandler(w http.ResponseWriter, r *http.Request) {

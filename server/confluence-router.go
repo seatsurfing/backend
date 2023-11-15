@@ -69,7 +69,7 @@ func (router *ConfluenceRouter) serverLogin(w http.ResponseWriter, r *http.Reque
 			GetUserRepository().UpdateAtlassianClientIDForUser(u.OrganizationID, u.ID, userID)
 		}
 		// and load again
-		_, err = GetUserRepository().GetByAtlassianID(userID)
+		GetUserRepository().GetByAtlassianID(userID)
 	}
 	if err != nil {
 		if !GetUserRepository().canCreateUser(org) {
