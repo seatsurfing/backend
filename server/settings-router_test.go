@@ -44,6 +44,7 @@ func TestSettingsReadPublic(t *testing.T) {
 
 	allowedSettings := []string{
 		SettingMaxBookingsPerUser.Name,
+		SettingMaxConcurrentBookingsPerUser.Name,
 		SettingMaxDaysInAdvance.Name,
 		SettingMaxBookingDurationHours.Name,
 		SettingDailyBasisBooking.Name,
@@ -98,6 +99,7 @@ func TestSettingsReadAdmin(t *testing.T) {
 
 	allowedSettings := []string{
 		SettingMaxBookingsPerUser.Name,
+		SettingMaxConcurrentBookingsPerUser.Name,
 		SettingMaxDaysInAdvance.Name,
 		SettingMaxBookingDurationHours.Name,
 		SettingDailyBasisBooking.Name,

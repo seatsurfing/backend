@@ -14,6 +14,7 @@ interface State {
   defaultTimezone: string
   confluenceServerSharedSecret: string
   maxBookingsPerUser: number
+  maxConcurrentBookingsPerUser: number
   maxDaysInAdvance: number
   maxBookingDurationHours: number
   dailyBasisBooking: boolean
@@ -51,6 +52,7 @@ class Settings extends React.Component<Props, State> {
       defaultTimezone: "",
       confluenceServerSharedSecret: "",
       maxBookingsPerUser: 0,
+      maxConcurrentBookingsPerUser: 0,
       maxBookingDurationHours: 0,
       maxDaysInAdvance: 0,
       dailyBasisBooking: false,
@@ -115,6 +117,7 @@ class Settings extends React.Component<Props, State> {
         if (s.name === "default_timezone") state.defaultTimezone = s.value;
         if (s.name === "confluence_server_shared_secret") state.confluenceServerSharedSecret = s.value;
         if (s.name === "max_bookings_per_user") state.maxBookingsPerUser = window.parseInt(s.value);
+        if (s.name === "max_concurrent_bookings_per_user") state.maxConcurrentBookingsPerUser = window.parseInt(s.value);
         if (s.name === "max_days_in_advance") state.maxDaysInAdvance = window.parseInt(s.value);
         if (s.name === "max_booking_duration_hours") state.maxBookingDurationHours = window.parseInt(s.value);
         if (s.name === "daily_basis_booking") state.dailyBasisBooking = (s.value === "1");
@@ -155,6 +158,7 @@ class Settings extends React.Component<Props, State> {
       new OrgSettings("show_names", this.state.showNames ? "1" : "0"),
       new OrgSettings("allow_booking_nonexist_users", this.state.allowBookingNonExistUsers ? "1" : "0"),
       new OrgSettings("max_bookings_per_user", this.state.maxBookingsPerUser.toString()),
+      new OrgSettings("max_concurrent_bookings_per_user", this.state.maxConcurrentBookingsPerUser.toString()),
       new OrgSettings("max_days_in_advance", this.state.maxDaysInAdvance.toString()),
       new OrgSettings("max_booking_duration_hours", this.state.maxBookingDurationHours.toString())
     ];
@@ -403,6 +407,12 @@ class Settings extends React.Component<Props, State> {
             <Form.Label column sm="2">{this.props.t("maxBookingsPerUser")}</Form.Label>
             <Col sm="4">
               <Form.Control type="number" value={this.state.maxBookingsPerUser} onChange={(e: any) => this.setState({ maxBookingsPerUser: e.target.value })} min="1" max="9999" />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row}>
+            <Form.Label column sm="2">{this.props.t("maxConcurrentBookingsPerUser")}</Form.Label>
+            <Col sm="4">
+              <Form.Control type="number" value={this.state.maxConcurrentBookingsPerUser} onChange={(e: any) => this.setState({ maxConcurrentBookingsPerUser: e.target.value })} min="0" max="9999" />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>

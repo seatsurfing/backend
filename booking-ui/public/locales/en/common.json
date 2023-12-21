@@ -17,6 +17,7 @@
     "leave": "Leave",
     "area": "Area",
     "errorBookingLimit": "You've reached the limit of {{num}} bookings.",
+    "errorConcurrentBookingLimit": "You've reached the limit of {{num}} concurrent bookings.",
     "errorPickArea": "Please pick an area.",
     "errorEnterFuture": "Enter date must be in the future.",
     "errorLeaveAfterEnter": "Leave date must be after enter date.",

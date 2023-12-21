@@ -4,6 +4,7 @@ interface RuntimeUserInfos {
     username: string;
     isLoading: boolean;
     maxBookingsPerUser: number;
+    maxConcurrentBookingsPerUser: number;
     maxDaysInAdvance: number;
     maxBookingDurationHours: number;
     dailyBasisBooking: boolean;
@@ -17,6 +18,7 @@ export default class RuntimeConfig {
         username: "",
         isLoading: true,
         maxBookingsPerUser: 0,
+        maxConcurrentBookingsPerUser: 0,
         maxDaysInAdvance: 0,
         maxBookingDurationHours: 0,
         dailyBasisBooking: false,
@@ -58,6 +60,7 @@ export default class RuntimeConfig {
                 settings.forEach(s => {
                     if (typeof window !== 'undefined') {
                         if (s.name === "max_bookings_per_user") RuntimeConfig.INFOS.maxBookingsPerUser = window.parseInt(s.value);
+                        if (s.name === "max_concurrent_bookings_per_user") RuntimeConfig.INFOS.maxConcurrentBookingsPerUser = window.parseInt(s.value);
                         if (s.name === "max_days_in_advance") RuntimeConfig.INFOS.maxDaysInAdvance = window.parseInt(s.value);
                         if (s.name === "max_booking_duration_hours") RuntimeConfig.INFOS.maxBookingDurationHours = window.parseInt(s.value);
                     }

@@ -54,6 +54,7 @@
     "primaryContact": "Primary contact",
     "allowAnyUser": "Allow login of all authenticatable users",
     "maxBookingsPerUser": "Max. bookings per user",
+    "maxConcurrentBookingsPerUser": "Max. concurrent bookings per user",
     "maxDaysInAdvance": "Max. days in advance",
     "days": "days",
     "dailyBasisBooking": "Allow bookings on a daily basis only",

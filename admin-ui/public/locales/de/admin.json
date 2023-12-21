@@ -54,6 +54,7 @@
     "primaryContact": "Primärkontakt",
     "allowAnyUser": "Login aller authentifzierbaren Benutzer erlauben",
     "maxBookingsPerUser": "Buchungen je Nutzer",
+    "maxConcurrentBookingsPerUser": "Maximale Anzahl gleichzeitiger Buchungen pro Benutzer",
     "maxDaysInAdvance": "Max. Buchungs-Vorlauf",
     "days": "Tage",
     "dailyBasisBooking": "Nur tageweise Buchung erlauben",

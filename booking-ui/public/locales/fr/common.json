@@ -17,6 +17,7 @@
     "leave": "Partir",
     "area": "Zone",
     "errorBookingLimit": "Vous avez atteint la limite de {{num}} réservations.",
+    "errorConcurrentBookingLimit": "Vous avez atteint la limite de {{num}} réservations simultanées",
     "errorPickArea": "Veuillez choisir une zone.",
     "errorEnterFuture": "La date d’entrée doit être dans le futur.",
     "errorLeaveAfterEnter": "La date de congé doit être postérieure à la date d’entrée.",

@@ -17,6 +17,7 @@
     "leave": "Ende",
     "area": "Bereich",
     "errorBookingLimit": "Das Limit von {{num}} Buchungen wurde erreicht.",
+    "errorConcurrentBookingLimit": "Du hast das Limit von {{num}} gleichzeitigen Buchungen erreicht",
     "errorPickArea": "Bitte einen Bereich auswählen.",
     "errorEnterFuture": "Der Beginn muss in der Zukunft liegen.",
     "errorLeaveAfterEnter": "Das Ende muss nach dem Beginn liegen.",

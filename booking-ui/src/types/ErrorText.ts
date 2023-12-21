@@ -6,6 +6,7 @@ var ResponseCodeBookingLocationMaxConcurrent: number = 1002;
 var ResponseCodeBookingTooManyUpcomingBookings: number = 1003;
 var ResponseCodeBookingTooManyDaysInAdvance: number = 1004;
 var ResponseCodeBookingInvalidBookingDuration: number = 1005;
+var ResponseCodeBookingMaxConcurrentForUser: number = 1006;
 
 export default class ErrorText {
     static getTextForAppCode(code: number, t: TFunction): string {
@@ -17,6 +18,8 @@ export default class ErrorText {
             return t("errorDaysAdvance", { "num": RuntimeConfig.INFOS.maxDaysInAdvance });
         } else if (code === ResponseCodeBookingTooManyUpcomingBookings) {
             return t("errorBookingLimit", { "num": RuntimeConfig.INFOS.maxBookingsPerUser });
+        } else if (code === ResponseCodeBookingMaxConcurrentForUser) {
+            return t("errorConcurrentBookingLimit", { "num": RuntimeConfig.INFOS.maxConcurrentBookingsPerUser });
         } else {
             return t("errorUnknown");
         }
