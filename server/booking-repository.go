@@ -221,6 +221,46 @@ func (r *BookingRepository) GetLoad(organizationID string, enter, leave time.Tim
 	return int(math.RoundToEven(res)), nil
 }
 
+// various scenarios
+//
+//	   |-----------|    (base)
+//	|------|            (overlap start)
+//	           |------| (overlap end)
+//	 |----------------| (bigger than)
+//	       |---|        (within)
+//
+// bigger than should be covered by overlap start / end checks
+//
+// get all bookings by a specific user which overlap with the provided time range
+func (r *BookingRepository) GetTimeRangeByUser(userID string, enter time.Time, leave time.Time, excludeBookingID string) ([]*Booking, error) {
+	var result []*Booking
+	rows, err := GetDatabase().DB().Query("SELECT id, user_id, space_id, enter_time, leave_time "+
+		"FROM bookings "+
+		"WHERE id::text != $4 AND user_id = $1 AND ("+
+		"($2 <= enter_time AND $3 > enter_time) OR "+ // (overlap start, can end at same time as next start)
+		"($2 < leave_time AND $3 >= leave_time) OR "+ // (overlap end, start can equal previous leave time)
+		"($2 >= enter_time AND $3 <= leave_time)"+ // (within)
+		// "($2 BETWEEN enter_time AND leave_time) OR "+
+		// "($3 BETWEEN enter_time AND leave_time) OR "+
+		// "(enter_time BETWEEN $2 AND $3) OR "+
+		// "(leave_time BETWEEN $2 AND $3)"+
+		") "+
+		"ORDER BY enter_time", userID, enter, leave, excludeBookingID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		e := &Booking{}
+		err = rows.Scan(&e.ID, &e.UserID, &e.SpaceID, &e.Enter, &e.Leave)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, e)
+	}
+	return result, nil
+}
+
 // GetConflicts returns bookings for a specific space which overlap
 // with the specified enter and leave times.
 func (r *BookingRepository) GetConflicts(spaceID string, enter time.Time, leave time.Time, excludeBookingID string) ([]*Booking, error) {

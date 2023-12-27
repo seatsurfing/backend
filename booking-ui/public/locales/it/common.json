@@ -17,6 +17,7 @@
     "leave": "Fine",
     "area": "Area",
     "errorBookingLimit": "Avete raggiunto il limite di {{num}} prenotazioni.",
+    "errorConcurrentBookingLimit": "Hai raggiunto il limite di {{num}} prenotazioni simultanee.",
     "errorPickArea": "Seleziona un' area.",
     "errorEnterFuture": "La data inserita deve essere nel futuro.",
     "errorLeaveAfterEnter": "La data di fine deve essere successiva alla data di inzio.",

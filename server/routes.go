@@ -37,6 +37,7 @@ var (
 	ResponseCodeBookingTooManyUpcomingBookings = 1003
 	ResponseCodeBookingTooManyDaysInAdvance    = 1004
 	ResponseCodeBookingInvalidBookingDuration  = 1005
+	ResponseCodeBookingMaxConcurrentForUser    = 1006
 )
 
 type Route interface {
