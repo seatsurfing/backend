@@ -44,6 +44,7 @@ func (a *App) InitializeRouter() {
 	routers["/location/{locationId}/space/"] = &SpaceRouter{}
 	routers["/location/"] = &LocationRouter{}
 	routers["/booking/"] = &BookingRouter{}
+	routers["/buddy/"] = &BuddyRouter{}
 	routers["/organization/"] = &OrganizationRouter{}
 	routers["/auth-provider/"] = &AuthProviderRouter{}
 	routers["/auth/"] = &AuthRouter{}

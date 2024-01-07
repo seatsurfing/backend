@@ -234,3 +234,13 @@ func checkStringNotEmpty(t *testing.T, s string) {
 		t.Fatalf("Expected non-empty string at:\n%s", debug.Stack())
 	}
 }
+
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
+}

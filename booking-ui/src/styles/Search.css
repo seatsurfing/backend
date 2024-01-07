@@ -163,6 +163,10 @@
     background-color: rgba(184, 37, 222, 0.9) !important;
 }
 
+.space-buddy-desk {
+    background-color: rgba(36, 21, 197, 0.9) !important;
+}
+
 .space-list-item-content {
     text-overflow: ellipsis;
     overflow: hidden;
