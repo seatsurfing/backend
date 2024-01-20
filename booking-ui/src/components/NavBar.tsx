@@ -134,6 +134,7 @@ class NavBar extends React.Component<Props, State> {
         let initMergeButton = <></>;
         let mergeRequestsButton = <></>;
         let collapsable = <></>;
+        let buddies = <></>;
         
         if (!RuntimeConfig.EMBEDDED) {
             if (this.state.allowAdmin) {
@@ -149,11 +150,16 @@ class NavBar extends React.Component<Props, State> {
             }
         }
 
+        if (RuntimeConfig.INFOS.showNames) {
+            buddies = <Nav.Link as={Link} eventKey="/buddies" href="/buddies">{RuntimeConfig.EMBEDDED ? <IconCalendar className="feather feather-lg" /> : this.props.t("myBuddies")}</Nav.Link>
+        }
+
         collapsable = (
             <>
                 <Nav activeKey={this.props.router.pathname}>
                     <Nav.Link as={Link} eventKey="/search" href="/search">{RuntimeConfig.EMBEDDED ? <IconPlus className="feather feather-lg" /> : this.props.t("bookSeat")}</Nav.Link>
                     <Nav.Link as={Link} eventKey="/bookings" href="/bookings">{RuntimeConfig.EMBEDDED ? <IconCalendar className="feather feather-lg" /> : this.props.t("myBookings")}</Nav.Link>
+                    {buddies}
                     <Nav.Link as={Link} eventKey="/preferences" href="/preferences">{RuntimeConfig.EMBEDDED ? <IconSettings className="feather feather-lg" /> : this.props.t("preferences")}</Nav.Link>
                     {adminButton}
                     {signOffButton}

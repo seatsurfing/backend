@@ -101,5 +101,10 @@
     "tomorrow": "Demain",
     "inXdays": "Dans {{x}} de jours",
     "hour12": "0",
-    "passwordChange": "Modifier le mot de passe"
+    "passwordChange": "Modifier le mot de passe",
+    "removeBuddy": "Supprimer un ami",
+    "addBuddy": "Ajouter un ami",
+    "confirmRemoveBuddy": "Êtes-vous sûr de vouloir supprimer un ami ?",
+    "myBuddies": "Mes potes",
+    "noBuddies": "Pas de copains"
 }

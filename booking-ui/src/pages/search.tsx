@@ -1,6 +1,6 @@
 import React, { RefObject } from 'react';
 import { Form, Col, Row, Modal, Button, ListGroup, Badge } from 'react-bootstrap';
-import { Location, Booking, Ajax, Formatting, Space, AjaxError, UserPreference } from 'flexspace-commons';
+import { Location, Booking, Buddy, User, Ajax, Formatting, Space, AjaxError, UserPreference } from 'flexspace-commons';
 // @ts-ignore
 import DateTimePicker from 'react-datetime-picker';
 import DatePicker from 'react-date-picker';
@@ -54,12 +54,14 @@ class Search extends React.Component<Props, State> {
   searchContainerRef: RefObject<any>;
   enterChangeTimer: number | undefined;
   leaveChangeTimer: number | undefined;
+  buddies: Buddy[];
 
   constructor(props: any) {
     super(props);
     this.data = [];
     this.locations = [];
     this.mapData = null;
+    this.buddies = [];
     this.searchContainerRef = React.createRef();
     this.enterChangeTimer = undefined;
     this.leaveChangeTimer = undefined;
@@ -98,6 +100,7 @@ class Search extends React.Component<Props, State> {
     let promises = [
       this.loadLocations(),
       this.loadPreferences(),
+      this.loadBuddies(),
     ];
     Promise.all(promises).then(() => {
       this.initDates();
@@ -204,6 +207,12 @@ class Search extends React.Component<Props, State> {
   loadLocations = async (): Promise<void> => {
     return Location.list().then(list => {
       this.locations = list;
+    });
+  }
+
+  loadBuddies = async (): Promise<void> => {
+    return Buddy.list().then(list => {
+      this.buddies = list;
     });
   }
 
@@ -394,7 +403,18 @@ class Search extends React.Component<Props, State> {
 
   getAvailibilityStyle = (item: Space, bookings: Booking[]) => {
     const mydesk = (bookings.find(b => b.user.email === RuntimeConfig.INFOS.username));
-    return (mydesk ? "space-mydesk" : (item.available ? "space-available" : "space-notavailable"));
+    const buddiesEmails = this.buddies.map(i => i.buddy.email);
+    const myBuddyDesk = (bookings.find(b => buddiesEmails.includes(b.user.email)));
+
+    if (myBuddyDesk) {
+      return "space-buddy-desk";
+    }
+
+    if (mydesk) {
+      return "space-mydesk";
+    }
+
+    return (item.available ? "space-available" : "space-notavailable");
   }
 
   getBookersList = (bookings: Booking[]) => {
@@ -439,7 +459,7 @@ class Search extends React.Component<Props, State> {
     let bookerCount = 0;
     if (className === "space-mydesk") {
       bookerCount = 1;
-    } else if (className === "space-notavailable") {
+    } else if (className === "space-notavailable" || className === "space-buddy-desk") {
       bookerCount = (bookings.length > 0 ? bookings.length : 1);
     }
     return (
@@ -454,12 +474,19 @@ class Search extends React.Component<Props, State> {
   }
 
   renderBookingNameRow = (booking: Booking) => {
+    const buddiesEmails = this.buddies.map(i => i.buddy.email);
+
     return (
       <p key={booking.id}>
         {booking.user.email}<br />
         {Formatting.getFormatterShort().format(new Date(booking.enter))}
         &nbsp;&mdash;&nbsp;
         {Formatting.getFormatterShort().format(new Date(booking.leave))}
+        {RuntimeConfig.INFOS.showNames && booking.user.email !== RuntimeConfig.INFOS.username && !buddiesEmails.includes(booking.user.email) && (
+          <Button variant="primary" onClick={(e) => { e.preventDefault(); this.onAddBuddy(booking.user); } }>
+            {this.props.t("addBuddy")}
+          </Button>
+        )}
       </p>
     );
   }
@@ -490,6 +517,33 @@ class Search extends React.Component<Props, State> {
         loading: false,
         showError: true,
         errorText: ErrorText.getTextForAppCode(code, this.props.t)
+      });
+    });
+  }
+
+  onAddBuddy = (buddyUser: User) => {
+    if (this.state.selectedSpace == null) {
+      return;
+    }
+    this.setState({
+      showBookingNames: false,
+      loading: true
+    });
+    let buddy: Buddy = new Buddy();
+    buddy.buddy = buddyUser;
+    buddy.save().then(() => {
+      this.loadBuddies().then(() => {
+        this.setState({ loading: false});
+      });
+    }).catch(e => {
+      let code: number = 0;
+      if (e instanceof AjaxError) {
+        code = e.appErrorCode;
+      }
+      this.setState({
+        loading: false,
+        showError: true,
+        errorText: ErrorText.getTextForAppCode(code, this.props.t),
       });
     });
   }
