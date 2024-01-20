@@ -6,11 +6,11 @@ jobs:
 
   container-job:
     runs-on: ubuntu-latest
-    container: golang:1.20-alpine
+    container: golang:1.21-alpine
 
     services:
       postgres:
-        image: postgres:15-alpine
+        image: postgres:16-alpine
         env:
           POSTGRES_PASSWORD: root
           POSTGRES_DB: seatsurfing_test

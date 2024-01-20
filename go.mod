@@ -1,6 +1,6 @@
 module server
 
-go 1.18
+go 1.21
 
 require (
 	github.com/go-playground/validator v9.31.0+incompatible
@@ -8,8 +8,8 @@ require (
 	github.com/google/uuid v1.5.0
 	github.com/gorilla/mux v1.8.1
 	github.com/lib/pq v1.10.9
-	golang.org/x/crypto v0.17.0
-	golang.org/x/oauth2 v0.15.0
+	golang.org/x/crypto v0.18.0
+	golang.org/x/oauth2 v0.16.0
 )
 
 require (
