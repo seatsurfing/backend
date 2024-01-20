@@ -102,9 +102,9 @@
     "inXdays": "In {{x}} Tagen",
     "hour12": "0",
     "passwordChange": "Kennwort ändern",
-    "removeBuddy": "Kumpel entfernen",
-    "addBuddy": "Freund hinzufügen",
-    "confirmRemoveBuddy": "Sind Sie sicher, dass Sie Buddy entfernen möchten?",
-    "myBuddies": "Meine Kumpel",
-    "noBuddies": "Keine Freunde"
+    "removeBuddy": "KollegIn entfernen",
+    "addBuddy": "KollegIn hinzufügen",
+    "confirmRemoveBuddy": "Sind Sie sicher, dass Sie diese KollegIn entfernen möchten?",
+    "myBuddies": "Meine KollegInnen",
+    "noBuddies": "Keine KollegInnen"
 }
