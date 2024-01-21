@@ -2,12 +2,7 @@
 
 ## Supported Versions
 
-The following versions are currently supported:
-
-| Version  | Supported          |
-| -------- | ------------------ |
-| 1.12.x   | :white_check_mark: |
-| < 1.12   | :x:                |
+Only the latest stable release is supported. Please make sure you're upgrading regularly.
 
 ## Reporting a Vulnerability
 
