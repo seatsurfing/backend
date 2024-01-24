@@ -36,6 +36,10 @@ interface State {
   prefWorkdayEnd: number
   prefWorkdays: number[]
   prefLocationId: string
+  prefBooked: string
+  prefNotBooked: string
+  prefSelfBooked: string
+  prefBuddyBooked: string
 }
 
 interface Props extends WithTranslation {
@@ -84,6 +88,10 @@ class Search extends React.Component<Props, State> {
       prefWorkdayEnd: 0,
       prefWorkdays: [],
       prefLocationId: "",
+      prefBooked: "#ff453a",
+      prefNotBooked: "#30d158",
+      prefSelfBooked: "#b825de",
+      prefBuddyBooked: "#2415c5",
     };
   }
 
@@ -137,6 +145,10 @@ class Search extends React.Component<Props, State> {
             if (s.name === "workdays") state.prefWorkdays = s.value.split(",").map(val => window.parseInt(val));
           }
           if (s.name === "location_id") state.prefLocationId = s.value;
+          if (s.name === "booked") state.booked = s.value;
+          if (s.name === "not_booked") state.notBooked = s.value;
+          if (s.name === "self_booked") state.selfBooked = s.value;
+          if (s.name === "buddy_booked") state.buddyBooked = s.value;
         });
         if (RuntimeConfig.INFOS.dailyBasisBooking) {
           state.prefWorkdayStart = 0;
@@ -407,14 +419,14 @@ class Search extends React.Component<Props, State> {
     const myBuddyDesk = (bookings.find(b => buddiesEmails.includes(b.user.email)));
 
     if (myBuddyDesk) {
-      return "space-buddy-desk";
+      return this.state.prefBuddyBooked;
     }
 
     if (mydesk) {
-      return "space-mydesk";
+      return this.state.prefSelfBooked;
     }
 
-    return (item.available ? "space-available" : "space-notavailable");
+    return (item.available ? this.state.prefNotBooked : this.state.prefBooked);
   }
 
   getBookersList = (bookings: Booking[]) => {
@@ -435,14 +447,15 @@ class Search extends React.Component<Props, State> {
       width: item.width,
       height: item.height,
       transform: "rotate: " + item.rotation + "deg",
-      cursor: (item.available || (bookings && bookings.length > 0)) ? "pointer" : "default"
+      cursor: (item.available || (bookings && bookings.length > 0)) ? "pointer" : "default",
+      backgroundColor: this.getAvailibilityStyle(item, bookings)
     };
     const textStyle: React.CSSProperties = {
       textAlign: "center"
     };
     const className = "space space-box"
-      + ((item.width < item.height) ? " space-box-vertical" : "")
-      + " " + this.getAvailibilityStyle(item, bookings);
+      + ((item.width < item.height) ? " space-box-vertical" : "");
+    
     return (
       <div key={item.id} style={boxStyle} className={className}
         onClick={() => this.onSpaceSelect(item)}
@@ -455,21 +468,27 @@ class Search extends React.Component<Props, State> {
   renderListItem = (item: Space) => {
     let bookings: Booking[] = [];
     bookings = Booking.createFromRawArray(item.rawBookings);
-    const className = this.getAvailibilityStyle(item, bookings);
+    const bgColor = this.getAvailibilityStyle(item, bookings);
     let bookerCount = 0;
-    if (className === "space-mydesk") {
+    if (bgColor === this.state.prefSelfBooked) {
       bookerCount = 1;
-    } else if (className === "space-notavailable" || className === "space-buddy-desk") {
+    } else if (bgColor === this.state.prefBooked || bgColor === this.state.prefBuddyBooked) {
       bookerCount = (bookings.length > 0 ? bookings.length : 1);
     }
     return (
-      <ListGroup.Item key={item.id} action={true} onClick={(e) => { e.preventDefault(); this.onSpaceSelect(item); }} className="d-flex justify-content-between align-items-start space-list-item">
-        <div className="ms-2 me-auto">
-          <div className="fw-bold space-list-item-content">{item.name}</div>
-          {bookings.map((booking) => <div key={booking.user.id} className="space-list-item-content">{booking.user.email}</div>)}
-        </div>
-        <Badge className={className} pill={true}>{bookerCount}</Badge>
-      </ListGroup.Item>
+          <ListGroup.Item key={item.id} action={true} onClick={(e) => { e.preventDefault(); this.onSpaceSelect(item); }} className="d-flex justify-content-between align-items-start space-list-item">
+            <div className="ms-2 me-auto">
+              <div className="fw-bold space-list-item-content">{item.name}</div>
+              {bookings.map((booking) => (
+                <div key={booking.user.id} className="space-list-item-content">
+                  {booking.user.email}
+                </div>
+              ))}
+            </div>
+            <span className='badge badge-pill' style={{backgroundColor: bgColor}}>
+              {bookerCount}
+            </span>
+          </ListGroup.Item>
     );
   }
 
