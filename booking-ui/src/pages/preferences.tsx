@@ -86,10 +86,10 @@ class Preferences extends React.Component<Props, State> {
             }
             s.value.split(",").forEach(val => state.workdays[val] = true)
           }
-          if (s.name === "booked") state.booked = s.value;
-          if (s.name === "not_booked") state.notBooked = s.value;
-          if (s.name === "self_booked") state.selfBooked = s.value;
-          if (s.name === "buddy_booked") state.buddyBooked = s.value;
+          if (s.name === "booked_color") state.booked = s.value;
+          if (s.name === "not_booked_color") state.notBooked = s.value;
+          if (s.name === "self_booked_color") state.selfBooked = s.value;
+          if (s.name === "buddy_booked_color") state.buddyBooked = s.value;
           if (s.name === "location_id") state.locationId = s.value;
         });
         self.setState({
@@ -129,10 +129,10 @@ class Preferences extends React.Component<Props, State> {
       new UserPreference("workday_end", this.state.workdayEnd.toString()),
       new UserPreference("workdays", workdays.join(",")),
       new UserPreference("location_id", this.state.locationId),
-      new UserPreference("booked", this.state.booked),
-      new UserPreference("not_booked", this.state.notBooked),
-      new UserPreference("self_booked", this.state.selfBooked),
-      new UserPreference("buddy_booked", this.state.buddyBooked) 
+      new UserPreference("booked_color", this.state.booked),
+      new UserPreference("not_booked_color", this.state.notBooked),
+      new UserPreference("self_booked_color", this.state.selfBooked),
+      new UserPreference("buddy_booked_color", this.state.buddyBooked) 
     ];
     UserPreference.setAll(payload).then(() => {
       let onSaveComplete = function(this: Preferences) {

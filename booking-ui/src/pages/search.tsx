@@ -36,10 +36,10 @@ interface State {
   prefWorkdayEnd: number
   prefWorkdays: number[]
   prefLocationId: string
-  prefBooked: string
-  prefNotBooked: string
-  prefSelfBooked: string
-  prefBuddyBooked: string
+  prefBookedColor: string
+  prefNotBookedColor: string
+  prefSelfBookedColor: string
+  prefBuddyBookedColor: string
 }
 
 interface Props extends WithTranslation {
@@ -88,10 +88,10 @@ class Search extends React.Component<Props, State> {
       prefWorkdayEnd: 0,
       prefWorkdays: [],
       prefLocationId: "",
-      prefBooked: "#ff453a",
-      prefNotBooked: "#30d158",
-      prefSelfBooked: "#b825de",
-      prefBuddyBooked: "#2415c5",
+      prefBookedColor: "#ff453a",
+      prefNotBookedColor: "#30d158",
+      prefSelfBookedColor: "#b825de",
+      prefBuddyBookedColor: "#2415c5",
     };
   }
 
@@ -145,10 +145,10 @@ class Search extends React.Component<Props, State> {
             if (s.name === "workdays") state.prefWorkdays = s.value.split(",").map(val => window.parseInt(val));
           }
           if (s.name === "location_id") state.prefLocationId = s.value;
-          if (s.name === "booked") state.booked = s.value;
-          if (s.name === "not_booked") state.notBooked = s.value;
-          if (s.name === "self_booked") state.selfBooked = s.value;
-          if (s.name === "buddy_booked") state.buddyBooked = s.value;
+          if (s.name === "booked_color") state.prefBookedColor = s.value;
+          if (s.name === "not_booked_color") state.prefNotBookedColor = s.value;
+          if (s.name === "self_booked_color") state.prefSelfBookedColor = s.value;
+          if (s.name === "buddy_booked_color") state.prefBuddyBookedColor = s.value;
         });
         if (RuntimeConfig.INFOS.dailyBasisBooking) {
           state.prefWorkdayStart = 0;
@@ -419,14 +419,14 @@ class Search extends React.Component<Props, State> {
     const myBuddyDesk = (bookings.find(b => buddiesEmails.includes(b.user.email)));
 
     if (myBuddyDesk) {
-      return this.state.prefBuddyBooked;
+      return this.state.prefBuddyBookedColor;
     }
 
     if (mydesk) {
-      return this.state.prefSelfBooked;
+      return this.state.prefSelfBookedColor;
     }
 
-    return (item.available ? this.state.prefNotBooked : this.state.prefBooked);
+    return (item.available ? this.state.prefNotBookedColor : this.state.prefBookedColor);
   }
 
   getBookersList = (bookings: Booking[]) => {
@@ -470,9 +470,9 @@ class Search extends React.Component<Props, State> {
     bookings = Booking.createFromRawArray(item.rawBookings);
     const bgColor = this.getAvailibilityStyle(item, bookings);
     let bookerCount = 0;
-    if (bgColor === this.state.prefSelfBooked) {
+    if (bgColor === this.state.prefSelfBookedColor) {
       bookerCount = 1;
-    } else if (bgColor === this.state.prefBooked || bgColor === this.state.prefBuddyBooked) {
+    } else if (bgColor === this.state.prefBookedColor || bgColor === this.state.prefBuddyBookedColor) {
       bookerCount = (bookings.length > 0 ? bookings.length : 1);
     }
     return (

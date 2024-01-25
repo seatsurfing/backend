@@ -121,6 +121,10 @@ func (router *UserPreferencesRouter) isValidPreferenceName(name string) bool {
 		name == PreferenceWorkdayStart.Name ||
 		name == PreferenceWorkdayEnd.Name ||
 		name == PreferenceWorkdays.Name ||
+		name == PreferenceBookedColor.Name ||
+		name == PreferenceBuddyBookedColor.Name ||
+		name == PreferenceSelfBookedColor.Name ||
+		name == PreferenceNotBookedColor.Name ||
 		name == PreferenceLocation.Name {
 		return true
 	}
@@ -136,6 +140,18 @@ func (router *UserPreferencesRouter) getPreferenceType(name string) SettingType 
 	}
 	if name == PreferenceWorkdayEnd.Name {
 		return PreferenceWorkdayEnd.Type
+	}
+	if name == PreferenceBookedColor.Name {
+		return PreferenceBookedColor.Type
+	}
+	if name == PreferenceBuddyBookedColor.Name {
+		return PreferenceBuddyBookedColor.Type
+	}
+	if name == PreferenceSelfBookedColor.Name {
+		return PreferenceSelfBookedColor.Type
+	}
+	if name == PreferenceNotBookedColor.Name {
+		return PreferenceNotBookedColor.Type
 	}
 	if name == PreferenceWorkdays.Name {
 		return PreferenceWorkdays.Type

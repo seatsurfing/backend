@@ -25,6 +25,11 @@ var (
 	PreferenceWorkdayEnd   PreferenceName = PreferenceName{Name: "workday_end", Type: SettingTypeInt}
 	PreferenceWorkdays     PreferenceName = PreferenceName{Name: "workdays", Type: SettingTypeIntArray}
 	PreferenceLocation     PreferenceName = PreferenceName{Name: "location_id", Type: SettingTypeString}
+	PreferenceBookedColor  PreferenceName = PreferenceName{Name: "booked_color", Type: SettingTypeString}
+	PreferenceNotBookedColor PreferenceName = PreferenceName{Name: "not_booked_color", Type: SettingTypeString}
+	PreferenceSelfBookedColor PreferenceName = PreferenceName{Name: "self_booked_color", Type: SettingTypeString}
+	PreferenceBuddyBookedColor PreferenceName = PreferenceName{Name: "buddy_booked_color", Type: SettingTypeString}
+
 )
 
 var (
@@ -129,7 +134,11 @@ func (r *UserPreferencesRepository) InitDefaultSettingsForUser(userID string) er
 		"($1, '"+PreferenceWorkdayStart.Name+"', '9'), "+
 		"($1, '"+PreferenceWorkdayEnd.Name+"', '17'), "+
 		"($1, '"+PreferenceWorkdays.Name+"', '1,2,3,4,5'), "+
-		"($1, '"+PreferenceLocation.Name+"', '') "+
+		"($1, '"+PreferenceLocation.Name+"', ''), "+
+		"($1, '"+PreferenceBookedColor.Name+"', '#ff453a'), "+
+		"($1, '"+PreferenceNotBookedColor.Name+"', '#30d158'), "+
+		"($1, '"+PreferenceSelfBookedColor.Name+"', '#b825de'), "+
+		"($1, '"+PreferenceBuddyBookedColor.Name+"', '#2415c5') "+
 		"ON CONFLICT (user_id, name) DO NOTHING",
 		userID)
 	return err
