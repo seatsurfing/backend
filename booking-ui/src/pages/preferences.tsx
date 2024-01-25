@@ -215,7 +215,7 @@ class Preferences extends React.Component<Props, State> {
               </div>
             </Form.Group>
             <Form.Group className="margin-top-15">
-              <Form.Label>{this.props.t("bookingColors")}</Form.Label>
+              <Form.Label>{this.props.t("bookingcolors")}</Form.Label>
               <Row>
                 <Col>
                   <p>Already booked</p>
