@@ -20,16 +20,15 @@ type PreferenceName struct {
 }
 
 var (
-	PreferenceEnterTime    PreferenceName = PreferenceName{Name: "enter_time", Type: SettingTypeInt}
-	PreferenceWorkdayStart PreferenceName = PreferenceName{Name: "workday_start", Type: SettingTypeInt}
-	PreferenceWorkdayEnd   PreferenceName = PreferenceName{Name: "workday_end", Type: SettingTypeInt}
-	PreferenceWorkdays     PreferenceName = PreferenceName{Name: "workdays", Type: SettingTypeIntArray}
-	PreferenceLocation     PreferenceName = PreferenceName{Name: "location_id", Type: SettingTypeString}
-	PreferenceBookedColor  PreferenceName = PreferenceName{Name: "booked_color", Type: SettingTypeString}
-	PreferenceNotBookedColor PreferenceName = PreferenceName{Name: "not_booked_color", Type: SettingTypeString}
-	PreferenceSelfBookedColor PreferenceName = PreferenceName{Name: "self_booked_color", Type: SettingTypeString}
+	PreferenceEnterTime        PreferenceName = PreferenceName{Name: "enter_time", Type: SettingTypeInt}
+	PreferenceWorkdayStart     PreferenceName = PreferenceName{Name: "workday_start", Type: SettingTypeInt}
+	PreferenceWorkdayEnd       PreferenceName = PreferenceName{Name: "workday_end", Type: SettingTypeInt}
+	PreferenceWorkdays         PreferenceName = PreferenceName{Name: "workdays", Type: SettingTypeIntArray}
+	PreferenceLocation         PreferenceName = PreferenceName{Name: "location_id", Type: SettingTypeString}
+	PreferenceBookedColor      PreferenceName = PreferenceName{Name: "booked_color", Type: SettingTypeString}
+	PreferenceNotBookedColor   PreferenceName = PreferenceName{Name: "not_booked_color", Type: SettingTypeString}
+	PreferenceSelfBookedColor  PreferenceName = PreferenceName{Name: "self_booked_color", Type: SettingTypeString}
 	PreferenceBuddyBookedColor PreferenceName = PreferenceName{Name: "buddy_booked_color", Type: SettingTypeString}
-
 )
 
 var (
