@@ -42,7 +42,7 @@ version: '3.7'
 
 services:
   server:
-    image: seatsurfing/backend
+    image: ghcr.io/seatsurfing/backend
     restart: always
     networks:
       sql:
@@ -57,21 +57,21 @@ services:
       PUBLIC_URL: 'https://seatsurfing.your-domain.com'
       FRONTEND_URL: 'https://seatsurfing.your-domain.com'
   booking-ui:
-    image: seatsurfing/booking-ui
+    image: ghcr.io/seatsurfing/booking-ui
     restart: always
     networks:
       http:
     environment:
       FRONTEND_URL: 'https://seatsurfing.your-domain.com'
   admin-ui:
-    image: seatsurfing/admin-ui
+    image: ghcr.io/seatsurfing/admin-ui
     restart: always
     networks:
       http:
     environment:
       FRONTEND_URL: 'https://seatsurfing.your-domain.com'
   db:
-    image: postgres:12
+    image: postgres:16
     restart: always
     networks:
       sql:
