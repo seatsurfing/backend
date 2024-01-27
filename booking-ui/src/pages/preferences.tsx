@@ -16,6 +16,10 @@ interface State {
   workdayStart: number
   workdayEnd: number
   workdays: boolean[]
+  booked: string
+  notBooked: string
+  selfBooked: string
+  buddyBooked: string
   locationId: string
   changePassword: boolean
   password: string
@@ -40,6 +44,10 @@ class Preferences extends React.Component<Props, State> {
       workdayStart: 0,
       workdayEnd: 0,
       workdays: [],
+      booked: "#ff453a",
+      notBooked: "#30d158",
+      selfBooked: "#b825de",
+      buddyBooked: "#2415c5",
       locationId: "",
       changePassword: false,
       password: "",
@@ -78,6 +86,10 @@ class Preferences extends React.Component<Props, State> {
             }
             s.value.split(",").forEach(val => state.workdays[val] = true)
           }
+          if (s.name === "booked_color") state.booked = s.value;
+          if (s.name === "not_booked_color") state.notBooked = s.value;
+          if (s.name === "self_booked_color") state.selfBooked = s.value;
+          if (s.name === "buddy_booked_color") state.buddyBooked = s.value;
           if (s.name === "location_id") state.locationId = s.value;
         });
         self.setState({
@@ -117,6 +129,10 @@ class Preferences extends React.Component<Props, State> {
       new UserPreference("workday_end", this.state.workdayEnd.toString()),
       new UserPreference("workdays", workdays.join(",")),
       new UserPreference("location_id", this.state.locationId),
+      new UserPreference("booked_color", this.state.booked),
+      new UserPreference("not_booked_color", this.state.notBooked),
+      new UserPreference("self_booked_color", this.state.selfBooked),
+      new UserPreference("buddy_booked_color", this.state.buddyBooked) 
     ];
     UserPreference.setAll(payload).then(() => {
       let onSaveComplete = function(this: Preferences) {
@@ -197,6 +213,28 @@ class Preferences extends React.Component<Props, State> {
                   <Form.Check type="checkbox" key={"workday-" + day} id={"workday-" + day} label={this.props.t("workday-" + day)} checked={this.state.workdays[day]} onChange={(e: any) => this.onWorkdayCheck(day, e.target.checked)} />
                 ))}
               </div>
+            </Form.Group>
+            <Form.Group className="margin-top-15">
+              <Form.Label>{this.props.t("bookingcolors")}</Form.Label>
+              <Row>
+                <Col>
+                  <p>Already booked</p>
+                  <Form.Control type="color" key={"booked"} id={"booked"} value={this.state.booked} onChange={(e: any) => this.setState({booked: e.target.value})} />
+                </Col>
+                <Col>
+                  <p>Not booked</p>
+                  <Form.Control type="color" key={"notBooked"} id={"notBooked"} value={this.state.notBooked} onChange={(e: any) => this.setState({ notBooked: e.target.value })} />
+                </Col>
+                <Col>
+                  <p>Self booked</p>
+                  <Form.Control type="color" key={"selfBooked"} id={"selfBooked"} value={this.state.selfBooked} onChange={(e: any) => this.setState({ selfBooked: e.target.value })} />
+                </Col>
+                <Col>
+                  <p>Buddy booked</p>
+                  <Form.Control type="color" key={"buddyBooked"} id={"buddyBooked"} value={this.state.buddyBooked} onChange={(e: any) => this.setState({ buddyBooked: e.target.value })} />
+                </Col>
+              </Row>
+            
             </Form.Group>
             <Form.Group className="margin-top-15">
               <Form.Label>{this.props.t("preferredLocation")}</Form.Label>

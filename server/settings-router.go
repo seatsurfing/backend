@@ -181,7 +181,7 @@ func (router *SettingsRouter) copyToRestModel(e *OrgSetting) *GetSettingsRespons
 
 func (router *SettingsRouter) isValidSettingNameReadPublic(name string) bool {
 	if name == SettingMaxBookingsPerUser.Name ||
-	    name == SettingMaxConcurrentBookingsPerUser.Name ||
+		name == SettingMaxConcurrentBookingsPerUser.Name ||
 		name == SettingMaxDaysInAdvance.Name ||
 		name == SettingMaxBookingDurationHours.Name ||
 		name == SettingShowNames.Name ||
@@ -212,7 +212,7 @@ func (router *SettingsRouter) isValidSettingNameWrite(name string) bool {
 		name == SettingConfluenceServerSharedSecret.Name ||
 		name == SettingConfluenceAnonymous.Name ||
 		name == SettingMaxBookingsPerUser.Name ||
-	    name == SettingMaxConcurrentBookingsPerUser.Name ||
+		name == SettingMaxConcurrentBookingsPerUser.Name ||
 		name == SettingMaxDaysInAdvance.Name ||
 		name == SettingDailyBasisBooking.Name ||
 		name == SettingShowNames.Name ||
