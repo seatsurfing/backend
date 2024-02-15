@@ -11,8 +11,9 @@ type BuddyRouter struct {
 }
 
 type BuddyRequest struct {
-	BuddyID    string `json:"buddyId" validate:"required"`
-	BuddyEmail string `json:"buddyEmail"`
+	BuddyID           string `json:"buddyId" validate:"required"`
+	BuddyEmail        string `json:"buddyEmail"`
+	BuddyFirstBooking string `json:"buddyFirstBooking"`
 }
 
 type CreateBuddyRequest struct {
@@ -91,5 +92,14 @@ func (router *BuddyRouter) copyToRestModel(e *BuddyDetails) *GetBuddyResponse {
 	m.ID = e.ID
 	m.BuddyID = e.BuddyID
 	m.BuddyEmail = e.BuddyEmail
+	// Assuming GetOne returns a pointer to BookingDetails
+	bookingDetails, _ := GetBookingRepository().GetFirstUpcomingBookingByUserID(e.BuddyID)
+	// Use * to dereference the pointer
+	actualBookingDetails := *bookingDetails
+
+	// Assuming bookingDetails.Enter is of type time.Time
+	// Use .Format to convert it to a string
+	enterString := actualBookingDetails.Enter.Format("02-01-2006 15:04:05")
+	m.BuddyFirstBooking = enterString
 	return m
 }

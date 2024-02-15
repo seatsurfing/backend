@@ -21,6 +21,7 @@ export default class User extends Entity {
     admin: boolean;
     superAdmin: boolean;
     password: string;
+    firstBooking: string;
 
     constructor() {
         super();
@@ -36,6 +37,7 @@ export default class User extends Entity {
         this.admin = false;
         this.superAdmin = false;
         this.password = "";
+        this.firstBooking = "";
     }
 
     serialize(): Object {

@@ -14,6 +14,7 @@ export default class Buddy extends Entity {
         return Object.assign(super.serialize(), {
             "buddyId": this.buddy.id,
             "buddyEmail": this.buddy.email,
+            "buddyFirstBooking": this.buddy.firstBooking
         });
     }
 
@@ -24,6 +25,9 @@ export default class Buddy extends Entity {
         }
         if (input.buddyEmail) {
             this.buddy.email = input.buddyEmail;
+        }
+        if (input.buddyFirstBooking) {
+            this.buddy.firstBooking = input.buddyFirstBooking
         }
     }
 

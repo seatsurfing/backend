@@ -92,6 +92,26 @@ func (r *BookingRepository) GetOne(id string) (*BookingDetails, error) {
 	return e, nil
 }
 
+// Get first upcoming booking by user
+func (r *BookingRepository) GetFirstUpcomingBookingByUserID(userID string) (*BookingDetails, error) {
+	e := &BookingDetails{}
+	err := GetDatabase().DB().QueryRow("SELECT bookings.id, bookings.user_id, bookings.space_id, bookings.enter_time, bookings.leave_time, "+
+		"spaces.id, spaces.location_id, spaces.name, "+
+		"locations.id, locations.organization_id, locations.name, locations.description, locations.tz, "+
+		"users.email "+
+		"FROM bookings "+
+		"INNER JOIN spaces ON bookings.space_id = spaces.id "+
+		"INNER JOIN locations ON spaces.location_id = locations.id "+
+		"INNER JOIN users ON bookings.user_id = users.id "+
+		"WHERE bookings.user_id = $1 AND bookings.enter_time > $2 "+
+		"ORDER BY bookings.enter_time ASC LIMIT 1",
+		userID, time.Now()).Scan(&e.ID, &e.UserID, &e.SpaceID, &e.Enter, &e.Leave, &e.Space.ID, &e.Space.LocationID, &e.Space.Name, &e.Space.Location.ID, &e.Space.Location.OrganizationID, &e.Space.Location.Name, &e.Space.Location.Description, &e.Space.Location.Timezone, &e.UserEmail)
+	if err != nil {
+		return nil, err
+	}
+	return e, nil
+}
+
 func (r *BookingRepository) GetAllByOrg(organizationID string, startTime, endTime time.Time) ([]*BookingDetails, error) {
 	var result []*BookingDetails
 	rows, err := GetDatabase().DB().Query("SELECT bookings.id, bookings.user_id, bookings.space_id, bookings.enter_time, bookings.leave_time, "+

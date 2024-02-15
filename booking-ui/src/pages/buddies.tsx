@@ -61,7 +61,8 @@ class Buddies extends React.Component<Props, State> {
   renderItem = (item: Buddy) => {
     return (
       <ListGroup.Item key={item.id}>
-        <p>{item.buddy.email}</p>
+        <h5>{item.buddy.email}</h5>
+        <p>{this.props.t("nextBooking") + ": " + item.buddy.firstBooking}</p>
         <Button variant="danger" onClick={() => this.onItemPress(item)}>
           {this.props.t("removeBuddy")}
         </Button>
