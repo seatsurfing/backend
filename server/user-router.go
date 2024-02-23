@@ -60,6 +60,7 @@ func (router *UserRouter) setupRoutes(s *mux.Router) {
 	s.HandleFunc("/count", router.getCount).Methods("GET")
 	s.HandleFunc("/me", router.getSelf).Methods("GET")
 	s.HandleFunc("/{id}", router.getOne).Methods("GET")
+	s.HandleFunc("/byEmail/{email}", router.getOneByEmail).Methods("GET")
 	s.HandleFunc("/{id}/password", router.setPassword).Methods("PUT")
 	s.HandleFunc("/{id}", router.update).Methods("PUT")
 	s.HandleFunc("/{id}", router.delete).Methods("DELETE")
@@ -197,6 +198,23 @@ func (router *UserRouter) getSelf(w http.ResponseWriter, r *http.Request) {
 			Name: org.Name,
 		},
 	}
+	SendJSON(w, res)
+}
+
+func (router *UserRouter) getOneByEmail(w http.ResponseWriter, r *http.Request) {
+	user := GetRequestUser(r)
+	vars := mux.Vars(r)
+	e, err := GetUserRepository().GetByEmail(vars["email"])
+	if err != nil {
+		log.Println(err)
+		SendNotFound(w)
+		return
+	}
+	if e.OrganizationID != user.OrganizationID {
+		SendForbidden(w)
+		return
+	}
+	res := router.copyToRestModel(e, true)
 	SendJSON(w, res)
 }
 

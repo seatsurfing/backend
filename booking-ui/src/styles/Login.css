@@ -65,3 +65,25 @@
     font-size: 12px;
     width: 100%;
 }
+
+.grid-container {
+    display: grid;
+    padding: 10px;
+    align-items: center;
+    margin: 0 auto;
+    grid-template-columns: repeat(4, 1fr); /* Set 4 columns with equal width */
+}
+
+.grid-item {
+    padding: 10px;
+    margin: 10px 10px 10px 10px;
+    width: 250px;
+    height: 180px;
+    text-align: center;
+    border: 1px solid #ccc;
+    background-color: #d0bdbd;
+    border-radius: 10px;
+    align-items: center;
+    align-content: center;
+}
+

@@ -99,7 +99,8 @@ func (router *BuddyRouter) copyToRestModel(e *BuddyDetails) *GetBuddyResponse {
 
 	// Assuming bookingDetails.Enter is of type time.Time
 	// Use .Format to convert it to a string
-	enterString := actualBookingDetails.Enter.Format("02-01-2006 15:04:05")
-	m.BuddyFirstBooking = enterString
+	enterString := actualBookingDetails.Enter.Format("02-01-2006")
+	space := actualBookingDetails.Space.Location.Name
+	m.BuddyFirstBooking = enterString + " at the " + space
 	return m
 }
