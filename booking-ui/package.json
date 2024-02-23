@@ -20,6 +20,7 @@
     "react-feather": "^2.0.10",
     "react-i18next": "^13.5.0",
     "react-ionicons": "^4.2.1",
+    "react-tooltip": "^5.26.3",
     "typescript": "^5.3.3"
   },
   "scripts": {

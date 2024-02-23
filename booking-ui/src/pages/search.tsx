@@ -16,6 +16,7 @@ import { WithTranslation, withTranslation } from 'next-i18next';
 import NavBar from '@/components/NavBar';
 import RuntimeConfig from '@/components/RuntimeConfig';
 import withReadyRouter from '@/components/withReadyRouter';
+import { Tooltip } from 'react-tooltip';
 
 interface State {
   enter: Date
@@ -455,11 +456,13 @@ class Search extends React.Component<Props, State> {
     };
     const className = "space space-box"
       + ((item.width < item.height) ? " space-box-vertical" : "");
-    
+    console.log(item)
     return (
-      <div key={item.id} style={boxStyle} className={className}
+
+      <div key={item.id} style={boxStyle} className={className} data-tooltip-id="my-tooltip" data-tooltip-content={item.rawBookings[0] ? item.rawBookings[0].userEmail : "Free"}
         onClick={() => this.onSpaceSelect(item)}
         title={this.getBookersList(bookings)}>
+        <Tooltip id="my-tooltip" />
         <p style={textStyle}>{item.name}</p>
       </div>
     );
@@ -476,19 +479,19 @@ class Search extends React.Component<Props, State> {
       bookerCount = (bookings.length > 0 ? bookings.length : 1);
     }
     return (
-          <ListGroup.Item key={item.id} action={true} onClick={(e) => { e.preventDefault(); this.onSpaceSelect(item); }} className="d-flex justify-content-between align-items-start space-list-item">
-            <div className="ms-2 me-auto">
-              <div className="fw-bold space-list-item-content">{item.name}</div>
-              {bookings.map((booking) => (
-                <div key={booking.user.id} className="space-list-item-content">
-                  {booking.user.email}
-                </div>
-              ))}
+      <ListGroup.Item key={item.id} action={true} onClick={(e) => { e.preventDefault(); this.onSpaceSelect(item); }} className="d-flex justify-content-between align-items-start space-list-item">
+        <div className="ms-2 me-auto">
+          <div className="fw-bold space-list-item-content">{item.name}</div>
+          {bookings.map((booking) => (
+            <div key={booking.user.id} className="space-list-item-content">
+              {booking.user.email}
             </div>
-            <span className='badge badge-pill' style={{backgroundColor: bgColor}}>
-              {bookerCount}
-            </span>
-          </ListGroup.Item>
+          ))}
+        </div>
+        <span className='badge badge-pill' style={{ backgroundColor: bgColor }}>
+          {bookerCount}
+        </span>
+      </ListGroup.Item>
     );
   }
 
@@ -502,7 +505,7 @@ class Search extends React.Component<Props, State> {
         &nbsp;&mdash;&nbsp;
         {Formatting.getFormatterShort().format(new Date(booking.leave))}
         {RuntimeConfig.INFOS.showNames && booking.user.email !== RuntimeConfig.INFOS.username && !buddiesEmails.includes(booking.user.email) && (
-          <Button variant="primary" onClick={(e) => { e.preventDefault(); this.onAddBuddy(booking.user); } } style={{ marginLeft: '10px' }}>
+          <Button variant="primary" onClick={(e) => { e.preventDefault(); this.onAddBuddy(booking.user); }} style={{ marginLeft: '10px' }}>
             {this.props.t("addBuddy")}
           </Button>
         )}
@@ -552,7 +555,7 @@ class Search extends React.Component<Props, State> {
     buddy.buddy = buddyUser;
     buddy.save().then(() => {
       this.loadBuddies().then(() => {
-        this.setState({ loading: false});
+        this.setState({ loading: false });
       });
     }).catch(e => {
       let code: number = 0;
@@ -580,7 +583,7 @@ class Search extends React.Component<Props, State> {
   toggleSearchContainer = () => {
     const ref = this.searchContainerRef.current;
     ref.classList.toggle("minimized");
-    
+
     const map = document.querySelector('.container-map');
     if (map) map.classList.toggle("maximized");
     const list = document.querySelector('.space-list');
