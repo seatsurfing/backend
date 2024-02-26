@@ -1,11 +1,13 @@
 import React from 'react';
-import { Ajax, Buddy, User } from 'flexspace-commons';
+import { Ajax, Buddy, User, Formatting } from 'flexspace-commons';
 import Loading from '../components/Loading';
 import { Button, Form, ListGroup, Modal } from 'react-bootstrap';
+import { LogIn as IconEnter, LogOut as IconLeave, MapPin as IconLocation } from 'react-feather';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import { NextRouter } from 'next/router';
 import NavBar from '@/components/NavBar';
 import withReadyRouter from '@/components/withReadyRouter';
+import RuntimeConfig from '@/components/RuntimeConfig';
 
 interface State {
   loading: boolean
@@ -83,35 +85,39 @@ class Buddies extends React.Component<Props, State> {
 
   renderAddBuddy() {
     return (
-    <Form.Group className='grid-item'>
-      <Form.Control
-        type="email"
-        placeholder="Email..."
-        value={this.state.email}
-        onChange={(e) => this.setState({ email: e.target.value })}
-        style={{ marginBottom: '10px', padding: '10px' }}
-      />
-      <Button
-        variant="primary"
-        onClick={(e) => { e.preventDefault(); this.addBuddy() }}
-        style={{ backgroundColor: '#007bff', borderColor: '#007bff', color: 'white' }}
-      >
-        {this.props.t("addBuddy")}
-      </Button>
-    </Form.Group>
+      <Form.Group className='grid-item'>
+        <Form.Control
+          type="email"
+          placeholder="Email..."
+          value={this.state.email}
+          onChange={(e) => this.setState({ email: e.target.value })}
+          style={{ marginBottom: '10px', padding: '10px' }}
+        />
+        <Button
+          variant="primary"
+          onClick={(e) => { e.preventDefault(); this.addBuddy() }}
+          style={{ backgroundColor: '#007bff', borderColor: '#007bff', color: 'white' }}
+        >
+          {this.props.t("addBuddy")}
+        </Button>
+      </Form.Group>
     );
   }
 
-  renderItem = (item: Buddy) => {
+  renderItem = ({ id, buddy: { email, firstBooking: { Space: { Location: { Name }, Name: SpaceName }, Enter, Leave } } }: Buddy) => {
+    let formatter = Formatting.getFormatter();
+    if (RuntimeConfig.INFOS.dailyBasisBooking) {
+      formatter = Formatting.getFormatterNoTime();
+    }
     return (
-      <div className='grid-item' key={item.id}>
-        <h5>{item.buddy.email}</h5>
-        <p>{this.props.t("nextBooking") + ": " + item.buddy.firstBooking}</p>
-        <Button variant="danger" onClick={() => this.onItemPress(item)}>
-          {this.props.t("removeBuddy")}
-        </Button>
-      </div>
-
+      <ListGroup.Item key={id}>
+        <h5>{email}</h5>
+        <p>
+          <IconLocation className="feather" />&nbsp;{Name}, {SpaceName}<br />
+          <IconEnter className="feather" />&nbsp;{formatter.format(new Date(Enter))}<br />
+          <IconLeave className="feather" />&nbsp;{formatter.format(new Date(Leave))}
+        </p>
+      </ListGroup.Item>
     );
   }
 
@@ -138,7 +144,9 @@ class Buddies extends React.Component<Props, State> {
         <div className="container-signin">
           <Form className="form-signin">
             <div className='grid-container'>
-              {this.data.map(item => this.renderItem(item))}
+              <ListGroup>
+                {this.data.map(item => this.renderItem(item))}
+              </ListGroup>
               {this.renderAddBuddy()}
             </div>
           </Form>
