@@ -110,7 +110,7 @@ class Buddies extends React.Component<Props, State> {
       formatter = Formatting.getFormatterNoTime();
     }
     return (
-      <ListGroup.Item key={id}>
+      <ListGroup.Item key={id} style={{minWidth: "300px"}}>
         <h5>{email}</h5>
         <p>
           <IconLocation className="feather" />&nbsp;{Name}, {SpaceName}<br />
