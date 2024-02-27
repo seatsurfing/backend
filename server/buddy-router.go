@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -10,10 +11,17 @@ import (
 type BuddyRouter struct {
 }
 
+type BuddyBooking struct {
+	Enter time.Time `json:"enter"`
+	Leave time.Time `json:"leave"`
+	Desk  string    `json:"desk"`
+	Room  string    `json:"room"`
+}
+
 type BuddyRequest struct {
-	BuddyID           string         `json:"buddyId" validate:"required"`
-	BuddyEmail        string         `json:"buddyEmail"`
-	BuddyFirstBooking BookingDetails `json:"buddyFirstBooking"`
+	BuddyID           string       `json:"buddyId" validate:"required"`
+	BuddyEmail        string       `json:"buddyEmail"`
+	BuddyFirstBooking BuddyBooking `json:"buddyFirstBooking"`
 }
 
 type CreateBuddyRequest struct {
@@ -97,6 +105,12 @@ func (router *BuddyRouter) copyToRestModel(e *BuddyDetails) *GetBuddyResponse {
 	// Use * to dereference the pointer
 	actualBookingDetails := *bookingDetails
 
-	m.BuddyFirstBooking = actualBookingDetails
+	m.BuddyFirstBooking = BuddyBooking{
+		Enter: actualBookingDetails.Enter,
+		Leave: actualBookingDetails.Leave,
+		Desk:  actualBookingDetails.Space.Name,
+		Room:  actualBookingDetails.Space.Location.Name,
+	}
+
 	return m
 }

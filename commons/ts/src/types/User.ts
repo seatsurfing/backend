@@ -2,6 +2,7 @@ import { Entity } from "./Entity";
 import Ajax from "../util/Ajax";
 import Organization from "./Organization";
 import MergeRequest from "./MergeRequest";
+import { BuddyBooking } from "./Buddy";
 
 export default class User extends Entity {
     static UserRoleUser: number = 0;
@@ -21,7 +22,7 @@ export default class User extends Entity {
     admin: boolean;
     superAdmin: boolean;
     password: string;
-    firstBooking: string;
+    firstBooking: BuddyBooking | null;
 
     constructor() {
         super();
@@ -37,7 +38,7 @@ export default class User extends Entity {
         this.admin = false;
         this.superAdmin = false;
         this.password = "";
-        this.firstBooking = "";
+        this.firstBooking = null;
     }
 
     serialize(): Object {

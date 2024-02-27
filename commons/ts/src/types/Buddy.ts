@@ -14,7 +14,6 @@ export default class Buddy extends Entity {
         return Object.assign(super.serialize(), {
             "buddyId": this.buddy.id,
             "buddyEmail": this.buddy.email,
-            "buddyFirstBooking": this.buddy.firstBooking
         });
     }
 
@@ -27,7 +26,7 @@ export default class Buddy extends Entity {
             this.buddy.email = input.buddyEmail;
         }
         if (input.buddyFirstBooking) {
-            this.buddy.firstBooking = input.buddyFirstBooking
+            this.buddy.firstBooking = input.buddyFirstBooking as BuddyBooking;
         }
     }
 
@@ -62,4 +61,12 @@ export default class Buddy extends Entity {
             return res;
         });
     }
+}
+
+
+export interface BuddyBooking {
+    enter: Date
+    leave: Date
+    room: string
+    desk: string
 }
