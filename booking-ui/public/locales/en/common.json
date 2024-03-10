@@ -108,5 +108,7 @@
     "confirmRemoveBuddy": "Are you sure you want to remove buddy?",
     "myBuddies": "My buddies",
     "noBuddies": "No buddies",
-    "nextBooking": "Next booking"
+    "nextBooking": "Next booking",
+    "noBooking": "No booking",
+    "userNotFound": "User not found"
 }

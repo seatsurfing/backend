@@ -19,9 +19,9 @@ type BuddyBooking struct {
 }
 
 type BuddyRequest struct {
-	BuddyID           string       `json:"buddyId" validate:"required"`
-	BuddyEmail        string       `json:"buddyEmail"`
-	BuddyFirstBooking BuddyBooking `json:"buddyFirstBooking"`
+	BuddyID           string        `json:"buddyId" validate:"required"`
+	BuddyEmail        string        `json:"buddyEmail"`
+	BuddyFirstBooking *BuddyBooking `json:"buddyFirstBooking"`
 }
 
 type CreateBuddyRequest struct {
@@ -102,10 +102,14 @@ func (router *BuddyRouter) copyToRestModel(e *BuddyDetails) *GetBuddyResponse {
 	m.BuddyEmail = e.BuddyEmail
 	// Assuming GetOne returns a pointer to BookingDetails
 	bookingDetails, _ := GetBookingRepository().GetFirstUpcomingBookingByUserID(e.BuddyID)
+	if bookingDetails == nil {
+		m.BuddyFirstBooking = nil
+		return m
+	}
 	// Use * to dereference the pointer
 	actualBookingDetails := *bookingDetails
 
-	m.BuddyFirstBooking = BuddyBooking{
+	m.BuddyFirstBooking = &BuddyBooking{
 		Enter: actualBookingDetails.Enter,
 		Leave: actualBookingDetails.Leave,
 		Desk:  actualBookingDetails.Space.Name,

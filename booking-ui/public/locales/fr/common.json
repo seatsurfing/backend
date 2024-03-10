@@ -108,5 +108,7 @@
     "confirmRemoveBuddy": "Êtes-vous sûr de vouloir supprimer un ami ?",
     "myBuddies": "Mes potes",
     "noBuddies": "Pas de copains",
-    "nextBooking": "Prochaine réservation"
+    "nextBooking": "Prochaine réservation",
+    "noBooking": "Pas de réservation",
+    "userNotFound": "Utilisateur non trouvé"
 }

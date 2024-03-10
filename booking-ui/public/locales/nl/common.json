@@ -107,5 +107,7 @@
     "confirmRemoveBuddy": "Weet je zeker dat je een buddy wilt verwijderen?",
     "myBuddies": "Mijn buddies",
     "noBuddies": "Geen buddies",
-    "nextBooking": "Volgende boeking"
+    "nextBooking": "Volgende boeking",
+    "noBooking": "Geen boeking",
+    "userNotFound": "Gebruiker niet gevonden"
 }

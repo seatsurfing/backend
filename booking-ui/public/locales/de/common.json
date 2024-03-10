@@ -108,5 +108,7 @@
     "confirmRemoveBuddy": "Sind Sie sicher, dass Sie diese KollegIn entfernen möchten?",
     "myBuddies": "Meine KollegInnen",
     "noBuddies": "Keine KollegInnen",
-    "nextBooking": "Nächste Buchung"
+    "nextBooking": "Nächste Buchung",
+    "noBooking": "Keine Buchung",
+    "userNotFound": "Benutzer nicht gefunden"
 }

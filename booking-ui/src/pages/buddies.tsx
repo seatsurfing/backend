@@ -80,7 +80,9 @@ class Buddies extends React.Component<Props, State> {
         this.setState({ email: '' });
         this.loadData()
       });
-    });
+    }).catch(() => {
+      alert(this.props.t("userNotFound"));
+    })
   };
 
   renderAddBuddy() {
@@ -104,19 +106,24 @@ class Buddies extends React.Component<Props, State> {
     );
   }
 
-  renderItem = ({ id, buddy: {email, firstBooking} }: Buddy) => {
+  renderItem = (item: Buddy) => {
+    const { id, buddy: {email, firstBooking} } = item;
     let formatter = Formatting.getFormatter();
     if (RuntimeConfig.INFOS.dailyBasisBooking) {
       formatter = Formatting.getFormatterNoTime();
     }
     return (
-      <ListGroup.Item key={id} style={{minWidth: "300px"}}>
+      <ListGroup.Item key={id} style={{ minWidth: "300px" }}>
         <h5>{email}</h5>
-        <p>
-          <IconLocation className="feather" />&nbsp;{firstBooking!.room}, {firstBooking!.desk}<br />
-          <IconEnter className="feather" />&nbsp;{formatter.format(new Date(firstBooking!.enter))}<br />
-          <IconLeave className="feather" />&nbsp;{formatter.format(new Date(firstBooking!.leave))}
-        </p>
+        {firstBooking == null && <p>{this.props.t("noBooking")}</p> ||
+          <p>
+            <IconLocation className="feather" />&nbsp;{firstBooking!.room}, {firstBooking!.desk}<br />
+            <IconEnter className="feather" />&nbsp;{formatter.format(new Date(firstBooking!.enter))}<br />
+            <IconLeave className="feather" />&nbsp;{formatter.format(new Date(firstBooking!.leave))}
+          </p>}
+        <Button variant="danger" onClick={() => this.onItemPress(item)}>
+          {this.props.t("removeBuddy")}
+        </Button>
       </ListGroup.Item>
     );
   }
