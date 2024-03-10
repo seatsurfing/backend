@@ -86,6 +86,9 @@ class Buddies extends React.Component<Props, State> {
   };
 
   renderAddBuddy() {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isValidEmail = emailRegex.test(this.state.email);
+
     return (
       <Form.Group className='grid-item'>
         <Form.Control
@@ -94,11 +97,22 @@ class Buddies extends React.Component<Props, State> {
           value={this.state.email}
           onChange={(e) => this.setState({ email: e.target.value })}
           style={{ marginBottom: '10px', padding: '10px' }}
+          isInvalid={!isValidEmail && this.state.email !== ''}
         />
+        <Form.Control.Feedback type='invalid'>
+          {this.props.t("validEmailRequired")}
+        </Form.Control.Feedback>
         <Button
           variant="primary"
-          onClick={(e) => { e.preventDefault(); this.addBuddy() }}
+          type='submit'
+          onClick={(e) => {
+            e.preventDefault();
+            if (isValidEmail) {
+              this.addBuddy();
+            }
+          }}
           style={{ backgroundColor: '#007bff', borderColor: '#007bff', color: 'white' }}
+          disabled={!isValidEmail}
         >
           {this.props.t("addBuddy")}
         </Button>
@@ -107,7 +121,7 @@ class Buddies extends React.Component<Props, State> {
   }
 
   renderItem = (item: Buddy) => {
-    const { id, buddy: {email, firstBooking} } = item;
+    const { id, buddy: { email, firstBooking } } = item;
     let formatter = Formatting.getFormatter();
     if (RuntimeConfig.INFOS.dailyBasisBooking) {
       formatter = Formatting.getFormatterNoTime();

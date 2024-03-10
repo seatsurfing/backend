@@ -109,5 +109,6 @@
     "noBuddies": "Geen buddies",
     "nextBooking": "Volgende boeking",
     "noBooking": "Geen boeking",
-    "userNotFound": "Gebruiker niet gevonden"
+    "userNotFound": "Gebruiker niet gevonden",
+    "validEmailRequired": "Geldig e-mailadres vereist"
 }

@@ -205,7 +205,8 @@ func (router *UserRouter) getOneByEmail(w http.ResponseWriter, r *http.Request) 
 	user := GetRequestUser(r)
 	vars := mux.Vars(r)
 	e, err := GetUserRepository().GetByEmail(vars["email"])
-	if err != nil {
+
+	if err != nil || e.ID == user.ID {
 		log.Println(err)
 		SendNotFound(w)
 		return

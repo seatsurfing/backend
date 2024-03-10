@@ -110,5 +110,6 @@
     "noBuddies": "No buddies",
     "nextBooking": "Next booking",
     "noBooking": "No booking",
-    "userNotFound": "User not found"
+    "userNotFound": "User not found",
+    "validEmailRequired": "Valid email required"
 }

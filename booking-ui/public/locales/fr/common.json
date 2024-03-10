@@ -110,5 +110,6 @@
     "noBuddies": "Pas de copains",
     "nextBooking": "Prochaine réservation",
     "noBooking": "Pas de réservation",
-    "userNotFound": "Utilisateur non trouvé"
+    "userNotFound": "Utilisateur non trouvé",
+    "validEmailRequired": "Adresse e-mail valide requise"
 }
