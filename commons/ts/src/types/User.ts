@@ -2,6 +2,7 @@ import { Entity } from "./Entity";
 import Ajax from "../util/Ajax";
 import Organization from "./Organization";
 import MergeRequest from "./MergeRequest";
+import { BuddyBooking } from "./Buddy";
 
 export default class User extends Entity {
     static UserRoleUser: number = 0;
@@ -21,6 +22,7 @@ export default class User extends Entity {
     admin: boolean;
     superAdmin: boolean;
     password: string;
+    firstBooking: BuddyBooking | null;
 
     constructor() {
         super();
@@ -36,6 +38,7 @@ export default class User extends Entity {
         this.admin = false;
         this.superAdmin = false;
         this.password = "";
+        this.firstBooking = null;
     }
 
     serialize(): Object {
@@ -71,6 +74,14 @@ export default class User extends Entity {
 
     getBackendUrl(): string {
         return "/user/";
+    }
+
+    async getByEmail(email: string): Promise<User> {
+        return Ajax.get("/user/byEmail/" + email).then(result => {
+            let e: User = new User();
+            e.deserialize(result.json);
+            return e;
+        });
     }
 
     async save(): Promise<User> {

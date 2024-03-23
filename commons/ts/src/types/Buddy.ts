@@ -25,6 +25,9 @@ export default class Buddy extends Entity {
         if (input.buddyEmail) {
             this.buddy.email = input.buddyEmail;
         }
+        if (input.buddyFirstBooking) {
+            this.buddy.firstBooking = input.buddyFirstBooking as BuddyBooking;
+        }
     }
 
     getBackendUrl(): string {
@@ -58,4 +61,12 @@ export default class Buddy extends Entity {
             return res;
         });
     }
+}
+
+
+export interface BuddyBooking {
+    enter: Date
+    leave: Date
+    room: string
+    desk: string
 }

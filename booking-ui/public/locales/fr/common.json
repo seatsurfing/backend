@@ -107,5 +107,9 @@
     "addBuddy": "Ajouter un ami",
     "confirmRemoveBuddy": "Êtes-vous sûr de vouloir supprimer un ami ?",
     "myBuddies": "Mes potes",
-    "noBuddies": "Pas de copains"
+    "noBuddies": "Pas de copains",
+    "nextBooking": "Prochaine réservation",
+    "noBooking": "Pas de réservation",
+    "userNotFound": "Utilisateur non trouvé",
+    "validEmailRequired": "Adresse e-mail valide requise"
 }

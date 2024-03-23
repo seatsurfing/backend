@@ -1,15 +1,18 @@
 import React from 'react';
-import { Ajax, Buddy } from 'flexspace-commons';
+import { Ajax, Buddy, User, Formatting } from 'flexspace-commons';
 import Loading from '../components/Loading';
 import { Button, Form, ListGroup, Modal } from 'react-bootstrap';
+import { LogIn as IconEnter, LogOut as IconLeave, MapPin as IconLocation } from 'react-feather';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import { NextRouter } from 'next/router';
 import NavBar from '@/components/NavBar';
 import withReadyRouter from '@/components/withReadyRouter';
+import RuntimeConfig from '@/components/RuntimeConfig';
 
 interface State {
   loading: boolean
   selectedItem: Buddy | null
+  email: string
 }
 
 interface Props extends WithTranslation {
@@ -24,7 +27,8 @@ class Buddies extends React.Component<Props, State> {
     this.data = [];
     this.state = {
       loading: true,
-      selectedItem: null
+      selectedItem: null,
+      email: ''
     };
   }
 
@@ -58,10 +62,79 @@ class Buddies extends React.Component<Props, State> {
     });
   }
 
-  renderItem = (item: Buddy) => {
+  addBuddy = () => {
+    const { email } = this.state;
+
+    if (!email) {
+      return;
+    }
+
+    if (this.data.find(item => item.buddy.email === email)) {
+      return;
+    }
+
+    const addBuddyByEmail = new User().getByEmail(email).then((user: User) => {
+      const buddy = new Buddy();
+      buddy.buddy = user;
+      buddy.save().then(() => {
+        this.setState({ email: '' });
+        this.loadData()
+      });
+    }).catch(() => {
+      alert(this.props.t("userNotFound"));
+    })
+  };
+
+  renderAddBuddy() {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isValidEmail = emailRegex.test(this.state.email);
+
     return (
-      <ListGroup.Item key={item.id}>
-        <p>{item.buddy.email}</p>
+      <Form.Group className='grid-item'>
+        <Form.Control
+          type="email"
+          placeholder="Email..."
+          value={this.state.email}
+          onChange={(e) => this.setState({ email: e.target.value })}
+          style={{ marginBottom: '10px', padding: '10px' }}
+          isInvalid={!isValidEmail && this.state.email !== ''}
+        />
+        <Form.Control.Feedback type='invalid'>
+          {this.props.t("validEmailRequired")}
+        </Form.Control.Feedback>
+        <Button
+          variant="primary"
+          type='submit'
+          onClick={(e) => {
+            e.preventDefault();
+            if (isValidEmail) {
+              this.addBuddy();
+            }
+          }}
+          style={{ backgroundColor: '#007bff', borderColor: '#007bff', color: 'white' }}
+          disabled={!isValidEmail}
+        >
+          {this.props.t("addBuddy")}
+        </Button>
+      </Form.Group>
+    );
+  }
+
+  renderItem = (item: Buddy) => {
+    const { id, buddy: { email, firstBooking } } = item;
+    let formatter = Formatting.getFormatter();
+    if (RuntimeConfig.INFOS.dailyBasisBooking) {
+      formatter = Formatting.getFormatterNoTime();
+    }
+    return (
+      <ListGroup.Item key={id} style={{ minWidth: "300px" }}>
+        <h5>{email}</h5>
+        {firstBooking == null && <p>{this.props.t("noBooking")}</p> ||
+          <p>
+            <IconLocation className="feather" />&nbsp;{firstBooking!.room}, {firstBooking!.desk}<br />
+            <IconEnter className="feather" />&nbsp;{formatter.format(new Date(firstBooking!.enter))}<br />
+            <IconLeave className="feather" />&nbsp;{formatter.format(new Date(firstBooking!.leave))}
+          </p>}
         <Button variant="danger" onClick={() => this.onItemPress(item)}>
           {this.props.t("removeBuddy")}
         </Button>
@@ -80,6 +153,7 @@ class Buddies extends React.Component<Props, State> {
           <div className="container-signin">
             <Form className="form-signin">
               <p>{this.props.t("noBuddies")}</p>
+              {this.renderAddBuddy()}
             </Form>
           </div>
         </>
@@ -90,9 +164,12 @@ class Buddies extends React.Component<Props, State> {
         <NavBar />
         <div className="container-signin">
           <Form className="form-signin">
-            <ListGroup>
-              {this.data.map(item => this.renderItem(item))}
-            </ListGroup>
+            <div className='grid-container'>
+              <ListGroup>
+                {this.data.map(item => this.renderItem(item))}
+              </ListGroup>
+              {this.renderAddBuddy()}
+            </div>
           </Form>
         </div>
         <Modal show={this.state.selectedItem != null} onHide={() => this.setState({ selectedItem: null })}>
