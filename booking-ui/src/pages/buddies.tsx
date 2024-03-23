@@ -37,6 +37,10 @@ class Buddies extends React.Component<Props, State> {
       this.props.router.push("/login");
       return;
     }
+    if (!RuntimeConfig.INFOS.showNames) {
+      this.props.router.push("/search");
+      return;
+    }
     this.loadData();
   }
 
@@ -69,11 +73,12 @@ class Buddies extends React.Component<Props, State> {
       return;
     }
 
-    if (this.data.find(item => item.buddy.email === email)) {
+    if (this.data.find(item => item.buddy.email.toLowerCase() === email.toLowerCase())) {
+      this.setState({ email: '' });
       return;
     }
 
-    const addBuddyByEmail = new User().getByEmail(email).then((user: User) => {
+    User.getByEmail(email).then((user: User) => {
       const buddy = new Buddy();
       buddy.buddy = user;
       buddy.save().then(() => {
@@ -90,33 +95,35 @@ class Buddies extends React.Component<Props, State> {
     const isValidEmail = emailRegex.test(this.state.email);
 
     return (
-      <Form.Group className='grid-item'>
-        <Form.Control
-          type="email"
-          placeholder="Email..."
-          value={this.state.email}
-          onChange={(e) => this.setState({ email: e.target.value })}
-          style={{ marginBottom: '10px', padding: '10px' }}
-          isInvalid={!isValidEmail && this.state.email !== ''}
-        />
-        <Form.Control.Feedback type='invalid'>
-          {this.props.t("validEmailRequired")}
-        </Form.Control.Feedback>
-        <Button
-          variant="primary"
-          type='submit'
-          onClick={(e) => {
-            e.preventDefault();
-            if (isValidEmail) {
-              this.addBuddy();
-            }
-          }}
-          style={{ backgroundColor: '#007bff', borderColor: '#007bff', color: 'white' }}
-          disabled={!isValidEmail}
-        >
-          {this.props.t("addBuddy")}
-        </Button>
-      </Form.Group>
+      <ListGroup.Item key={'add-buddy'} style={{ minWidth: "300px" }}>
+        <Form.Group className='grid-item'>
+          <Form.Control
+            type="email"
+            placeholder="Email..."
+            value={this.state.email}
+            onChange={(e) => this.setState({ email: e.target.value })}
+            style={{ marginBottom: '10px', padding: '10px' }}
+            isInvalid={!isValidEmail && this.state.email !== ''}
+          />
+          <Form.Control.Feedback type='invalid'>
+            {this.props.t("validEmailRequired")}
+          </Form.Control.Feedback>
+          <Button
+            variant="primary"
+            type='submit'
+            onClick={(e) => {
+              e.preventDefault();
+              if (isValidEmail) {
+                this.addBuddy();
+              }
+            }}
+            style={{ backgroundColor: '#007bff', borderColor: '#007bff', color: 'white' }}
+            disabled={!isValidEmail}
+          >
+            {this.props.t("addBuddy")}
+          </Button>
+        </Form.Group>
+      </ListGroup.Item>
     );
   }
 
@@ -164,12 +171,10 @@ class Buddies extends React.Component<Props, State> {
         <NavBar />
         <div className="container-signin">
           <Form className="form-signin">
-            <div className='grid-container'>
               <ListGroup>
                 {this.data.map(item => this.renderItem(item))}
+                {this.renderAddBuddy()}
               </ListGroup>
-              {this.renderAddBuddy()}
-            </div>
           </Form>
         </div>
         <Modal show={this.state.selectedItem != null} onHide={() => this.setState({ selectedItem: null })}>

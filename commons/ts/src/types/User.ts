@@ -76,14 +76,6 @@ export default class User extends Entity {
         return "/user/";
     }
 
-    async getByEmail(email: string): Promise<User> {
-        return Ajax.get("/user/byEmail/" + email).then(result => {
-            let e: User = new User();
-            e.deserialize(result.json);
-            return e;
-        });
-    }
-
     async save(): Promise<User> {
         return Ajax.saveEntity(this, this.getBackendUrl()).then(() => this);
     }
@@ -148,6 +140,15 @@ export default class User extends Entity {
                 list.push(e);
             });
             return list;
+        });
+    }
+
+
+    static async getByEmail(email: string): Promise<User> {
+        return Ajax.get("/user/byEmail/" + email).then(result => {
+            let e: User = new User();
+            e.deserialize(result.json);
+            return e;
         });
     }
 }

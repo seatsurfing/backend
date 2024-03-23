@@ -203,6 +203,18 @@ func (router *UserRouter) getSelf(w http.ResponseWriter, r *http.Request) {
 
 func (router *UserRouter) getOneByEmail(w http.ResponseWriter, r *http.Request) {
 	user := GetRequestUser(r)
+	var showNames bool = false
+	if CanSpaceAdminOrg(user, user.OrganizationID) {
+		showNames = true
+	} else {
+		showNames, _ = GetSettingsRepository().GetBool(user.OrganizationID, SettingShowNames.Name)
+	}
+
+	if !showNames {
+		SendForbidden(w)
+		return
+	}
+
 	vars := mux.Vars(r)
 	e, err := GetUserRepository().GetByEmail(vars["email"])
 
