@@ -28,8 +28,8 @@ func TestBookingsEmptyResult(t *testing.T) {
 func TestBookingsCRUD(t *testing.T) {
 	clearTestDB()
 	org := createTestOrg("test.com")
-	user2 := createTestUserOrgAdmin(org)
-	loginResponse2 := loginTestUser(user2.ID)
+	adminUser := createTestUserOrgAdmin(org)
+	loginResponse2 := loginTestUser(adminUser.ID)
 	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "5000")
 
 	// Create location
@@ -70,11 +70,11 @@ func TestBookingsCRUD(t *testing.T) {
 	checkTestString(t, locationID, resBody.Space.Location.ID)
 	checkTestString(t, "Location 1", resBody.Space.Location.Name)
 
-	// 3. Update
+	// 3. Update by admin
 	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-01T08:45:00Z\", \"leave\": \"2030-09-01T18:15:00Z\"}"
-	req = newHTTPRequest("PUT", "/booking/"+id, loginResponse.UserID, bytes.NewBufferString(payload))
+	req = newHTTPRequest("PUT", "/booking/"+id, adminUser.ID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
-	checkTestResponseCode(t, http.StatusForbidden, res.Code)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
 
 	// Read
 	req = newHTTPRequest("GET", "/booking/"+id, loginResponse.UserID, nil)
@@ -88,6 +88,12 @@ func TestBookingsCRUD(t *testing.T) {
 	checkTestString(t, "H234", resBody2.Space.Name)
 	checkTestString(t, locationID, resBody2.Space.Location.ID)
 	checkTestString(t, "Location 1", resBody2.Space.Location.Name)
+
+	// 3. Update by Non-admin
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-01T09:00:00Z\", \"leave\": \"2030-09-01T18:15:00Z\"}"
+	req = newHTTPRequest("PUT", "/booking/"+id, user.ID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
 
 	// 4. Delete
 	req = newHTTPRequest("DELETE", "/booking/"+id, loginResponse.UserID, nil)
@@ -334,8 +340,8 @@ func TestBookingsGetForeign(t *testing.T) {
 func TestBookingsUpdateForeign(t *testing.T) {
 	clearTestDB()
 	org := createTestOrg("test.com")
-	user2 := createTestUserOrgAdmin(org)
-	loginResponse2 := loginTestUser(user2.ID)
+	adminUser := createTestUserOrgAdmin(org)
+	loginResponse2 := loginTestUser(adminUser.ID)
 	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "5000")
 
 	// Create location
@@ -365,7 +371,7 @@ func TestBookingsUpdateForeign(t *testing.T) {
 
 	// Update foreign booking as admin
 	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-01T08:30:00+02:00\", \"leave\": \"2030-09-01T17:30:00+02:00\"}"
-	req = newHTTPRequest("PUT", "/booking/"+id, loginResponse.UserID, bytes.NewBufferString(payload))
+	req = newHTTPRequest("PUT", "/booking/"+id, adminUser.ID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusNoContent, res.Code)
 

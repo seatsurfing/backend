@@ -143,5 +143,7 @@
     "errorDaysAdvance": "Your booking must not be more than {{num}} days in advance.",
     "errorBookingDuration": "The maximum booking duration is {{num}} hours.",
     "errorTooManyConcurrent": "Capacity limit reached in selected area.",
-    "errorUnknown": "Unknown error, please try again later."
+    "errorUnknown": "Unknown error, please try again later.",
+    "datePickerFormat": "y-MM-dd HH:mm",
+    "datePickerFormatDailyBasisBooking": "y-MM-dd"
 }

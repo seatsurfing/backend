@@ -295,7 +295,7 @@ class EditBooking extends React.Component<Props, State> {
         });
     }
 
-    setEnterDate = (value: Date | Date[]) => {
+    setEnterDate = (value: Date | [Date | null, Date | null]) => {
         let dateChangedCb = () => {
             this.updateCanSearch().then(() => {
                 if (!this.state.canSearch) {
@@ -313,6 +313,9 @@ class EditBooking extends React.Component<Props, State> {
         };
         let performChange = () => {
             let enter = (value instanceof Date) ? value : value[0];
+            if (enter == null) {
+              return;
+            }
             let leave = new Date(enter);
             leave.setHours(leave.getHours()+1);
             if (this.dailyBasisBooking) {
@@ -331,9 +334,10 @@ class EditBooking extends React.Component<Props, State> {
         };
         window.clearTimeout(this.leaveChangeTimer);
         this.leaveChangeTimer = window.setTimeout(performChange, 1000);
+        return true;
     }
 
-    setLeaveDate = (value: Date | Date[]) => {
+    setLeaveDate = (value: Date | [Date | null, Date | null]) => {
         let dateChangedCb = () => {
             //TODO: check for parameters *maxBookingDur ...
 
@@ -353,6 +357,9 @@ class EditBooking extends React.Component<Props, State> {
         };
         let performChange = () => {
             let date = (value instanceof Date) ? value : value[0];
+            if (date == null) {
+              return;
+            }
             if (this.dailyBasisBooking) {
                 date.setHours(23, 59, 59);
             }
@@ -385,13 +392,13 @@ class EditBooking extends React.Component<Props, State> {
             );
         }
 
-        let enterDatePicker = <DateTimePicker value={this.state.enter} onChange={(value: Date) => this.setEnterDate(value)} clearIcon={null} required={true}  />;
+        let enterDatePicker = <DateTimePicker value={this.state.enter} onChange={(value: Date | null) => { if (value != null) this.setEnterDate(value) }} clearIcon={null} required={true} format={this.props.t("datePickerFormat")} />;
         if (this.dailyBasisBooking) {
-            enterDatePicker = <DatePicker value={this.state.enter} onChange={(value: Date | Date[]) => this.setEnterDate(value)} clearIcon={null} required={true}  />;
+          enterDatePicker = <DatePicker value={this.state.enter} onChange={(value: Date | null | [Date | null, Date | null]) => { if (value != null) this.setEnterDate(value) }} clearIcon={null} required={true} format={this.props.t("datePickerFormatDailyBasisBooking")} />;
         }
-        let leaveDatePicker = <DateTimePicker value={this.state.leave} onChange={(value: Date) => this.setLeaveDate(value)} clearIcon={null} required={true}  />;
+        let leaveDatePicker = <DateTimePicker value={this.state.leave} onChange={(value: Date | null) => { if (value != null) this.setLeaveDate(value) }} clearIcon={null} required={true} format={this.props.t("datePickerFormat")} />;
         if (this.dailyBasisBooking) {
-            leaveDatePicker = <DatePicker value={this.state.leave} onChange={(value: Date | Date[]) => this.setLeaveDate(value)} clearIcon={null} required={true}  />;
+          leaveDatePicker = <DatePicker value={this.state.leave} onChange={(value: Date | null | [Date | null, Date | null]) => { if (value != null) this.setLeaveDate(value) }} clearIcon={null} required={true} format={this.props.t("datePickerFormatDailyBasisBooking")} />;
         }
 
         let backButton = <Link href="/bookings" className="btn btn-sm btn-outline-secondary"><IconBack className="feather" /> {this.props.t("back")}</Link>;

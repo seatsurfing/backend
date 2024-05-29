@@ -134,5 +134,7 @@
     "updateAvailable": "Veuillez mettre à jour Seatsurfing vers la dernière version {{version}}.",
     "tomorrow": "Demain",
     "inXdays": "Dans {{x}} de jours",
-    "hour12": "0"
+    "hour12": "0",
+    "datePickerFormat": "dd/MM/y HH:mm",
+    "datePickerFormatDailyBasisBooking": "dd/MM/y"
 }

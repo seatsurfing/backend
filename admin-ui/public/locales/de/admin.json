@@ -143,5 +143,7 @@
     "errorDaysAdvance": "Die Buchung darf maximal {{num}} Tage in der Zukunft liegen.",
     "errorBookingDuration": "Die maximale Buchungsdauer beträgt {{num}} Stunden.",
     "errorTooManyConcurrent": "Kapazitätsgrenze des gewählten Bereichs ist erreicht.",
-    "errorUnknown": "Unbekannter Fehler, bitte versuche es später erneut."
+    "errorUnknown": "Unbekannter Fehler, bitte versuche es später erneut.",
+    "administration": "Administration",
+    "datePickerFormat": "dd.MM.y HH:mm"
 }
