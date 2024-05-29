@@ -134,5 +134,14 @@
     "updateAvailable": "Bitte aktualisiere Seatsurfing auf die neuste Version {{version}}.",
     "tomorrow": "Morgen",
     "inXdays": "In {{x}} Tagen",
-    "hour12": "0"
+    "hour12": "0",
+    "editBooking": "Buchung bearbeiten",
+    "errorBookingLimit": "Das Limit von {{num}} Buchungen wurde erreicht.",
+    "errorPickArea": "Bitte einen Bereich auswählen.",
+    "errorEnterFuture": "Der Beginn muss in der Zukunft liegen.",
+    "errorLeaveAfterEnter": "Das Ende muss nach dem Beginn liegen.",
+    "errorDaysAdvance": "Die Buchung darf maximal {{num}} Tage in der Zukunft liegen.",
+    "errorBookingDuration": "Die maximale Buchungsdauer beträgt {{num}} Stunden.",
+    "errorTooManyConcurrent": "Kapazitätsgrenze des gewählten Bereichs ist erreicht.",
+    "errorUnknown": "Unbekannter Fehler, bitte versuche es später erneut."
 }

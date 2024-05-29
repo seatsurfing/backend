@@ -30,3 +30,12 @@
     font-size: .875em;
     color: #dc3545;
 }
+.react-date-picker__calendar,
+.react-datetime-picker__calendar {
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    padding: 10px;
+}
+select.form-select option:disabled {
+    color: red;
+}

@@ -1,18 +1,15 @@
 import React from 'react';
-import FullLayout from '../components/FullLayout';
-import Loading from '../components/Loading';
 import { Ajax, Booking, Formatting } from 'flexspace-commons';
 import { Table, Form, Col, Row, Button } from 'react-bootstrap';
-import { Search as IconSearch, Download as IconDownload, X as IconX } from 'react-feather';
 import { Plus as IconPlus, Search as IconSearch, Download as IconDownload, X as IconX } from 'react-feather';
-import { Link, Navigate } from 'react-router-dom';
-import ExcellentExport from 'excellentexport';
-import { withTranslation } from 'react-i18next';
-import { TFunction } from 'i18next';
-import type * as CSS from 'csstype';
 import { WithTranslation, withTranslation } from 'next-i18next';
+import FullLayout from '@/components/FullLayout';
 import { NextRouter } from 'next/router';
+import Link from 'next/link';
+import Loading from '@/components/Loading';
 import withReadyRouter from '@/components/withReadyRouter';
+import type * as CSS from 'csstype';
+
 
 interface State {
   selectedItem: string
@@ -118,7 +115,7 @@ class Bookings extends React.Component<Props, State> {
       <>
         {this.data && this.data.length > 0 ? downloadButton : <></>}
         {searchButton}
-        <Link to="/bookings/add" className="btn btn-sm btn-outline-secondary"><IconPlus className="feather" /> {this.props.t("add")}</Link>
+        <Link href="/bookings/add" className="btn btn-sm btn-outline-secondary"><IconPlus className="feather" /> {this.props.t("add")}</Link>
       </>
     );
     let form = (

@@ -1,18 +1,20 @@
 import React from 'react';
-import FullLayout from '../components/FullLayout';
+import FullLayout from '../../components/FullLayout';
 import { Form, Col, Row, Button, Alert, InputGroup } from 'react-bootstrap';
-import { Link, Navigate, NavigateFunction, Params, PathRouteProps } from 'react-router-dom';
+import { Navigate, NavigateFunction, Params, PathRouteProps } from 'react-router-dom';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete } from 'react-feather';
-import Loading from '../components/Loading';
+import Loading from '../../components/Loading';
 import { Location, Space, Booking, Formatting, User, AuthProvider, Settings as OrgSettings } from 'flexspace-commons';
-import { withTranslation } from 'react-i18next';
+import { NextRouter } from 'next/router';
+import { WithTranslation, withTranslation } from 'next-i18next';
 import { TFunction } from 'i18next';
-import { withRouter } from '../types/withRouter';
-import { withNavigate } from '../types/withNavigate';
-// @ts-ignore
+import Link from 'next/link';
+import withReadyRouter from '@/components/withReadyRouter';
 import DateTimePicker from 'react-datetime-picker';
 import DatePicker from 'react-date-picker';
-import './EditBooking.css';
+import 'react-datetime-picker/dist/DateTimePicker.css';
+import 'react-date-picker/dist/DatePicker.css';
+import 'react-clock/dist/Clock.css';
 
 interface State {
     loading: boolean
@@ -37,16 +39,15 @@ interface State {
     canSearchHint: string
 }
 
-interface Props extends PathRouteProps {
-    navigate: NavigateFunction
-    params: Readonly<Params<string>>
-    t: TFunction
+interface Props extends WithTranslation {
+    router: NextRouter
 }
 
 class EditBooking extends React.Component<Props, State> {
     entity: Booking = new Booking();
     authProviders: { [key: string]: string } = {};
     dailyBasisBooking: boolean;
+    noAdminRestrictions: boolean;
     maxBookingsPerUser: number
     maxDaysInAdvance: number
     maxBookingDurationHours: number
@@ -58,6 +59,7 @@ class EditBooking extends React.Component<Props, State> {
     constructor(props: any) {
         super(props);
         this.dailyBasisBooking = false;
+        this.noAdminRestrictions = false;
         this.maxBookingsPerUser = 0;
         this.maxBookingDurationHours = 0;
         this.maxDaysInAdvance = 0;
@@ -100,12 +102,10 @@ class EditBooking extends React.Component<Props, State> {
           });
     }
 
-    loadData = async (id?: string): Promise<void> => {
-        if (!id) {
-            id = this.props.params.id;
-            this.isNewBooking = true;
-        }
-        if (id) {
+    loadData = async (): Promise<void> => {
+        const {id} = this.props.router.query;
+        if (id && (typeof id === "string")){
+            if (id !== 'add') {
             return Booking.get(id).then(booking => {
                 this.entity = booking;
                 this.setState({
@@ -114,13 +114,25 @@ class EditBooking extends React.Component<Props, State> {
                     selectedLocationId: this.entity.space.locationId,
                     selectedSpaceId: this.entity.space.id,
                     selectedUserEmail: this.entity.user.email,
+                    isDisabledLocation: false,
+                    isDisabledSpace: false
                     // loading: false,
                 });
                 this.loadSpaces(this.entity.space.locationId, this.entity.enter, this.entity.leave);
                 this.isNewBooking = false;
             });
+            } else {
+                // add 
+                this.isNewBooking = true;
+                this.setState({
+                    isDisabledLocation: false,
+                    isDisabledSpace: false
+                    // loading: false,
+                });
+
+            }
         } else {
-            //return Promise.resolve();
+            // no id
         }
     }
 
@@ -138,6 +150,7 @@ class EditBooking extends React.Component<Props, State> {
         return OrgSettings.list().then(settings => {
             settings.forEach(s => {
                 if (s.name === "daily_basis_booking") {this.dailyBasisBooking = (s.value === "1")};
+                if (s.name === "no_admin_restrictions") { this.noAdminRestrictions = (s.value === "1")};
                 if (s.name === "max_bookings_per_user") {this.maxBookingsPerUser = window.parseInt(s.value)};
                 if (s.name === "max_days_in_advance") {this.maxDaysInAdvance = window.parseInt(s.value)};
                 if (s.name === "max_booking_duration_hours") {this.maxBookingDurationHours = window.parseInt(s.value)};
@@ -264,12 +277,12 @@ class EditBooking extends React.Component<Props, State> {
         const MS_PER_HOUR = MS_PER_MINUTE * 60;
         const MS_PER_DAY = MS_PER_HOUR * 24;
         let bookingAdvanceDays = Math.floor((this.state.enter.getTime() - new Date().getTime()) / MS_PER_DAY);
-        if (bookingAdvanceDays > this.maxDaysInAdvance) {
+        if (bookingAdvanceDays > this.maxDaysInAdvance && !this.noAdminRestrictions) {
             res = false;
             hint = this.props.t("errorDaysAdvance", { "num": this.maxDaysInAdvance });
         }
         let bookingDurationHours = Math.floor((this.state.leave.getTime() - this.state.enter.getTime()) / MS_PER_MINUTE) / 60;
-        if (bookingDurationHours > this.maxBookingDurationHours) {
+        if (bookingDurationHours > this.maxBookingDurationHours && !this.noAdminRestrictions) {
             res = false;
             hint = this.props.t("errorBookingDuration", { "num": this.maxBookingDurationHours });
         }
@@ -381,7 +394,7 @@ class EditBooking extends React.Component<Props, State> {
             leaveDatePicker = <DatePicker value={this.state.leave} onChange={(value: Date | Date[]) => this.setLeaveDate(value)} clearIcon={null} required={true}  />;
         }
 
-        let backButton = <Link to="/bookings" className="btn btn-sm btn-outline-secondary"><IconBack className="feather" /> {this.props.t("back")}</Link>;
+        let backButton = <Link href="/bookings" className="btn btn-sm btn-outline-secondary"><IconBack className="feather" /> {this.props.t("back")}</Link>;
         let buttons = backButton;
 
         if (this.state.loading) {
@@ -421,7 +434,7 @@ class EditBooking extends React.Component<Props, State> {
                                 {/* TODO: if (this.entity.user.email) { */}
                                 <option disabled={true} value={this.entity.user.id}>{this.entity.user.email}</option>                          
                                 {this.state.users.map((user: {email: string | undefined; }) => (
-                                    <option value={user.email}>{user.email}</option>
+                                    <option key={user.email} value={user.email}>{user.email}</option>
                                 ))}
                             </Form.Select>
                         </Col>
@@ -447,7 +460,7 @@ class EditBooking extends React.Component<Props, State> {
                             <Form.Select disabled={this.state.isDisabledLocation} required={true} value={this.state.selectedLocationId} onChange={(e: any) => {this.setState({ selectedLocationId: e.target.value, isDisabledSpace: false }); this.loadSpaces(e.target.value, this.state.enter, this.state.leave)}}>
                                 <option disabled={true} value={this.entity.space.location.id}>{this.entity.space.location.name}</option>
                                 {this.state.locations.map((location: {name: string | undefined; id: string | undefined}) => (
-                                    <option value={location.id}>{location.name}</option>
+                                    <option key={location.id} value={location.id}>{location.name}</option>
                                 ))}
                             </Form.Select>
                         </Col>
@@ -460,9 +473,9 @@ class EditBooking extends React.Component<Props, State> {
                                 <option disabled={true} value={this.entity.space.id}>{this.entity.space.name}</option>
                                 {this.state.spaces.map(function(space: { id: string | undefined; name: string | null | undefined; available: boolean}){ 
                                     if(space.available){
-                                        return <option value={space.id}>{space.name}</option>
+                                        return <option key={space.id} value={space.id}>{space.name}</option>
                                     }else{
-                                        return <option disabled value={space.id}>{space.name}</option>
+                                        return <option key={space.id} disabled value={space.id}>{space.name}</option>
                                     }
                                 })}
                             </Form.Select>
@@ -477,4 +490,4 @@ class EditBooking extends React.Component<Props, State> {
 
 }
 
-export default withNavigate(withRouter(withTranslation()(EditBooking as any)));
+export default withTranslation(['admin'])(withReadyRouter(EditBooking as any));
