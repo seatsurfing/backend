@@ -208,7 +208,7 @@ func (router *BookingRouter) update(w http.ResponseWriter, r *http.Request) {
 		SendForbidden(w)
 		return
 	}
-	if e.UserID != GetRequestUserID(r) {
+	if e.UserID != requestUser.ID && !CanSpaceAdminOrg(requestUser, location.OrganizationID) {
 		SendForbidden(w)
 		return
 	}
@@ -278,7 +278,7 @@ func (router *BookingRouter) delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (router *BookingRouter) checkBookingCreateUpdate(m *BookingRequest, location *Location, requestUser *User, bookingID string) (bool, int) {
-	if valid, code := router.isValidBookingRequest(m, requestUser.ID, location.OrganizationID, bookingID); !valid {
+	if valid, code := router.isValidBookingRequest(m, requestUser, location.OrganizationID, bookingID); !valid {
 		return false, code
 	}
 	if !router.isValidConcurrent(m, location, bookingID) {
@@ -484,7 +484,11 @@ func (router *BookingRouter) getPresenceReport(w http.ResponseWriter, r *http.Re
 	SendJSON(w, res)
 }
 
-func (router *BookingRouter) isValidBookingDuration(m *BookingRequest, orgID string) bool {
+func (router *BookingRouter) isValidBookingDuration(m *BookingRequest, orgID string, user *User) bool {
+	isAdmin, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
+	if (isAdmin && CanSpaceAdminOrg(user, orgID)){
+		return true
+	}
 	dailyBasisBooking, _ := GetSettingsRepository().GetBool(orgID, SettingDailyBasisBooking.Name)
 	maxDurationHours, _ := GetSettingsRepository().GetInt(orgID, SettingMaxBookingDurationHours.Name)
 	if dailyBasisBooking && (maxDurationHours%24 != 0) {
@@ -513,7 +517,8 @@ func (router *BookingRouter) getHoursOnDate(t *time.Time) int {
 	return durationNotRounded
 }
 
-func (router *BookingRouter) isValidBookingAdvance(m *BookingRequest, orgID string) bool {
+func (router *BookingRouter) isValidBookingAdvance(m *BookingRequest, orgID string, user *User) bool {
+	isAdmin, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
 	maxAdvanceDays, _ := GetSettingsRepository().GetInt(orgID, SettingMaxDaysInAdvance.Name)
 	now := time.Now().UTC()
 	dailyBasisBooking, _ := GetSettingsRepository().GetBool(orgID, SettingDailyBasisBooking.Name)
@@ -522,41 +527,52 @@ func (router *BookingRouter) isValidBookingAdvance(m *BookingRequest, orgID stri
 		now = now.Add(-12 * time.Hour)
 	}
 	advanceDays := math.Floor(m.Enter.Sub(now).Hours() / 24)
+	if (advanceDays >=0 && isAdmin && CanSpaceAdminOrg(user, orgID)){
+		return true
+	}
 	if advanceDays < 0 || advanceDays > float64(maxAdvanceDays) {
 		return false
 	}
 	return true
 }
 
-func (router *BookingRouter) isValidMaxUpcomingBookings(orgID string, userID string) bool {
+func (router *BookingRouter) isValidMaxUpcomingBookings(orgID string, user *User) bool {
+	isAdmin, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
+	if (isAdmin && CanSpaceAdminOrg(user, orgID)){
+		return true
+	}
 	maxUpcoming, _ := GetSettingsRepository().GetInt(orgID, SettingMaxBookingsPerUser.Name)
-	curUpcoming, _ := GetBookingRepository().GetAllByUser(userID, time.Now().UTC())
+	curUpcoming, _ := GetBookingRepository().GetAllByUser(user.ID, time.Now().UTC())
 	return len(curUpcoming) < maxUpcoming
 }
 
-func (router *BookingRouter) isValidMaxConcurrentBookingsForUser(orgID string, userID string, m *BookingRequest, bookingID string) bool {
+func (router *BookingRouter) isValidMaxConcurrentBookingsForUser(orgID string, user *User, m *BookingRequest, bookingID string) bool {
+	isAdmin, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
+	if (isAdmin && CanSpaceAdminOrg(user, orgID)){
+		return true
+	}
 	maxConcurrent, _ := GetSettingsRepository().GetInt(orgID, SettingMaxConcurrentBookingsPerUser.Name)
 	// 0 = no limit
 	if maxConcurrent == 0 {
 		return true
 	}
-	curAtTime, _ := GetBookingRepository().GetTimeRangeByUser(userID, m.Enter, m.Leave, bookingID)
+	curAtTime, _ := GetBookingRepository().GetTimeRangeByUser(user.ID, m.Enter, m.Leave, bookingID)
 	return len(curAtTime) < maxConcurrent
 }
 
-func (router *BookingRouter) isValidBookingRequest(m *BookingRequest, userID string, orgID string, bookingID string) (bool, int) {
+func (router *BookingRouter) isValidBookingRequest(m *BookingRequest, user *User, orgID string, bookingID string) (bool, int) {
 	isUpdate := bookingID != ""
-	if !router.isValidBookingDuration(m, orgID) {
+	if !router.isValidBookingDuration(m, orgID, user) {
 		return false, ResponseCodeBookingInvalidBookingDuration
 	}
-	if !router.isValidBookingAdvance(m, orgID) {
+	if !router.isValidBookingAdvance(m, orgID, user) {
 		return false, ResponseCodeBookingTooManyDaysInAdvance
 	}
-	if !router.isValidMaxConcurrentBookingsForUser(orgID, userID, m, bookingID) {
+	if !router.isValidMaxConcurrentBookingsForUser(orgID, user, m, bookingID) {
 		return false, ResponseCodeBookingMaxConcurrentForUser
 	}
 	if !isUpdate {
-		if !router.isValidMaxUpcomingBookings(orgID, userID) {
+		if !router.isValidMaxUpcomingBookings(orgID, user) {
 			return false, ResponseCodeBookingTooManyUpcomingBookings
 		}
 	}

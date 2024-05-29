@@ -18,6 +18,7 @@ interface State {
   maxDaysInAdvance: number
   maxBookingDurationHours: number
   dailyBasisBooking: boolean
+  noAdminRestrictions: boolean
   showNames: boolean
   allowBookingNonExistUsers: boolean
   subscriptionActive: boolean
@@ -56,6 +57,7 @@ class Settings extends React.Component<Props, State> {
       maxBookingDurationHours: 0,
       maxDaysInAdvance: 0,
       dailyBasisBooking: false,
+      noAdminRestrictions: false,
       showNames: false,
       allowBookingNonExistUsers: false,
       subscriptionActive: false,
@@ -121,6 +123,7 @@ class Settings extends React.Component<Props, State> {
         if (s.name === "max_days_in_advance") state.maxDaysInAdvance = window.parseInt(s.value);
         if (s.name === "max_booking_duration_hours") state.maxBookingDurationHours = window.parseInt(s.value);
         if (s.name === "daily_basis_booking") state.dailyBasisBooking = (s.value === "1");
+        if (s.name === "no_admin_restrictions") state.noAdminRestrictions = (s.value === "1");
         if (s.name === "show_names") state.showNames = (s.value === "1");
         if (s.name === "allow_booking_nonexist_users") state.allowBookingNonExistUsers = (s.value === "1");
         if (s.name === "subscription_active") state.subscriptionActive = (s.value === "1");
@@ -155,6 +158,7 @@ class Settings extends React.Component<Props, State> {
       new OrgSettings("default_timezone", this.state.defaultTimezone),
       new OrgSettings("confluence_server_shared_secret", this.state.confluenceServerSharedSecret),
       new OrgSettings("daily_basis_booking", this.state.dailyBasisBooking ? "1" : "0"),
+      new OrgSettings("no_admin_restrictions", this.state.noAdminRestrictions  ? "1" : "0"),
       new OrgSettings("show_names", this.state.showNames ? "1" : "0"),
       new OrgSettings("allow_booking_nonexist_users", this.state.allowBookingNonExistUsers ? "1" : "0"),
       new OrgSettings("max_bookings_per_user", this.state.maxBookingsPerUser.toString()),
@@ -424,6 +428,14 @@ class Settings extends React.Component<Props, State> {
               </InputGroup>
             </Col>
           </Form.Group>
+
+
+          <Form.Group as={Row}>
+            <Col sm="6">
+              <Form.Check type="checkbox" id="check-noAdminRestrictions" label={this.props.t("noAdminRestrictions")} checked={this.state.noAdminRestrictions} onChange={(e: any) => this.setState({ noAdminRestrictions: e.target.checked })} />
+            </Col>
+          </Form.Group>
+          
           <Form.Group as={Row}>
             <Col sm="6">
               <Form.Check type="checkbox" id="check-dailyBasisBooking" label={this.props.t("dailyBasisBooking")} checked={this.state.dailyBasisBooking} onChange={(e: any) => this.onDailyBasisBookingChange(e.target.checked)} />

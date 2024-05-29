@@ -58,6 +58,7 @@
     "maxDaysInAdvance": "Max. days in advance",
     "days": "days",
     "dailyBasisBooking": "Allow bookings on a daily basis only",
+    "noAdminRestrictions": "Don't restrict admins (bookings per user, duration, in advance)",
     "showNames": "Show bookers' names (mind the privacy!)",
     "allowBookingNonExistUsers": "Allow bookings for non-existing users (create on booking)",
     "maxBookingDurationHours": "Max. booking duration",

@@ -8,6 +8,7 @@ interface RuntimeUserInfos {
     maxDaysInAdvance: number;
     maxBookingDurationHours: number;
     dailyBasisBooking: boolean;
+    noAdminRestrictions: boolean;
     showNames: boolean;
     defaultTimezone: string;
 }
@@ -22,6 +23,7 @@ export default class RuntimeConfig {
         maxDaysInAdvance: 0,
         maxBookingDurationHours: 0,
         dailyBasisBooking: false,
+        noAdminRestrictions: false,
         showNames: false,
         defaultTimezone: "",
     };
@@ -65,6 +67,7 @@ export default class RuntimeConfig {
                         if (s.name === "max_booking_duration_hours") RuntimeConfig.INFOS.maxBookingDurationHours = window.parseInt(s.value);
                     }
                     if (s.name === "daily_basis_booking") RuntimeConfig.INFOS.dailyBasisBooking = (s.value === "1");
+                    if (s.name === "no_admin_restrictions") RuntimeConfig.INFOS.noAdminRestrictions = (s.value === "1");
                     if (s.name === "show_names") RuntimeConfig.INFOS.showNames = (s.value === "1");
                     if (s.name === "default_timezone") RuntimeConfig.INFOS.defaultTimezone = s.value;
                 });
