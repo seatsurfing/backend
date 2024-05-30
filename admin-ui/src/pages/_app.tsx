@@ -7,6 +7,7 @@ import '@/styles/Login.css'
 import '@/styles/NavBar.css'
 import '@/styles/Settings.css'
 import '@/styles/SideBar.css'
+import 'react-calendar/dist/Calendar.css';
 import '@/styles/Booking.css'
 import type { AppProps } from 'next/app'
 import nextI18nConfig from '../../next-i18next.config'

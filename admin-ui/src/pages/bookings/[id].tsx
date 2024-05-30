@@ -1,14 +1,12 @@
 import React from 'react';
-import FullLayout from '../../components/FullLayout';
 import { Form, Col, Row, Button, Alert, InputGroup } from 'react-bootstrap';
-import { Navigate, NavigateFunction, Params, PathRouteProps } from 'react-router-dom';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete } from 'react-feather';
-import Loading from '../../components/Loading';
-import { Location, Space, Booking, Formatting, User, AuthProvider, Settings as OrgSettings } from 'flexspace-commons';
-import { NextRouter } from 'next/router';
+import { Ajax, Location, Space, Booking, Formatting, User, AuthProvider, Settings as OrgSettings, UserPreference } from 'flexspace-commons';
 import { WithTranslation, withTranslation } from 'next-i18next';
-import { TFunction } from 'i18next';
+import { NextRouter } from 'next/router';
+import FullLayout from '../../components/FullLayout';
 import Link from 'next/link';
+import Loading from '@/components/Loading';
 import withReadyRouter from '@/components/withReadyRouter';
 import DateTimePicker from 'react-datetime-picker';
 import DatePicker from 'react-date-picker';
@@ -21,6 +19,7 @@ interface State {
     submitting: boolean
     saved: boolean
     error: boolean
+    wascreated: boolean
     goBack: boolean
     enter: Date
     leave: Date
@@ -37,6 +36,11 @@ interface State {
     isDisabledSpace: boolean
     canSearch: boolean
     canSearchHint: string
+    prefEnterTime: number
+    prefWorkdayStart:number
+    prefWorkdayEnd: number
+    prefWorkdays: number[]
+    prefLocationId: string
 }
 
 interface Props extends WithTranslation {
@@ -44,6 +48,9 @@ interface Props extends WithTranslation {
 }
 
 class EditBooking extends React.Component<Props, State> {
+    static PreferenceEnterTimeNow: number = 1;
+    static PreferenceEnterTimeNextDay: number = 2;
+    static PreferenceEnterTimeNextWorkday: number = 3;
     entity: Booking = new Booking();
     authProviders: { [key: string]: string } = {};
     dailyBasisBooking: boolean;
@@ -71,6 +78,7 @@ class EditBooking extends React.Component<Props, State> {
             submitting: false,
             saved: false,
             error: false,
+            wascreated: false,
             goBack: false,
             enter: new Date(),
             leave: new Date(),
@@ -87,23 +95,35 @@ class EditBooking extends React.Component<Props, State> {
             isDisabledSpace: true,
             canSearch: false,
             canSearchHint: "",
+            prefEnterTime: 0,
+            prefWorkdayStart: 0,
+            prefWorkdayEnd: 0,
+            prefWorkdays: [],
+            prefLocationId: "",
         }
     }
 
     componentDidMount = () => {
+        if (!Ajax.CREDENTIALS.accessToken) {
+            this.props.router.push("/login");
+            return;
+        }
         let promises = [
             this.loadData(),
             this.loadSettings(),
             this.loadUsers(),
-            this.loadLocations()
+            this.loadLocations(),
+            this.loadPreferences()
           ];
           Promise.all(promises).then(() => {
             this.setState({ loading: false });
+            this.initDates();
           });
     }
 
-    loadData = async (): Promise<void> => {
+    loadData = () => {
         const {id} = this.props.router.query;
+        console.log("load data, id = " + id);
         if (id && (typeof id === "string")){
             if (id !== 'add') {
             return Booking.get(id).then(booking => {
@@ -124,9 +144,11 @@ class EditBooking extends React.Component<Props, State> {
             } else {
                 // add 
                 this.isNewBooking = true;
+                let start=new(Date);
                 this.setState({
                     isDisabledLocation: false,
-                    isDisabledSpace: false
+                    isDisabledSpace: false,
+                    enter: start
                     // loading: false,
                 });
 
@@ -136,11 +158,60 @@ class EditBooking extends React.Component<Props, State> {
         }
     }
 
+    initDates = () => {
+        let enter = new Date();
+        if (this.state.prefEnterTime === EditBooking.PreferenceEnterTimeNow) {
+          enter.setHours(enter.getHours() + 1, 0, 0);
+          if (enter.getHours() < this.state.prefWorkdayStart) {
+            enter.setHours(this.state.prefWorkdayStart, 0, 0, 0);
+          }
+          if (enter.getHours() >= this.state.prefWorkdayEnd) {
+            enter.setDate(enter.getDate() + 1);
+            enter.setHours(this.state.prefWorkdayStart, 0, 0, 0);
+          }
+        } else if (this.state.prefEnterTime === EditBooking.PreferenceEnterTimeNextDay) {
+          enter.setDate(enter.getDate() + 1);
+          enter.setHours(this.state.prefWorkdayStart, 0, 0, 0);
+        } else if (this.state.prefEnterTime === EditBooking.PreferenceEnterTimeNextWorkday) {
+          enter.setDate(enter.getDate() + 1);
+          let add = 0;
+          let nextDayFound = false;
+          let lookFor = enter.getDay();
+          while (!nextDayFound) {
+            if (this.state.prefWorkdays.includes(lookFor) || add > 7) {
+              nextDayFound = true;
+            } else {
+              add++;
+              lookFor++;
+              if (lookFor > 6) {
+                lookFor = 0;
+              }
+            }
+          }
+          enter.setDate(enter.getDate() + add);
+          enter.setHours(this.state.prefWorkdayStart, 0, 0, 0);
+        }
+    
+        let leave = new Date(enter);
+        leave.setHours(this.state.prefWorkdayEnd, 0, 0);
+    
+        if (this.dailyBasisBooking) {
+          enter.setHours(0, 0, 0, 0);
+          leave.setHours(23, 59, 59, 0);
+        }
+        this.setState({
+            enter: enter,
+            leave: leave
+          });
+    }
+
     loadSpaces = async (selectedLocationId: string, enter: Date, leave: Date): Promise<void> => {
         // this.setState({ loading: true });
+        console.log("Loading spaces "+enter.toString()+" --> "+leave.toString())
         return Space.listAvailability(selectedLocationId, enter, leave).then(list => {
             this.setState({ 
                 spaces: list, 
+                isDisabledSpace: false
                 // loading: false
             });
         });
@@ -158,6 +229,35 @@ class EditBooking extends React.Component<Props, State> {
             });
         });
     }
+
+    loadPreferences = async (): Promise<void> => {
+        let self = this;
+        return new Promise<void>(function (resolve, reject) {
+          UserPreference.list().then(list => {
+            let state: any = {};
+            list.forEach(s => {
+              if (typeof window !== 'undefined') {
+                if (s.name === "enter_time") state.prefEnterTime = window.parseInt(s.value);
+                if (s.name === "workday_start") state.prefWorkdayStart = window.parseInt(s.value);
+                if (s.name === "workday_end") state.prefWorkdayEnd = window.parseInt(s.value);
+                if (s.name === "workdays") state.prefWorkdays = s.value.split(",").map(val => window.parseInt(val));
+              }
+              if (s.name === "location_id") state.prefLocationId = s.value;
+              if (s.name === "booked_color") state.prefBookedColor = s.value;
+              if (s.name === "not_booked_color") state.prefNotBookedColor = s.value;
+              if (s.name === "self_booked_color") state.prefSelfBookedColor = s.value;
+              if (s.name === "buddy_booked_color") state.prefBuddyBookedColor = s.value;
+            });
+            if (self.dailyBasisBooking) {
+              state.prefWorkdayStart = 0;
+              state.prefWorkdayEnd = 23;
+            }
+            self.setState({
+              ...state
+            }, () => resolve());
+          }).catch(e => reject(e));
+        });
+      }
  
     loadUsers = () => {
         AuthProvider.list().then(providers => {
@@ -169,6 +269,7 @@ class EditBooking extends React.Component<Props, State> {
                 // this.setState({ loading: false });
             });
         });
+        return true;
     }
 
     loadLocations = async (): Promise<void> => {
@@ -209,18 +310,25 @@ class EditBooking extends React.Component<Props, State> {
         }
 
         if (this.isNewBooking) {
-            let booking = new Booking();
-            booking.enter = this.state.enter;
-            booking.leave = this.state.leave;
-            booking.space.id = this.state.selectedSpaceId;
-            booking.user.email = this.state.selectedUserEmail;
-            booking.save().then(() => {
-                // this.props.navigate("/bookings/");
-                this.setState({ saved: true });
+            this.entity.enter = this.state.enter;
+            this.entity.leave = this.state.leave;
+            this.entity.space.id = this.state.selectedSpaceId;
+            this.entity.user.email = this.state.selectedUserEmail;
+            this.entity.save().then(() => {
+                console.log("booking saved, id = " + this.entity.id);
+                this.isNewBooking=false;
+                this.props.router.push("/bookings/" + this.entity.id);
+                this.setState({
+                    saved: true,
+                    isDisabledLocation: false,
+                    isDisabledSpace: false,
+                    wascreated: true
+                 });
             }).catch(() => {
                 this.setState({ 
                     error: true,
-                    saved: false
+                    saved: false,
+                    wascreated: true
                 });
             });    
         } else {
@@ -229,13 +337,15 @@ class EditBooking extends React.Component<Props, State> {
             this.entity.space.id = this.state.selectedSpaceId;
             this.entity.user.email = this.state.selectedUserEmail;
             this.entity.save().then(() => {
-                // this.props.navigate("/bookings/" + this.entity.id);
-                this.loadData();
-                this.setState({ saved: true });
+                this.setState({
+                    saved: true,
+                    wascreated: false
+                });
             }).catch(() => {
                 this.setState({
                     error: true,
-                    saved: false
+                    saved: false,
+                    wascreated: false
                 });
             });
         }
@@ -250,6 +360,7 @@ class EditBooking extends React.Component<Props, State> {
     }
 
     updateCanSearch = async () => {
+        console.log("updateCanSearch");
         let res = true;
         let hint = "";
         if (this.curBookingCount >= this.maxBookingsPerUser) {
@@ -311,7 +422,7 @@ class EditBooking extends React.Component<Props, State> {
                 }
             });
         };
-        let performChange = () => {
+        let performChange =  () => {
             let enter = (value instanceof Date) ? value : value[0];
             if (enter == null) {
               return;
@@ -325,11 +436,12 @@ class EditBooking extends React.Component<Props, State> {
             this.setState({
                 enter: enter,
                 leave: leave,
-                isDisabledLocation: false
+                isDisabledLocation: false,
+                isDisabledSpace: true
             }, () => dateChangedCb());
 
             if (this.state.selectedLocationId) {
-                this.loadSpaces(this.state.selectedLocationId, this.state.enter, this.state.leave)
+                this.loadSpaces(this.state.selectedLocationId, enter, leave)
             }
         };
         window.clearTimeout(this.leaveChangeTimer);
@@ -365,7 +477,8 @@ class EditBooking extends React.Component<Props, State> {
             }
             this.setState({
                 leave: date,
-                isDisabledLocation: false
+                isDisabledLocation: false,
+                isDisabledSpace: true
             }, () => dateChangedCb());
             if (this.state.selectedLocationId) {
                 this.loadSpaces(this.state.selectedLocationId, this.state.enter, date)
@@ -374,10 +487,32 @@ class EditBooking extends React.Component<Props, State> {
         window.clearTimeout(this.leaveChangeTimer);
         this.leaveChangeTimer = window.setTimeout(performChange, 1000);
     }
+
+    onChangeUser = (e: any) => {
+        this.setState({ selectedUserEmail: e.target.value })
+        /* IMPROVEME: LoadPreferences from selected user
+        let promises = [
+            this.loadPreferences()
+          ];
+          Promise.all(promises).then(() => {
+            this.initDates()
+          });
+        */
+    }
+
+    getBookersList = (bookings: Booking[]) => {
+        if (!bookings.length) return "";
+        let str = "";
+        bookings.forEach(b => {
+          str += (str ? ", " : "") + b.user.email
+        });
+        return str;
+    }
     
     render() {
         if (this.state.goBack) {
-            return <Navigate replace={true} to={`/bookings`} />
+            this.props.router.push('/bookings');
+            return <></>
         }
 
         let hint = <></>;
@@ -406,14 +541,14 @@ class EditBooking extends React.Component<Props, State> {
 
         if (this.state.loading) {
             return (
-                <FullLayout headline={this.props.t("editBooking")} buttons={buttons}>
+                <FullLayout headline={this.props.t((this.isNewBooking ? "newBooking" : "editBooking"))} buttons={buttons}>
                     <Loading />
                 </FullLayout>
             );
         }
 
         if (this.state.saved) {
-            hint = <Alert variant="success">{this.props.t("entryUpdated")}</Alert>
+            hint = <Alert variant="success">{this.props.t((this.state.wascreated ? "entryCreated" : "entryUpdated"))}</Alert>
         } else if (this.state.canSearchHint) {
             hint = <Alert variant="danger">{this.props.t(this.state.canSearchHint)}</Alert>
         } else if (this.state.error) {
@@ -429,7 +564,7 @@ class EditBooking extends React.Component<Props, State> {
         }
 
         return (
-            <FullLayout headline={this.props.t("editBooking")} buttons={buttons}>
+            <FullLayout headline={this.props.t((this.isNewBooking ? "newBooking" : "editBooking"))} buttons={buttons}>
                 <Form onSubmit={this.onSubmit} id="form">
 
                     {hint}
@@ -437,9 +572,9 @@ class EditBooking extends React.Component<Props, State> {
                     <Form.Group as={Row}>
                         <Form.Label column sm="2">{this.props.t("user")}</Form.Label>
                         <Col sm="4">
-                            <Form.Select required={true} value={this.state.selectedUserEmail} onChange={(e: any) => this.setState({ selectedUserEmail: e.target.value })}>
+                            <Form.Select required={true} value={this.state.selectedUserEmail} onChange={this.onChangeUser}>
                                 {/* TODO: if (this.entity.user.email) { */}
-                                <option disabled={true} value={this.entity.user.id}>{this.entity.user.email}</option>                          
+                                <option disabled={true} value="">-</option>                          
                                 {this.state.users.map((user: {email: string | undefined; }) => (
                                     <option key={user.email} value={user.email}>{user.email}</option>
                                 ))}
@@ -462,10 +597,10 @@ class EditBooking extends React.Component<Props, State> {
                     </Form.Group>
 
                     <Form.Group as={Row}>
-                        <Form.Label column sm="2">{this.props.t("location")}</Form.Label>
+                        <Form.Label column sm="2">{this.props.t("area")}</Form.Label>
                         <Col sm="4">
-                            <Form.Select disabled={this.state.isDisabledLocation} required={true} value={this.state.selectedLocationId} onChange={(e: any) => {this.setState({ selectedLocationId: e.target.value, isDisabledSpace: false }); this.loadSpaces(e.target.value, this.state.enter, this.state.leave)}}>
-                                <option disabled={true} value={this.entity.space.location.id}>{this.entity.space.location.name}</option>
+                            <Form.Select disabled={this.state.isDisabledLocation} required={true} value={this.state.selectedLocationId} onChange={(e: any) => {this.setState({ selectedLocationId: e.target.value, isDisabledSpace: false, selectedSpaceId: "" }); this.loadSpaces(e.target.value, this.state.enter, this.state.leave)}}>
+                                <option disabled={true} value="">-</option>
                                 {this.state.locations.map((location: {name: string | undefined; id: string | undefined}) => (
                                     <option key={location.id} value={location.id}>{location.name}</option>
                                 ))}
@@ -477,12 +612,15 @@ class EditBooking extends React.Component<Props, State> {
                         <Form.Label column sm="2">{this.props.t("space")}</Form.Label>
                         <Col sm="4">
                             <Form.Select disabled={this.state.isDisabledSpace} required={true} value={this.state.selectedSpaceId} onChange={(e: any) => this.setState({ selectedSpaceId: e.target.value })}>
-                                <option disabled={true} value={this.entity.space.id}>{this.entity.space.name}</option>
-                                {this.state.spaces.map(function(space: { id: string | undefined; name: string | null | undefined; available: boolean}){ 
+                                <option disabled={true} value="">-</option>
+                                {this.state.spaces.map((space: { id: string | undefined; name: string | null | undefined; available: boolean; rawBookings: any[]}) =>{ 
+                                    let bookings = Booking.createFromRawArray(space.rawBookings);
                                     if(space.available){
                                         return <option key={space.id} value={space.id}>{space.name}</option>
-                                    }else{
-                                        return <option key={space.id} disabled value={space.id}>{space.name}</option>
+                                    }else{   
+                                        let booker= this.getBookersList(bookings);
+                                        if (booker) booker=" ("+booker+")";
+                                        return <option key={space.id} disabled value={space.id}>{space.name}{booker}</option>
                                     }
                                 })}
                             </Form.Select>
