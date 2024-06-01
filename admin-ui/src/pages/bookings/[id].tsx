@@ -1,7 +1,7 @@
 import React from 'react';
-import { Form, Col, Row, Button, Alert, InputGroup } from 'react-bootstrap';
+import { Form, Col, Row, Button, Alert } from 'react-bootstrap';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete } from 'react-feather';
-import { Ajax, AjaxCredentials, Location, Space, Booking, Formatting, User, AuthProvider, Settings as OrgSettings, UserPreference } from 'flexspace-commons';
+import { Ajax, Location, Space, Booking, Formatting, User, AuthProvider, Settings as OrgSettings, UserPreference } from 'flexspace-commons';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import { NextRouter } from 'next/router';
 import FullLayout from '../../components/FullLayout';
@@ -14,9 +14,6 @@ import DatePicker from 'react-date-picker';
 import 'react-datetime-picker/dist/DateTimePicker.css';
 import 'react-date-picker/dist/DatePicker.css';
 import 'react-clock/dist/Clock.css';
-import analysis from '../report/analysis';
-import { throws } from 'assert';
-
 interface State {
     loading: boolean
     saved: boolean
