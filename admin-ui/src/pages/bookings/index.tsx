@@ -73,7 +73,6 @@ class Bookings extends React.Component<Props, State> {
 
   onItemSelect = (booking: Booking) => {
       this.setState({ selectedItem: booking.id });
-      return window.location.replace("/admin/bookings/"+booking.id);
   }
 
   renderItem = (booking: Booking) => {
@@ -108,6 +107,10 @@ class Bookings extends React.Component<Props, State> {
   }
 
   render() {
+    if (this.state.selectedItem) {
+      this.props.router.push(`/bookings/${this.state.selectedItem}`);
+      return <></>
+    }
     let searchButton = <Button className="btn-sm" variant="outline-secondary" type="submit" form="form"><IconSearch className="feather" /> {this.props.t("search")}</Button>;
     // eslint-disable-next-line
     let downloadButton = <a download="seatsurfing-bookings.xlsx" href="#" className="btn btn-sm btn-outline-secondary" onClick={this.exportTable}><IconDownload className="feather" /> {this.props.t("download")}</a>;

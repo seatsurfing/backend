@@ -222,6 +222,10 @@ func (router *BookingRouter) update(w http.ResponseWriter, r *http.Request) {
 	eNew.ID = e.ID
 	eNew.UserID = e.UserID
 	if m.UserEmail != "" && m.UserEmail != requestUser.Email {
+		if (!CanSpaceAdminOrg(requestUser, location.OrganizationID)){
+			SendForbidden(w)
+			return
+		}
 		eNew.UserID, err = router.bookForUser(requestUser, m.UserEmail, w)
 		if err != nil {
 			SendInternalServerError(w)
@@ -361,6 +365,10 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 	}
 	e.UserID = GetRequestUserID(r)
 	if m.UserEmail != "" && m.UserEmail != requestUser.Email {
+		if (!CanSpaceAdminOrg(requestUser, location.OrganizationID)){
+			SendForbidden(w)
+			return
+		}
 		e.UserID, err = router.bookForUser(requestUser, m.UserEmail, w)
 		if err != nil {
 			SendInternalServerError(w)
@@ -502,8 +510,8 @@ func (router *BookingRouter) getPresenceReport(w http.ResponseWriter, r *http.Re
 }
 
 func (router *BookingRouter) isValidBookingDuration(m *BookingRequest, orgID string, user *User) bool {
-	isAdmin, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
-	if (isAdmin && CanSpaceAdminOrg(user, orgID)){
+	noAdminRestrictions, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
+	if (noAdminRestrictions && CanSpaceAdminOrg(user, orgID)){
 		return true
 	}
 	dailyBasisBooking, _ := GetSettingsRepository().GetBool(orgID, SettingDailyBasisBooking.Name)
@@ -535,16 +543,20 @@ func (router *BookingRouter) getHoursOnDate(t *time.Time) int {
 }
 
 func (router *BookingRouter) isValidBookingAdvance(m *BookingRequest, orgID string, user *User) bool {
-	isAdmin, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
+	noAdminRestrictions, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
 	maxAdvanceDays, _ := GetSettingsRepository().GetInt(orgID, SettingMaxDaysInAdvance.Name)
-	now := time.Now().UTC()
 	dailyBasisBooking, _ := GetSettingsRepository().GetBool(orgID, SettingDailyBasisBooking.Name)
+	// allow Enter-Date in past if at least this morning
+	now := time.Now().UTC()
+	now = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 	if dailyBasisBooking {
-		now = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 		now = now.Add(-12 * time.Hour)
 	}
+	if (m.Leave.Before(now)){ // Leave must not be in past
+		return false
+	}
 	advanceDays := math.Floor(m.Enter.Sub(now).Hours() / 24)
-	if (advanceDays >=0 && isAdmin && CanSpaceAdminOrg(user, orgID)){
+	if (advanceDays >=0 && noAdminRestrictions && CanSpaceAdminOrg(user, orgID)){
 		return true
 	}
 	if advanceDays < 0 || advanceDays > float64(maxAdvanceDays) {
@@ -554,8 +566,8 @@ func (router *BookingRouter) isValidBookingAdvance(m *BookingRequest, orgID stri
 }
 
 func (router *BookingRouter) isValidMaxUpcomingBookings(orgID string, user *User) bool {
-	isAdmin, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
-	if (isAdmin && CanSpaceAdminOrg(user, orgID)){
+	noAdminRestrictions, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
+	if (noAdminRestrictions && CanSpaceAdminOrg(user, orgID)){
 		return true
 	}
 	maxUpcoming, _ := GetSettingsRepository().GetInt(orgID, SettingMaxBookingsPerUser.Name)
@@ -564,8 +576,8 @@ func (router *BookingRouter) isValidMaxUpcomingBookings(orgID string, user *User
 }
 
 func (router *BookingRouter) isValidMaxConcurrentBookingsForUser(orgID string, user *User, m *BookingRequest, bookingID string) bool {
-	isAdmin, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
-	if (isAdmin && CanSpaceAdminOrg(user, orgID)){
+	noAdminRestrictions, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
+	if (noAdminRestrictions && CanSpaceAdminOrg(user, orgID)){
 		return true
 	}
 	maxConcurrent, _ := GetSettingsRepository().GetInt(orgID, SettingMaxConcurrentBookingsPerUser.Name)

@@ -36,6 +36,7 @@ func TestMain(m *testing.M) {
 	a.InitializeDatabases()
 	a.InitializeRouter()
 	code := m.Run()
+	dropTestDB()
 	db.Close()
 	os.Exit(code)
 }

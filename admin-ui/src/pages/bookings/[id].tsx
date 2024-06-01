@@ -1,22 +1,24 @@
 import React from 'react';
 import { Form, Col, Row, Button, Alert, InputGroup } from 'react-bootstrap';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete } from 'react-feather';
-import { Ajax, Location, Space, Booking, Formatting, User, AuthProvider, Settings as OrgSettings, UserPreference } from 'flexspace-commons';
+import { Ajax, AjaxCredentials, Location, Space, Booking, Formatting, User, AuthProvider, Settings as OrgSettings, UserPreference } from 'flexspace-commons';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import { NextRouter } from 'next/router';
 import FullLayout from '../../components/FullLayout';
 import Link from 'next/link';
 import Loading from '@/components/Loading';
 import withReadyRouter from '@/components/withReadyRouter';
+import Autosuggest, { InputProps } from 'react-autosuggest';
 import DateTimePicker from 'react-datetime-picker';
 import DatePicker from 'react-date-picker';
 import 'react-datetime-picker/dist/DateTimePicker.css';
 import 'react-date-picker/dist/DatePicker.css';
 import 'react-clock/dist/Clock.css';
+import analysis from '../report/analysis';
+import { throws } from 'assert';
 
 interface State {
     loading: boolean
-    submitting: boolean
     saved: boolean
     error: boolean
     wascreated: boolean
@@ -27,6 +29,7 @@ interface State {
     space: Space
     user: User
     selectedUserEmail: string
+    selectedUserSuggestions: readonly User[]
     selectedLocationId: string
     selectedSpaceId: string
     users: User[]
@@ -36,11 +39,14 @@ interface State {
     isDisabledSpace: boolean
     canSearch: boolean
     canSearchHint: string
+    canSave: boolean
+    canEdit: boolean
     prefEnterTime: number
     prefWorkdayStart:number
     prefWorkdayEnd: number
     prefWorkdays: number[]
     prefLocationId: string
+    selfEmail: string;
 }
 
 interface Props extends WithTranslation {
@@ -75,7 +81,6 @@ class EditBooking extends React.Component<Props, State> {
         this.leaveChangeTimer = undefined;
         this.state = {
             loading: true,
-            submitting: false,
             saved: false,
             error: false,
             wascreated: false,
@@ -86,6 +91,7 @@ class EditBooking extends React.Component<Props, State> {
             space: new Space(),
             user: new User(),
             selectedUserEmail: "",
+            selectedUserSuggestions: [],
             selectedLocationId: "",
             selectedSpaceId: "",
             users: [],
@@ -95,11 +101,14 @@ class EditBooking extends React.Component<Props, State> {
             isDisabledSpace: true,
             canSearch: false,
             canSearchHint: "",
+            canSave: false,
+            canEdit: false,
             prefEnterTime: 0,
             prefWorkdayStart: 0,
             prefWorkdayEnd: 0,
             prefWorkdays: [],
             prefLocationId: "",
+            selfEmail: "",
         }
     }
 
@@ -111,9 +120,9 @@ class EditBooking extends React.Component<Props, State> {
         let promises = [
             this.loadData(),
             this.loadSettings(),
-            this.loadUsers(),
             this.loadLocations(),
-            this.loadPreferences()
+            this.loadPreferences(), /* currently same as me */
+            this.loadSelf()
           ];
           Promise.all(promises).then(() => {
             this.setState({ loading: false });
@@ -121,26 +130,43 @@ class EditBooking extends React.Component<Props, State> {
           });
     }
 
+    languages:string[] = [
+        'admin@seatsurfing.local',
+        'admin@seasdfasdf'
+   ];
+   
+    createDateAsUTC = (date: Date) => {
+        return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()));
+    }
+    
+    convertDateToUTC = (date: Date) => { 
+        return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()); 
+    }
+
     loadData = () => {
         const {id} = this.props.router.query;
         console.log("load data, id = " + id);
         if (id && (typeof id === "string")){
             if (id !== 'add') {
-            return Booking.get(id).then(booking => {
-                this.entity = booking;
-                this.setState({
-                    enter: this.entity.enter,
-                    leave: this.entity.leave,
-                    selectedLocationId: this.entity.space.locationId,
-                    selectedSpaceId: this.entity.space.id,
-                    selectedUserEmail: this.entity.user.email,
-                    isDisabledLocation: false,
-                    isDisabledSpace: false
-                    // loading: false,
+                return Booking.get(id).then(booking => {
+                    this.entity = booking;
+                    var canSave=true;
+                    if (this.convertDateToUTC(this.entity.leave)<new Date()) canSave=false;
+                    this.setState({
+                        enter: this.convertDateToUTC(this.entity.enter),
+                        leave: this.convertDateToUTC(this.entity.leave),
+                        selectedLocationId: this.entity.space.locationId,
+                        selectedSpaceId: this.entity.space.id,
+                        selectedUserEmail: this.entity.user.email,
+                        isDisabledLocation: false,
+                        isDisabledSpace: false,
+                        canSave: canSave,
+                        canEdit: canSave,
+                        // loading: false,
+                    });
+                    this.loadSpaces(this.entity.space.locationId, this.entity.enter, this.entity.leave);
+                    this.isNewBooking = false;
                 });
-                this.loadSpaces(this.entity.space.locationId, this.entity.enter, this.entity.leave);
-                this.isNewBooking = false;
-            });
             } else {
                 // add 
                 this.isNewBooking = true;
@@ -148,7 +174,9 @@ class EditBooking extends React.Component<Props, State> {
                 this.setState({
                     isDisabledLocation: false,
                     isDisabledSpace: false,
-                    enter: start
+                    enter: start,
+                    canSave: true,
+                    canEdit: true,
                     // loading: false,
                 });
 
@@ -159,6 +187,7 @@ class EditBooking extends React.Component<Props, State> {
     }
 
     initDates = () => {
+        if (!this.isNewBooking) return;
         let enter = new Date();
         if (this.state.prefEnterTime === EditBooking.PreferenceEnterTimeNow) {
           enter.setHours(enter.getHours() + 1, 0, 0);
@@ -216,6 +245,14 @@ class EditBooking extends React.Component<Props, State> {
             });
         });
     }
+    
+    loadSelf = async (): Promise<void> => {
+        User.getSelf().then(user => {
+            this.setState({
+                selfEmail: user.email
+            });
+        });
+    }
 
     loadSettings = async (): Promise<void> => {
         return OrgSettings.list().then(settings => {
@@ -259,19 +296,6 @@ class EditBooking extends React.Component<Props, State> {
         });
       }
  
-    loadUsers = () => {
-        AuthProvider.list().then(providers => {
-            providers.forEach(provider => {
-                this.authProviders[provider.id] = provider.name;
-            });
-            User.list().then(list => {
-                this.setState({ users: list })
-                // this.setState({ loading: false });
-            });
-        });
-        return true;
-    }
-
     loadLocations = async (): Promise<void> => {
         return Location.list().then(list => {
             this.setState({ locations: list })
@@ -307,13 +331,30 @@ class EditBooking extends React.Component<Props, State> {
                 enter: enter,
                 leave: leave
             });
+        } else {
+            let enter = new Date();
+            enter = this.state.enter;
+            let leave = new Date();
+            leave = this.state.leave;
+            enter.setSeconds(0);
+            enter.setMilliseconds(0);
+            leave.setSeconds(0);
+            leave.setMilliseconds(0);
+            this.setState({
+                enter: enter,
+                leave: leave
+            });
         }
 
         if (this.isNewBooking) {
+            var user=this.state.selectedUserEmail;
+            if (!user){
+                user=this.state.selfEmail;
+            }
             this.entity.enter = this.state.enter;
             this.entity.leave = this.state.leave;
             this.entity.space.id = this.state.selectedSpaceId;
-            this.entity.user.email = this.state.selectedUserEmail;
+            this.entity.user.email = user;
             this.entity.save().then(() => {
                 console.log("booking saved, id = " + this.entity.id);
                 this.isNewBooking=false;
@@ -322,7 +363,8 @@ class EditBooking extends React.Component<Props, State> {
                     saved: true,
                     isDisabledLocation: false,
                     isDisabledSpace: false,
-                    wascreated: true
+                    wascreated: true,
+                    selectedUserEmail: user
                  });
             }).catch(() => {
                 this.setState({ 
@@ -371,18 +413,23 @@ class EditBooking extends React.Component<Props, State> {
         //     res = false;
         //     hint = this.props.t("errorPickArea");
         // }
-        let now = new Date();
+        let todayMorning = this.createDateAsUTC(new Date());
+        todayMorning.setHours(0,0,0);
         let enterTime = new Date(this.state.enter);
         if (this.dailyBasisBooking) {
             enterTime.setHours(23, 59, 59);
         }
-        if (enterTime.getTime() < now.getTime()) {
+        if (enterTime.getTime() < todayMorning.getTime()) {
             res = false;
             hint = this.props.t("errorEnterFuture");
         }
         if (this.state.leave.getTime() <= this.state.enter.getTime()) {
             res = false;
             hint = this.props.t("errorLeaveAfterEnter");
+        }
+        if (this.state.leave.getTime() < new Date().getTime()) {
+            res = false;
+            hint = this.props.t("errorLeavePast");
         }
         const MS_PER_MINUTE = 1000 * 60;
         const MS_PER_HOUR = MS_PER_MINUTE * 60;
@@ -488,18 +535,6 @@ class EditBooking extends React.Component<Props, State> {
         this.leaveChangeTimer = window.setTimeout(performChange, 1000);
     }
 
-    onChangeUser = (e: any) => {
-        this.setState({ selectedUserEmail: e.target.value })
-        /* IMPROVEME: LoadPreferences from selected user
-        let promises = [
-            this.loadPreferences()
-          ];
-          Promise.all(promises).then(() => {
-            this.initDates()
-          });
-        */
-    }
-
     getBookersList = (bookings: Booking[]) => {
         if (!bookings.length) return "";
         let str = "";
@@ -508,6 +543,51 @@ class EditBooking extends React.Component<Props, State> {
         });
         return str;
     }
+
+    userOnChange = (val: string) => {
+      this.setState({ selectedUserEmail: val })
+      /* IMPROVEME: LoadPreferences from selected user
+      let promises = [
+          this.loadPreferences()
+        ];
+        Promise.all(promises).then(() => {
+          this.initDates()
+        });
+      */
+    };
+
+    // Teach Autosuggest how to calculate suggestions for any given input value.
+    getSuggestions (value: string) {
+        const inputValue = (value ? value.trim().toLowerCase() : "");
+        const inputLength = inputValue.length;
+    
+        if (inputLength === 0) return [];
+        User.list().then(users => {
+            this.setState({
+                selectedUserSuggestions: users
+          });
+            
+        })
+        return true;
+    };
+    
+    getSuggestionValue = (suggestion:User) => suggestion.email;
+    
+    renderSuggestion = (suggestion: User) => (
+    <div>
+        {suggestion.email}
+    </div>
+    );
+    
+    userOnSuggestionsFetchRequested = (name: { value: string; }) => {
+        this.getSuggestions(name.value);
+    };
+    
+    userOnSuggestionsClearRequested = () => {
+      this.setState({
+        selectedUserSuggestions: []
+      });
+    };
     
     render() {
         if (this.state.goBack) {
@@ -527,13 +607,40 @@ class EditBooking extends React.Component<Props, State> {
             );
         }
 
-        let enterDatePicker = <DateTimePicker value={this.state.enter} onChange={(value: Date | null) => { if (value != null) this.setEnterDate(value) }} clearIcon={null} required={true} format={this.props.t("datePickerFormat")} />;
+        let enterDatePicker = <DateTimePicker 
+            value={this.state.enter}
+            onChange={(value: Date | null) => { if (value != null) this.setEnterDate(value) }}
+            clearIcon={null}
+            required={true}
+            format={this.props.t("datePickerFormat")}
+            disabled={!this.state.canEdit}
+        />;
         if (this.dailyBasisBooking) {
-          enterDatePicker = <DatePicker value={this.state.enter} onChange={(value: Date | null | [Date | null, Date | null]) => { if (value != null) this.setEnterDate(value) }} clearIcon={null} required={true} format={this.props.t("datePickerFormatDailyBasisBooking")} />;
+          enterDatePicker = <DatePicker
+            value={this.state.enter}
+            onChange={(value: Date | null | [Date | null, Date | null]) => { if (value != null) this.setEnterDate(value) }}
+            clearIcon={null}
+            required={true}
+            format={this.props.t("datePickerFormatDailyBasisBooking")}
+            disabled={!this.state.canEdit}
+        />;
         }
-        let leaveDatePicker = <DateTimePicker value={this.state.leave} onChange={(value: Date | null) => { if (value != null) this.setLeaveDate(value) }} clearIcon={null} required={true} format={this.props.t("datePickerFormat")} />;
+        let leaveDatePicker = <DateTimePicker
+            value={this.state.leave}
+            onChange={(value: Date | null) => { if (value != null) this.setLeaveDate(value) }}
+            clearIcon={null}
+            required={true}
+            format={this.props.t("datePickerFormat")}
+            disabled={!this.state.canEdit}
+        />;
         if (this.dailyBasisBooking) {
-          leaveDatePicker = <DatePicker value={this.state.leave} onChange={(value: Date | null | [Date | null, Date | null]) => { if (value != null) this.setLeaveDate(value) }} clearIcon={null} required={true} format={this.props.t("datePickerFormatDailyBasisBooking")} />;
+          leaveDatePicker = <DatePicker value={this.state.leave}
+            onChange={(value: Date | null | [Date | null, Date | null]) => { if (value != null) this.setLeaveDate(value) }}
+            clearIcon={null}
+            required={true}
+            format={this.props.t("datePickerFormatDailyBasisBooking")}
+            disabled={!this.state.canEdit}
+        />;
         }
 
         let backButton = <Link href="/bookings" className="btn btn-sm btn-outline-secondary"><IconBack className="feather" /> {this.props.t("back")}</Link>;
@@ -555,12 +662,34 @@ class EditBooking extends React.Component<Props, State> {
             hint = <Alert variant="danger">{this.props.t("errorSave")}</Alert>
         }
 
-        let buttonDelete = <Button className="btn-sm" variant="outline-secondary" onClick={this.deleteItem} disabled={false}><IconDelete className="feather" /> {this.props.t("delete")}</Button>;
-        let buttonSave = <Button className="btn-sm" variant="outline-secondary" type="submit" form="form"><IconSave className="feather" /> {this.props.t("save")}</Button>;
+        let buttonDelete = <Button className="btn-sm" variant="outline-secondary" onClick={this.deleteItem} disabled={!this.state.canEdit}><IconDelete className="feather" /> {this.props.t("delete")}</Button>;
+        let buttonSave = <Button disabled={!(this.state.canSave && this.state.canEdit)} className="btn-sm" variant="outline-secondary" type="submit" form="form"><IconSave className="feather" /> {this.props.t("save")}</Button>;
         if (this.entity.id) {
             buttons = <>{backButton} {buttonDelete} {buttonSave}</>;
         } else {
             buttons = <>{backButton} {buttonSave}</>;
+        }
+        let userField = <></>;
+        if (this.state.canEdit) {
+            userField=
+                <Autosuggest
+                suggestions={this.state.selectedUserSuggestions}
+                onSuggestionsFetchRequested={this.userOnSuggestionsFetchRequested}
+                onSuggestionsClearRequested={this.userOnSuggestionsClearRequested}
+                onSuggestionSelected={this.userOnSuggestionsClearRequested}
+                getSuggestionValue={this.getSuggestionValue}
+                renderSuggestion={this.renderSuggestion}
+                inputProps= {{
+                    value: this.state.selectedUserEmail,
+                    onChange: (_, { newValue, method }) => {
+                        this.userOnChange(newValue);
+                      }
+                }}
+                highlightFirstSuggestion={false}
+                multiSection={false}
+            />
+        } else {
+            userField=<Form.Control type="text" disabled value={this.state.selectedUserEmail} />
         }
 
         return (
@@ -572,13 +701,7 @@ class EditBooking extends React.Component<Props, State> {
                     <Form.Group as={Row}>
                         <Form.Label column sm="2">{this.props.t("user")}</Form.Label>
                         <Col sm="4">
-                            <Form.Select required={true} value={this.state.selectedUserEmail} onChange={this.onChangeUser}>
-                                {/* TODO: if (this.entity.user.email) { */}
-                                <option disabled={true} value="">-</option>                          
-                                {this.state.users.map((user: {email: string | undefined; }) => (
-                                    <option key={user.email} value={user.email}>{user.email}</option>
-                                ))}
-                            </Form.Select>
+                            {userField}
                         </Col>
                     </Form.Group>
 
@@ -599,7 +722,7 @@ class EditBooking extends React.Component<Props, State> {
                     <Form.Group as={Row}>
                         <Form.Label column sm="2">{this.props.t("area")}</Form.Label>
                         <Col sm="4">
-                            <Form.Select disabled={this.state.isDisabledLocation} required={true} value={this.state.selectedLocationId} onChange={(e: any) => {this.setState({ selectedLocationId: e.target.value, isDisabledSpace: false, selectedSpaceId: "" }); this.loadSpaces(e.target.value, this.state.enter, this.state.leave)}}>
+                            <Form.Select disabled={this.state.isDisabledLocation || !this.state.canEdit} required={true} value={this.state.selectedLocationId} onChange={(e: any) => {this.setState({ selectedLocationId: e.target.value, isDisabledSpace: false, selectedSpaceId: "" }); this.loadSpaces(e.target.value, this.state.enter, this.state.leave)}}>
                                 <option disabled={true} value="">-</option>
                                 {this.state.locations.map((location: {name: string | undefined; id: string | undefined}) => (
                                     <option key={location.id} value={location.id}>{location.name}</option>
@@ -611,7 +734,7 @@ class EditBooking extends React.Component<Props, State> {
                     <Form.Group as={Row}>
                         <Form.Label column sm="2">{this.props.t("space")}</Form.Label>
                         <Col sm="4">
-                            <Form.Select disabled={this.state.isDisabledSpace} required={true} value={this.state.selectedSpaceId} onChange={(e: any) => this.setState({ selectedSpaceId: e.target.value })}>
+                            <Form.Select disabled={this.state.isDisabledSpace || !this.state.canEdit} required={true} value={this.state.selectedSpaceId} onChange={(e: any) => this.setState({ selectedSpaceId: e.target.value })}>
                                 <option disabled={true} value="">-</option>
                                 {this.state.spaces.map((space: { id: string | undefined; name: string | null | undefined; available: boolean; rawBookings: any[]}) =>{ 
                                     let bookings = Booking.createFromRawArray(space.rawBookings);
