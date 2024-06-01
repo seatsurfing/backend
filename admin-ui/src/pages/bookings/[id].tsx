@@ -562,7 +562,7 @@ class EditBooking extends React.Component<Props, State> {
         const inputLength = inputValue.length;
     
         if (inputLength === 0) return [];
-        User.list().then(users => {
+        User.list({search: inputValue}).then(users => {
             this.setState({
                 selectedUserSuggestions: users
           });

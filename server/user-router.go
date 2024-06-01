@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -253,12 +254,19 @@ func (router *UserRouter) getOne(w http.ResponseWriter, r *http.Request) {
 }
 
 func (router *UserRouter) getAll(w http.ResponseWriter, r *http.Request) {
+	search := r.URL.Query().Get("q")
 	user := GetRequestUser(r)
-	if !CanAdminOrg(user, user.OrganizationID) {
+	if !CanSpaceAdminOrg(user, user.OrganizationID) {
 		SendForbidden(w)
 		return
 	}
-	list, err := GetUserRepository().GetAll(user.OrganizationID, 1000, 0)
+	var list []*User
+	var err error
+	if strings.TrimSpace(search) != "" {
+		list, err = GetUserRepository().GetByKeyword(user.OrganizationID, strings.TrimSpace(search))
+	} else {
+		list, err = GetUserRepository().GetAll(user.OrganizationID, 1000, 0)
+	}
 	if err != nil {
 		log.Println(err)
 		SendInternalServerError(w)
