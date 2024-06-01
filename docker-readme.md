@@ -23,12 +23,17 @@ version: '3.7'
 services:
   server:
     image: seatsurfing/backend
+    #build:
+    #  context: .
+    #  dockerfile: Dockerfile
     restart: always
     networks:
       sql:
       http:
     ports:
       - 8080:8080
+    depends_on:
+      - db
     environment:
       POSTGRES_URL: 'postgres://seatsurfing:DB_PASSWORD@db/seatsurfing?sslmode=disable'
       JWT_SIGNING_KEY: 'some_random_string'
@@ -38,20 +43,26 @@ services:
       FRONTEND_URL: 'https://seatsurfing.your-domain.com'
   booking-ui:
     image: seatsurfing/booking-ui
+    #build:
+    #  context: .
+    #  dockerfile: Dockerfile.booking-ui
     restart: always
     networks:
       http:
     environment:
       FRONTEND_URL: 'https://seatsurfing.your-domain.com'
   admin-ui:
-    image: seatsurfing/admin-ui
+    image: seatsurfing/admin-ui:dev
+    #build:
+    #  context: .
+    #  dockerfile: Dockerfile.admin-ui
     restart: always
     networks:
       http:
     environment:
       FRONTEND_URL: 'https://seatsurfing.your-domain.com'
   db:
-    image: postgres:12
+    image: postgres:15-alpine
     restart: always
     networks:
       sql:
