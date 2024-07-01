@@ -10,12 +10,7 @@ interface Props extends WithTranslation {
 
 class Loading extends React.Component<Props, State> {
     render() {
-        let text = "";
-        if (this.props.tReady) {
-            text = this.props.t("loadingHint");
-        } else {
-            text = "Loading...";
-        }
+        let text = "Loading...";
         return (
             <div className="padding-top center"><IconLoad className="feather loader" /> {text}</div>
         );
