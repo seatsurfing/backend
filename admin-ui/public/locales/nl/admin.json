@@ -58,6 +58,7 @@
     "maxDaysInAdvance": "Max. dagen van tevoren",
     "days": "dagen",
     "dailyBasisBooking": "Alleen boekingen op dagelijkse basis toestaan",
+    "noAdminRestrictions": "Beperk geen admins (boekingen per gebruiker, duur, vooraf)",
     "showNames": "Toon de namen van boekers (let op de privacy!)",
     "allowBookingNonExistUsers": "Boekingen voor niet-bestaande gebruikers toestaan (aanmaken bij boeking)",
     "maxBookingDurationHours": "Max. boekingsduur",

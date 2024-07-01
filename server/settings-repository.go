@@ -40,6 +40,7 @@ var (
 	SettingMaxBookingDurationHours       SettingName = SettingName{Name: "max_booking_duration_hours", Type: SettingTypeInt}
 	SettingActiveSubscription            SettingName = SettingName{Name: "subscription_active", Type: SettingTypeBool}
 	SettingDailyBasisBooking             SettingName = SettingName{Name: "daily_basis_booking", Type: SettingTypeBool}
+	SettingNoAdminRestrictions           SettingName = SettingName{Name: "no_admin_restrictions", Type: SettingTypeBool}
 	SettingShowNames                     SettingName = SettingName{Name: "show_names", Type: SettingTypeBool}
 	SettingAllowBookingsNonExistingUsers SettingName = SettingName{Name: "allow_booking_nonexist_users", Type: SettingTypeBool}
 	SettingSubscriptionMaxUsers          SettingName = SettingName{Name: "subscription_max_users", Type: SettingTypeInt}
@@ -182,6 +183,7 @@ func (r *SettingsRepository) InitDefaultSettingsForOrg(organizationID string) er
 		"($1, '"+SettingSubscriptionMaxUsers.Name+"', '"+strconv.Itoa(GetConfig().OrgSignupMaxUsers)+"'), "+
 		"($1, '"+SettingAllowAnyUser.Name+"', '1'), "+
 		"($1, '"+SettingDailyBasisBooking.Name+"', '0'), "+
+		"($1, '"+SettingNoAdminRestrictions.Name+"', '0'), "+
 		"($1, '"+SettingShowNames.Name+"', '0'), "+
 		"($1, '"+SettingAllowBookingsNonExistingUsers.Name+"', '0'), "+
 		"($1, '"+SettingConfluenceServerSharedSecret.Name+"', ''), "+

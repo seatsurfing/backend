@@ -266,7 +266,8 @@ class Search extends React.Component<Props, State> {
   updateCanSearch = async () => {
     let res = true;
     let hint = "";
-    if (this.curBookingCount >= RuntimeConfig.INFOS.maxBookingsPerUser) {
+    let isAdmin = RuntimeConfig.INFOS.noAdminRestrictions && User.UserRoleSpaceAdmin;
+    if (this.curBookingCount >= RuntimeConfig.INFOS.maxBookingsPerUser && !isAdmin) {
       res = false;
       hint = this.props.t("errorBookingLimit", { "num": RuntimeConfig.INFOS.maxBookingsPerUser });
     }
@@ -291,12 +292,12 @@ class Search extends React.Component<Props, State> {
     const MS_PER_HOUR = MS_PER_MINUTE * 60;
     const MS_PER_DAY = MS_PER_HOUR * 24;
     let bookingAdvanceDays = Math.floor((this.state.enter.getTime() - new Date().getTime()) / MS_PER_DAY);
-    if (bookingAdvanceDays > RuntimeConfig.INFOS.maxDaysInAdvance) {
+    if (bookingAdvanceDays > RuntimeConfig.INFOS.maxDaysInAdvance && !isAdmin) {
       res = false;
       hint = this.props.t("errorDaysAdvance", { "num": RuntimeConfig.INFOS.maxDaysInAdvance });
     }
     let bookingDurationHours = Math.floor((this.state.leave.getTime() - this.state.enter.getTime()) / MS_PER_MINUTE) / 60;
-    if (bookingDurationHours > RuntimeConfig.INFOS.maxBookingDurationHours) {
+    if (bookingDurationHours > RuntimeConfig.INFOS.maxBookingDurationHours && !isAdmin) {
       res = false;
       hint = this.props.t("errorBookingDuration", { "num": RuntimeConfig.INFOS.maxBookingDurationHours });
     }

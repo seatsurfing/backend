@@ -58,6 +58,7 @@
     "maxDaysInAdvance": "Max. jours à l’avance",
     "days": "Jours",
     "dailyBasisBooking": "Autoriser les réservations sur une base quotidienne seulement",
+    "noAdminRestrictions": "Ne pas limiter les administrateurs (réservations par utilisateur, durée, à l'avance)",
     "showNames": "Afficher les noms des clients (attention à la vie privée!)",
     "allowBookingNonExistUsers": "Autoriser les réservations pour les utilisateurs inexistants (créer lors de la réservation)",
     "maxBookingDurationHours": "Durée max. de réservation",
