@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"math"
 	"net/http"
@@ -158,7 +159,12 @@ func (router *BookingRouter) getOne(w http.ResponseWriter, r *http.Request) {
 		SendNotFound(w)
 		return
 	}
-	if e.UserID != GetRequestUserID(r) {
+	requestUser := GetRequestUser(r)
+	if !CanAccessOrg(requestUser, requestUser.OrganizationID) && e.UserID != GetRequestUserID(r) {
+		SendForbidden(w)
+		return
+	}
+	if e.UserID != GetRequestUserID(r) && !CanSpaceAdminOrg(requestUser, requestUser.OrganizationID) {
 		SendForbidden(w)
 		return
 	}
@@ -204,10 +210,6 @@ func (router *BookingRouter) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	requestUser := GetRequestUser(r)
-	if !CanAccessOrg(requestUser, location.OrganizationID) {
-		SendForbidden(w)
-		return
-	}
 	if e.UserID != requestUser.ID && !CanSpaceAdminOrg(requestUser, location.OrganizationID) {
 		SendForbidden(w)
 		return
@@ -218,7 +220,18 @@ func (router *BookingRouter) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	eNew.ID = e.ID
-	eNew.UserID = GetRequestUserID(r)
+	eNew.UserID = e.UserID
+	if m.UserEmail != "" && m.UserEmail != requestUser.Email {
+		if (!CanSpaceAdminOrg(requestUser, location.OrganizationID)){
+			SendForbidden(w)
+			return
+		}
+		eNew.UserID, err = router.bookForUser(requestUser, m.UserEmail, w)
+		if err != nil {
+			SendInternalServerError(w)
+			return
+		}
+	}
 	bookingReq := &BookingRequest{
 		Enter: eNew.Enter,
 		Leave: eNew.Leave,
@@ -352,52 +365,15 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 	}
 	e.UserID = GetRequestUserID(r)
 	if m.UserEmail != "" && m.UserEmail != requestUser.Email {
-		if !CanSpaceAdminOrg(requestUser, location.OrganizationID) {
+		if (!CanSpaceAdminOrg(requestUser, location.OrganizationID)){
 			SendForbidden(w)
 			return
 		}
-		bookForUser, err := GetUserRepository().GetByEmail(m.UserEmail)
-		if bookForUser == nil || err != nil {
-			org, err := GetOrganizationRepository().GetOne(location.OrganizationID)
-			if err != nil || org == nil {
-				SendInternalServerError(w)
-				return
-			}
-			if allowed, _ := GetSettingsRepository().GetBool(org.ID, SettingAllowBookingsNonExistingUsers.Name); !allowed {
-				SendForbidden(w)
-				return
-			}
-			if !GetUserRepository().canCreateUser(org) {
-				SendInternalServerError(w)
-				return
-			}
-			if !GetOrganizationRepository().isValidEmailForOrg(m.UserEmail, org) {
-				SendBadRequest(w)
-				return
-			}
-			user := &User{
-				Email:          m.UserEmail,
-				AtlassianID:    NullString(""),
-				OrganizationID: org.ID,
-				Role:           UserRoleUser,
-			}
-			err = GetUserRepository().Create(user)
-			if err != nil {
-				SendInternalServerError(w)
-				return
-			}
-			bookForUser, err = GetUserRepository().GetByEmail(m.UserEmail)
-			if err != nil {
-				SendInternalServerError(w)
-				return
-			}
-		}
-
-		if bookForUser == nil {
-			SendNotFound(w)
+		e.UserID, err = router.bookForUser(requestUser, m.UserEmail, w)
+		if err != nil {
+			SendInternalServerError(w)
 			return
 		}
-		e.UserID = bookForUser.ID
 	}
 	bookingReq := &BookingRequest{
 		Enter: e.Enter,
@@ -424,6 +400,55 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	SendCreated(w, e.ID)
+}
+
+func (router *BookingRouter) bookForUser(requestUser *User, userEmail string, w http.ResponseWriter) (string, error) {
+	if !CanSpaceAdminOrg(requestUser, requestUser.OrganizationID) {
+		SendForbidden(w)
+		return "", errors.New("Forbidden")
+	}
+	bookForUser, err := GetUserRepository().GetByEmail(userEmail)
+	if bookForUser == nil || err != nil {
+		org, err := GetOrganizationRepository().GetOne(requestUser.OrganizationID)
+		if err != nil || org == nil {
+			SendInternalServerError(w)
+			return "", errors.New("InternalServerError")
+		}
+		if allowed, _ := GetSettingsRepository().GetBool(org.ID, SettingAllowBookingsNonExistingUsers.Name); !allowed {
+			SendForbidden(w)
+			return "", errors.New("Forbidden")
+		}
+		if !GetUserRepository().canCreateUser(org) {
+			SendInternalServerError(w)
+			return "", errors.New("InternalServerError")
+		}
+		if !GetOrganizationRepository().isValidEmailForOrg(userEmail, org) {
+			SendBadRequest(w)
+			return "", errors.New("BadRequest")
+		}
+		user := &User{
+			Email:          userEmail,
+			AtlassianID:    NullString(""),
+			OrganizationID: org.ID,
+			Role:           UserRoleUser,
+		}
+		err = GetUserRepository().Create(user)
+		if err != nil {
+			SendInternalServerError(w)
+			return "", errors.New("InternalServerError")
+		}
+		bookForUser, err = GetUserRepository().GetByEmail(userEmail)
+		if err != nil {
+			SendInternalServerError(w)
+			return "", errors.New("InternalServerError")
+		}
+	}
+
+	if bookForUser == nil {
+		SendNotFound(w)
+		return "", errors.New("NotFound")
+	}
+	return bookForUser.ID, nil
 }
 
 func (router *BookingRouter) getPresenceReport(w http.ResponseWriter, r *http.Request) {
@@ -485,8 +510,8 @@ func (router *BookingRouter) getPresenceReport(w http.ResponseWriter, r *http.Re
 }
 
 func (router *BookingRouter) isValidBookingDuration(m *BookingRequest, orgID string, user *User) bool {
-	isAdmin, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
-	if (isAdmin && CanSpaceAdminOrg(user, orgID)){
+	noAdminRestrictions, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
+	if (noAdminRestrictions && CanSpaceAdminOrg(user, orgID)){
 		return true
 	}
 	dailyBasisBooking, _ := GetSettingsRepository().GetBool(orgID, SettingDailyBasisBooking.Name)
@@ -518,16 +543,20 @@ func (router *BookingRouter) getHoursOnDate(t *time.Time) int {
 }
 
 func (router *BookingRouter) isValidBookingAdvance(m *BookingRequest, orgID string, user *User) bool {
-	isAdmin, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
+	noAdminRestrictions, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
 	maxAdvanceDays, _ := GetSettingsRepository().GetInt(orgID, SettingMaxDaysInAdvance.Name)
-	now := time.Now().UTC()
 	dailyBasisBooking, _ := GetSettingsRepository().GetBool(orgID, SettingDailyBasisBooking.Name)
+	// allow Enter-Date in past if at least this morning
+	now := time.Now().UTC()
+	now = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 	if dailyBasisBooking {
-		now = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 		now = now.Add(-12 * time.Hour)
 	}
+	if (m.Leave.Before(now)){ // Leave must not be in past
+		return false
+	}
 	advanceDays := math.Floor(m.Enter.Sub(now).Hours() / 24)
-	if (advanceDays >=0 && isAdmin && CanSpaceAdminOrg(user, orgID)){
+	if (advanceDays >=0 && noAdminRestrictions && CanSpaceAdminOrg(user, orgID)){
 		return true
 	}
 	if advanceDays < 0 || advanceDays > float64(maxAdvanceDays) {
@@ -537,8 +566,8 @@ func (router *BookingRouter) isValidBookingAdvance(m *BookingRequest, orgID stri
 }
 
 func (router *BookingRouter) isValidMaxUpcomingBookings(orgID string, user *User) bool {
-	isAdmin, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
-	if (isAdmin && CanSpaceAdminOrg(user, orgID)){
+	noAdminRestrictions, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
+	if (noAdminRestrictions && CanSpaceAdminOrg(user, orgID)){
 		return true
 	}
 	maxUpcoming, _ := GetSettingsRepository().GetInt(orgID, SettingMaxBookingsPerUser.Name)
@@ -547,8 +576,8 @@ func (router *BookingRouter) isValidMaxUpcomingBookings(orgID string, user *User
 }
 
 func (router *BookingRouter) isValidMaxConcurrentBookingsForUser(orgID string, user *User, m *BookingRequest, bookingID string) bool {
-	isAdmin, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
-	if (isAdmin && CanSpaceAdminOrg(user, orgID)){
+	noAdminRestrictions, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
+	if (noAdminRestrictions && CanSpaceAdminOrg(user, orgID)){
 		return true
 	}
 	maxConcurrent, _ := GetSettingsRepository().GetInt(orgID, SettingMaxConcurrentBookingsPerUser.Name)

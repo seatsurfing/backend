@@ -1,15 +1,18 @@
 import React from 'react';
-import FullLayout from '../components/FullLayout';
-import Loading from '../components/Loading';
 import { Ajax, Booking, Formatting } from 'flexspace-commons';
 import { Table, Form, Col, Row, Button } from 'react-bootstrap';
-import { Search as IconSearch, Download as IconDownload, X as IconX } from 'react-feather';
-import type * as CSS from 'csstype';
+import { Plus as IconPlus, Search as IconSearch, Download as IconDownload, X as IconX } from 'react-feather';
 import { WithTranslation, withTranslation } from 'next-i18next';
+import FullLayout from '@/components/FullLayout';
 import { NextRouter } from 'next/router';
+import Link from 'next/link';
+import Loading from '@/components/Loading';
 import withReadyRouter from '@/components/withReadyRouter';
+import type * as CSS from 'csstype';
+
 
 interface State {
+  selectedItem: string
   loading: boolean
   start: string
   end: string
@@ -28,11 +31,13 @@ class Bookings extends React.Component<Props, State> {
     this.data = [];
     let end = new Date();
     let start = new Date();
-    start.setDate(end.getDate() - 7);
+    start.setDate(start.getDate() - 7);
+    end.setDate(end.getDate() + 7);
     this.state = {
+      selectedItem: "",
       loading: true,
       start: Formatting.getISO8601(start),
-      end: Formatting.getISO8601(end)
+      end: Formatting.getISO8601(end),
     };
   }
 
@@ -55,15 +60,19 @@ class Bookings extends React.Component<Props, State> {
   }
 
   cancelBooking = (booking: Booking) => {
-    if (!window.confirm(this.props.t("confirmCancelBooking"))) {
-      return;
-    }
-    this.setState({
-      loading: true
-    });
-    booking.delete().then(() => {
-      this.loadItems();
-    });
+      if (!window.confirm(this.props.t("confirmCancelBooking"))) {
+        return;
+      }
+      this.setState({
+        loading: true
+      });
+      booking.delete().then(() => {
+        this.loadItems();
+      });
+  }
+
+  onItemSelect = (booking: Booking) => {
+      this.setState({ selectedItem: booking.id });
   }
 
   renderItem = (booking: Booking) => {
@@ -73,13 +82,13 @@ class Bookings extends React.Component<Props, State> {
       ['border-radius' as any]: '0.2rem',
     };
     return (
-      <tr key={booking.id}>
+      <tr key={booking.id} onClick={() => this.onItemSelect(booking)}>
         <td>{booking.user.email}</td>
         <td>{booking.space.location.name}</td>
         <td>{booking.space.name}</td>
         <td>{Formatting.getFormatterShort().format(booking.enter)}</td>
         <td>{Formatting.getFormatterShort().format(booking.leave)}</td>
-        <td><Button variant="danger" style={btnStyle} onClick={() => this.cancelBooking(booking)}><IconX className="feather" /></Button></td>
+        <td><Button variant="danger" id="cancelBookingButton" style={btnStyle} onClick={e => { e.stopPropagation(); this.cancelBooking(booking); }}><IconX className="feather" /></Button></td>
       </tr>
     );
   }
@@ -98,6 +107,10 @@ class Bookings extends React.Component<Props, State> {
   }
 
   render() {
+    if (this.state.selectedItem) {
+      this.props.router.push(`/bookings/${this.state.selectedItem}`);
+      return <></>
+    }
     let searchButton = <Button className="btn-sm" variant="outline-secondary" type="submit" form="form"><IconSearch className="feather" /> {this.props.t("search")}</Button>;
     // eslint-disable-next-line
     let downloadButton = <a download="seatsurfing-bookings.xlsx" href="#" className="btn btn-sm btn-outline-secondary" onClick={this.exportTable}><IconDownload className="feather" /> {this.props.t("download")}</a>;
@@ -105,6 +118,7 @@ class Bookings extends React.Component<Props, State> {
       <>
         {this.data && this.data.length > 0 ? downloadButton : <></>}
         {searchButton}
+        <Link href="/bookings/add" className="btn btn-sm btn-outline-secondary"><IconPlus className="feather" /> {this.props.t("add")}</Link>
       </>
     );
     let form = (
@@ -145,7 +159,7 @@ class Bookings extends React.Component<Props, State> {
     return (
       <FullLayout headline={this.props.t("bookings")} buttons={buttons}>
         {form}
-        <Table striped={true} hover={true} id="datatable">
+        <Table striped={true} hover={true} className="clickable-table" id="datatable">
           <thead>
             <tr>
               <th>{this.props.t("user")}</th>

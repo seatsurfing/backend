@@ -25,11 +25,21 @@ export default class Booking extends Entity {
         // Convert the local dates to UTC dates without changing the date/time ("fake" UTC)
         let enter = Formatting.convertToFakeUTCDate(this.enter);
         let leave = Formatting.convertToFakeUTCDate(this.leave);
-        return Object.assign(super.serialize(), {
-            "enter": enter.toISOString(),
-            "leave": leave.toISOString(),
-            "spaceId": this.space.id,
-        });
+        
+        if (this.user) {
+            return Object.assign(super.serialize(), {
+                "enter": enter.toISOString(),
+                "leave": leave.toISOString(),
+                "spaceId": this.space.id,
+                "userEmail": this.user.email
+            });
+        } else {
+            return Object.assign(super.serialize(), {
+                "enter": enter.toISOString(),
+                "leave": leave.toISOString(),
+                "spaceId": this.space.id,
+            });
+        }
     }
 
     deserialize(input: any): void {

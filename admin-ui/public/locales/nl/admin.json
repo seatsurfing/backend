@@ -60,7 +60,7 @@
     "dailyBasisBooking": "Alleen boekingen op dagelijkse basis toestaan",
     "noAdminRestrictions": "Beperk geen admins (boekingen per gebruiker, duur, vooraf)",
     "showNames": "Toon de namen van boekers (let op de privacy!)",
-    "allowBookingNonExistUsers": "Boekingen voor niet-bestaande gebruikers toestaan (aanmaken bij boeking)",
+    "allowBookingNonExistUsers": "Boekingen voor niet-bestaande gebruikers toestaan (aanmaken bij boeking, alleen beheerders)",
     "maxBookingDurationHours": "Max. boekingsduur",
     "hours": "uren",
     "domains": "Domeinen",
@@ -134,5 +134,18 @@
     "updateAvailable": "Update Seatsurfing naar de nieuwste versie {{version}}.",
     "tomorrow": "Morgen",
     "inXdays": "over {{x}} dagen",
-    "hour12": "1"
+    "hour12": "1",
+    "editBooking": "Boeking bewerken",
+    "newBooking": "Nieuw boeken",
+    "errorBookingLimit": "Je hebt de limiet van {{num}} boekingen bereikt.",
+    "errorPickArea": "Kies een gebied.",
+    "errorEnterFuture": "De datum moet in de toekomst liggen.",
+    "errorLeavePast": "Verlofdatum mag niet in het verleden liggen",
+    "errorLeaveAfterEnter": "De verlofdatum moet na de ingangsdatum liggen.",
+    "errorDaysAdvance": "Je mag niet meer dan {{num}} dagen van tevoren boeken.",
+    "errorBookingDuration": "De maximale boekingsduur is {{num}} uur.",
+    "errorTooManyConcurrent": "Capaciteitslimiet bereikt in geselecteerd gebied.",
+    "errorUnknown": "Onbekende fout, probeer het later nog eens.",
+    "datePickerFormat": "y-MM-dd HH:mm",
+    "datePickerFormatDailyBasisBooking": "y-MM-dd"
 }

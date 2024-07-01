@@ -131,8 +131,8 @@ export default class User extends Entity {
         });
     }
 
-    static async list(): Promise<User[]> {
-        return Ajax.get("/user/").then(result => {
+    static async list(params?:{search:string|null}): Promise<User[]> {
+        return Ajax.get("/user/"+(params && params.search ? "?q="+encodeURIComponent(params.search) : "")).then(result => {
             let list: User[] = [];
             (result.json as []).forEach(item => {
                 let e: User = new User();

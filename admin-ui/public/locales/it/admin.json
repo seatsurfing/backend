@@ -60,7 +60,7 @@
     "dailyBasisBooking": "Consenti prenotazioni solo su base giornaliera",
     "noAdminRestrictions": "Non limitare gli amministratori (prenotazioni per utente, durata, in anticipo)",
     "showNames": "Msotra nomi degli utenti che prenotano (attenzione alla privacy !)",
-    "allowBookingNonExistUsers": "Consenti prenotazioni per utent inesistenti (creazione su prenotazione)",
+    "allowBookingNonExistUsers": "Consenti prenotazioni per utent inesistenti (creazione su prenotazione, solo amministratori)",
     "maxBookingDurationHours": "Durata massima prenotazione",
     "hours": "ore",
     "domains": "Domini",
@@ -134,5 +134,18 @@
     "updateAvailable": "Please update Seatsurfing to the latest version {{version}}.",
     "tomorrow": "Domani",
     "inXdays": "In {{x}} giorni",
-    "hour12": "1"
+    "hour12": "1",
+    "editBooking": "Modifica della prenotazione",
+    "newBooking": "Nuova prenotazione",
+    "errorBookingLimit": "Hai raggiunto il limite di {{num}} prenotazioni.",
+    "errorPickArea": "Scegliere un'area.",
+    "errorEnterFuture": "La data di inserimento deve essere futura.",
+    "errorLeavePast": "La data di partenza non deve essere passata.",
+    "errorLeaveAfterEnter": "La data di congedo deve essere successiva alla data di inserimento.",
+    "errorDaysAdvance": "La prenotazione non deve essere effettuata con più di {{num}} giorni di anticipo.",
+    "errorBookingDuration": "La durata massima della prenotazione è di {{num}} ore.",
+    "errorTooManyConcurrent": "Limite di capacità raggiunto nell'area selezionata.",
+    "errorUnknown": "Errore sconosciuto, riprovare più tardi.",
+    "datePickerFormat": "y-MM-dd HH:mm",
+    "datePickerFormatDailyBasisBooking": "y-MM-dd"
 }
