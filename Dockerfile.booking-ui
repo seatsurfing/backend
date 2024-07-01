@@ -1,12 +1,7 @@
 FROM node:20-alpine AS commons-builder
 WORKDIR /app
-RUN apk add git
-RUN git init && \
-    git remote add -f origin https://github.com/seatsurfing/backend.git && \
-    git config core.sparseCheckout true && \
-    echo 'commons' >> .git/info/sparse-checkout && \
-    git pull origin master
 WORKDIR /app/commons/ts
+ADD ./commons/ /app/commons
 RUN npm install
 RUN npm run build
 
@@ -15,7 +10,7 @@ ARG CI_VERSION
 ENV NEXT_PUBLIC_PRODUCT_VERSION=$CI_VERSION
 ENV NODE_ENV=production
 COPY --from=commons-builder /app/commons/ts/ /app/commons/ts
-ADD . /app/
+ADD booking-ui /app/
 WORKDIR /app
 RUN npm install
 RUN npm install --save ./commons/ts
@@ -27,11 +22,11 @@ RUN sed -i "s/const hostname = /const hostname = process.env.LISTEN_ADDR || /g" 
 
 FROM gcr.io/distroless/nodejs20-debian12
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=3001
 WORKDIR /app
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=65532:65532 /app/build/standalone ./
 COPY --from=builder --chown=65532:65532 /app/build/static ./build/static
-EXPOSE 3000
+EXPOSE 3001
 USER 65532:65532
 CMD ["server.js"]
