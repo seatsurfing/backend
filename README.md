@@ -28,7 +28,7 @@ This repository contains the Backend, which consists of:
 ## Quick reference
 * **Maintained by:** [Seatsurfing.app](https://seatsurfing.app/)
 * **Where to get help:** [Documentation](https://seatsurfing.app/docs/)
-* **Docker architectures:** [amd64, arm64, arm v7](http://hub.docker.com/r/seatsurfing/backend)
+* **Docker architectures:** [amd64, arm64](http://hub.docker.com/r/seatsurfing/backend)
 * **License:** [GPL 3.0](https://github.com/seatsurfing/backend/blob/master/LICENSE)
 
 ## How to use the Docker image
