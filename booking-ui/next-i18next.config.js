@@ -19,7 +19,7 @@ module.exports = {
   },
   i18n: {
     defaultLocale: 'default',
-    locales: ['default', 'en', 'de', 'fr', 'it', 'hu'],
+    locales: ['default', 'en', 'de', 'fr', 'it', 'hu', 'ro'],
   },
   serializeConfig: false,
   use: isBrowser ? [ChainedBackend] : [],
