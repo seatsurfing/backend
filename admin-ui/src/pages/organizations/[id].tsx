@@ -158,8 +158,8 @@ class EditOrganization extends React.Component<Props, State> {
       buttons = <>{backButton} {buttonSave}</>;
     }
 
-    let countries = ["BE", "BG", "DK", "DE", "EE", "FJ", "FR", "GR", "IE", "IT", "HR", "LV", "LT", "LU", "MT", "NL", "AT", "PL", "PT", "RO", "SE", "SK", "SI", "ES", "CY", "CZ", "HU"];
-    let languages = ["de", "en"];
+    let countries = ["BE", "BG", "DK", "DE", "EE", "FJ", "FR", "GR", "IE", "IL", "IT", "HR", "LV", "LT", "LU", "MT", "NL", "AT", "PL", "PT", "RO", "SE", "SK", "SI", "ES", "CY", "CZ", "HU"];
+    let languages = ["de", "en", "he"];
 
     let adminSection = <></>;
     if (!this.entity.id) {
