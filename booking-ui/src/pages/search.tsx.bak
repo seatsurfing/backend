@@ -9,7 +9,7 @@ import 'react-date-picker/dist/DatePicker.css';
 import 'react-calendar/dist/Calendar.css';
 import 'react-clock/dist/Clock.css';
 import Loading from '../components/Loading';
-import { EnterOutline as EnterIcon, ExitOutline as ExitIcon, LocationOutline as LocationIcon, ChevronUpOutline as CollapseIcon, ChevronDownOutline as CollapseIcon2, SettingsOutline as SettingsIcon, MapOutline as MapIcon } from 'react-ionicons'
+import { EnterOutline as EnterIcon, ExitOutline as ExitIcon, LocationOutline as LocationIcon, ChevronUpOutline as CollapseIcon, ChevronDownOutline as CollapseIcon2, SettingsOutline as SettingsIcon, MapOutline as MapIcon, CalendarOutline as WeekIcon } from 'react-ionicons'
 import ErrorText from '../types/ErrorText';
 import { NextRouter } from 'next/router';
 import { WithTranslation, withTranslation } from 'next-i18next';
@@ -696,6 +696,19 @@ class Search extends React.Component<Props, State> {
               </Col>
             </Form.Group>
             {hint}
+            <Form.Group as={Row} className="margin-top-10">
+              <Col xs="2"><WeekIcon title={this.props.t("week")} color={'#555'} height="20px" width="20px" /></Col>
+              <Col xs="10">
+                <Form.Range disabled={this.state.listView} list="weekDays" min="1" max="5" step="1" />
+                <datalist id="weekDays">
+                  <option value="1"></option>
+                  <option value="2"></option>
+                  <option value="3"></option>
+                  <option value="4"></option>
+                  <option value="5"></option>
+                </datalist>
+              </Col>
+            </Form.Group>
             <Form.Group as={Row} className="margin-top-10">
               <Col xs="2"><MapIcon title={this.props.t("map")} color={'#555'} height="20px" width="20px" /></Col>
               <Col xs="10">
