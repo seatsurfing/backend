@@ -9,7 +9,7 @@ import 'react-date-picker/dist/DatePicker.css';
 import 'react-calendar/dist/Calendar.css';
 import 'react-clock/dist/Clock.css';
 import Loading from '../components/Loading';
-import { EnterOutline as EnterIcon, ExitOutline as ExitIcon, LocationOutline as LocationIcon, ChevronUpOutline as CollapseIcon, ChevronDownOutline as CollapseIcon2, SettingsOutline as SettingsIcon, MapOutline as MapIcon } from 'react-ionicons'
+import { EnterOutline as EnterIcon, ExitOutline as ExitIcon, LocationOutline as LocationIcon, ChevronUpOutline as CollapseIcon, ChevronDownOutline as CollapseIcon2, SettingsOutline as SettingsIcon, MapOutline as MapIcon, CalendarOutline as WeekIcon } from 'react-ionicons'
 import ErrorText from '../types/ErrorText';
 import { NextRouter } from 'next/router';
 import { WithTranslation, withTranslation } from 'next-i18next';
@@ -21,6 +21,7 @@ import { Tooltip } from 'react-tooltip';
 interface State {
   enter: Date
   leave: Date
+  daySlider: number
   locationId: string
   canSearch: boolean
   canSearchHint: string
@@ -74,6 +75,7 @@ class Search extends React.Component<Props, State> {
       enter: new Date(),
       leave: new Date(),
       locationId: "",
+      daySlider: new Date().getDay(),
       canSearch: false,
       canSearchHint: "",
       showBookingNames: false,
@@ -321,6 +323,14 @@ class Search extends React.Component<Props, State> {
     });
   }
 
+  changeEnterDay = (value: number) => {
+    this.setState({ daySlider: value });
+    let delta = value - this.state.enter.getDay();
+    let newEnter = new Date(this.state.enter);
+    newEnter.setDate(newEnter.getDate() + delta);
+    this.setEnterDate( newEnter );
+  }
+
   setEnterDate = (value: Date | [Date | null, Date | null]) => {
     let dateChangedCb = () => {
       this.updateCanSearch().then(() => {
@@ -350,6 +360,7 @@ class Search extends React.Component<Props, State> {
       leave.setTime(date.getTime() + diff);
       this.setState({
         enter: date,
+        daySlider: date.getDay(),
         leave: leave
       }, () => dateChangedCb());
     };
@@ -702,6 +713,12 @@ class Search extends React.Component<Props, State> {
             </Form.Group>
             {hint}
             <Form.Group as={Row} className="margin-top-10">
+              <Col xs="2"><WeekIcon title={this.props.t("week")} color={'#555'} height="20px" width="20px" /></Col>
+              <Col xs="10">
+                <Form.Range disabled={this.state.listView} list="weekDays" min={Math.min(...this.state.prefWorkdays)} max={Math.max(...this.state.prefWorkdays)} step="1" value={this.state.daySlider} onChange={(event) => this.changeEnterDay(window.parseInt(event.target.value))} />
+              </Col>
+            </Form.Group>
+            <Form.Group as={Row} className="margin-top-10">
               <Col xs="2"><MapIcon title={this.props.t("map")} color={'#555'} height="20px" width="20px" /></Col>
               <Col xs="10">
                 <Form.Check type="switch" checked={!this.state.listView} onChange={() => this.toggleListView()} label={this.state.listView ? this.props.t("showList") : this.props.t("showMap")} />
@@ -808,15 +825,6 @@ class Search extends React.Component<Props, State> {
       </Modal>
     );
 
-    if (this.state.loading) {
-      return (
-        <>
-          <Loading />
-          {configContainer}
-        </>
-      );
-    }
-
     return (
       <>
         <NavBar />
@@ -825,6 +833,7 @@ class Search extends React.Component<Props, State> {
         {successModal}
         {errorModal}
         {listOrMap}
+        <Loading visible={this.state.loading} />
         {configContainer}
       </>
     )
