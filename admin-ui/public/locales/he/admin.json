@@ -135,7 +135,7 @@
     "updateAvailable": "נא לעדכן את Seatsurfing לגרסה {{version}} העדכנית ביותר.",
     "tomorrow": "מחר",
     "inXdays": "בעוד {{x}} ימים",
-    "hour12": "1",
+    "hour12": "0",
     "editBooking": "עריכת הזמנה",
     "newBooking": "הזמנה חדשה",
     "errorBookingLimit": "הגעת למגבלה של {{num}} הזמנות.",
