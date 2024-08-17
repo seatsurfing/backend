@@ -41,6 +41,9 @@ class NavBar extends React.Component<Props, State> {
     }
 
     componentDidMount = () => {
+        if (!Ajax.CREDENTIALS.accessToken) {
+            return;
+        }
         this.loadData();
     }
 

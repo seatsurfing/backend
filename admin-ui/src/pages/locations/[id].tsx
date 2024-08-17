@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import FullLayout from '../../components/FullLayout';
-import { Form, Col, Row, Button, Alert, InputGroup } from 'react-bootstrap';
-import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete, MapPin as IconMap, Copy as IconCopy, Loader as IconLoad } from 'react-feather';
+import { Form, Col, Row, Button, Alert, InputGroup, Table } from 'react-bootstrap';
+import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete, MapPin as IconMap, Copy as IconCopy, Loader as IconLoad, Download as IconDownload } from 'react-feather';
 import Loading from '../../components/Loading';
 import { Ajax, Location, Space } from 'flexspace-commons';
 import { Rnd } from 'react-rnd';
@@ -102,9 +102,7 @@ class EditLocation extends React.Component<Props, State> {
       return Location.get(locationId).then(location => {
         this.entity = location;
         return Space.list(this.entity.id).then(spaces => {
-          spaces.forEach(space => {
-            this.addRect(space);
-          });
+          this.setState({ spaces: spaces.map( (s) => this.newSpaceState(s) ) });
           return this.entity.getMap().then(mapData => {
             this.mapData = mapData;
             this.setState({
@@ -187,9 +185,8 @@ class EditLocation extends React.Component<Props, State> {
     }
   }
 
-  addRect = (e?: Space): number => {
-    let spaces = this.state.spaces;
-    let space: SpaceState = {
+  newSpaceState = (e?: Space): SpaceState => {
+    return {
       id: (e ? e.id : ""),
       name: (e ? e.name : this.props.t("unnamed")),
       x: (e ? e.x : 10),
@@ -198,6 +195,11 @@ class EditLocation extends React.Component<Props, State> {
       height: (e ? e.height + "px" : "100px"),
       rotation: 0
     };
+  }
+
+  addRect = (e?: Space): number => {
+    let spaces = this.state.spaces;
+    let space = this.newSpaceState(e);
     let i = spaces.push(space);
     this.setState({ spaces: spaces, changed: this.state.changed || (e ? false : true) });
     return i;
@@ -305,6 +307,15 @@ class EditLocation extends React.Component<Props, State> {
     }
   }
 
+  renderRow = (space: SpaceState) => {
+    return (
+      <tr key={space.id} >
+        <td>{space.name}</td>
+        <td>{window.location.origin}/ui/search?lid={this.entity.id}&sid={space.id}</td>
+      </tr>
+    );
+  }
+
   render() {
     if (this.state.goBack) {
       this.props.router.push(`/locations`);
@@ -330,6 +341,8 @@ class EditLocation extends React.Component<Props, State> {
     let buttonDelete = <Button className="btn-sm" variant="outline-secondary" onClick={this.deleteItem}><IconDelete className="feather" /> {this.props.t("delete")}</Button>;
     let buttonSave = this.getSaveButton();
     let floorPlan = <></>
+    let spaceTable = <></>
+    let rows = this.state.spaces.map((item) => this.renderRow(item));
     if (this.entity.id) {
       buttons = <>{backButton} {buttonDelete} {buttonSave}</>;
       const floorPlanStyle = {
@@ -364,6 +377,30 @@ class EditLocation extends React.Component<Props, State> {
             </div>
           </div>
         </>
+      );
+      let downloadButton = <a download={`seatsurfing-${this.state.name}-spaces.xlsx`} href="#" className="btn btn-sm btn-outline-secondary" onClick={this.exportTable}><IconDownload className="feather" /> {this.props.t("download")}</a>;
+      spaceTable = (
+        <>
+          <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 className="h2">{this.props.t("spaceList")}</h1>
+          <div className="btn-toolbar mb-2 mb-md-0">
+            <div className="btn-group me-2">
+              {downloadButton}
+            </div>
+          </div>
+        </div>
+        <Table striped={true} hover={true} id="datatable">
+          <thead>
+            <tr>
+              <th>{this.props.t("name")}</th>
+              <th>{this.props.t("bookingLink")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows}
+          </tbody>
+        </Table>
+      </>
       );
     } else {
       buttons = <>{backButton} {buttonSave}</>;
@@ -410,6 +447,7 @@ class EditLocation extends React.Component<Props, State> {
           </Form.Group>
         </Form>
         {floorPlan}
+        {spaceTable}
       </FullLayout>
     );
   }

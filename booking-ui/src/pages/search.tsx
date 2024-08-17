@@ -99,7 +99,7 @@ class Search extends React.Component<Props, State> {
   componentDidMount = () => {
     console.log(RuntimeConfig.INFOS);
     if (!Ajax.CREDENTIALS.accessToken) {
-      this.props.router.push("/login");
+      this.props.router.push({pathname: "/login", query: { redir: this.props.router.asPath }});
       return;
     }
     this.loadItems();
@@ -116,15 +116,20 @@ class Search extends React.Component<Props, State> {
       if (this.state.locationId === "" && this.locations.length > 0) {
         let defaultLocationId = this.locations[0].id;
         if (this.state.prefLocationId) {
-          this.locations.forEach(location => {
-            if (location.id === this.state.prefLocationId) {
-              defaultLocationId = this.state.prefLocationId;
-            }
-          })
+          defaultLocationId = this.locations.find((e) => e.id === this.state.prefLocationId)?.id || defaultLocationId;
         }
+        let lidParam = this.props.router.query["lid"] as string || "";
+        if (lidParam) {
+          defaultLocationId = this.locations.find((e) => e.id === lidParam)?.id || defaultLocationId;
+        }
+        let sidParam = this.props.router.query["sid"] as string || "";
         this.setState({ locationId: defaultLocationId }, () => {
           this.loadMap(this.state.locationId).then(() => {
             this.setState({ loading: false });
+            if (sidParam) {
+              let space = this.data.find( (item) => item.id == sidParam);
+              if (space) this.onSpaceSelect(space);
+            }
           });
         });
       } else {

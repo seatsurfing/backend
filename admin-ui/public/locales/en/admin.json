@@ -75,6 +75,7 @@
     "errorLoginFailed": "Login failed.",
     "loginFailedDescription": "Possibly your account is not activated in this organization.",
     "map": "Map",
+    "bookingLink": "Booking Link",
     "admin": "Administrator",
     "yes": "Yes",
     "loginMeans": "Login",
