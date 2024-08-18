@@ -6,22 +6,22 @@
     "@types/react-dom": "^18.3.0",
     "bootstrap": "^5.3.3",
     "flexspace-commons": "file:../commons/ts",
-    "i18next": "^23.11.5",
+    "i18next": "^23.13.0",
     "i18next-chained-backend": "^4.6.2",
     "i18next-http-backend": "^2.5.2",
     "i18next-localstorage-backend": "^4.2.0",
-    "next": "^14.2.4",
-    "next-i18next": "^15.3.0",
+    "next": "^14.2.5",
+    "next-i18next": "^15.3.1",
     "react": "^18.3.1",
     "react-bootstrap": "^2.10.4",
     "react-date-picker": "^11.0.0",
     "react-datetime-picker": "^6.0.1",
     "react-dom": "^18.3.1",
     "react-feather": "^2.0.10",
-    "react-i18next": "^14.1.2",
+    "react-i18next": "^15.0.1",
     "react-ionicons": "^4.2.1",
-    "react-tooltip": "^5.27.0",
-    "typescript": "^5.5.3"
+    "react-tooltip": "^5.28.0",
+    "typescript": "^5.5.4"
   },
   "scripts": {
     "start": "PORT=3001 next start",
@@ -44,8 +44,8 @@
   },
   "homepage": "/ui/",
   "devDependencies": {
-    "@types/node": "20.14.9",
+    "@types/node": "22.4.0",
     "eslint": "^8.57.0",
-    "eslint-config-next": "14.2.4"
+    "eslint-config-next": "14.2.5"
   }
 }

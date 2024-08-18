@@ -7,13 +7,13 @@
     "bootstrap": "^5.3.3",
     "excellentexport": "^3.9.7",
     "flexspace-commons": "file:../commons/ts",
-    "i18next": "^23.11.5",
+    "i18next": "^23.13.0",
     "i18next-browser-languagedetector": "^8.0.0",
     "i18next-chained-backend": "^4.6.2",
     "i18next-http-backend": "^2.5.2",
     "i18next-localstorage-backend": "^4.2.0",
-    "next": "^14.2.4",
-    "next-i18next": "^15.3.0",
+    "next": "^14.2.5",
+    "next-i18next": "^15.3.1",
     "react": "^18.3.1",
     "react-autosuggest": "^10.1.0",
     "react-bootstrap": "^2.10.4",
@@ -21,10 +21,10 @@
     "react-datetime-picker": "^6.0.1",
     "react-dom": "^18.3.1",
     "react-feather": "^2.0.10",
-    "react-i18next": "^14.1.2",
-    "react-rnd": "^10.4.11",
-    "react-router-dom": "^6.24.0",
-    "typescript": "^5.5.3"
+    "react-i18next": "^15.0.1",
+    "react-rnd": "^10.4.12",
+    "react-router-dom": "^6.26.1",
+    "typescript": "^5.5.4"
   },
   "scripts": {
     "start": "PORT=3000 next start",
@@ -47,9 +47,9 @@
   },
   "homepage": "/admin/",
   "devDependencies": {
-    "@types/node": "20.14.9",
+    "@types/node": "22.4.0",
     "@types/react-autosuggest": "^10.1.11",
     "eslint": "^8.57.0",
-    "eslint-config-next": "^14.2.4"
+    "eslint-config-next": "^14.2.5"
   }
 }
