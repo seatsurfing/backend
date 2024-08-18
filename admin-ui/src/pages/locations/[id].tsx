@@ -46,6 +46,7 @@ class EditLocation extends React.Component<Props, State> {
   entity: Location = new Location();
   mapData: any = null;
   timezones: string[];
+  ExcellentExport: any;
 
   constructor(props: any) {
     super(props);
@@ -83,6 +84,7 @@ class EditLocation extends React.Component<Props, State> {
         loading: false
       });
     });
+    import('excellentexport').then(imp => this.ExcellentExport = imp.default);
   }
 
   loadTimezones = async (): Promise<void> => {
@@ -316,6 +318,13 @@ class EditLocation extends React.Component<Props, State> {
     );
   }
 
+  exportTable = (e: any) => {
+    return this.ExcellentExport.convert(
+      { anchor: e.target, filename: "seatsurfing-spaces", format: "xlsx" },
+      [{ name: "Seatsurfing Spaces", from: { table: "datatable" } }]
+    );
+  }
+
   render() {
     if (this.state.goBack) {
       this.props.router.push(`/locations`);
@@ -382,7 +391,7 @@ class EditLocation extends React.Component<Props, State> {
       spaceTable = (
         <>
           <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h1 className="h2">{this.props.t("spaceList")}</h1>
+          <h1 className="h2">{this.props.t("spaces")}</h1>
           <div className="btn-toolbar mb-2 mb-md-0">
             <div className="btn-group me-2">
               {downloadButton}
