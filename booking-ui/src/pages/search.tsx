@@ -331,7 +331,13 @@ class Search extends React.Component<Props, State> {
   changeEnterDay = (value: number) => {
     let enter = new Date(this.state.earliestEnterDate.valueOf());
     enter.setDate(enter.getDate() + value);
+    if (Formatting.getDayValue(enter) > Formatting.getDayValue(this.state.earliestEnterDate)) {
+      enter.setHours(this.state.prefWorkdayStart, 0, 0, 0);
+    }
+    let leave = new Date(enter.valueOf());
+    leave.setHours(this.state.prefWorkdayEnd, 0, 0, 0);
     this.setEnterDate(enter);
+    this.setLeaveDate(leave);
     this.setState({ daySlider: value });
   }
 
@@ -363,7 +369,7 @@ class Search extends React.Component<Props, State> {
       }
       let leave = new Date();
       leave.setTime(date.getTime() + diff);
-      const daySlider = Math.floor(Math.abs(date.getTime() - this.state.earliestEnterDate.getTime()) / (1000 * 60 * 60 * 24));
+      const daySlider = Formatting.getDayDiff(date, this.state.earliestEnterDate);
       const daySliderDisabled = (daySlider > RuntimeConfig.INFOS.maxDaysInAdvance) || (daySlider < 0);
       this.setState({
         enter: date,

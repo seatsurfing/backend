@@ -61,6 +61,14 @@ export default class Formatting {
         return parseInt(s);
     }
 
+    static getDayDiff(date1: Date, date2: Date): number {
+        const d1 = new Date(date1.valueOf());
+        d1.setHours(0, 0, 0, 0);
+        const d2 = new Date(date2.valueOf());
+        d2.setHours(0, 0, 0, 0);
+        return Math.floor((d1.getTime() - d2.getTime()) / (1000 * 60 * 60 * 24));
+    }
+
     static getISO8601(date: Date): string {
         let s = date.getFullYear().toString().padStart(4, "0") + "-" + (date.getMonth()+1).toString().padStart(2, "0") + "-" + date.getDate().toString().padStart(2, "0");
         return s;
