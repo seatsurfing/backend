@@ -706,7 +706,7 @@ class Search extends React.Component<Props, State> {
         <div className="content">
           <Form>
             <Form.Group as={Row}>
-              <Col xs="2"><LocationIcon title={this.props.t("area")} color={'#555'} height="20px" width="20px" /></Col>
+              <Col xs="2" className='pt-1'><LocationIcon title={this.props.t("area")} color={'#555'} height="20px" width="20px" /></Col>
               <Col xs="10">
                 <Form.Select required={true} value={this.state.locationId} onChange={(e) => this.changeLocation(e.target.value)}>
                   {this.renderLocations()}
@@ -714,13 +714,13 @@ class Search extends React.Component<Props, State> {
               </Col>
             </Form.Group>
             <Form.Group as={Row} className="margin-top-10">
-              <Col xs="2"><EnterIcon title={this.props.t("enter")} color={'#555'} height="20px" width="20px" /></Col>
+              <Col xs="2"  className='pt-1'><EnterIcon title={this.props.t("enter")} color={'#555'} height="20px" width="20px" /></Col>
               <Col xs="10">
                 {enterDatePicker}
               </Col>
             </Form.Group>
             <Form.Group as={Row} className="margin-top-10">
-              <Col xs="2"><ExitIcon title={this.props.t("leave")} color={'#555'} height="20px" width="20px" /></Col>
+              <Col xs="2" className='pt-1'><ExitIcon title={this.props.t("leave")} color={'#555'} height="20px" width="20px" /></Col>
               <Col xs="10">
                 {leaveDatePicker}
               </Col>
