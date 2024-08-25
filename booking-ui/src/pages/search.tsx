@@ -19,9 +19,11 @@ import withReadyRouter from '@/components/withReadyRouter';
 import { Tooltip } from 'react-tooltip';
 
 interface State {
+  earliestEnterDate: Date;
   enter: Date
   leave: Date
   daySlider: number
+  daySliderDisabled: boolean
   locationId: string
   canSearch: boolean
   canSearchHint: string
@@ -72,10 +74,12 @@ class Search extends React.Component<Props, State> {
     this.enterChangeTimer = undefined;
     this.leaveChangeTimer = undefined;
     this.state = {
+      earliestEnterDate: new Date(),
       enter: new Date(),
       leave: new Date(),
       locationId: "",
-      daySlider: new Date().getDay(),
+      daySlider: 0,
+      daySliderDisabled: false,
       canSearch: false,
       canSearchHint: "",
       showBookingNames: false,
@@ -219,6 +223,7 @@ class Search extends React.Component<Props, State> {
     }
 
     this.setState({
+      earliestEnterDate: enter,
       enter: enter,
       leave: leave
     });
@@ -324,14 +329,14 @@ class Search extends React.Component<Props, State> {
   }
 
   changeEnterDay = (value: number) => {
+    let enter = new Date(this.state.earliestEnterDate.valueOf());
+    enter.setDate(enter.getDate() + value);
+    this.setEnterDate(enter);
     this.setState({ daySlider: value });
-    let delta = value - this.state.enter.getDay();
-    let newEnter = new Date(this.state.enter);
-    newEnter.setDate(newEnter.getDate() + delta);
-    this.setEnterDate( newEnter );
   }
 
   setEnterDate = (value: Date | [Date | null, Date | null]) => {
+    console.log("New enter date: " + value);
     let dateChangedCb = () => {
       this.updateCanSearch().then(() => {
         if (!this.state.canSearch) {
@@ -358,10 +363,13 @@ class Search extends React.Component<Props, State> {
       }
       let leave = new Date();
       leave.setTime(date.getTime() + diff);
+      const daySlider = Math.floor(Math.abs(date.getTime() - this.state.earliestEnterDate.getTime()) / (1000 * 60 * 60 * 24));
+      const daySliderDisabled = (daySlider > RuntimeConfig.INFOS.maxDaysInAdvance) || (daySlider < 0);
       this.setState({
         enter: date,
-        daySlider: date.getDay(),
-        leave: leave
+        leave: leave,
+        daySlider: daySlider,
+        daySliderDisabled: daySliderDisabled
       }, () => dateChangedCb());
     };
     if (typeof window !== 'undefined') {
@@ -715,7 +723,7 @@ class Search extends React.Component<Props, State> {
             <Form.Group as={Row} className="margin-top-10">
               <Col xs="2"><WeekIcon title={this.props.t("week")} color={'#555'} height="20px" width="20px" /></Col>
               <Col xs="10">
-                <Form.Range disabled={this.state.listView} list="weekDays" min={Math.min(...this.state.prefWorkdays)} max={Math.max(...this.state.prefWorkdays)} step="1" value={this.state.daySlider} onChange={(event) => this.changeEnterDay(window.parseInt(event.target.value))} />
+                <Form.Range disabled={this.state.daySliderDisabled} list="weekDays" min={0} max={RuntimeConfig.INFOS.maxDaysInAdvance} step="1" value={this.state.daySlider} onChange={(event) => this.changeEnterDay(window.parseInt(event.target.value))} />
               </Col>
             </Form.Group>
             <Form.Group as={Row} className="margin-top-10">
