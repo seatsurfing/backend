@@ -124,19 +124,23 @@ class EditLocation extends React.Component<Props, State> {
   }
 
   saveSpaces = async () => {
+    // Fetch the latest list of spaces from the server to avoid overwriting
     let spaces = await Space.list(this.entity.id);
+
+    // For spaces on the "to be deleted"-list, delete them and clear the list afterwards
     for (let space of spaces) {
       if (this.state.deleteIds.indexOf(space.id) > -1) {
         await space.delete();
       }
     }
+    this.setState({deleteIds: []});
+
+    // Sync all other spaces to the server
     for (let item of this.state.spaces) {
       let space: Space = new Space();
-      spaces.forEach((spaceItem) => {
-        if (item.id === spaceItem.id) {
-          space = spaceItem
-        }
-      });
+      if (item.id) {
+        space.id = item.id;
+      }
       space.locationId = this.entity.id;
       space.name = item.name;
       space.x = item.x;
@@ -145,6 +149,7 @@ class EditLocation extends React.Component<Props, State> {
       space.height = parseInt(item.height.replace(/^\D+/g, ''));
       space.rotation = item.rotation;
       await space.save();
+      item.id = space.id; // Store id (if created)
     }
   }
 
