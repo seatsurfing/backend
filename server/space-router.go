@@ -20,6 +20,28 @@ type CreateSpaceRequest struct {
 	Rotation uint   `json:"rotation"`
 }
 
+type UpdateSpaceRequest struct {
+	CreateSpaceRequest
+	ID string `json:"id"`
+}
+
+type SpaceBulkUpdateRequest struct {
+	Creates   []CreateSpaceRequest `json:"creates"`
+	Updates   []UpdateSpaceRequest `json:"updates"`
+	DeleteIDs []string             `json:"deleteIds"`
+}
+
+type BulkUpdateItemResponse struct {
+	ID      string `json:"id"`
+	Success bool   `json:"success"`
+}
+
+type BulkUpdateResponse struct {
+	Creates []BulkUpdateItemResponse `json:"creates"`
+	Updates []BulkUpdateItemResponse `json:"updates"`
+	Deletes []BulkUpdateItemResponse `json:"deletes"`
+}
+
 type GetSpaceResponse struct {
 	ID         string              `json:"id"`
 	Available  bool                `json:"available"`
@@ -48,6 +70,7 @@ type GetSpaceAvailabilityRequest struct {
 
 func (router *SpaceRouter) setupRoutes(s *mux.Router) {
 	s.HandleFunc("/availability", router.getAvailability).Methods("POST")
+	s.HandleFunc("/bulk", router.bulkUpdate).Methods("POST")
 	s.HandleFunc("/{id}", router.getOne).Methods("GET")
 	s.HandleFunc("/{id}", router.update).Methods("PUT")
 	s.HandleFunc("/{id}", router.delete).Methods("DELETE")
@@ -149,6 +172,77 @@ func (router *SpaceRouter) getAvailability(w http.ResponseWriter, r *http.Reques
 			m.Bookings = append(m.Bookings, entry)
 		}
 		res = append(res, m)
+	}
+	SendJSON(w, res)
+}
+
+func (router *SpaceRouter) bulkUpdate(w http.ResponseWriter, r *http.Request) {
+	var m SpaceBulkUpdateRequest
+	if UnmarshalValidateBody(r, &m) != nil {
+		SendBadRequest(w)
+		return
+	}
+	vars := mux.Vars(r)
+	location, err := GetLocationRepository().GetOne(vars["locationId"])
+	if err != nil {
+		SendBadRequest(w)
+		return
+	}
+	user := GetRequestUser(r)
+	if !CanSpaceAdminOrg(user, location.OrganizationID) {
+		SendForbidden(w)
+		return
+	}
+
+	res := BulkUpdateResponse{
+		Creates: []BulkUpdateItemResponse{},
+		Updates: []BulkUpdateItemResponse{},
+		Deletes: []BulkUpdateItemResponse{},
+	}
+
+	// Process deletes
+	if m.DeleteIDs != nil {
+		for _, deleteID := range m.DeleteIDs {
+			e, err := GetSpaceRepository().GetOne(deleteID)
+			if err != nil {
+				res.Deletes = append(res.Deletes, BulkUpdateItemResponse{ID: deleteID, Success: false})
+			} else {
+				if err := GetSpaceRepository().Delete(e); err != nil {
+					res.Deletes = append(res.Deletes, BulkUpdateItemResponse{ID: deleteID, Success: false})
+				} else {
+					res.Deletes = append(res.Deletes, BulkUpdateItemResponse{ID: deleteID, Success: true})
+				}
+			}
+		}
+	}
+
+	// Process creates
+	if m.Creates != nil {
+		for _, mSpace := range m.Creates {
+			e := router.copyFromRestModel(&mSpace)
+			e.LocationID = vars["locationId"]
+			if err := GetSpaceRepository().Create(e); err != nil {
+				log.Println(err)
+				res.Creates = append(res.Creates, BulkUpdateItemResponse{ID: "", Success: false})
+			} else {
+				res.Creates = append(res.Creates, BulkUpdateItemResponse{ID: e.ID, Success: true})
+			}
+		}
+	}
+
+	// Process updates
+	if m.Updates != nil {
+		for _, mSpace := range m.Updates {
+			e := router.copyFromRestModel(&mSpace.CreateSpaceRequest)
+			e.ID = mSpace.ID
+			e.LocationID = vars["locationId"]
+			if err := GetSpaceRepository().Update(e); err != nil {
+				log.Println(err)
+				res.Updates = append(res.Updates, BulkUpdateItemResponse{ID: "", Success: false})
+			} else {
+				res.Updates = append(res.Updates, BulkUpdateItemResponse{ID: e.ID, Success: true})
+			}
+		}
 	}
 	SendJSON(w, res)
 }
