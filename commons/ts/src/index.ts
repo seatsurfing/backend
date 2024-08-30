@@ -8,6 +8,8 @@ export { Entity } from './types/Entity';
 export { default as AuthProvider } from './types/AuthProvider';
 export { default as Booking } from './types/Booking';
 export { default as Buddy } from './types/Buddy';
+export { default as BulkUpdateResponse } from './types/BulkUpdateResponse';
+export { default as BulkUpdateItem } from './types/BulkUpdateItem';
 export { default as Domain } from './types/Domain';
 export { default as Location } from './types/Location';
 export { default as Organization } from './types/Organization';

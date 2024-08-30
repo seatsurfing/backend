@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import FullLayout from '../../components/FullLayout';
 import { Form, Col, Row, Button, Alert, InputGroup, Table } from 'react-bootstrap';
 import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete, MapPin as IconMap, Copy as IconCopy, Loader as IconLoad, Download as IconDownload } from 'react-feather';
@@ -18,6 +18,7 @@ interface SpaceState {
   width: string
   height: string
   rotation: number
+  changed: boolean
 }
 
 interface State {
@@ -104,7 +105,13 @@ class EditLocation extends React.Component<Props, State> {
       return Location.get(locationId).then(location => {
         this.entity = location;
         return Space.list(this.entity.id).then(spaces => {
-          this.setState({ spaces: spaces.map( (s) => this.newSpaceState(s) ) });
+          this.setState({
+            spaces: spaces.map((s) => {
+              let spaceState = this.newSpaceState(s)
+              spaceState.changed = false;
+              return spaceState;
+            })
+          });
           return this.entity.getMap().then(mapData => {
             this.mapData = mapData;
             this.setState({
@@ -124,6 +131,51 @@ class EditLocation extends React.Component<Props, State> {
   }
 
   saveSpaces = async () => {
+    let creates: Space[] = [];
+    let updates: Space[] = [];
+
+    for (let item of this.state.spaces) {
+      if (item.changed) {
+        let space: Space = new Space();
+        if (item.id) {
+          space.id = item.id;
+        }
+        space.locationId = this.entity.id;
+        space.name = item.name;
+        space.x = item.x;
+        space.y = item.y;
+        space.width = parseInt(item.width.replace(/^\D+/g, ''));
+        space.height = parseInt(item.height.replace(/^\D+/g, ''));
+        space.rotation = item.rotation;
+        if (space.id) {
+          updates.push(space);
+        } else {
+          creates.push(space);
+        }
+      }
+    }
+
+    if (!((creates.length > 0) || (updates.length > 0) || (this.state.deleteIds.length > 0))) {
+      return;
+    }
+
+    let bulkUpdateResponse = await Space.bulkUpdate(this.entity.id, creates, updates, this.state.deleteIds);
+    let iUpdates = 0;
+    for (let item of this.state.spaces) {
+      if (item.changed) {
+        if (!item.id) {
+          if (iUpdates < bulkUpdateResponse.creates.length) {
+            item.id = bulkUpdateResponse.creates[iUpdates].id;
+          }
+          iUpdates++;
+        }
+        item.changed = false;
+      }
+    }
+    this.setState({ deleteIds: [] });
+
+    /*
+
     // Fetch the latest list of spaces from the server to avoid overwriting
     let spaces = await Space.list(this.entity.id);
 
@@ -133,7 +185,7 @@ class EditLocation extends React.Component<Props, State> {
         await space.delete();
       }
     }
-    this.setState({deleteIds: []});
+    this.setState({ deleteIds: [] });
 
     // Sync all other spaces to the server
     for (let item of this.state.spaces) {
@@ -151,6 +203,7 @@ class EditLocation extends React.Component<Props, State> {
       await space.save();
       item.id = space.id; // Store id (if created)
     }
+      */
   }
 
   onSubmit = (e: any) => {
@@ -200,7 +253,8 @@ class EditLocation extends React.Component<Props, State> {
       y: (e ? e.y : 10),
       width: (e ? e.width + "px" : "100px"),
       height: (e ? e.height + "px" : "100px"),
-      rotation: 0
+      rotation: 0,
+      changed: true
     };
   }
 
@@ -217,6 +271,7 @@ class EditLocation extends React.Component<Props, State> {
     let space = { ...spaces[i] };
     space.x = x;
     space.y = y;
+    space.changed = true;
     spaces[i] = space;
     this.setState({ spaces: spaces, changed: true });
   }
@@ -226,6 +281,7 @@ class EditLocation extends React.Component<Props, State> {
     let space = { ...spaces[i] };
     space.width = width;
     space.height = height;
+    space.changed = true;
     spaces[i] = space;
     this.setState({ spaces: spaces, changed: true });
   }
@@ -234,6 +290,7 @@ class EditLocation extends React.Component<Props, State> {
     let spaces = this.state.spaces;
     let space = { ...spaces[i] };
     space.name = name;
+    space.changed = true;
     spaces[i] = space;
     this.setState({ spaces: spaces, changed: true });
   }
@@ -250,6 +307,7 @@ class EditLocation extends React.Component<Props, State> {
       newSpace.id = "";
       newSpace.x += 20;
       newSpace.y += 20;
+      newSpace.changed = true;
       spaces.push(newSpace);
       this.setState({ spaces: spaces });
       this.setState({ selectedSpace: null, changed: true });
@@ -396,25 +454,25 @@ class EditLocation extends React.Component<Props, State> {
       spaceTable = (
         <>
           <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-          <h1 className="h2">{this.props.t("spaces")}</h1>
-          <div className="btn-toolbar mb-2 mb-md-0">
-            <div className="btn-group me-2">
-              {downloadButton}
+            <h1 className="h2">{this.props.t("spaces")}</h1>
+            <div className="btn-toolbar mb-2 mb-md-0">
+              <div className="btn-group me-2">
+                {downloadButton}
+              </div>
             </div>
           </div>
-        </div>
-        <Table striped={true} hover={true} id="datatable">
-          <thead>
-            <tr>
-              <th>{this.props.t("name")}</th>
-              <th>{this.props.t("bookingLink")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows}
-          </tbody>
-        </Table>
-      </>
+          <Table striped={true} hover={true} id="datatable">
+            <thead>
+              <tr>
+                <th>{this.props.t("name")}</th>
+                <th>{this.props.t("bookingLink")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows}
+            </tbody>
+          </Table>
+        </>
       );
     } else {
       buttons = <>{backButton} {buttonSave}</>;

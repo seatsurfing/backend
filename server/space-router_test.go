@@ -133,6 +133,76 @@ func TestSpacesCRUD(t *testing.T) {
 	checkTestResponseCode(t, http.StatusNotFound, res.Code)
 }
 
+func TestSpacesBulkUpdate(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	user := createTestUserOrgAdmin(org)
+	loginResponse := loginTestUser(user.ID)
+
+	// Create location
+	payload := `{"name": "Location 1"}`
+	req := newHTTPRequest("POST", "/location/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	locationID := res.Header().Get("X-Object-Id")
+
+	// 1. Create 3 spaces
+	payload = `{
+		"creates": [
+			{"name": "H1", "x": 50, "y": 110, "width": 210, "height": 310, "rotation": 90},
+			{"name": "H2", "x": 60, "y": 120, "width": 220, "height": 320, "rotation": 91},
+			{"name": "H3", "x": 70, "y": 130, "width": 230, "height": 330, "rotation": 92}
+		]
+	}`
+	req = newHTTPRequest("POST", "/location/"+locationID+"/space/bulk", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusOK, res.Code)
+	var resBody *BulkUpdateResponse
+	json.Unmarshal(res.Body.Bytes(), &resBody)
+	checkTestInt(t, 3, len(resBody.Creates))
+	checkTestInt(t, 0, len(resBody.Updates))
+	checkTestInt(t, 0, len(resBody.Deletes))
+	checkTestBool(t, true, resBody.Creates[0].Success)
+	checkTestBool(t, true, resBody.Creates[1].Success)
+	checkTestBool(t, true, resBody.Creates[2].Success)
+
+	// 2. Create, Update, Delete
+	payload = `{
+		"creates": [
+			{"name": "H4", "x": 80, "y": 140, "width": 240, "height": 340, "rotation": 93}
+		],
+		"updates": [
+			{"id": "` + resBody.Creates[1].ID + `", "name": "H2.2", "x": 69, "y": 129, "width": 229, "height": 329, "rotation": 99}
+		],
+		"deleteIds": [
+			"` + resBody.Creates[2].ID + `"
+		]
+	}`
+	req = newHTTPRequest("POST", "/location/"+locationID+"/space/bulk", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusOK, res.Code)
+	json.Unmarshal(res.Body.Bytes(), &resBody)
+	checkTestInt(t, 1, len(resBody.Creates))
+	checkTestInt(t, 1, len(resBody.Updates))
+	checkTestInt(t, 1, len(resBody.Deletes))
+	checkTestBool(t, true, resBody.Creates[0].Success)
+	checkTestBool(t, true, resBody.Updates[0].Success)
+	checkTestBool(t, true, resBody.Deletes[0].Success)
+
+	// 3. List
+	req = newHTTPRequest("GET", "/location/"+locationID+"/space/", loginResponse.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusOK, res.Code)
+	var resBody2 []*GetSpaceResponse
+	json.Unmarshal(res.Body.Bytes(), &resBody2)
+	if len(resBody2) != 3 {
+		t.Fatalf("Expected array with 3 elements")
+	}
+	checkTestString(t, "H1", resBody2[0].Name)
+	checkTestString(t, "H2.2", resBody2[1].Name)
+	checkTestString(t, "H4", resBody2[2].Name)
+}
+
 func TestSpacesList(t *testing.T) {
 	clearTestDB()
 	org := createTestOrg("test.com")

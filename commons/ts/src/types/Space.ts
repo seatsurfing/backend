@@ -2,6 +2,7 @@ import { Entity } from "./Entity";
 import Ajax from "../util/Ajax";
 import Location from "./Location";
 import Formatting from "../util/Formatting";
+import BulkUpdateResponse from "./BulkUpdateResponse";
 
 export default class Space extends Entity {
     name: string;
@@ -105,6 +106,19 @@ export default class Space extends Entity {
                 list.push(e);
             });
             return list;
+        });
+    }
+
+    static async bulkUpdate(locationId: string, creates: Space[], updates: Space[], deleteIds: string[]): Promise<BulkUpdateResponse> {
+        let payload = {
+            creates: creates,
+            updates: updates,
+            deleteIds: deleteIds
+        };
+        return Ajax.postData("/location/"+locationId+"/space/bulk", payload).then(result => {
+            let e = new BulkUpdateResponse();
+            e.deserialize(result);
+            return e;
         });
     }
 }
