@@ -13,13 +13,13 @@ export default class BulkUpdateResponse {
 
     deserialize(input: any): void {
         if (input.creates) {
-            this.creates = input.creates.map(e => new BulkUpdateItem().deserialize(e))
+            this.creates = input.creates.map((e: any) => new BulkUpdateItem().deserialize(e))
         }
         if (input.updates) {
-            this.updates = input.updates.map(e => new BulkUpdateItem().deserialize(e))
+            this.updates = input.updates.map((e: any) => new BulkUpdateItem().deserialize(e))
         }
         if (input.deletes) {
-            this.deletes = input.deletes.map(e => new BulkUpdateItem().deserialize(e))
+            this.deletes = input.deletes.map((e: any) => new BulkUpdateItem().deserialize(e))
         }
     }
 }
