@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -63,6 +64,7 @@ type AuthStateLoginPayload struct {
 	UserID    string `json:"userId"`
 	LoginType string `json:"type"`
 	LongLived bool   `json:"longLived"`
+	Redirect  string `json:"redirect,omitempty"`
 }
 
 type AuthRouter struct {
@@ -377,11 +379,13 @@ func (router *AuthRouter) login(w http.ResponseWriter, r *http.Request) {
 	if vars["longLived"] == "1" {
 		longLived = true
 	}
+	redir := r.URL.Query().Get("redir")
 	config := router.getConfig(provider)
 	payload := &AuthStateLoginPayload{
 		LoginType: loginType,
 		UserID:    "",
 		LongLived: longLived, // TODO
+		Redirect:  redir,
 	}
 	authState := &AuthState{
 		AuthProviderID: provider.ID,
@@ -439,6 +443,9 @@ func (router *AuthRouter) callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	redirectUrl := router.getRedirectSuccessUrl(payload.LoginType, authState)
+	if payload.Redirect != "" {
+		redirectUrl = redirectUrl + "?redir=" + url.QueryEscape(payload.Redirect)
+	}
 	SendTemporaryRedirect(w, redirectUrl)
 }
 

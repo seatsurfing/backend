@@ -318,7 +318,7 @@ class EditLocation extends React.Component<Props, State> {
     return (
       <tr key={space.id} >
         <td>{space.name}</td>
-        <td>{window.location.origin}/ui/search?lid={this.entity.id}&sid={space.id}</td>
+        <td>{space.id ? `${window.location.origin}/ui/search?lid=${this.entity.id}&sid=${space.id}` : this.props.t("saveAreaToGetLink")}</td>
       </tr>
     );
   }

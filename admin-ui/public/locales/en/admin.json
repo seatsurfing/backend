@@ -104,6 +104,7 @@
     "deleteSpace": "Delete space",
     "addSpace": "Add space",
     "floorplan": "Floorplan",
+    "saveAreaToGetLink": "Save area to get a valid link",
     "confluenceServerSharedSecret": "Confluence Shared Secret",
     "confluenceAnonymous": "Allow anonymous Confluence users (for demonstration purposes only)",
     "description": "Description",

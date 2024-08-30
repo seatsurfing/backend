@@ -41,8 +41,9 @@ class LoginSuccess extends React.Component<Props, State> {
           }
           Ajax.PERSISTER.updateCredentialsSessionStorage(Ajax.CREDENTIALS).then(() => {
             RuntimeConfig.setLoginDetails().then(() => {
+              let redirect = this.props.router.query["redir"] as string || "/search";
               this.setState({
-                redirect: "/search"
+                redirect
               });
             });
           });
