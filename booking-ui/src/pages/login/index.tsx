@@ -168,6 +168,10 @@ class Login extends React.Component<Props, State> {
     if (this.state.rememberMe) {
       target += "/1"
     }
+    let redir = this.props.router.query["redir"] as string;
+    if (redir) {
+      target += "?redir=" + encodeURIComponent(redir);
+    }
     window.location.href = target;
   }
 
