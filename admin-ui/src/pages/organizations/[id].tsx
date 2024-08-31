@@ -200,17 +200,17 @@ class EditOrganization extends React.Component<Props, State> {
           <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("country")}</Form.Label>
             <Col sm="4">
-              <Form.Control as="select" value={this.state.country} onChange={(e: any) => this.setState({ country: e.target.value })} required={true}>
+              <Form.Select value={this.state.country} onChange={(e: any) => this.setState({ country: e.target.value })} required={true}>
                 {countries.map(cc => <option key={cc}>{cc}</option>)}
-              </Form.Control>
+              </Form.Select>
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("language")}</Form.Label>
             <Col sm="4">
-              <Form.Control as="select" value={this.state.language} onChange={(e: any) => this.setState({ language: e.target.value })} required={true}>
+              <Form.Select value={this.state.language} onChange={(e: any) => this.setState({ language: e.target.value })} required={true}>
                 {languages.map(lc => <option key={lc}>{lc}</option>)}
-              </Form.Control>
+              </Form.Select>
             </Col>
           </Form.Group>
           <Form.Group as={Row}>

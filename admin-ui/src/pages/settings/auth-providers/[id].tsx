@@ -205,10 +205,10 @@ class EditAuthProvider extends React.Component<Props, State> {
           <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("type")}</Form.Label>
             <Col sm="9">
-              <Form.Control as="select" value={this.state.providerType} onChange={(e: any) => this.setState({ providerType: parseInt(e.target.value) })} required={true}>
+              <Form.Select value={this.state.providerType} onChange={(e: any) => this.setState({ providerType: parseInt(e.target.value) })} required={true}>
                 <option value="0">({this.props.t("pleaseSelect")})</option>
                 <option value="1">OAuth 2</option>
-              </Form.Control>
+              </Form.Select>
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
@@ -226,11 +226,11 @@ class EditAuthProvider extends React.Component<Props, State> {
           <Form.Group as={Row}>
             <Form.Label column sm="2">Auth Style</Form.Label>
             <Col sm="9">
-              <Form.Control as="select" value={this.state.authStyle} onChange={(e: any) => this.setState({ authStyle: parseInt(e.target.value) })} required={true}>
+              <Form.Select value={this.state.authStyle} onChange={(e: any) => this.setState({ authStyle: parseInt(e.target.value) })} required={true}>
                 <option value="0">{this.props.t("automatic")}</option>
                 <option value="1">Parameter (HTTP POST body)</option>
                 <option value="2">Header (HTTP Basic Authorization)</option>
-              </Form.Control>
+              </Form.Select>
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
