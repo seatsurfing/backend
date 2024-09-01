@@ -6,7 +6,7 @@ jobs:
 
   container-job:
     runs-on: ubuntu-latest
-    container: golang:1.21-alpine
+    container: golang:1.23-alpine
 
     services:
       postgres:
