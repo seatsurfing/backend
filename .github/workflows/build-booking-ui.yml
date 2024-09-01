@@ -57,7 +57,6 @@ jobs:
       uses: actions/attest-build-provenance@v1
       id: attest
       with:
-        subject-path: |
-          docker.io/seatsurfing/booking-ui
+        subject-name: index.docker.io/seatsurfing/booking-ui
         subject-digest: ${{ steps.push.outputs.digest }}
         push-to-registry: true

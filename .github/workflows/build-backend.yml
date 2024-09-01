@@ -55,7 +55,6 @@ jobs:
       uses: actions/attest-build-provenance@v1
       id: attest
       with:
-        subject-path: |
-          docker.io/seatsurfing/backend
+        subject-name: index.docker.io/seatsurfing/backend
         subject-digest: ${{ steps.push.outputs.digest }}
         push-to-registry: true
