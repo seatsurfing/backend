@@ -6,6 +6,12 @@ on:
   push:
     branches: [ "master" ]
 
+permissions:
+  id-token: write
+  contents: read
+  attestations: write
+  packages: write
+
 jobs:
 
   build:
@@ -35,7 +41,8 @@ jobs:
         username: seatsurfing
         password: ${{ secrets.CI_REGISTRY_PASSWORD }}
     - name: Build and push
-      uses: docker/build-push-action@v4
+      id: push
+      uses: docker/build-push-action@v5
       with:
         context: .
         platforms: linux/amd64,linux/arm64
@@ -44,3 +51,11 @@ jobs:
           seatsurfing/backend:dev
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
+    - name: Attest
+      uses: actions/attest-build-provenance@v1
+      id: attest
+      with:
+        subject-path: |
+          docker.io/seatsurfing/backend
+        subject-digest: ${{ steps.push.outputs.digest }}
+        push-to-registry: true
