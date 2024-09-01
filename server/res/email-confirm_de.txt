@@ -18,11 +18,9 @@ Benutzernamen:
 
 {{username}}
 
-Zur Platzbuchung nutzen Sie und Ihre Mitarbeiter bitte die Seatsurfing-
-Apps für Android und iOS oder die Web-Oberfläche.
+Zur Platzbuchung gehen Sie bitte auf:
 
-Web-Oberfläche: {{frontendUrl}}ui/
-Adresse für Anmeldung in App: {{publicUrl}}
+{{frontendUrl}}ui/
 
 Viele Grüße
 Ihr Team von seatsurfing.app
