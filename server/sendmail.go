@@ -9,14 +9,19 @@ import (
 	"strings"
 )
 
+const EmailTemplateDefaultLanguage = "en"
+
 var EmailTemplateSignup, _ = filepath.Abs("./res/email-signup.txt")
 var EmailTemplateConfirm, _ = filepath.Abs("./res/email-confirm.txt")
 var EmailTemplateResetpassword, _ = filepath.Abs("./res/email-resetpw.txt")
 var SendMailMockContent = ""
 
 func sendEmail(recipient, sender, templateFile, language string, vars map[string]string) error {
-	templateFile = strings.ReplaceAll(templateFile, ".txt", "_"+language+".txt")
-	body, err := compileEmailTemplate(templateFile, vars)
+	actualTemplateFile, err := getEmailTemplatePath(templateFile, language)
+	if err != nil {
+		return err
+	}
+	body, err := compileEmailTemplate(actualTemplateFile, vars)
 	if err != nil {
 		return err
 	}
@@ -28,6 +33,22 @@ func sendEmail(recipient, sender, templateFile, language string, vars map[string
 	msg := []byte(body)
 	err = smtpDialAndSend(sender, to, msg)
 	return err
+}
+
+func getEmailTemplatePath(templateFile, language string) (string, error) {
+	res := strings.ReplaceAll(templateFile, ".txt", "_"+language+".txt")
+	if _, err := os.Stat(res); err == nil {
+		return res, nil
+	}
+	if language == EmailTemplateDefaultLanguage {
+		return "", os.ErrNotExist
+	}
+
+	res = strings.ReplaceAll(templateFile, ".txt", "_"+EmailTemplateDefaultLanguage+".txt")
+	if _, err := os.Stat(res); err == nil {
+		return res, nil
+	}
+	return "", os.ErrNotExist
 }
 
 func compileEmailTemplate(templateFile string, vars map[string]string) (string, error) {
