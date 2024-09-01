@@ -19,7 +19,6 @@ interface State {
   firstname: string
   lastname: string
   email: string
-  country: string
   language: string
   domain: string
   password: string
@@ -44,7 +43,6 @@ class EditOrganization extends React.Component<Props, State> {
       firstname: "",
       lastname: "",
       email: "",
-      country: "DE",
       language: "de",
       domain: "",
       password: "",
@@ -69,7 +67,6 @@ class EditOrganization extends React.Component<Props, State> {
           firstname: org.contactFirstname,
           lastname: org.contactLastname,
           email: org.contactEmail,
-          country: org.country,
           language: org.language,
           loading: false,
         });
@@ -89,7 +86,6 @@ class EditOrganization extends React.Component<Props, State> {
     this.entity.contactFirstname = this.state.firstname;
     this.entity.contactLastname = this.state.lastname;
     this.entity.contactEmail = this.state.email;
-    this.entity.country = this.state.country;
     this.entity.language = this.state.language;
     let createUser = (!this.entity.id);
     this.entity.save().then(() => {
@@ -198,19 +194,11 @@ class EditOrganization extends React.Component<Props, State> {
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
-            <Form.Label column sm="2">{this.props.t("country")}</Form.Label>
-            <Col sm="4">
-              <Form.Control as="select" value={this.state.country} onChange={(e: any) => this.setState({ country: e.target.value })} required={true}>
-                {countries.map(cc => <option key={cc}>{cc}</option>)}
-              </Form.Control>
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("language")}</Form.Label>
             <Col sm="4">
-              <Form.Control as="select" value={this.state.language} onChange={(e: any) => this.setState({ language: e.target.value })} required={true}>
+              <Form.Select value={this.state.language} onChange={(e: any) => this.setState({ language: e.target.value })} required={true}>
                 {languages.map(lc => <option key={lc}>{lc}</option>)}
-              </Form.Control>
+              </Form.Select>
             </Col>
           </Form.Group>
           <Form.Group as={Row}>

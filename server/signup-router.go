@@ -21,7 +21,6 @@ type SignupRequest struct {
 	Firstname         string `json:"contactFirstname" validate:"required"`
 	Lastname          string `json:"contactLastname" validate:"required"`
 	Password          string `json:"password" validate:"required,min=8"`
-	Country           string `json:"country" validate:"required,len=2"`
 	Language          string `json:"language" validate:"required,len=2"`
 	AcceptTerms       bool   `json:"acceptTerms" validate:"required"`
 }
@@ -51,10 +50,6 @@ func (router *SignupRouter) signup(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusConflict)
 		return
 	}
-	if !router.isValidCountryCode(m.Country) {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
 	if !router.isValidLanguageCode(m.Language) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -66,7 +61,6 @@ func (router *SignupRouter) signup(w http.ResponseWriter, r *http.Request) {
 		Firstname:    m.Firstname,
 		Lastname:     m.Lastname,
 		Organization: m.Organization,
-		Country:      m.Country,
 		Language:     m.Language,
 		Domain:       domain,
 	}
@@ -102,7 +96,6 @@ func (router *SignupRouter) confirm(w http.ResponseWriter, r *http.Request) {
 		ContactLastname:  e.Lastname,
 		ContactEmail:     e.Email,
 		Language:         e.Language,
-		Country:          e.Country,
 		SignupDate:       e.Date,
 	}
 	if err := GetOrganizationRepository().Create(org); err != nil {
@@ -160,17 +153,6 @@ func (router *SignupRouter) getLanguage(language string) string {
 	default:
 		return "en"
 	}
-}
-
-func (router *SignupRouter) isValidCountryCode(isoCountryCode string) bool {
-	validCountryCodes := []string{"BE", "BG", "DK", "DE", "EE", "FJ", "FR", "GR", "IE", "IT", "HR", "LV", "LT", "LU", "MT", "NL", "AT", "PL", "PT", "RO", "SE", "SK", "SI", "ES", "CZ", "HU", "CY"}
-	cc := strings.ToUpper(isoCountryCode)
-	for _, s := range validCountryCodes {
-		if cc == s {
-			return true
-		}
-	}
-	return false
 }
 
 func (router *SignupRouter) isValidLanguageCode(isoLanguageCode string) bool {

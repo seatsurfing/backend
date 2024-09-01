@@ -18,7 +18,6 @@ type CreateOrganizationRequest struct {
 	Firstname string `json:"firstname" validate:"required"`
 	Lastname  string `json:"lastname" validate:"required"`
 	Email     string `json:"email" validate:"required,email"`
-	Country   string `json:"country" validate:"required,len=2"`
 	Language  string `json:"language" validate:"required,len=2"`
 }
 
@@ -327,7 +326,6 @@ func (router *OrganizationRouter) copyFromRestModel(m *CreateOrganizationRequest
 	e.ContactFirstname = m.Firstname
 	e.ContactLastname = m.Lastname
 	e.ContactEmail = m.Email
-	e.Country = m.Country
 	e.Language = m.Language
 	return e
 }
@@ -339,7 +337,6 @@ func (router *OrganizationRouter) copyToRestModel(e *Organization) *GetOrganizat
 	m.Firstname = e.ContactFirstname
 	m.Lastname = e.ContactLastname
 	m.Email = e.ContactEmail
-	m.Country = e.Country
 	m.Language = e.Language
 	return m
 }

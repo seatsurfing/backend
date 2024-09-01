@@ -59,7 +59,6 @@ func TestOrganizationsCRUD(t *testing.T) {
 		"firstname": "Foo",
 		"lastname": "Bar",
 		"email": "foo@seatsurfing.app",
-		"country": "DE",
 		"language": "de"
 	}`
 	req := newHTTPRequest("POST", "/organization/", loginResponse.UserID, bytes.NewBufferString(payload))
@@ -77,7 +76,6 @@ func TestOrganizationsCRUD(t *testing.T) {
 	checkTestString(t, "Foo", resBody.Firstname)
 	checkTestString(t, "Bar", resBody.Lastname)
 	checkTestString(t, "foo@seatsurfing.app", resBody.Email)
-	checkTestString(t, "DE", resBody.Country)
 	checkTestString(t, "de", resBody.Language)
 
 	// 3. Update
@@ -86,7 +84,6 @@ func TestOrganizationsCRUD(t *testing.T) {
 		"firstname": "Foo 2",
 		"lastname": "Bar 2",
 		"email": "foo2@seatsurfing.app",
-		"country": "AT",
 		"language": "us"
 	}`
 	req = newHTTPRequest("PUT", "/organization/"+id, loginResponse.UserID, bytes.NewBufferString(payload))
@@ -103,7 +100,6 @@ func TestOrganizationsCRUD(t *testing.T) {
 	checkTestString(t, "Foo 2", resBody2.Firstname)
 	checkTestString(t, "Bar 2", resBody2.Lastname)
 	checkTestString(t, "foo2@seatsurfing.app", resBody2.Email)
-	checkTestString(t, "AT", resBody2.Country)
 	checkTestString(t, "us", resBody2.Language)
 
 	// 4. Delete
@@ -128,7 +124,6 @@ func TestOrganizationsGetByDomain(t *testing.T) {
 		"firstname": "Foo",
 		"lastname": "Bar",
 		"email": "foo@seatsurfing.app",
-		"country": "DE",
 		"language": "de"
 	}`
 	req := newHTTPRequest("POST", "/organization/", loginResponse.UserID, bytes.NewBufferString(payload))
@@ -189,7 +184,6 @@ func TestOrganizationsDomainsCRUD(t *testing.T) {
 		"firstname": "Foo",
 		"lastname": "Bar",
 		"email": "foo@seatsurfing.app",
-		"country": "DE",
 		"language": "de"
 	}`
 	req := newHTTPRequest("POST", "/organization/", loginResponse.UserID, bytes.NewBufferString(payload))
@@ -270,7 +264,6 @@ func TestOrganizationsVerifyDNS(t *testing.T) {
 		"firstname": "Foo",
 		"lastname": "Bar",
 		"email": "foo@seatsurfing.app",
-		"country": "DE",
 		"language": "de"
 	}`
 	req := newHTTPRequest("POST", "/organization/", loginResponse.UserID, bytes.NewBufferString(payload))
@@ -322,7 +315,6 @@ func TestOrganizationsAddDomainConflict(t *testing.T) {
 		"firstname": "Foo",
 		"lastname": "Bar",
 		"email": "foo@seatsurfing.app",
-		"country": "DE",
 		"language": "de"
 	}`
 	req := newHTTPRequest("POST", "/organization/", loginResponse.UserID, bytes.NewBufferString(payload))
@@ -336,7 +328,6 @@ func TestOrganizationsAddDomainConflict(t *testing.T) {
 		"firstname": "Foo",
 		"lastname": "Bar",
 		"email": "foo@seatsurfing.app",
-		"country": "DE",
 		"language": "de"
 	}`
 	req = newHTTPRequest("POST", "/organization/", loginResponse.UserID, bytes.NewBufferString(payload))
@@ -368,7 +359,6 @@ func TestOrganizationsAddDomainNoConflictBecauseInactive(t *testing.T) {
 		"firstname": "Foo",
 		"lastname": "Bar",
 		"email": "foo@seatsurfing.app",
-		"country": "DE",
 		"language": "de"
 	}`
 	req := newHTTPRequest("POST", "/organization/", loginResponse.UserID, bytes.NewBufferString(payload))
@@ -382,7 +372,6 @@ func TestOrganizationsAddDomainNoConflictBecauseInactive(t *testing.T) {
 		"firstname": "Foo",
 		"lastname": "Bar",
 		"email": "foo@seatsurfing.app",
-		"country": "DE",
 		"language": "de"
 	}`
 	req = newHTTPRequest("POST", "/organization/", loginResponse.UserID, bytes.NewBufferString(payload))
@@ -420,7 +409,6 @@ func TestOrganizationsAddDomainActivateConflicting(t *testing.T) {
 		"firstname": "Foo",
 		"lastname": "Bar",
 		"email": "foo@seatsurfing.app",
-		"country": "DE",
 		"language": "de"
 	}`
 	req := newHTTPRequest("POST", "/organization/", loginResponse.UserID, bytes.NewBufferString(payload))
@@ -434,7 +422,6 @@ func TestOrganizationsAddDomainActivateConflicting(t *testing.T) {
 		"firstname": "Foo",
 		"lastname": "Bar",
 		"email": "foo@seatsurfing.app",
-		"country": "DE",
 		"language": "de"
 	}`
 	req = newHTTPRequest("POST", "/organization/", loginResponse.UserID, bytes.NewBufferString(payload))

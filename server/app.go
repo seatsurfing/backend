@@ -85,7 +85,6 @@ func (a *App) InitializeDefaultOrg() {
 		org := &Organization{
 			Name:       config.InitOrgName,
 			Language:   strings.ToLower(config.InitOrgLanguage),
-			Country:    strings.ToUpper(config.InitOrgCountry),
 			SignupDate: time.Now().UTC(),
 		}
 		GetOrganizationRepository().Create(org)

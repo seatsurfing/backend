@@ -33,7 +33,6 @@ type Config struct {
 	InitOrgDomain                       string
 	InitOrgUser                         string
 	InitOrgPass                         string
-	InitOrgCountry                      string
 	InitOrgLanguage                     string
 	OrgSignupEnabled                    bool
 	OrgSignupDomain                     string
@@ -86,7 +85,6 @@ func (c *Config) ReadConfig() {
 	c.InitOrgDomain = c.getEnv("INIT_ORG_DOMAIN", "seatsurfing.local")
 	c.InitOrgUser = c.getEnv("INIT_ORG_USER", "admin")
 	c.InitOrgPass = c.getEnv("INIT_ORG_PASS", "12345678")
-	c.InitOrgCountry = c.getEnv("INIT_ORG_COUNTRY", "DE")
 	c.InitOrgLanguage = c.getEnv("INIT_ORG_LANGUAGE", "de")
 	c.OrgSignupEnabled = (c.getEnv("ORG_SIGNUP_ENABLED", "0") == "1")
 	c.OrgSignupDomain = c.getEnv("ORG_SIGNUP_DOMAIN", ".on.seatsurfing.local")
