@@ -17,7 +17,6 @@ type Signup struct {
 	Firstname    string
 	Lastname     string
 	Organization string
-	Country      string
 	Language     string
 	Domain       string
 }
@@ -53,15 +52,21 @@ func (r *SignupRepository) RunSchemaUpgrade(curVersion, targetVersion int) {
 			panic(err)
 		}
 	}
+	if curVersion < 15 {
+		if _, err := GetDatabase().DB().Exec("ALTER TABLE signups " +
+			"DROP COLUMN country"); err != nil {
+			panic(err)
+		}
+	}
 }
 
 func (r *SignupRepository) Create(e *Signup) error {
 	var id string
 	err := GetDatabase().DB().QueryRow("INSERT INTO signups "+
-		"(date, email, password, firstname, lastname, organization, country, language, domain) "+
-		"VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) "+
+		"(date, email, password, firstname, lastname, organization, language, domain) "+
+		"VALUES ($1, $2, $3, $4, $5, $6, $7, $8) "+
 		"RETURNING id",
-		e.Date, e.Email, e.Password, e.Firstname, e.Lastname, e.Organization, e.Country, e.Language, e.Domain).Scan(&id)
+		e.Date, e.Email, e.Password, e.Firstname, e.Lastname, e.Organization, e.Language, e.Domain).Scan(&id)
 	if err != nil {
 		return err
 	}
@@ -71,10 +76,10 @@ func (r *SignupRepository) Create(e *Signup) error {
 
 func (r *SignupRepository) GetOne(id string) (*Signup, error) {
 	e := &Signup{}
-	err := GetDatabase().DB().QueryRow("SELECT id, date, email, password, firstname, lastname, organization, country, language, domain "+
+	err := GetDatabase().DB().QueryRow("SELECT id, date, email, password, firstname, lastname, organization, language, domain "+
 		"FROM signups "+
 		"WHERE id = $1",
-		id).Scan(&e.ID, &e.Date, &e.Email, &e.Password, &e.Firstname, &e.Lastname, &e.Organization, &e.Country, &e.Language, &e.Domain)
+		id).Scan(&e.ID, &e.Date, &e.Email, &e.Password, &e.Firstname, &e.Lastname, &e.Organization, &e.Language, &e.Domain)
 	if err != nil {
 		return nil, err
 	}
@@ -83,10 +88,10 @@ func (r *SignupRepository) GetOne(id string) (*Signup, error) {
 
 func (r *SignupRepository) GetByEmail(email string) (*Signup, error) {
 	e := &Signup{}
-	err := GetDatabase().DB().QueryRow("SELECT id, date, email, password, firstname, lastname, organization, country, language, domain "+
+	err := GetDatabase().DB().QueryRow("SELECT id, date, email, password, firstname, lastname, organization, language, domain "+
 		"FROM signups "+
 		"WHERE LOWER(email) = $1",
-		strings.ToLower(email)).Scan(&e.ID, &e.Date, &e.Email, &e.Password, &e.Firstname, &e.Lastname, &e.Organization, &e.Country, &e.Language, &e.Domain)
+		strings.ToLower(email)).Scan(&e.ID, &e.Date, &e.Email, &e.Password, &e.Firstname, &e.Lastname, &e.Organization, &e.Language, &e.Domain)
 	if err != nil {
 		return nil, err
 	}

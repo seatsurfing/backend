@@ -6,7 +6,6 @@ export default class Organization extends Entity {
     contactFirstname: string;
     contactLastname: string;
     contactEmail: string;
-    country: string;
     language: string;
 
     constructor() {
@@ -15,7 +14,6 @@ export default class Organization extends Entity {
         this.contactFirstname = "";
         this.contactLastname = "";
         this.contactEmail = "";
-        this.country = "";
         this.language = "";
     }
 
@@ -25,7 +23,6 @@ export default class Organization extends Entity {
             "firstname": this.contactFirstname,
             "lastname": this.contactLastname,
             "email": this.contactEmail,
-            "country": this.country,
             "language": this.language
         });
     }
@@ -36,7 +33,6 @@ export default class Organization extends Entity {
         this.contactFirstname = input.firstname;
         this.contactLastname = input.lastname;
         this.contactEmail = input.email;
-        this.country = input.country;
         this.language = input.language;
     }
 

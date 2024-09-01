@@ -106,7 +106,6 @@ func createTestOrg(orgDomain string) *Organization {
 		ContactEmail:     "foo@seatsurfing.app",
 		ContactFirstname: "Foo",
 		ContactLastname:  "Bar",
-		Country:          "DE",
 		Language:         "de",
 		SignupDate:       time.Now(),
 	}
