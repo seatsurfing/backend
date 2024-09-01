@@ -119,7 +119,7 @@ Please check out the [documentation](https://seatsurfing.app/docs/) for the late
 | INIT_ORG_DOMAIN | string | seatsurfing.local | Your organization's domain |
 | INIT_ORG_USER | string | admin | Your organization's admin username |
 | INIT_ORG_PASS | string | 12345678 | Your organization's admin password |
-| INIT_ORG_LANGUAGE | string | de | Your organization's ISO language code |
+| INIT_ORG_LANGUAGE | string | en | Your organization's ISO language code |
 | ORG_SIGNUP_ENABLED | bool | 0 | Allow signup of new organizations, set to 1 to enable |
 | ORG_SIGNUP_DOMAIN | string | .on.seatsurfing.local | Signup domain suffix |
 | ORG_SIGNUP_ADMIN | string | admin | Admin username for new signups |
