@@ -17,11 +17,9 @@ Please use your chosen password and the following username:
 
 {{username}}
 
-To book your seats, use the Seatsurfing apps for Android and iOS or
-use the web interface.
+To book your seats, please go to:
 
-Web interface: {{frontendUrl}}ui/
-Address for login in app: {{publicUrl}}
+{{frontendUrl}}ui/
 
 Kind regards,
 Team Seatsurfing
