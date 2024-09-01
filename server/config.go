@@ -85,7 +85,7 @@ func (c *Config) ReadConfig() {
 	c.InitOrgDomain = c.getEnv("INIT_ORG_DOMAIN", "seatsurfing.local")
 	c.InitOrgUser = c.getEnv("INIT_ORG_USER", "admin")
 	c.InitOrgPass = c.getEnv("INIT_ORG_PASS", "12345678")
-	c.InitOrgLanguage = c.getEnv("INIT_ORG_LANGUAGE", "de")
+	c.InitOrgLanguage = c.getEnv("INIT_ORG_LANGUAGE", "en")
 	c.OrgSignupEnabled = (c.getEnv("ORG_SIGNUP_ENABLED", "0") == "1")
 	c.OrgSignupDomain = c.getEnv("ORG_SIGNUP_DOMAIN", ".on.seatsurfing.local")
 	c.OrgSignupAdmin = c.getEnv("ORG_SIGNUP_ADMIN", "admin")
