@@ -18,8 +18,8 @@ module.exports = {
     backends: isBrowser ? [LocalStorageBackend, HttpBackend] : [],
   },
   i18n: {
-    defaultLocale: 'default',
-    locales: ['default', 'en', 'de', 'fr', 'it', 'hu', 'ro'],
+    defaultLocale: 'en',
+    locales: ['en', 'de', 'fr', 'it', 'hu', 'ro'],
   },
   serializeConfig: false,
   use: isBrowser ? [ChainedBackend] : [],
