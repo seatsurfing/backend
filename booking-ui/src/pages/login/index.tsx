@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Button, InputGroup } from 'react-bootstrap';
+import { Form, Button, InputGroup, Dropdown, DropdownButton } from 'react-bootstrap';
 import { Organization, AuthProvider, Ajax } from 'flexspace-commons';
 import { withTranslation, WithTranslation } from 'next-i18next';
 import RuntimeConfig from '../../components/RuntimeConfig';
@@ -54,7 +54,7 @@ class Login extends React.Component<Props, State> {
   componentDidMount = () => {
     this.checkSingleOrg();
   }
-  
+
   checkSingleOrg = () => {
     Ajax.get("/auth/singleorg").then((res) => {
       this.org = new Organization();
@@ -155,7 +155,7 @@ class Login extends React.Component<Props, State> {
   renderAuthProviderButton = (provider: AuthProvider) => {
     return (
       <p key={provider.id}>
-        <Button variant="primary" className="btn-auth-provider" onClick={() => this.useProvider(provider.id)}>{this.state.inAuthProviderLogin ? <Loading showText={false} paddingTop={false} /> : provider.name }</Button>
+        <Button variant="primary" className="btn-auth-provider" onClick={() => this.useProvider(provider.id)}>{this.state.inAuthProviderLogin ? <Loading showText={false} paddingTop={false} /> : provider.name}</Button>
       </p>
     );
   }
@@ -173,6 +173,10 @@ class Login extends React.Component<Props, State> {
       target += "?redir=" + encodeURIComponent(redir);
     }
     window.location.href = target;
+  }
+
+  changeLanguage = (lng: string) => {
+    this.props.i18n.changeLanguage(lng);
   }
 
   render() {
@@ -193,6 +197,19 @@ class Login extends React.Component<Props, State> {
       );
     }
 
+    let languageSelectDropdown = (
+      <DropdownButton title={this.props.i18n.language} className='lng-selector' size='sm' variant='outline-secondary' drop='up'>
+        {this.props.router.locales?.sort().map(l => <Dropdown.Item key={'lng-btn-' + l} onClick={() => this.changeLanguage(l)} active={l === this.props.i18n.language}>{l}</Dropdown.Item>)}
+      </DropdownButton>
+    );
+
+    let copyrightFooter = (
+      <p className="copyright-footer">
+        &copy; Seatsurfing &#183; Version {process.env.NEXT_PUBLIC_PRODUCT_VERSION}
+        {languageSelectDropdown}
+      </p>
+    );
+
     if (this.state.requirePassword) {
       return (
         <div className="container-signin">
@@ -201,11 +218,12 @@ class Login extends React.Component<Props, State> {
             <p>{this.props.t("signinAsAt", { user: this.state.email, org: this.org?.name })}</p>
             <InputGroup>
               <Form.Control type="password" readOnly={this.state.inPasswordSubmit} placeholder={this.props.t("password")} value={this.state.password} onChange={(e: any) => this.setState({ password: e.target.value, invalid: false })} required={true} isInvalid={this.state.invalid} minLength={8} autoFocus={true} />
-              <Button variant="primary" type="submit">{this.state.inPasswordSubmit ? <Loading showText={false} paddingTop={false} /> : <div className="feather-btn">&#10148;</div> }</Button>
+              <Button variant="primary" type="submit">{this.state.inPasswordSubmit ? <Loading showText={false} paddingTop={false} /> : <div className="feather-btn">&#10148;</div>}</Button>
             </InputGroup>
             <Form.Control.Feedback type="invalid">{this.props.t("errorInvalidPassword")}</Form.Control.Feedback>
             <p className="margin-top-50"><Button variant="link" onClick={this.cancelPasswordLogin}>{this.props.t("back")}</Button></p>
           </Form>
+          {copyrightFooter}
         </div>
       );
     }
@@ -227,6 +245,7 @@ class Login extends React.Component<Props, State> {
             {buttons}
             <p className="margin-top-50"><Button variant="link" onClick={() => this.setState({ providers: null })}>{this.props.t("back")}</Button></p>
           </Form>
+          {copyrightFooter}
         </div>
       );
     }
@@ -238,13 +257,13 @@ class Login extends React.Component<Props, State> {
           <h3>{this.props.t("findYourPlace")}</h3>
           <InputGroup>
             <Form.Control type="email" readOnly={this.state.inPreflight} placeholder={this.props.t("emailPlaceholder")} value={this.state.email} onChange={(e: any) => this.setState({ email: e.target.value, invalid: false })} required={true} isInvalid={this.state.invalid} autoFocus={true} />
-            <Button variant="primary" type="submit">{this.state.inPreflight ? <Loading showText={false} paddingTop={false} /> : <div className="feather-btn">&#10148;</div> }</Button>
+            <Button variant="primary" type="submit">{this.state.inPreflight ? <Loading showText={false} paddingTop={false} /> : <div className="feather-btn">&#10148;</div>}</Button>
           </InputGroup>
           <Form.Control.Feedback type="invalid">{this.props.t("errorInvalidEmail")}</Form.Control.Feedback>
           <Form.Check type="checkbox" id="check-rememberme" label={this.props.t("rememberMe")} checked={this.state.rememberMe} onChange={(e: any) => this.setState({ rememberMe: e.target.checked })} />
           <p className="margin-top-50"><Link href="/resetpw">{this.props.t("forgotPassword")}</Link></p>
         </Form>
-        <p className="copyright-footer">&copy; Seatsurfing &#183; Version {process.env.NEXT_PUBLIC_PRODUCT_VERSION}</p>
+        {copyrightFooter}
       </div>
     );
   }

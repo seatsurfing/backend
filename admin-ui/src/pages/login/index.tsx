@@ -1,10 +1,11 @@
 import React from 'react';
-import { Form, Button, InputGroup } from 'react-bootstrap';
+import { Form, Button, InputGroup, DropdownButton, Dropdown } from 'react-bootstrap';
 import { Organization, AuthProvider, Ajax, JwtDecoder, User } from 'flexspace-commons';
 import Loading from '../../components/Loading';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import { NextRouter } from 'next/router';
 import withReadyRouter from '@/components/withReadyRouter';
+import Link from 'next/link';
 
 interface State {
   email: string
@@ -44,7 +45,7 @@ class Login extends React.Component<Props, State> {
   componentDidMount = () => {
     this.checkSingleOrg();
   }
-  
+
   checkSingleOrg = () => {
     Ajax.get("/auth/singleorg").then((res) => {
       this.org = new Organization();
@@ -148,6 +149,10 @@ class Login extends React.Component<Props, State> {
     window.location.href = target;
   }
 
+  changeLanguage = (lng: string) => {
+    this.props.i18n.changeLanguage(lng);
+  }
+
   render() {
     if (this.state.redirect != null) {
       this.props.router.push(this.state.redirect);
@@ -162,6 +167,19 @@ class Login extends React.Component<Props, State> {
       );
     }
 
+    let languageSelectDropdown = (
+      <DropdownButton title={this.props.i18n.language} className='lng-selector' size='sm' variant='outline-secondary' drop='up'>
+        {this.props.router.locales?.sort().map(l => <Dropdown.Item key={'lng-btn-' + l} onClick={() => this.changeLanguage(l)} active={l === this.props.i18n.language}>{l}</Dropdown.Item>)}
+      </DropdownButton>
+    );
+
+    let copyrightFooter = (
+      <p className="copyright-footer">
+        &copy; Seatsurfing &#183; Version {process.env.NEXT_PUBLIC_PRODUCT_VERSION}
+        {languageSelectDropdown}
+      </p>
+    );
+
     if (this.state.requirePassword) {
       return (
         <div className="container-signin">
@@ -175,6 +193,7 @@ class Login extends React.Component<Props, State> {
             <Form.Control.Feedback type="invalid">{this.props.t("errorInvalidPassword")}</Form.Control.Feedback>
             <Button variant="secondary" className="btn-auth-provider btn-back" onClick={this.cancelPasswordLogin}>{this.props.t("back")}</Button>
           </Form>
+          {copyrightFooter}
         </div>
       );
     }
@@ -196,6 +215,7 @@ class Login extends React.Component<Props, State> {
             {buttons}
             <Button variant="secondary" className="btn-auth-provider" onClick={() => this.setState({ providers: null })}>{this.props.t("back")}</Button>
           </Form>
+          {copyrightFooter}
         </div>
       );
     }
@@ -211,7 +231,7 @@ class Login extends React.Component<Props, State> {
           </InputGroup>
           <Form.Control.Feedback type="invalid">{this.props.t("errorInvalidEmail")}</Form.Control.Feedback>
         </Form>
-        <p className="copyright-footer">&copy; Seatsurfing &#183; Version {process.env.NEXT_PUBLIC_PRODUCT_VERSION}</p>
+        {copyrightFooter}
       </div>
     );
   }
