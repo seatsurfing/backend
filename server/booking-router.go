@@ -222,7 +222,7 @@ func (router *BookingRouter) update(w http.ResponseWriter, r *http.Request) {
 	eNew.ID = e.ID
 	eNew.UserID = e.UserID
 	if m.UserEmail != "" && m.UserEmail != requestUser.Email {
-		if (!CanSpaceAdminOrg(requestUser, location.OrganizationID)){
+		if !CanSpaceAdminOrg(requestUser, location.OrganizationID) {
 			SendForbidden(w)
 			return
 		}
@@ -283,10 +283,18 @@ func (router *BookingRouter) delete(w http.ResponseWriter, r *http.Request) {
 		SendForbidden(w)
 		return
 	}
+
+	// Check for the date, If the BookingRequest is to close with today, the Delete can not be performed.
+	if !canDeleteBooking(e) {
+		SendForbidden(w)
+		return
+	}
+
 	if err := GetBookingRepository().Delete(e); err != nil {
 		SendInternalServerError(w)
 		return
 	}
+
 	SendUpdated(w)
 }
 
@@ -365,7 +373,7 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 	}
 	e.UserID = GetRequestUserID(r)
 	if m.UserEmail != "" && m.UserEmail != requestUser.Email {
-		if (!CanSpaceAdminOrg(requestUser, location.OrganizationID)){
+		if !CanSpaceAdminOrg(requestUser, location.OrganizationID) {
 			SendForbidden(w)
 			return
 		}
@@ -511,7 +519,7 @@ func (router *BookingRouter) getPresenceReport(w http.ResponseWriter, r *http.Re
 
 func (router *BookingRouter) isValidBookingDuration(m *BookingRequest, orgID string, user *User) bool {
 	noAdminRestrictions, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
-	if (noAdminRestrictions && CanSpaceAdminOrg(user, orgID)){
+	if noAdminRestrictions && CanSpaceAdminOrg(user, orgID) {
 		return true
 	}
 	dailyBasisBooking, _ := GetSettingsRepository().GetBool(orgID, SettingDailyBasisBooking.Name)
@@ -552,11 +560,11 @@ func (router *BookingRouter) isValidBookingAdvance(m *BookingRequest, orgID stri
 	if dailyBasisBooking {
 		now = now.Add(-12 * time.Hour)
 	}
-	if (m.Leave.Before(now)){ // Leave must not be in past
+	if m.Leave.Before(now) { // Leave must not be in past
 		return false
 	}
 	advanceDays := math.Floor(m.Enter.Sub(now).Hours() / 24)
-	if (advanceDays >=0 && noAdminRestrictions && CanSpaceAdminOrg(user, orgID)){
+	if advanceDays >= 0 && noAdminRestrictions && CanSpaceAdminOrg(user, orgID) {
 		return true
 	}
 	if advanceDays < 0 || advanceDays > float64(maxAdvanceDays) {
@@ -567,7 +575,7 @@ func (router *BookingRouter) isValidBookingAdvance(m *BookingRequest, orgID stri
 
 func (router *BookingRouter) isValidMaxUpcomingBookings(orgID string, user *User) bool {
 	noAdminRestrictions, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
-	if (noAdminRestrictions && CanSpaceAdminOrg(user, orgID)){
+	if noAdminRestrictions && CanSpaceAdminOrg(user, orgID) {
 		return true
 	}
 	maxUpcoming, _ := GetSettingsRepository().GetInt(orgID, SettingMaxBookingsPerUser.Name)
@@ -577,7 +585,7 @@ func (router *BookingRouter) isValidMaxUpcomingBookings(orgID string, user *User
 
 func (router *BookingRouter) isValidMaxConcurrentBookingsForUser(orgID string, user *User, m *BookingRequest, bookingID string) bool {
 	noAdminRestrictions, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
-	if (noAdminRestrictions && CanSpaceAdminOrg(user, orgID)){
+	if noAdminRestrictions && CanSpaceAdminOrg(user, orgID) {
 		return true
 	}
 	maxConcurrent, _ := GetSettingsRepository().GetInt(orgID, SettingMaxConcurrentBookingsPerUser.Name)
@@ -639,6 +647,14 @@ func (router *BookingRouter) copyFromRestModel(m *CreateBookingRequest, location
 	}
 	e.Leave = leaveNew
 	return e, nil
+}
+
+func canDeleteBooking(e *BookingDetails) bool {
+	// Check if the Booking is not close with today.
+	enterTime := e.Enter
+	today := time.Now().Local()
+	days := int64(enterTime.Sub(today).Hours() / 24)
+	return days > 1
 }
 
 func (router *BookingRouter) copyToRestModel(e *BookingDetails) *GetBookingResponse {
