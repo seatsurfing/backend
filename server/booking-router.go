@@ -285,7 +285,7 @@ func (router *BookingRouter) delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check for the date, If the BookingRequest is to close with today, the Delete can not be performed.
-	if !canDeleteBooking(e) {
+	if !checkForDays(e) {
 		SendForbidden(w)
 		return
 	}
@@ -649,12 +649,13 @@ func (router *BookingRouter) copyFromRestModel(m *CreateBookingRequest, location
 	return e, nil
 }
 
-func canDeleteBooking(e *BookingDetails) bool {
+func checkForDays(e *BookingDetails) bool {
 	// Check if the Booking is not close with today.
-	enterTime := e.Enter
-	today := time.Now().Local()
-	days := int64(enterTime.Sub(today).Hours() / 24)
-	return days > 1
+	var DAYS int64 = 1
+	var enterTime time.Time = e.Enter
+	var today time.Time = time.Now().Local()
+	var difference_in_days int64 = int64(enterTime.Sub(today).Hours() / 24)
+	return difference_in_days > DAYS
 }
 
 func (router *BookingRouter) copyToRestModel(e *BookingDetails) *GetBookingResponse {
