@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"log"
 	"net/http"
 	"testing"
 )
@@ -225,6 +226,7 @@ func TestSettingsCRUDMany(t *testing.T) {
 	checkTestString(t, SysSettingVersion, resBody2[3].Name)
 	checkTestString(t, "0", resBody2[0].Value)
 	checkTestString(t, "3", resBody2[1].Value)
+
 }
 
 func TestSettingsMinHoursBookingDuration(t *testing.T) {
