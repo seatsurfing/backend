@@ -284,7 +284,7 @@ func (router *BookingRouter) delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Check for the date, If the BookingRequest is to close with SettingsMaxHoursBeforeDelete, the Delete can not be performed.
-	if checkBookingHoursBeforeDelete(e, location.OrganizationID) {
+	if router.isValidBookingHoursBeforeDelete(e, location.OrganizationID) {
 		if err := GetBookingRepository().Delete(e); err != nil {
 			SendInternalServerError(w)
 			return
@@ -605,6 +605,7 @@ func (router *BookingRouter) isValidBookingRequest(m *BookingRequest, user *User
 	if !router.isValidMaxConcurrentBookingsForUser(orgID, user, m, bookingID) {
 		return false, ResponseCodeBookingMaxConcurrentForUser
 	}
+
 	if !isUpdate {
 		if !router.isValidMaxUpcomingBookings(orgID, user) {
 			return false, ResponseCodeBookingTooManyUpcomingBookings
@@ -628,7 +629,7 @@ func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Loca
 	return true
 }
 
-func checkBookingHoursBeforeDelete(e *BookingDetails, organizationID string) bool {
+func (router *BookingRouter) isValidBookingHoursBeforeDelete(e *BookingDetails, organizationID string) bool {
 	max_hours, err := GetSettingsRepository().GetInt(organizationID, SettingMaxHoursBeforeDelete.Name)
 	if err != nil {
 		log.Println(err)
@@ -656,19 +657,6 @@ func (router *BookingRouter) copyFromRestModel(m *CreateBookingRequest, location
 	}
 	e.Leave = leaveNew
 	return e, nil
-}
-
-func checkBookingHoursBeforeDelete(e *BookingDetails, organizationID string) bool {
-	// Check if the Booking is not close with today.
-	max_hours, err := GetSettingsRepository().GetInt(organizationID, SettingMaxHoursBeforeDelete.Name)
-	if err != nil {
-		log.Println(err)
-		return false
-	}
-	var enterTime time.Time = e.Enter
-	var today time.Time = time.Now().Local()
-	var difference_in_hours int64 = int64(enterTime.Sub(today).Hours())
-	return difference_in_hours > int64(max_hours) || (max_hours == 0)
 }
 
 func (router *BookingRouter) copyToRestModel(e *BookingDetails) *GetBookingResponse {
