@@ -265,6 +265,9 @@ func (router *SettingsRouter) getSettingType(name string) SettingType {
 	if name == SettingDefaultTimezone.Name {
 		return SettingDefaultTimezone.Type
 	}
+	if name == SettingMaxHoursBeforeDelete.Name {
+		return SettingMaxHoursBeforeDelete.Type
+	}
 	return 0
 }
 
