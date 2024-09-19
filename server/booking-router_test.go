@@ -461,7 +461,7 @@ func TestBookingsConflictDeleteTooClose(t *testing.T) {
 
 	// Create booking for tomorrow
 	tomorrow_enter := time.Now().UTC().Add(24 * time.Hour).Format("2006-01-02T15:04:05-07:00")
-	tomorrow_exit := time.Now().UTC().Add(time.Minute*5 + (24 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
+	tomorrow_exit := time.Now().UTC().Add((24 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
 	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + tomorrow_enter + "\"" + ", \"leave\":" + "\"" + tomorrow_exit + "\"" + "}"
 	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
