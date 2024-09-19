@@ -283,8 +283,8 @@ func (router *BookingRouter) delete(w http.ResponseWriter, r *http.Request) {
 		SendForbidden(w)
 		return
 	}
-	// Check for the date, If the BookingRequest is to close with today, the Delete can not be performed.
-	if checkForTheHours(e, location.OrganizationID) {
+	// Check for the date, If the BookingRequest is to close with SettingsMaxHoursBeforeDelete, the Delete can not be performed.
+	if checkBookingHoursBeforeDelete(e, location.OrganizationID) {
 		if err := GetBookingRepository().Delete(e); err != nil {
 			SendInternalServerError(w)
 			return
@@ -646,7 +646,7 @@ func (router *BookingRouter) copyFromRestModel(m *CreateBookingRequest, location
 	return e, nil
 }
 
-func checkForTheHours(e *BookingDetails, organizationID string) bool {
+func checkBookingHoursBeforeDelete(e *BookingDetails, organizationID string) bool {
 	// Check if the Booking is not close with today.
 	max_hours, err := GetSettingsRepository().GetInt(organizationID, SettingMaxHoursBeforeDelete.Name)
 	if err != nil {
