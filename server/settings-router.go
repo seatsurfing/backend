@@ -263,6 +263,9 @@ func (router *SettingsRouter) getSettingType(name string) SettingType {
 	if name == SettingDefaultTimezone.Name {
 		return SettingDefaultTimezone.Type
 	}
+	if name == SettingMinBookingDurationHours.Name {
+		return SettingMinBookingDurationHours.Type
+	}
 	return 0
 }
 
