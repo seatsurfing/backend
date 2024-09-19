@@ -628,6 +628,18 @@ func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Loca
 	return true
 }
 
+func checkMinHoursBooking(e *BookingRequest, organizationID string) bool {
+	min_hours, err := GetSettingsRepository().GetInt(organizationID, SettingMinBookingDurationHours.Name)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	enterTime := e.Enter
+	leaveTime := e.Leave
+	difference_in_hours := int64(leaveTime.Sub(enterTime).Hours())
+	return difference_in_hours >= int64(min_hours)
+}
+
 func (router *BookingRouter) copyFromRestModel(m *CreateBookingRequest, location *Location) (*Booking, error) {
 	e := &Booking{}
 	e.SpaceID = m.SpaceID
@@ -644,18 +656,6 @@ func (router *BookingRouter) copyFromRestModel(m *CreateBookingRequest, location
 	}
 	e.Leave = leaveNew
 	return e, nil
-}
-
-func checkMinHoursBooking(e *BookingRequest, organizationID string) bool {
-	min_hours, err := GetSettingsRepository().GetInt(organizationID, SettingMinBookingDurationHours.Name)
-	if err != nil {
-		log.Println(err)
-		return false
-	}
-	enterTime := e.Enter
-	leaveTime := e.Leave
-	difference_in_hours := int64(leaveTime.Sub(enterTime).Hours())
-	return difference_in_hours >= int64(min_hours)
 }
 
 func (router *BookingRouter) copyToRestModel(e *BookingDetails) *GetBookingResponse {
