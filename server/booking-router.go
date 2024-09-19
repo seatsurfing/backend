@@ -647,7 +647,6 @@ func (router *BookingRouter) copyFromRestModel(m *CreateBookingRequest, location
 }
 
 func checkBookingHoursBeforeDelete(e *BookingDetails, organizationID string) bool {
-	// Check if the Booking is not close with today.
 	max_hours, err := GetSettingsRepository().GetInt(organizationID, SettingMaxHoursBeforeDelete.Name)
 	if err != nil {
 		log.Println(err)
