@@ -238,11 +238,6 @@ func (router *BookingRouter) update(w http.ResponseWriter, r *http.Request) {
 		Leave: eNew.Leave,
 	}
 
-	if !isValidMinHoursBooking(bookingReq, location.OrganizationID) {
-		SendForbidden(w)
-		return
-	}
-
 	if valid, code := router.checkBookingCreateUpdate(bookingReq, location, requestUser, eNew.ID); !valid {
 		SendBadRequestCode(w, code)
 		return
@@ -385,11 +380,6 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 	bookingReq := &BookingRequest{
 		Enter: e.Enter,
 		Leave: e.Leave,
-	}
-
-	if !isValidMinHoursBooking(bookingReq, location.OrganizationID) {
-		SendForbidden(w)
-		return
 	}
 
 	if valid, code := router.checkBookingCreateUpdate(bookingReq, location, requestUser, ""); !valid {
@@ -613,6 +603,9 @@ func (router *BookingRouter) isValidBookingRequest(m *BookingRequest, user *User
 	if !router.isValidMaxConcurrentBookingsForUser(orgID, user, m, bookingID) {
 		return false, ResponseCodeBookingMaxConcurrentForUser
 	}
+	if !router.isValidMinHoursBooking(m, orgID) {
+		return false, ResponseCodeBookingInvalidMinBookingDuration
+	}
 	if !isUpdate {
 		if !router.isValidMaxUpcomingBookings(orgID, user) {
 			return false, ResponseCodeBookingTooManyUpcomingBookings
@@ -636,7 +629,7 @@ func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Loca
 	return true
 }
 
-func isValidMinHoursBooking(e *BookingRequest, organizationID string) bool {
+func (router *BookingRouter) isValidMinHoursBooking(e *BookingRequest, organizationID string) bool {
 	min_hours, err := GetSettingsRepository().GetInt(organizationID, SettingMinBookingDurationHours.Name)
 	if err != nil {
 		log.Println(err)
