@@ -198,6 +198,7 @@ func (router *SettingsRouter) isValidSettingNameReadPublic(name string) bool {
 func (router *SettingsRouter) isValidSettingNameReadAdmin(name string) bool {
 	if router.isValidSettingNameReadPublic(name) ||
 		name == SettingAllowAnyUser.Name ||
+		name == SettingMaxHoursBeforeDelete.Name ||
 		name == SettingActiveSubscription.Name ||
 		name == SettingSubscriptionMaxUsers.Name ||
 		name == SettingConfluenceServerSharedSecret.Name ||
@@ -215,6 +216,7 @@ func (router *SettingsRouter) isValidSettingNameWrite(name string) bool {
 		name == SettingMaxBookingsPerUser.Name ||
 		name == SettingMaxConcurrentBookingsPerUser.Name ||
 		name == SettingMaxDaysInAdvance.Name ||
+		name == SettingMaxHoursBeforeDelete.Name ||
 		name == SettingDailyBasisBooking.Name ||
 		name == SettingNoAdminRestrictions.Name ||
 		name == SettingShowNames.Name ||
