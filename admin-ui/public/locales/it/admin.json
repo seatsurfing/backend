@@ -131,6 +131,7 @@
     "analysis": "Analisi",
     "all": "All",
     "confirmCancelBooking": "Annulla prenotazione ?",
+    "errorCancelBooking": "Annullamento prenotazione non riuscito a causa di un errore o si è tentato di annullare la prenotazione dopo il limite di annullamento.",
     "bookingui": "Sito Prenotazioni",
     "updateAvailable": "Please update Seatsurfing to the latest version {{version}}.",
     "tomorrow": "Domani",

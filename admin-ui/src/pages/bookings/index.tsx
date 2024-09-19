@@ -68,6 +68,9 @@ class Bookings extends React.Component<Props, State> {
       });
       booking.delete().then(() => {
         this.loadItems();
+      }, () => {
+        window.alert(this.props.t("errorCancelBooking"));
+        this.loadItems();
       });
   }
 

@@ -134,6 +134,7 @@
     "analysis": "Analysis",
     "all": "All",
     "confirmCancelBooking": "Cancel booking?",
+    "errorCancelBooking": "Could not cancel booking due to an error or because you tried to cancel it after the allowed cancel time.",
     "bookingui": "Booking Site",
     "updateAvailable": "Please update Seatsurfing to the latest version {{version}}.",
     "tomorrow": "Tomorrow",
