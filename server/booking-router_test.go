@@ -477,6 +477,54 @@ func TestBookingConflictDurationTooShort(t *testing.T) {
 	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
+}
+
+func TestBookingUpdateConflictDurationTooShort(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	user2 := createTestUserOrgAdmin(org)
+	loginResponse2 := loginTestUser(user2.ID)
+	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "5000")
+
+	// Create location
+	payload := `{"name": "Location 1"}`
+	req := newHTTPRequest("POST", "/location/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	locationID := res.Header().Get("X-Object-Id")
+
+	// Create space
+	payload = `{"name": "H234", "x": 50, "y": 100, "width": 200, "height": 300, "rotation": 90}`
+	req = newHTTPRequest("POST", "/location/"+locationID+"/space/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	spaceID := res.Header().Get("X-Object-Id")
+
+	// Switch to non-admin user
+	user := createTestUserInOrg(org)
+	loginResponse := loginTestUser(user.ID)
+
+	// this SHOULD BE accepted
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-01T08:30:00+02:00\", \"leave\": \"2030-09-01T09:30:00+02:00\"}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	id := res.Header().Get("X-Object-Id")
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+
+	// Booking with duration == 1 hour, this SHOULD NOT BE accepted
+	GetSettingsRepository().Set(org.ID, SettingMinBookingDurationHours.Name, "1")
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-01T08:30:00+02:00\", \"leave\": \"2030-09-01T09:00:00+02:00\"}"
+	req = newHTTPRequest("PUT", "/booking/"+id, loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusForbidden, res.Code)
+
+	// Set Min duration equals to 0
+	GetSettingsRepository().Set(org.ID, SettingMinBookingDurationHours.Name, "0")
+	// Booking with duration == 1 hour, this SHOULD BE accepted
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-03T08:30:00+02:00\", \"leave\": \"2030-09-03T08:30:00+02:00\"}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
 
 }
 
