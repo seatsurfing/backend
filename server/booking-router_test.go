@@ -468,7 +468,7 @@ func TestBookingConflictDurationTooShort(t *testing.T) {
 	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-02T08:30:00+02:00\", \"leave\": \"2030-09-02T09:30:00+02:00\"}"
 	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
-	checkTestResponseCode(t, http.StatusForbidden, res.Code)
+	checkTestResponseCode(t, http.StatusBadRequest, res.Code)
 
 	// Set Min duration equals to 0
 	GetSettingsRepository().Set(org.ID, SettingMinBookingDurationHours.Name, "0")
@@ -516,7 +516,7 @@ func TestBookingUpdateConflictDurationTooShort(t *testing.T) {
 	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-01T08:30:00+02:00\", \"leave\": \"2030-09-01T09:00:00+02:00\"}"
 	req = newHTTPRequest("PUT", "/booking/"+id, loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
-	checkTestResponseCode(t, http.StatusForbidden, res.Code)
+	checkTestResponseCode(t, http.StatusBadRequest, res.Code)
 
 	// Set Min duration equals to 0
 	GetSettingsRepository().Set(org.ID, SettingMinBookingDurationHours.Name, "0")
