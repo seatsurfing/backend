@@ -628,6 +628,18 @@ func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Loca
 	return true
 }
 
+func checkBookingHoursBeforeDelete(e *BookingDetails, organizationID string) bool {
+	max_hours, err := GetSettingsRepository().GetInt(organizationID, SettingMaxHoursBeforeDelete.Name)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	enterTime := e.Enter
+	now := time.Now().UTC()
+	difference_in_hours := int64(enterTime.Sub(now).Hours())
+	return difference_in_hours > int64(max_hours) || (max_hours == 0)
+}
+
 func (router *BookingRouter) copyFromRestModel(m *CreateBookingRequest, location *Location) (*Booking, error) {
 	e := &Booking{}
 	e.SpaceID = m.SpaceID
@@ -644,18 +656,6 @@ func (router *BookingRouter) copyFromRestModel(m *CreateBookingRequest, location
 	}
 	e.Leave = leaveNew
 	return e, nil
-}
-
-func checkBookingHoursBeforeDelete(e *BookingDetails, organizationID string) bool {
-	max_hours, err := GetSettingsRepository().GetInt(organizationID, SettingMaxHoursBeforeDelete.Name)
-	if err != nil {
-		log.Println(err)
-		return false
-	}
-	var enterTime time.Time = e.Enter
-	var today time.Time = time.Now().Local()
-	var difference_in_hours int64 = int64(enterTime.Sub(today).Hours())
-	return difference_in_hours > int64(max_hours) || (max_hours == 0)
 }
 
 func (router *BookingRouter) copyToRestModel(e *BookingDetails) *GetBookingResponse {

@@ -460,8 +460,8 @@ func TestBookingsConflictDeleteTooClose(t *testing.T) {
 	loginResponse := loginTestUser(user.ID)
 
 	// Create booking for tomorrow
-	tomorrow_enter := time.Now().Add(24 * time.Hour).Format("2006-01-02T15:04:05-07:00")
-	tomorrow_exit := time.Now().Add(time.Minute*5 + (24 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
+	tomorrow_enter := time.Now().UTC().Add(24 * time.Hour).Format("2006-01-02T15:04:05-07:00")
+	tomorrow_exit := time.Now().UTC().Add(time.Minute*5 + (24 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
 	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + tomorrow_enter + "\"" + ", \"leave\":" + "\"" + tomorrow_exit + "\"" + "}"
 	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
@@ -469,8 +469,8 @@ func TestBookingsConflictDeleteTooClose(t *testing.T) {
 	id := res.Header().Get("X-Object-Id")
 
 	// Create another booking booking for the day after tomorrow
-	day_after_tomorrow_enter := time.Now().Add(24 * 2 * time.Hour).Format("2006-01-02T15:04:05-07:00")
-	day_after_tomorrow_exit := time.Now().Add(time.Minute*5 + (24 * 2 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
+	day_after_tomorrow_enter := time.Now().UTC().Add(24 * 2 * time.Hour).Format("2006-01-02T15:04:05-07:00")
+	day_after_tomorrow_exit := time.Now().UTC().Add(time.Minute*5 + (24 * 2 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
 	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + day_after_tomorrow_enter + "\"" + ", \"leave\":" + "\"" + day_after_tomorrow_exit + "\"" + "}"
 	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
@@ -490,8 +490,8 @@ func TestBookingsConflictDeleteTooClose(t *testing.T) {
 	// Change the Hours limit, add the possibility to delete a Booking at any moment.
 	GetSettingsRepository().Set(org.ID, SettingMaxHoursBeforeDelete.Name, "0")
 	// Create booking for now
-	now_en := time.Now().Format("2006-01-02T15:04:05-07:00")
-	now_ex := time.Now().Format("2006-01-02T15:04:05-07:00")
+	now_en := time.Now().UTC().Format("2006-01-02T15:04:05-07:00")
+	now_ex := time.Now().UTC().Format("2006-01-02T15:04:05-07:00")
 	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + now_en + "\"" + ", \"leave\":" + "\"" + now_ex + "\"" + "}"
 	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
@@ -512,8 +512,8 @@ func TestBookingsConflictDeleteTooClose(t *testing.T) {
 	GetSettingsRepository().Set(org.ID, SettingMaxHoursBeforeDelete.Name, "1")
 
 	// Create booking for today plus 1 hour, this SHOULD NOT BE deleted
-	today_en := time.Now().Add((2 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
-	today_ex := time.Now().Add((2 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
+	today_en := time.Now().UTC().Add((2 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
+	today_ex := time.Now().UTC().Add((2 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
 	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + today_en + "\"" + ", \"leave\":" + "\"" + today_ex + "\"" + "}"
 	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
@@ -521,8 +521,8 @@ func TestBookingsConflictDeleteTooClose(t *testing.T) {
 	id4 := res.Header().Get("X-Object-Id")
 
 	// Create booking for today plus 2 hours, this SHOULD BE deleted
-	today_next_en := time.Now().Add(3 * time.Hour).Format("2006-01-02T15:04:05-07:00")
-	today_next_ex := time.Now().Add(3 * time.Hour).Format("2006-01-02T15:04:05-07:00")
+	today_next_en := time.Now().UTC().Add(3 * time.Hour).Format("2006-01-02T15:04:05-07:00")
+	today_next_ex := time.Now().UTC().Add(3 * time.Hour).Format("2006-01-02T15:04:05-07:00")
 	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + today_next_en + "\"" + ", \"leave\":" + "\"" + today_next_ex + "\"" + "}"
 	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
