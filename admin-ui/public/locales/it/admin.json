@@ -56,6 +56,7 @@
     "maxBookingsPerUser": "Numero massimo di prenotazione per utente",
     "maxConcurrentBookingsPerUser": "Numero massimo di prenotazioni simultanee per utente",
     "maxDaysInAdvance": "Numero massimo di giorni in anticipo",
+    "maxHoursBeforeDelete": "Numero massimo di ore entro le quali è possibile annullare una prenotazione prima del suo orario di inizio",
     "days": "giorni",
     "dailyBasisBooking": "Consenti prenotazioni solo su base giornaliera",
     "noAdminRestrictions": "Non limitare gli amministratori (prenotazioni per utente, durata, in anticipo)",

@@ -57,6 +57,7 @@
     "maxBookingsPerUser": "Max. bookings per user",
     "maxConcurrentBookingsPerUser": "Max. concurrent bookings per user",
     "maxDaysInAdvance": "Max. days in advance",
+    "maxHoursBeforeDelete": "Max. hours to cancel a booking before its start time",
     "days": "days",
     "dailyBasisBooking": "Allow bookings on a daily basis only",
     "noAdminRestrictions": "Don't restrict admins (bookings per user, duration, in advance)",
