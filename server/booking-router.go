@@ -189,6 +189,7 @@ func (router *BookingRouter) getAll(w http.ResponseWriter, r *http.Request) {
 
 func (router *BookingRouter) update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+
 	e, err := GetBookingRepository().GetOne(vars["id"])
 	if err != nil {
 		SendNotFound(w)
@@ -236,6 +237,12 @@ func (router *BookingRouter) update(w http.ResponseWriter, r *http.Request) {
 		Enter: eNew.Enter,
 		Leave: eNew.Leave,
 	}
+
+	if !isValidMinHoursBooking(bookingReq, location.OrganizationID) {
+		SendForbidden(w)
+		return
+	}
+
 	if valid, code := router.checkBookingCreateUpdate(bookingReq, location, requestUser, eNew.ID); !valid {
 		SendBadRequestCode(w, code)
 		return
@@ -379,6 +386,12 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 		Enter: e.Enter,
 		Leave: e.Leave,
 	}
+
+	if !isValidMinHoursBooking(bookingReq, location.OrganizationID) {
+		SendForbidden(w)
+		return
+	}
+
 	if valid, code := router.checkBookingCreateUpdate(bookingReq, location, requestUser, ""); !valid {
 		log.Println(err)
 		SendBadRequestCode(w, code)
@@ -399,12 +412,7 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 		SendInternalServerError(w)
 		return
 	}
-
-	if checkMinHoursBooking(bookingReq, location.OrganizationID) {
-		SendCreated(w, e.ID)
-		return
-	}
-	SendForbidden(w)
+	SendCreated(w, e.ID)
 }
 
 func (router *BookingRouter) bookForUser(requestUser *User, userEmail string, w http.ResponseWriter) (string, error) {
@@ -628,7 +636,7 @@ func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Loca
 	return true
 }
 
-func checkMinHoursBooking(e *BookingRequest, organizationID string) bool {
+func isValidMinHoursBooking(e *BookingRequest, organizationID string) bool {
 	min_hours, err := GetSettingsRepository().GetInt(organizationID, SettingMinBookingDurationHours.Name)
 	if err != nil {
 		log.Println(err)
