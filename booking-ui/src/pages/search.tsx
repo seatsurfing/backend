@@ -311,7 +311,11 @@ class Search extends React.Component<Props, State> {
     let bookingDurationHours = Math.floor((this.state.leave.getTime() - this.state.enter.getTime()) / MS_PER_MINUTE) / 60;
     if (bookingDurationHours > RuntimeConfig.INFOS.maxBookingDurationHours && !isAdmin) {
       res = false;
-      hint = this.props.t("errorBookingDuration", { "num": RuntimeConfig.INFOS.maxBookingDurationHours });
+      hint = this.props.t("errorMaxBookingDuration", { "num": RuntimeConfig.INFOS.maxBookingDurationHours });
+    }
+    if (bookingDurationHours < RuntimeConfig.INFOS.minBookingDurationHours && !isAdmin) {
+      res = false;
+      hint = this.props.t("errorMinBookingDuration", { "num": RuntimeConfig.INFOS.minBookingDurationHours });
     }
     let self = this;
     return new Promise<void>(function (resolve, reject) {

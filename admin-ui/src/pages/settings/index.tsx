@@ -17,6 +17,7 @@ interface State {
   maxConcurrentBookingsPerUser: number
   maxDaysInAdvance: number
   maxBookingDurationHours: number
+  minBookingDurationHours: number
   dailyBasisBooking: boolean
   noAdminRestrictions: boolean
   showNames: boolean
@@ -55,6 +56,7 @@ class Settings extends React.Component<Props, State> {
       maxBookingsPerUser: 0,
       maxConcurrentBookingsPerUser: 0,
       maxBookingDurationHours: 0,
+      minBookingDurationHours: 0,
       maxDaysInAdvance: 0,
       dailyBasisBooking: false,
       noAdminRestrictions: false,
@@ -122,6 +124,7 @@ class Settings extends React.Component<Props, State> {
         if (s.name === "max_concurrent_bookings_per_user") state.maxConcurrentBookingsPerUser = window.parseInt(s.value);
         if (s.name === "max_days_in_advance") state.maxDaysInAdvance = window.parseInt(s.value);
         if (s.name === "max_booking_duration_hours") state.maxBookingDurationHours = window.parseInt(s.value);
+        if (s.name === "min_booking_duration_hours") state.minBookingDurationHours = window.parseInt(s.value);
         if (s.name === "daily_basis_booking") state.dailyBasisBooking = (s.value === "1");
         if (s.name === "no_admin_restrictions") state.noAdminRestrictions = (s.value === "1");
         if (s.name === "show_names") state.showNames = (s.value === "1");
@@ -164,7 +167,8 @@ class Settings extends React.Component<Props, State> {
       new OrgSettings("max_bookings_per_user", this.state.maxBookingsPerUser.toString()),
       new OrgSettings("max_concurrent_bookings_per_user", this.state.maxConcurrentBookingsPerUser.toString()),
       new OrgSettings("max_days_in_advance", this.state.maxDaysInAdvance.toString()),
-      new OrgSettings("max_booking_duration_hours", this.state.maxBookingDurationHours.toString())
+      new OrgSettings("max_booking_duration_hours", this.state.maxBookingDurationHours.toString()),
+      new OrgSettings("min_booking_duration_hours", this.state.minBookingDurationHours.toString())
     ];
     OrgSettings.setAll(payload).then(() => {
       this.setState({
@@ -435,7 +439,7 @@ class Settings extends React.Component<Props, State> {
               <Form.Check type="checkbox" id="check-noAdminRestrictions" label={this.props.t("noAdminRestrictions")} checked={this.state.noAdminRestrictions} onChange={(e: any) => this.setState({ noAdminRestrictions: e.target.checked })} />
             </Col>
           </Form.Group>
-          
+
           <Form.Group as={Row}>
             <Col sm="6">
               <Form.Check type="checkbox" id="check-dailyBasisBooking" label={this.props.t("dailyBasisBooking")} checked={this.state.dailyBasisBooking} onChange={(e: any) => this.onDailyBasisBookingChange(e.target.checked)} />
@@ -446,6 +450,15 @@ class Settings extends React.Component<Props, State> {
             <Col sm="4">
               <InputGroup>
                 <Form.Control type="number" value={this.state.maxBookingDurationHours} onChange={(e: any) => this.setState({ maxBookingDurationHours: e.target.value })} min="0" max="9999" />
+                <InputGroup.Text>{this.props.t("hours")}</InputGroup.Text>
+              </InputGroup>
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row}>
+            <Form.Label column sm="2">{this.props.t("minBookingDurationHours")}</Form.Label>
+            <Col sm="4">
+              <InputGroup>
+                <Form.Control type="number" value={this.state.minBookingDurationHours} onChange={(e: any) => this.setState({ minBookingDurationHours: e.target.value })} min="0" max="9999" />
                 <InputGroup.Text>{this.props.t("hours")}</InputGroup.Text>
               </InputGroup>
             </Col>
