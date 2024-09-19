@@ -5,6 +5,7 @@
     "emailPlaceholder": "you@company.com",
     "getStarted": "Get started",
     "back": "Back",
+    "errorDeleteBooking": "An error occurred while deleting your booking or you tried to cancel the booking after the allowed cancellation time.",
     "errorInvalidEmail": "Invalid email address.",
     "errorLogin": "An error occurred while signing you in. Your email address might not be associated with an organization.",
     "errorNoAuthProviders": "No authentication providers for your user.",

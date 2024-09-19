@@ -5,6 +5,7 @@
     "emailPlaceholder": "you@company.com",
     "getStarted": "Inizia",
     "back": "Indietro",
+    "errorDeleteBooking": "Si è verificato un errore durante l'annullamento della prenotazione o hai tentato di annullare una prenotazione dopo il limite massimo di annullamento.",
     "errorInvalidEmail": "Indirizzo email non valido.",
     "errorLogin": "Si è verificato un errore di accesso. Il vostro indirizzo email potrebbe non essere associato ad una organizzazione.",
     "errorNoAuthProviders": "Nessun provider di autenticazione per il vostro utente.",

@@ -57,6 +57,11 @@ class Bookings extends React.Component<Props, State> {
       this.setState({
         selectedItem: null,
       }, this.loadData);
+    }, (reason: any) => {
+      window.alert(this.props.t("errorDeleteBooking"));
+      this.setState({
+        selectedItem: null,
+      }, this.loadData);
     });
   }
 
