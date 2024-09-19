@@ -283,11 +283,16 @@ func (router *BookingRouter) delete(w http.ResponseWriter, r *http.Request) {
 		SendForbidden(w)
 		return
 	}
-	if err := GetBookingRepository().Delete(e); err != nil {
-		SendInternalServerError(w)
+	// Check for the date, If the BookingRequest is to close with SettingsMaxHoursBeforeDelete, the Delete can not be performed.
+	if checkBookingHoursBeforeDelete(e, location.OrganizationID) {
+		if err := GetBookingRepository().Delete(e); err != nil {
+			SendInternalServerError(w)
+			return
+		}
+		SendUpdated(w)
 		return
 	}
-	SendUpdated(w)
+	SendForbidden(w)
 }
 
 func (router *BookingRouter) checkBookingCreateUpdate(m *BookingRequest, location *Location, requestUser *User, bookingID string) (bool, int) {
@@ -399,7 +404,12 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 		SendInternalServerError(w)
 		return
 	}
-	SendCreated(w, e.ID)
+
+	if checkMinHoursBooking(bookingReq, location.OrganizationID) {
+		SendCreated(w, e.ID)
+		return
+	}
+	SendForbidden(w)
 }
 
 func (router *BookingRouter) bookForUser(requestUser *User, userEmail string, w http.ResponseWriter) (string, error) {
@@ -639,6 +649,18 @@ func (router *BookingRouter) copyFromRestModel(m *CreateBookingRequest, location
 	}
 	e.Leave = leaveNew
 	return e, nil
+}
+
+func checkMinHoursBooking(e *BookingRequest, organizationID string) bool {
+	min_hours, err := GetSettingsRepository().GetInt(organizationID, SettingMinBookingDurationHours.Name)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	enterTime := e.Enter
+	leaveTime := e.Leave
+	difference_in_hours := int64(leaveTime.Sub(enterTime).Hours())
+	return difference_in_hours >= int64(min_hours)
 }
 
 func (router *BookingRouter) copyToRestModel(e *BookingDetails) *GetBookingResponse {
