@@ -432,6 +432,162 @@ func TestBookingsCreateForeign(t *testing.T) {
 	checkTestResponseCode(t, http.StatusForbidden, res.Code)
 }
 
+func TestBookingsConflictDeleteTooClose(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	user2 := createTestUserOrgAdmin(org)
+	loginResponse2 := loginTestUser(user2.ID)
+	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "5000")
+	// A booking can be deleted only before 24 hours
+	GetSettingsRepository().Set(org.ID, SettingMaxHoursBeforeDelete.Name, "24")
+
+	// Create location
+	payload := `{"name": "Location 1"}`
+	req := newHTTPRequest("POST", "/location/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	locationID := res.Header().Get("X-Object-Id")
+
+	// Create space
+	payload = `{"name": "H234", "x": 50, "y": 100, "width": 200, "height": 300, "rotation": 90}`
+	req = newHTTPRequest("POST", "/location/"+locationID+"/space/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	spaceID := res.Header().Get("X-Object-Id")
+
+	// Switch to non-admin user
+	user := createTestUserInOrg(org)
+	loginResponse := loginTestUser(user.ID)
+
+	// Create booking for tomorrow
+	tomorrow_enter := time.Now().Add(24 * time.Hour).Format("2006-01-02T15:04:05-07:00")
+	tomorrow_exit := time.Now().Add(time.Minute*5 + (24 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + tomorrow_enter + "\"" + ", \"leave\":" + "\"" + tomorrow_exit + "\"" + "}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id := res.Header().Get("X-Object-Id")
+
+	// Create another booking booking for the day after tomorrow
+	day_after_tomorrow_enter := time.Now().Add(24 * 2 * time.Hour).Format("2006-01-02T15:04:05-07:00")
+	day_after_tomorrow_exit := time.Now().Add(time.Minute*5 + (24 * 2 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + day_after_tomorrow_enter + "\"" + ", \"leave\":" + "\"" + day_after_tomorrow_exit + "\"" + "}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id2 := res.Header().Get("X-Object-Id")
+
+	// Delete with Error for tomorrow booking
+	req = newHTTPRequest("DELETE", "/booking/"+id, loginResponse.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusForbidden, res.Code)
+
+	// Delete without Error for next week booking
+	req = newHTTPRequest("DELETE", "/booking/"+id2, loginResponse.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+
+	// Change the Hours limit, add the possibility to delete a Booking at any moment.
+	GetSettingsRepository().Set(org.ID, SettingMaxHoursBeforeDelete.Name, "0")
+	// Create booking for now
+	now_en := time.Now().Format("2006-01-02T15:04:05-07:00")
+	now_ex := time.Now().Format("2006-01-02T15:04:05-07:00")
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + now_en + "\"" + ", \"leave\":" + "\"" + now_ex + "\"" + "}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id3 := res.Header().Get("X-Object-Id")
+
+	// The Booking done for tomorrow SHOULD BE deleted
+	req = newHTTPRequest("DELETE", "/booking/"+id, loginResponse.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+
+	// The Booking for now SHOULD BE deleted
+	req = newHTTPRequest("DELETE", "/booking/"+id3, loginResponse.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+
+	// Change the Hours limit, the delete can be done before one hour from the beginning of the booking.
+	GetSettingsRepository().Set(org.ID, SettingMaxHoursBeforeDelete.Name, "1")
+
+	// Create booking for today plus 1 hour, this SHOULD NOT BE deleted
+	today_en := time.Now().Add((2 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
+	today_ex := time.Now().Add((2 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + today_en + "\"" + ", \"leave\":" + "\"" + today_ex + "\"" + "}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id4 := res.Header().Get("X-Object-Id")
+
+	// Create booking for today plus 2 hours, this SHOULD BE deleted
+	today_next_en := time.Now().Add(3 * time.Hour).Format("2006-01-02T15:04:05-07:00")
+	today_next_ex := time.Now().Add(3 * time.Hour).Format("2006-01-02T15:04:05-07:00")
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + today_next_en + "\"" + ", \"leave\":" + "\"" + today_next_ex + "\"" + "}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id5 := res.Header().Get("X-Object-Id")
+
+	// Create the request to delete the booking that
+	req = newHTTPRequest("DELETE", "/booking/"+id4, loginResponse.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusForbidden, res.Code)
+
+	// Create the request to delete the booking that, for today + 1 hour
+	req = newHTTPRequest("DELETE", "/booking/"+id5, loginResponse.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+}
+
+func TestBookingConflictDurationTooShort(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	user2 := createTestUserOrgAdmin(org)
+	loginResponse2 := loginTestUser(user2.ID)
+	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "5000")
+	GetSettingsRepository().Set(org.ID, SettingMinBookingDurationHours.Name, "2")
+
+	// Create location
+	payload := `{"name": "Location 1"}`
+	req := newHTTPRequest("POST", "/location/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	locationID := res.Header().Get("X-Object-Id")
+
+	// Create space
+	payload = `{"name": "H234", "x": 50, "y": 100, "width": 200, "height": 300, "rotation": 90}`
+	req = newHTTPRequest("POST", "/location/"+locationID+"/space/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	spaceID := res.Header().Get("X-Object-Id")
+
+	// Switch to non-admin user
+	user := createTestUserInOrg(org)
+	loginResponse := loginTestUser(user.ID)
+
+	// Booking with duration >= 2 hours, this SHOULD BE accepted
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-01T08:30:00+02:00\", \"leave\": \"2030-09-01T17:00:00+02:00\"}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+
+	// Booking with duration == 1 hour, this SHOULD NOT BE accepted
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-02T08:30:00+02:00\", \"leave\": \"2030-09-02T09:30:00+02:00\"}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusForbidden, res.Code)
+
+	// Set Min duration equals to 0
+	GetSettingsRepository().Set(org.ID, SettingMinBookingDurationHours.Name, "0")
+	// Booking with duration == 1 hour, this SHOULD BE accepted
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-03T08:30:00+02:00\", \"leave\": \"2030-09-03T08:30:00+02:00\"}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+
+}
+
 func TestBookingsDeleteForeign(t *testing.T) {
 	clearTestDB()
 	org := createTestOrg("test.com")
@@ -778,7 +934,7 @@ func TestBookingsInvalidBookingDuration(t *testing.T) {
 	router := &BookingRouter{}
 	res := router.isValidBookingDuration(m, org.ID, user)
 	checkTestBool(t, false, res)
-	
+
 	res = router.isValidBookingDuration(m, org.ID, adminUser)
 	checkTestBool(t, true, res)
 
@@ -1999,7 +2155,7 @@ func TestBookingsUserConcurrentLimitExceededOnUpdate(t *testing.T) {
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusBadRequest, res.Code)
 	checkTestString(t, strconv.Itoa(ResponseCodeBookingMaxConcurrentForUser), res.Header().Get("X-Error-Code"))
-	
+
 	// admin move last booking, now overlaps with 2 previous, but should be ok
 	payload = "{\"spaceId\": \"" + s4.ID + "\", \"enter\": \"2030-09-01T11:00:00+02:00\", \"leave\": \"2030-09-01T13:00:00+02:00\"}"
 	req = newHTTPRequest("PUT", "/booking/"+id, adminUser.ID, bytes.NewBufferString(payload))
@@ -2026,7 +2182,7 @@ func TestBookingsNonExistingUsers(t *testing.T) {
 	GetSpaceRepository().Create(s1)
 
 
-	// admin books 
+	// admin books
 	payload := "{\"spaceId\": \"" + s1.ID + "\", \"userEmail\": \"noobie@test.com\", \"enter\": \"2030-09-01T07:30:00+02:00\", \"leave\": \"2030-09-01T12:00:00+02:00\"}"
 	req := newHTTPRequest("POST", "/booking/", adminUser.ID, bytes.NewBufferString(payload))
 	res := executeTestRequest(req)
@@ -2038,8 +2194,8 @@ func TestBookingsNonExistingUsers(t *testing.T) {
 	req = newHTTPRequest("PUT", "/booking/"+bookingID, adminUser.ID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusNoContent, res.Code)
-	
-	// user books 
+
+	// user books
 	payload = "{\"spaceId\": \"" + s1.ID + "\", \"userEmail\": \"noobie3@test.com\", \"enter\": \"2030-09-03T07:30:00+02:00\", \"leave\": \"2030-09-03T12:00:00+02:00\"}"
 	req = newHTTPRequest("POST", "/booking/", user.ID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
@@ -2057,7 +2213,7 @@ func TestBookingsNonExistingUsers(t *testing.T) {
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
 	bookingID = res.Header().Get("X-Object-Id")
-	
+
 	// user tries to change to new user
 	payload = "{\"spaceId\": \"" + s1.ID + "\", \"userEmail\": \"noobie4@test.com\", \"enter\": \"2030-09-04T07:30:00+02:00\", \"leave\": \"2030-09-04T12:00:00+02:00\"}"
 	req = newHTTPRequest("PUT", "/booking/"+bookingID, user.ID, bytes.NewBufferString(payload))
@@ -2069,7 +2225,7 @@ func TestBookingsNonExistingUsers(t *testing.T) {
 	req = newHTTPRequest("PUT", "/booking/"+bookingID, user.ID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusForbidden, res.Code)
-	
+
 	// disallow feature
 	GetSettingsRepository().Set(org.ID, SettingAllowBookingsNonExistingUsers.Name, "0")
 
