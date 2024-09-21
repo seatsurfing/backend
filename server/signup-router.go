@@ -50,7 +50,7 @@ func (router *SignupRouter) signup(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusConflict)
 		return
 	}
-	if !router.isValidLanguageCode(m.Language) {
+	if !GetConfig().isValidLanguageCode(m.Language) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -153,17 +153,6 @@ func (router *SignupRouter) getLanguage(language string) string {
 	default:
 		return "en"
 	}
-}
-
-func (router *SignupRouter) isValidLanguageCode(isoLanguageCode string) bool {
-	validLanguageCodes := []string{"de", "en"}
-	lc := strings.ToLower(isoLanguageCode)
-	for _, s := range validLanguageCodes {
-		if lc == s {
-			return true
-		}
-	}
-	return false
 }
 
 func (router *SignupRouter) isEmailAvailable(email string) bool {

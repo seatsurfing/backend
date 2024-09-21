@@ -36,6 +36,9 @@ func sendEmail(recipient, sender, templateFile, language string, vars map[string
 }
 
 func getEmailTemplatePath(templateFile, language string) (string, error) {
+	if !GetConfig().isValidLanguageCode(language) {
+		language = EmailTemplateDefaultLanguage
+	}
 	res := strings.ReplaceAll(templateFile, ".txt", "_"+language+".txt")
 	if _, err := os.Stat(res); err == nil {
 		return res, nil
