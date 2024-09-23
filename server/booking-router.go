@@ -630,6 +630,11 @@ func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Loca
 }
 
 func (router *BookingRouter) isValidBookingHoursBeforeDelete(e *BookingDetails, organizationID string) bool {
+	noAdminRestrictions, _ := GetSettingsRepository().GetBool(organizationID, SettingNoAdminRestrictions.Name)
+	if noAdminRestrictions {
+		return true
+	}
+
 	max_hours, err := GetSettingsRepository().GetInt(organizationID, SettingMaxHoursBeforeDelete.Name)
 	if err != nil {
 		log.Println(err)
