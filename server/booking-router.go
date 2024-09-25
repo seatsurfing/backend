@@ -628,6 +628,14 @@ func (router *BookingRouter) isValidBookingRequest(m *BookingRequest, user *User
 }
 
 func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Location, bookingID string) bool {
+	tollerance, err := GetSettingsRepository().GetBool(location.OrganizationID, SettingRemoveCheckForConflicts.Name)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	if !tollerance {
+		return true
+	}
 	if location.MaxConcurrentBookings == 0 {
 		return true
 	}
