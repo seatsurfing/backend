@@ -17,6 +17,7 @@ interface State {
   maxConcurrentBookingsPerUser: number
   maxDaysInAdvance: number
   maxBookingDurationHours: number
+  removeCheckForConflicts: boolean
   dailyBasisBooking: boolean
   noAdminRestrictions: boolean
   showNames: boolean
@@ -59,6 +60,7 @@ class Settings extends React.Component<Props, State> {
       dailyBasisBooking: false,
       noAdminRestrictions: false,
       showNames: false,
+      removeCheckForConflicts: false,
       allowBookingNonExistUsers: false,
       subscriptionActive: false,
       subscriptionMaxUsers: 0,
@@ -122,6 +124,7 @@ class Settings extends React.Component<Props, State> {
         if (s.name === "max_concurrent_bookings_per_user") state.maxConcurrentBookingsPerUser = window.parseInt(s.value);
         if (s.name === "max_days_in_advance") state.maxDaysInAdvance = window.parseInt(s.value);
         if (s.name === "max_booking_duration_hours") state.maxBookingDurationHours = window.parseInt(s.value);
+        if (s.name === "remove_check_conflicts") state.removeCheckForConflicts = (s.value === "1");
         if (s.name === "daily_basis_booking") state.dailyBasisBooking = (s.value === "1");
         if (s.name === "no_admin_restrictions") state.noAdminRestrictions = (s.value === "1");
         if (s.name === "show_names") state.showNames = (s.value === "1");
@@ -159,6 +162,7 @@ class Settings extends React.Component<Props, State> {
       new OrgSettings("confluence_server_shared_secret", this.state.confluenceServerSharedSecret),
       new OrgSettings("daily_basis_booking", this.state.dailyBasisBooking ? "1" : "0"),
       new OrgSettings("no_admin_restrictions", this.state.noAdminRestrictions  ? "1" : "0"),
+      new OrgSettings("remove_check_conflicts", this.state.removeCheckForConflicts  ? "1" : "0"),
       new OrgSettings("show_names", this.state.showNames ? "1" : "0"),
       new OrgSettings("allow_booking_nonexist_users", this.state.allowBookingNonExistUsers ? "1" : "0"),
       new OrgSettings("max_bookings_per_user", this.state.maxBookingsPerUser.toString()),
@@ -435,7 +439,7 @@ class Settings extends React.Component<Props, State> {
               <Form.Check type="checkbox" id="check-noAdminRestrictions" label={this.props.t("noAdminRestrictions")} checked={this.state.noAdminRestrictions} onChange={(e: any) => this.setState({ noAdminRestrictions: e.target.checked })} />
             </Col>
           </Form.Group>
-          
+
           <Form.Group as={Row}>
             <Col sm="6">
               <Form.Check type="checkbox" id="check-dailyBasisBooking" label={this.props.t("dailyBasisBooking")} checked={this.state.dailyBasisBooking} onChange={(e: any) => this.onDailyBasisBookingChange(e.target.checked)} />
@@ -448,6 +452,11 @@ class Settings extends React.Component<Props, State> {
                 <Form.Control type="number" value={this.state.maxBookingDurationHours} onChange={(e: any) => this.setState({ maxBookingDurationHours: e.target.value })} min="0" max="9999" />
                 <InputGroup.Text>{this.props.t("hours")}</InputGroup.Text>
               </InputGroup>
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row}>
+            <Col sm="6">
+              <Form.Check type="checkbox" id="remove-check-for-conflicts" label={this.props.t("removeCheckForConflicts")} checked={this.state.removeCheckForConflicts} onChange={(e: any) => this.setState({ removeCheckForConflicts: e.target.checked })} />
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
