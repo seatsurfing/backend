@@ -6,6 +6,7 @@ import (
 	"math"
 	"net/http"
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -222,7 +223,7 @@ func (router *BookingRouter) update(w http.ResponseWriter, r *http.Request) {
 	eNew.ID = e.ID
 	eNew.UserID = e.UserID
 	if m.UserEmail != "" && m.UserEmail != requestUser.Email {
-		if (!CanSpaceAdminOrg(requestUser, location.OrganizationID)){
+		if !CanSpaceAdminOrg(requestUser, location.OrganizationID) {
 			SendForbidden(w)
 			return
 		}
@@ -248,6 +249,10 @@ func (router *BookingRouter) update(w http.ResponseWriter, r *http.Request) {
 	}
 	if len(conflicts) > 0 {
 		SendAleadyExists(w)
+		return
+	}
+	if valid, code := router.isValidBookingCreationCheckingTollerance(bookingReq, location.OrganizationID, e.SpaceID); !valid {
+		SendBadRequestCode(w, code)
 		return
 	}
 	if err := GetBookingRepository().Update(eNew); err != nil {
@@ -365,7 +370,7 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 	}
 	e.UserID = GetRequestUserID(r)
 	if m.UserEmail != "" && m.UserEmail != requestUser.Email {
-		if (!CanSpaceAdminOrg(requestUser, location.OrganizationID)){
+		if !CanSpaceAdminOrg(requestUser, location.OrganizationID) {
 			SendForbidden(w)
 			return
 		}
@@ -384,6 +389,7 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 		SendBadRequestCode(w, code)
 		return
 	}
+	// Check for other bookings that overlap with the same time.
 	conflicts, err := GetBookingRepository().GetConflicts(e.SpaceID, e.Enter, e.Leave, "")
 	if err != nil {
 		log.Println(err)
@@ -392,6 +398,11 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 	}
 	if len(conflicts) > 0 {
 		SendAleadyExists(w)
+		return
+	}
+
+	if valid, code := router.isValidBookingCreationCheckingTollerance(bookingReq, location.OrganizationID, e.SpaceID); !valid {
+		SendBadRequestCode(w, code)
 		return
 	}
 	if err := GetBookingRepository().Create(e); err != nil {
@@ -511,7 +522,7 @@ func (router *BookingRouter) getPresenceReport(w http.ResponseWriter, r *http.Re
 
 func (router *BookingRouter) isValidBookingDuration(m *BookingRequest, orgID string, user *User) bool {
 	noAdminRestrictions, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
-	if (noAdminRestrictions && CanSpaceAdminOrg(user, orgID)){
+	if noAdminRestrictions && CanSpaceAdminOrg(user, orgID) {
 		return true
 	}
 	dailyBasisBooking, _ := GetSettingsRepository().GetBool(orgID, SettingDailyBasisBooking.Name)
@@ -552,11 +563,11 @@ func (router *BookingRouter) isValidBookingAdvance(m *BookingRequest, orgID stri
 	if dailyBasisBooking {
 		now = now.Add(-12 * time.Hour)
 	}
-	if (m.Leave.Before(now)){ // Leave must not be in past
+	if m.Leave.Before(now) { // Leave must not be in past
 		return false
 	}
 	advanceDays := math.Floor(m.Enter.Sub(now).Hours() / 24)
-	if (advanceDays >=0 && noAdminRestrictions && CanSpaceAdminOrg(user, orgID)){
+	if advanceDays >= 0 && noAdminRestrictions && CanSpaceAdminOrg(user, orgID) {
 		return true
 	}
 	if advanceDays < 0 || advanceDays > float64(maxAdvanceDays) {
@@ -567,7 +578,7 @@ func (router *BookingRouter) isValidBookingAdvance(m *BookingRequest, orgID stri
 
 func (router *BookingRouter) isValidMaxUpcomingBookings(orgID string, user *User) bool {
 	noAdminRestrictions, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
-	if (noAdminRestrictions && CanSpaceAdminOrg(user, orgID)){
+	if noAdminRestrictions && CanSpaceAdminOrg(user, orgID) {
 		return true
 	}
 	maxUpcoming, _ := GetSettingsRepository().GetInt(orgID, SettingMaxBookingsPerUser.Name)
@@ -577,7 +588,7 @@ func (router *BookingRouter) isValidMaxUpcomingBookings(orgID string, user *User
 
 func (router *BookingRouter) isValidMaxConcurrentBookingsForUser(orgID string, user *User, m *BookingRequest, bookingID string) bool {
 	noAdminRestrictions, _ := GetSettingsRepository().GetBool(orgID, SettingNoAdminRestrictions.Name)
-	if (noAdminRestrictions && CanSpaceAdminOrg(user, orgID)){
+	if noAdminRestrictions && CanSpaceAdminOrg(user, orgID) {
 		return true
 	}
 	maxConcurrent, _ := GetSettingsRepository().GetInt(orgID, SettingMaxConcurrentBookingsPerUser.Name)
@@ -612,6 +623,7 @@ func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Loca
 	if location.MaxConcurrentBookings == 0 {
 		return true
 	}
+	log.Println("miao")
 	bookings, err := GetBookingRepository().GetConcurrent(location, m.Enter, m.Leave, bookingID)
 	if err != nil {
 		log.Println(err)
@@ -621,6 +633,43 @@ func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Loca
 		return false
 	}
 	return true
+}
+
+func (router *BookingRouter) isValidBookingCreationCheckingTollerance(m *BookingRequest, orgId string, spaceID string) (bool, int) {
+	tollerance, err := GetSettingsRepository().GetInt(orgId, SettingTolleranceBeforeDelete.Name)
+	if err != nil {
+		log.Println(err)
+		return false, http.StatusInternalServerError
+	}
+	if tollerance <= 0 {
+		// No checks need to be done.
+		return true, 0
+	}
+	enterTime, err := time.ParseDuration("-" + strconv.Itoa(tollerance) + "m")
+	if err != nil {
+		log.Println(err)
+		return false, http.StatusInternalServerError
+	}
+	leaveTime, err := time.ParseDuration("+" + strconv.Itoa(tollerance) + "m")
+	if err != nil {
+		log.Println(err)
+		return false, http.StatusInternalServerError
+	}
+	bookingReq := &BookingRequest{
+		Enter: m.Enter.Add(enterTime),
+		Leave: m.Leave.Add(leaveTime),
+	}
+	log.Println(m)
+	log.Println(bookingReq)
+	conflicts, err := GetBookingRepository().GetConflicts(spaceID, bookingReq.Enter, bookingReq.Leave, "")
+	if err != nil {
+		log.Println(err)
+		return false, http.StatusInternalServerError
+	}
+	if len(conflicts) > 0 {
+		return false, http.StatusConflict
+	}
+	return true, 0
 }
 
 func (router *BookingRouter) copyFromRestModel(m *CreateBookingRequest, location *Location) (*Booking, error) {
