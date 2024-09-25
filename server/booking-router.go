@@ -628,12 +628,13 @@ func (router *BookingRouter) isValidBookingRequest(m *BookingRequest, user *User
 }
 
 func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Location, bookingID string) bool {
-	tollerance, err := GetSettingsRepository().GetBool(location.OrganizationID, SettingRemoveCheckForConflicts.Name)
+	remove_check, err := GetSettingsRepository().GetBool(location.OrganizationID, SettingRemoveCheckForConflicts.Name)
 	if err != nil {
 		log.Println(err)
 		return false
 	}
-	if !tollerance {
+	if remove_check {
+		// No checks need to be done.
 		return true
 	}
 	if location.MaxConcurrentBookings == 0 {
@@ -651,12 +652,12 @@ func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Loca
 }
 
 func (router *BookingRouter) isValidBookingCreationUpdateCheckingTollerance(m *BookingRequest, conflicts []*Booking, orgId string) (bool, int) {
-	tollerance, err := GetSettingsRepository().GetBool(orgId, SettingRemoveCheckForConflicts.Name)
+	remove_check, err := GetSettingsRepository().GetBool(orgId, SettingRemoveCheckForConflicts.Name)
 	if err != nil {
 		log.Println(err)
 		return false, http.StatusInternalServerError
 	}
-	if !tollerance {
+	if !remove_check {
 		// No checks need to be done.
 		return true, 0
 	}
