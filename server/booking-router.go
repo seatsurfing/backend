@@ -241,6 +241,7 @@ func (router *BookingRouter) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	conflicts, err := GetBookingRepository().GetConflicts(eNew.SpaceID, eNew.Enter, eNew.Leave, eNew.ID)
+	log.Println(conflicts)
 	if err != nil {
 		log.Println(err)
 		SendInternalServerError(w)
@@ -250,7 +251,7 @@ func (router *BookingRouter) update(w http.ResponseWriter, r *http.Request) {
 		SendAleadyExists(w)
 		return
 	}
-	if valid, code := router.isValidBookingCreationCheckingTollerance(bookingReq, location.OrganizationID, e.SpaceID); !valid {
+	if valid, code := router.isValidBookingCreationUpdateCheckingTollerance(bookingReq, conflicts, location.OrganizationID); !valid {
 		SendBadRequestCode(w, code)
 		return
 	}
@@ -395,14 +396,22 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 		SendInternalServerError(w)
 		return
 	}
-	if len(conflicts) > 0 {
-		SendAleadyExists(w)
+	tollerance, err := GetSettingsRepository().GetBool(location.OrganizationID, SettingRemoveCheckForConflicts.Name)
+	if err != nil {
+		log.Println(err)
+		SendInternalServerError(w)
 		return
 	}
-
-	if valid, code := router.isValidBookingCreationCheckingTollerance(bookingReq, location.OrganizationID, e.SpaceID); !valid {
-		SendBadRequestCode(w, code)
-		return
+	if tollerance {
+		if valid, code := router.isValidBookingCreationUpdateCheckingTollerance(bookingReq, conflicts, location.OrganizationID); !valid {
+			SendBadRequestCode(w, code)
+			return
+		}
+	} else {
+		if len(conflicts) > 0 {
+			SendAleadyExists(w)
+			return
+		}
 	}
 	if err := GetBookingRepository().Create(e); err != nil {
 		log.Println(err)
@@ -622,7 +631,6 @@ func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Loca
 	if location.MaxConcurrentBookings == 0 {
 		return true
 	}
-	log.Println("miao")
 	bookings, err := GetBookingRepository().GetConcurrent(location, m.Enter, m.Leave, bookingID)
 	if err != nil {
 		log.Println(err)
@@ -634,7 +642,7 @@ func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Loca
 	return true
 }
 
-func (router *BookingRouter) isValidBookingCreationCheckingTollerance(m *BookingRequest, orgId string, spaceID string) (bool, int) {
+func (router *BookingRouter) isValidBookingCreationUpdateCheckingTollerance(m *BookingRequest, conflicts []*Booking, orgId string) (bool, int) {
 	tollerance, err := GetSettingsRepository().GetBool(orgId, SettingRemoveCheckForConflicts.Name)
 	if err != nil {
 		log.Println(err)
@@ -644,13 +652,14 @@ func (router *BookingRouter) isValidBookingCreationCheckingTollerance(m *Booking
 		// No checks need to be done.
 		return true, 0
 	}
-	conflicts, err := GetBookingRepository().GetConflicts(spaceID, m.Enter, m.Leave, "")
-	if err != nil {
-		log.Println(err)
-		return false, http.StatusInternalServerError
-	}
-	if len(conflicts) > 0 {
-		return false, http.StatusConflict
+	t1Time := time.Date(0, 1, 1, m.Enter.Hour(), m.Enter.Minute(), m.Enter.Second(), 0, time.UTC)
+
+	for _, conflict := range conflicts {
+		// I can tollerate if a Booking starts when the booking before ends. (b1 ends at 9:00, b2 starts at 9:00)
+		t2Time := time.Date(0, 1, 1, conflict.Leave.Hour(), conflict.Leave.Minute(), conflict.Leave.Second(), 0, time.UTC)
+		if !(t2Time.Before(t1Time) || t2Time.Equal(t1Time)) {
+			return false, http.StatusBadRequest
+		}
 	}
 	return true, 0
 }
