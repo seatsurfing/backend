@@ -540,6 +540,59 @@ func TestBookingsConflictDeleteTooClose(t *testing.T) {
 	checkTestResponseCode(t, http.StatusNoContent, res.Code)
 }
 
+func TestBookingsDeleteToCloseBeeingAdmin(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	user2 := createTestUserOrgAdmin(org)
+	loginResponse2 := loginTestUser(user2.ID)
+	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "5000")
+	// A booking can be deleted only before 24 hours
+	GetSettingsRepository().Set(org.ID, SettingMaxHoursBeforeDelete.Name, "48")
+	GetSettingsRepository().Set(org.ID, SettingNoAdminRestrictions.Name, "1")
+
+	// Create location
+	payload := `{"name": "Location 1"}`
+	req := newHTTPRequest("POST", "/location/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	locationID := res.Header().Get("X-Object-Id")
+
+	// Create space
+	payload = `{"name": "H234", "x": 50, "y": 100, "width": 200, "height": 300, "rotation": 90}`
+	req = newHTTPRequest("POST", "/location/"+locationID+"/space/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	spaceID := res.Header().Get("X-Object-Id")
+
+	// Create booking for tomorrow
+	tomorrow_enter := time.Now().UTC().Add(24 * time.Hour).Format("2006-01-02T15:04:05-07:00")
+	tomorrow_exit := time.Now().UTC().Add((24 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + tomorrow_enter + "\"" + ", \"leave\":" + "\"" + tomorrow_exit + "\"" + "}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id := res.Header().Get("X-Object-Id")
+
+	// Create another booking booking for the day after tomorrow
+	day_after_tomorrow_enter := time.Now().UTC().Add(24 * 2 * time.Hour).Format("2006-01-02T15:04:05-07:00")
+	day_after_tomorrow_exit := time.Now().UTC().Add(time.Minute*5 + (24 * 2 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + day_after_tomorrow_enter + "\"" + ", \"leave\":" + "\"" + day_after_tomorrow_exit + "\"" + "}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id2 := res.Header().Get("X-Object-Id")
+
+	// Delete without Error for tomorrow booking
+	req = newHTTPRequest("DELETE", "/booking/"+id, loginResponse2.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+
+	// Delete without Error for next week booking
+	req = newHTTPRequest("DELETE", "/booking/"+id2, loginResponse2.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+}
+
 func TestBookingsDeleteForeign(t *testing.T) {
 	clearTestDB()
 	org := createTestOrg("test.com")
