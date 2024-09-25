@@ -548,7 +548,7 @@ func TestBookingsDeleteToCloseBeeingAdmin(t *testing.T) {
 	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "5000")
 	// A booking can be deleted only before 24 hours
 	GetSettingsRepository().Set(org.ID, SettingMaxHoursBeforeDelete.Name, "48")
-	GetSettingsRepository().Set(org.ID, SettingNoAdminRestrictions.Name, "1")
+	GetSettingsRepository().Set(org.ID, SettingNoAdminRestrictions.Name, "0")
 
 	// Create location
 	payload := `{"name": "Location 1"}`
@@ -582,6 +582,12 @@ func TestBookingsDeleteToCloseBeeingAdmin(t *testing.T) {
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
 	id2 := res.Header().Get("X-Object-Id")
 
+	// Delete Error for tomorrow booking
+	req = newHTTPRequest("DELETE", "/booking/"+id, loginResponse2.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusForbidden, res.Code)
+
+	GetSettingsRepository().Set(org.ID, SettingNoAdminRestrictions.Name, "1")
 	// Delete without Error for tomorrow booking
 	req = newHTTPRequest("DELETE", "/booking/"+id, loginResponse2.UserID, nil)
 	res = executeTestRequest(req)
