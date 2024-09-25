@@ -38,6 +38,7 @@ var (
 	ResponseCodeBookingTooManyDaysInAdvance    = 1004
 	ResponseCodeBookingInvalidBookingDuration  = 1005
 	ResponseCodeBookingMaxConcurrentForUser    = 1006
+	ResponseCodeBookingMaxHoursBeforeDelete    = 1007
 )
 
 type Route interface {
@@ -54,6 +55,11 @@ func SendNotFound(w http.ResponseWriter) {
 }
 
 func SendForbidden(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusForbidden)
+}
+
+func SendForbiddenCode(w http.ResponseWriter, code int) {
+	w.Header().Set("X-Error-Code", strconv.Itoa(code))
 	w.WriteHeader(http.StatusForbidden)
 }
 

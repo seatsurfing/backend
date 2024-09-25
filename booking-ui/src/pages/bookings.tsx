@@ -1,5 +1,5 @@
 import React from 'react';
-import { Ajax, Booking, Formatting } from 'flexspace-commons';
+import {Ajax, AjaxError, Booking, Formatting} from 'flexspace-commons';
 import Loading from '../components/Loading';
 import { Button, Form, ListGroup, Modal } from 'react-bootstrap';
 import { LogIn as IconEnter, LogOut as IconLeave, MapPin as IconLocation } from 'react-feather';
@@ -58,7 +58,13 @@ class Bookings extends React.Component<Props, State> {
         selectedItem: null,
       }, this.loadData);
     }, (reason: any) => {
-      window.alert(this.props.t("errorDeleteBooking"));
+      if (reason instanceof AjaxError && reason.httpStatusCode === 403 && reason.appErrorCode === 1007) {
+          window.alert(this.props.t("errorDeleteBookingBeforeMaxCancel", {
+            num: RuntimeConfig.INFOS.maxHoursBeforeDelete
+          }));
+        } else {
+          window.alert(this.props.t("errorDeleteBooking"));
+        }
       this.setState({
         selectedItem: null,
       }, this.loadData);

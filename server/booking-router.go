@@ -293,7 +293,7 @@ func (router *BookingRouter) delete(w http.ResponseWriter, r *http.Request) {
 		SendUpdated(w)
 		return
 	}
-	SendForbidden(w)
+	SendForbiddenCode(w, ResponseCodeBookingMaxHoursBeforeDelete)
 }
 
 func (router *BookingRouter) checkBookingCreateUpdate(m *BookingRequest, location *Location, requestUser *User, bookingID string) (bool, int) {

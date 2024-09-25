@@ -7,6 +7,7 @@ var ResponseCodeBookingTooManyUpcomingBookings: number = 1003;
 var ResponseCodeBookingTooManyDaysInAdvance: number = 1004;
 var ResponseCodeBookingInvalidBookingDuration: number = 1005;
 var ResponseCodeBookingMaxConcurrentForUser: number = 1006;
+var ResponseCodeBookingMaxHoursBeforeDelete: number = 1007;
 
 export default class ErrorText {
     static getTextForAppCode(code: number, t: TFunction): string {

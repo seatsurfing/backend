@@ -1,5 +1,5 @@
 import React from 'react';
-import { Ajax, Booking, Formatting } from 'flexspace-commons';
+import {Ajax, AjaxError, Booking, Formatting, Settings as OrgSettings} from 'flexspace-commons';
 import { Table, Form, Col, Row, Button } from 'react-bootstrap';
 import { Plus as IconPlus, Search as IconSearch, Download as IconDownload, X as IconX } from 'react-feather';
 import { WithTranslation, withTranslation } from 'next-i18next';
@@ -25,6 +25,7 @@ interface Props extends WithTranslation {
 class Bookings extends React.Component<Props, State> {
   data: Booking[];
   ExcellentExport: any;
+  maxHoursBeforeDelete: number = 0;
 
   constructor(props: any) {
     super(props);
@@ -39,6 +40,7 @@ class Bookings extends React.Component<Props, State> {
       start: Formatting.getISO8601(start),
       end: Formatting.getISO8601(end),
     };
+    this.loadSettings();
   }
 
   componentDidMount = () => {
@@ -68,10 +70,25 @@ class Bookings extends React.Component<Props, State> {
       });
       booking.delete().then(() => {
         this.loadItems();
-      }, () => {
-        window.alert(this.props.t("errorCancelBooking"));
+      }, (reason: any) => {
+        if (reason instanceof AjaxError && reason.httpStatusCode === 403 && reason.appErrorCode === 1007) {
+          window.alert(this.props.t("errorDeleteBookingBeforeMaxCancel", {
+            num: this.maxHoursBeforeDelete
+          }));
+        } else {
+          window.alert(this.props.t("errorDeleteBooking"));
+        }
         this.loadItems();
       });
+  }
+
+  loadSettings = async (): Promise<void> => {
+    return OrgSettings.list().then(settings => {
+      settings.forEach(s => {
+        if (s.name === "max_hours_before_delete") {this.maxHoursBeforeDelete = window.parseInt(s.value)};
+        // this.setState({ loading: false });
+      });
+    });
   }
 
   onItemSelect = (booking: Booking) => {
