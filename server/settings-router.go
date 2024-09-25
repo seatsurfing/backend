@@ -188,6 +188,7 @@ func (router *SettingsRouter) isValidSettingNameReadPublic(name string) bool {
 		name == SettingAllowBookingsNonExistingUsers.Name ||
 		name == SettingDailyBasisBooking.Name ||
 		name == SettingNoAdminRestrictions.Name ||
+		name == SettingTolleranceBeforeDelete.Name ||
 		name == SettingDefaultTimezone.Name ||
 		name == SysSettingVersion {
 		return true
@@ -199,6 +200,7 @@ func (router *SettingsRouter) isValidSettingNameReadAdmin(name string) bool {
 	if router.isValidSettingNameReadPublic(name) ||
 		name == SettingAllowAnyUser.Name ||
 		name == SettingActiveSubscription.Name ||
+		name == SettingTolleranceBeforeDelete.Name ||
 		name == SettingSubscriptionMaxUsers.Name ||
 		name == SettingConfluenceServerSharedSecret.Name ||
 		name == SettingConfluenceAnonymous.Name ||
@@ -219,6 +221,7 @@ func (router *SettingsRouter) isValidSettingNameWrite(name string) bool {
 		name == SettingNoAdminRestrictions.Name ||
 		name == SettingShowNames.Name ||
 		name == SettingAllowBookingsNonExistingUsers.Name ||
+		name == SettingTolleranceBeforeDelete.Name ||
 		name == SettingMaxBookingDurationHours.Name ||
 		name == SettingDefaultTimezone.Name {
 		return true
@@ -262,6 +265,9 @@ func (router *SettingsRouter) getSettingType(name string) SettingType {
 	}
 	if name == SettingDefaultTimezone.Name {
 		return SettingDefaultTimezone.Type
+	}
+	if name == SettingTolleranceBeforeDelete.Name {
+		return SettingTolleranceBeforeDelete.Type
 	}
 	return 0
 }
