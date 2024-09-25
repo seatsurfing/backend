@@ -283,8 +283,9 @@ func (router *BookingRouter) delete(w http.ResponseWriter, r *http.Request) {
 		SendForbidden(w)
 		return
 	}
+	requestUser := GetRequestUser(r)
 	// Check for the date, If the BookingRequest is to close with SettingsMaxHoursBeforeDelete, the Delete can not be performed.
-	if router.isValidBookingHoursBeforeDelete(e, location.OrganizationID) {
+	if router.isValidBookingHoursBeforeDelete(e, requestUser, location.OrganizationID) {
 		if err := GetBookingRepository().Delete(e); err != nil {
 			SendInternalServerError(w)
 			return
@@ -629,9 +630,9 @@ func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Loca
 	return true
 }
 
-func (router *BookingRouter) isValidBookingHoursBeforeDelete(e *BookingDetails, organizationID string) bool {
+func (router *BookingRouter) isValidBookingHoursBeforeDelete(e *BookingDetails, user *User, organizationID string) bool {
 	noAdminRestrictions, _ := GetSettingsRepository().GetBool(organizationID, SettingNoAdminRestrictions.Name)
-	if noAdminRestrictions && CanSpaceAdminOrg(GetRequestUser(e.UserID), organizationID) {
+	if noAdminRestrictions && CanSpaceAdminOrg(user, organizationID) {
 		return true
 	}
 
