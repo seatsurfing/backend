@@ -631,7 +631,7 @@ func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Loca
 
 func (router *BookingRouter) isValidBookingHoursBeforeDelete(e *BookingDetails, organizationID string) bool {
 	noAdminRestrictions, _ := GetSettingsRepository().GetBool(organizationID, SettingNoAdminRestrictions.Name)
-	if noAdminRestrictions {
+	if noAdminRestrictions && CanSpaceAdminOrg(GetRequestUser(e.UserID), organizationID) {
 		return true
 	}
 
