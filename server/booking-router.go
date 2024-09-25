@@ -6,7 +6,6 @@ import (
 	"math"
 	"net/http"
 	"sort"
-	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -636,32 +635,16 @@ func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Loca
 }
 
 func (router *BookingRouter) isValidBookingCreationCheckingTollerance(m *BookingRequest, orgId string, spaceID string) (bool, int) {
-	tollerance, err := GetSettingsRepository().GetInt(orgId, SettingTolleranceBeforeDelete.Name)
+	tollerance, err := GetSettingsRepository().GetBool(orgId, SettingRemoveCheckForConflicts.Name)
 	if err != nil {
 		log.Println(err)
 		return false, http.StatusInternalServerError
 	}
-	if tollerance <= 0 {
+	if !tollerance {
 		// No checks need to be done.
 		return true, 0
 	}
-	enterTime, err := time.ParseDuration("-" + strconv.Itoa(tollerance) + "m")
-	if err != nil {
-		log.Println(err)
-		return false, http.StatusInternalServerError
-	}
-	leaveTime, err := time.ParseDuration("+" + strconv.Itoa(tollerance) + "m")
-	if err != nil {
-		log.Println(err)
-		return false, http.StatusInternalServerError
-	}
-	bookingReq := &BookingRequest{
-		Enter: m.Enter.Add(enterTime),
-		Leave: m.Leave.Add(leaveTime),
-	}
-	log.Println(m)
-	log.Println(bookingReq)
-	conflicts, err := GetBookingRepository().GetConflicts(spaceID, bookingReq.Enter, bookingReq.Leave, "")
+	conflicts, err := GetBookingRepository().GetConflicts(spaceID, m.Enter, m.Leave, "")
 	if err != nil {
 		log.Println(err)
 		return false, http.StatusInternalServerError
