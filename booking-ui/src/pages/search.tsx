@@ -452,10 +452,6 @@ class Search extends React.Component<Props, State> {
     const mydesk = (bookings.find(b => b.user.email === RuntimeConfig.INFOS.username));
     const buddiesEmails = this.buddies.map(i => i.buddy.email);
     const myBuddyDesk = (bookings.find(b => buddiesEmails.includes(b.user.email)));
-    const partiallyBooked = bookings.length > 0 && bookings.every(b => {
-      const hours = Math.abs(b.leave.getTime() - b.enter.getTime()) / 36e5;
-      return hours > 0 && hours < RuntimeConfig.INFOS.maxHoursPartiallyBooked
-    });
 
     if (myBuddyDesk) {
       return this.state.prefBuddyBookedColor;
@@ -465,8 +461,15 @@ class Search extends React.Component<Props, State> {
       return this.state.prefSelfBookedColor;
     }
 
-    if (partiallyBooked) {
-      return this.state.prefPartiallyBookedColor;
+    if (RuntimeConfig.INFOS.maxHoursPartiallyBookedEnabled) {
+      const partiallyBooked = bookings.length > 0 && bookings.every(b => {
+        const hours = Math.abs(b.leave.getTime() - b.enter.getTime()) / 36e5;
+        return hours > 0 && hours < RuntimeConfig.INFOS.maxHoursPartiallyBooked
+      });
+
+      if (partiallyBooked) {
+        return this.state.prefPartiallyBookedColor;
+      }
     }
 
     return (item.available ? this.state.prefNotBookedColor : this.state.prefBookedColor);

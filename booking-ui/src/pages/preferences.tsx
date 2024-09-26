@@ -6,6 +6,7 @@ import { WithTranslation, withTranslation } from 'next-i18next';
 import { NextRouter } from 'next/router';
 import NavBar from '@/components/NavBar';
 import withReadyRouter from '@/components/withReadyRouter';
+import RuntimeConfig from '@/components/RuntimeConfig.js';
 
 interface State {
   loading: boolean
@@ -233,10 +234,12 @@ class Preferences extends React.Component<Props, State> {
                   <p>Self booked</p>
                   <Form.Control type="color" key={"selfBooked"} id={"selfBooked"} value={this.state.selfBooked} onChange={(e: any) => this.setState({ selfBooked: e.target.value })} />
                 </Col>
+                {RuntimeConfig.INFOS.maxHoursPartiallyBookedEnabled &&
                 <Col>
                   <p>Partially booked</p>
                   <Form.Control type="color" key={"partiallyBooked"} id={"partiallyBooked"} value={this.state.partiallyBooked} onChange={(e: any) => this.setState({ partiallyBooked: e.target.value })} />
                 </Col>
+                }
                 <Col>
                   <p>Buddy booked</p>
                   <Form.Control type="color" key={"buddyBooked"} id={"buddyBooked"} value={this.state.buddyBooked} onChange={(e: any) => this.setState({ buddyBooked: e.target.value })} />
