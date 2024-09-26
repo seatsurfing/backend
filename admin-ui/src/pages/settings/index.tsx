@@ -132,8 +132,8 @@ class Settings extends React.Component<Props, State> {
         if (s.name === "allow_booking_nonexist_users") state.allowBookingNonExistUsers = (s.value === "1");
         if (s.name === "subscription_active") state.subscriptionActive = (s.value === "1");
         if (s.name === "subscription_max_users") state.subscriptionMaxUsers = window.parseInt(s.value);
-        if (s.name === "max_hours_partially_booked") state.maxHoursPartiallyBooked = (s.value === "1");
-        if (s.name === "max_hours_partially_booked_enabled") state.maxHoursPartiallyBookedEnabled = window.parseInt(s.value);
+        if (s.name === "max_hours_partially_booked_enabled") state.maxHoursPartiallyBookedEnabled = (s.value === "1");
+        if (s.name === "max_hours_partially_booked") state.maxHoursPartiallyBooked = window.parseInt(s.value);
         if (s.name === "_sys_org_signup_delete") state.allowOrgDelete = (s.value === "1");
       });
       if (state.dailyBasisBooking && (state.maxBookingDurationHours%24 !== 0)) {
@@ -171,8 +171,8 @@ class Settings extends React.Component<Props, State> {
       new OrgSettings("max_concurrent_bookings_per_user", this.state.maxConcurrentBookingsPerUser.toString()),
       new OrgSettings("max_days_in_advance", this.state.maxDaysInAdvance.toString()),
       new OrgSettings("max_booking_duration_hours", this.state.maxBookingDurationHours.toString()),
-      new OrgSettings("max_hours_partially_booked", this.state.maxHoursPartiallyBooked ? "1" : "0"),
-      new OrgSettings("max_hours_partially_booked_enabled", this.state.maxHoursPartiallyBookedEnabled.toString())
+      new OrgSettings("max_hours_partially_booked_enabled", this.state.maxHoursPartiallyBookedEnabled ? "1" : "0"),
+      new OrgSettings("max_hours_partially_booked", this.state.maxHoursPartiallyBooked.toString())
     ];
     OrgSettings.setAll(payload).then(() => {
       this.setState({
@@ -441,7 +441,7 @@ class Settings extends React.Component<Props, State> {
             <Col sm="4">
               <InputGroup>
                 <InputGroup.Checkbox checked={this.state.maxHoursPartiallyBookedEnabled} onChange={(e: any) => this.setState({ maxHoursPartiallyBookedEnabled: e.target.checked })} />
-                <Form.Control type="number" value={this.state.maxHoursPartiallyBooked} onChange={(e: any) => this.setState({ maxHoursPartiallyBooked: e.target.value })} min="0" max="9999" />
+                <Form.Control type="number" value={this.state.maxHoursPartiallyBooked} onChange={(e: any) => this.setState({ maxHoursPartiallyBooked: e.target.value })} min="0" max="9999" disabled={!this.state.maxHoursPartiallyBookedEnabled} />
                 <InputGroup.Text>{this.props.t("hours")}</InputGroup.Text>
               </InputGroup>
             </Col>
