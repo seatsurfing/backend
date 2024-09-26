@@ -73,7 +73,7 @@ export default class RuntimeConfig {
                     }
                     if (s.name === "daily_basis_booking") RuntimeConfig.INFOS.dailyBasisBooking = (s.value === "1");
                     if (s.name === "no_admin_restrictions") RuntimeConfig.INFOS.noAdminRestrictions = (s.value === "1");
-                    if (s.name === "max_hours_partially_booked") RuntimeConfig.INFOS.maxHoursPartiallyBookedEnabled = (s.value === "1");
+                    if (s.name === "max_hours_partially_booked_enabled") RuntimeConfig.INFOS.maxHoursPartiallyBookedEnabled = (s.value === "1");
                     if (s.name === "show_names") RuntimeConfig.INFOS.showNames = (s.value === "1");
                     if (s.name === "default_timezone") RuntimeConfig.INFOS.defaultTimezone = s.value;
                 });
