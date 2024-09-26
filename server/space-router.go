@@ -139,6 +139,12 @@ func (router *SpaceRouter) getAvailability(w http.ResponseWriter, r *http.Reques
 		SendInternalServerError(w)
 		return
 	}
+	remove_check, err := GetSettingsRepository().GetBool(location.OrganizationID, SettingRemoveCheckForConflicts.Name)
+	if err != nil {
+		log.Println(err)
+		SendInternalServerError(w)
+		return
+	}
 	res := []*GetSpaceAvailabilityResponse{}
 	for _, e := range list {
 		m := &GetSpaceAvailabilityResponse{}
@@ -172,6 +178,9 @@ func (router *SpaceRouter) getAvailability(w http.ResponseWriter, r *http.Reques
 			m.Bookings = append(m.Bookings, entry)
 		}
 		res = append(res, m)
+	}
+	if remove_check {
+		res = router.filterBookings(res, enterNew, leaveNew)
 	}
 	SendJSON(w, res)
 }
@@ -374,4 +383,19 @@ func (router *SpaceRouter) copyToRestModel(e *Space) *GetSpaceResponse {
 	m.Height = e.Height
 	m.Rotation = e.Rotation
 	return m
+}
+
+func (router *SpaceRouter) filterBookings(array []*GetSpaceAvailabilityResponse, enterTime time.Time, leaveTime time.Time) []*GetSpaceAvailabilityResponse {
+	out := []*GetSpaceAvailabilityResponse{}
+	for _, availability := range array {
+		bookings := []*GetSpaceAvailabilityBookingsResponse{}
+		for _, booking := range availability.Bookings {
+			if booking.Enter.Equal(enterTime) && booking.Leave.Equal(leaveTime) {
+				bookings = append(bookings, booking)
+			}
+		}
+		availability.Bookings = bookings
+		out = append(out, availability)
+	}
+	return out
 }
