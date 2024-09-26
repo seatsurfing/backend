@@ -635,7 +635,14 @@ func (router *BookingRouter) isValidBookingHoursBeforeDelete(e *BookingDetails, 
 	if noAdminRestrictions && CanSpaceAdminOrg(user, organizationID) {
 		return true
 	}
-
+	enable_check, err := GetSettingsRepository().GetBool(organizationID, SettingEnableMaxHourBeforeDelete.Name)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	if !enable_check {
+		return true
+	}
 	max_hours, err := GetSettingsRepository().GetInt(organizationID, SettingMaxHoursBeforeDelete.Name)
 	if err != nil {
 		log.Println(err)
