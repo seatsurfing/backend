@@ -16,6 +16,7 @@ interface State {
   maxBookingsPerUser: number
   maxConcurrentBookingsPerUser: number
   maxDaysInAdvance: number
+  enableMaxHoursBeforeDelete: boolean
   maxHoursBeforeDelete: number
   maxBookingDurationHours: number
   dailyBasisBooking: boolean
@@ -57,6 +58,7 @@ class Settings extends React.Component<Props, State> {
       maxConcurrentBookingsPerUser: 0,
       maxBookingDurationHours: 0,
       maxDaysInAdvance: 0,
+      enableMaxHoursBeforeDelete: false,
       maxHoursBeforeDelete: 0,
       dailyBasisBooking: false,
       noAdminRestrictions: false,
@@ -123,6 +125,7 @@ class Settings extends React.Component<Props, State> {
         if (s.name === "max_bookings_per_user") state.maxBookingsPerUser = window.parseInt(s.value);
         if (s.name === "max_concurrent_bookings_per_user") state.maxConcurrentBookingsPerUser = window.parseInt(s.value);
         if (s.name === "max_days_in_advance") state.maxDaysInAdvance = window.parseInt(s.value);
+        if (s.name === "enable_max_hours_before_delete") state.enableMaxHoursBeforeDelete = window.parseInt(s.value);
         if (s.name === "max_hours_before_delete") state.maxHoursBeforeDelete = window.parseInt(s.value);
         if (s.name === "max_booking_duration_hours") state.maxBookingDurationHours = window.parseInt(s.value);
         if (s.name === "daily_basis_booking") state.dailyBasisBooking = (s.value === "1");
@@ -167,6 +170,7 @@ class Settings extends React.Component<Props, State> {
       new OrgSettings("max_bookings_per_user", this.state.maxBookingsPerUser.toString()),
       new OrgSettings("max_concurrent_bookings_per_user", this.state.maxConcurrentBookingsPerUser.toString()),
       new OrgSettings("max_days_in_advance", this.state.maxDaysInAdvance.toString()),
+      new OrgSettings("enable_max_hours_before_delete", this.state.enableMaxHoursBeforeDelete ? "1" : "0"),
       new OrgSettings("max_hours_before_delete", this.state.maxHoursBeforeDelete.toString()),
       new OrgSettings("max_booking_duration_hours", this.state.maxBookingDurationHours.toString())
     ];
@@ -436,7 +440,8 @@ class Settings extends React.Component<Props, State> {
             <Form.Label column sm="2">{this.props.t("maxHoursBeforeDelete")}</Form.Label>
             <Col sm="4">
               <InputGroup>
-                <Form.Control type="number" value={this.state.maxHoursBeforeDelete} onChange={(e: any) => this.setState({ maxHoursBeforeDelete: e.target.value })} min="0" max="9999" />
+                <InputGroup.Checkbox id="check-maxHoursBeforeDelete" checked={this.state.enableMaxHoursBeforeDelete} onChange={(e: any) => this.setState({ enableMaxHoursBeforeDelete: e.target.checked })} />
+                <Form.Control type="number" value={this.state.maxHoursBeforeDelete} onChange={(e: any) => this.setState({ maxHoursBeforeDelete: e.target.value })} min="0" max="9999" disabled={!this.state.enableMaxHoursBeforeDelete} />
                 <InputGroup.Text>{this.props.t("hours")}</InputGroup.Text>
               </InputGroup>
             </Col>
