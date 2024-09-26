@@ -438,6 +438,8 @@ func TestBookingsConflictDeleteTooClose(t *testing.T) {
 	user2 := createTestUserOrgAdmin(org)
 	loginResponse2 := loginTestUser(user2.ID)
 	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "5000")
+	// Turning on the check
+	GetSettingsRepository().Set(org.ID, SettingEnableMaxHourBeforeDelete.Name, "1")
 	// A booking can be deleted only before 24 hours
 	GetSettingsRepository().Set(org.ID, SettingMaxHoursBeforeDelete.Name, "24")
 
@@ -538,6 +540,22 @@ func TestBookingsConflictDeleteTooClose(t *testing.T) {
 	req = newHTTPRequest("DELETE", "/booking/"+id5, loginResponse.UserID, nil)
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+
+	// Turning the check off but the max hours before delete still remain at 24 hours.
+	GetSettingsRepository().Set(org.ID, SettingEnableMaxHourBeforeDelete.Name, "0")
+
+	// Create booking for tomorrow
+	tomorrow_enter = time.Now().UTC().Add(24 * time.Hour).Format("2006-01-02T15:04:05-07:00")
+	tomorrow_exit = time.Now().UTC().Add((24 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + tomorrow_enter + "\"" + ", \"leave\":" + "\"" + tomorrow_exit + "\"" + "}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id = res.Header().Get("X-Object-Id")
+	// Delete with Error for tomorrow booking
+	req = newHTTPRequest("DELETE", "/booking/"+id, loginResponse.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
 }
 
 func TestBookingsDeleteToCloseBeeingAdmin(t *testing.T) {
@@ -546,7 +564,8 @@ func TestBookingsDeleteToCloseBeeingAdmin(t *testing.T) {
 	user2 := createTestUserOrgAdmin(org)
 	loginResponse2 := loginTestUser(user2.ID)
 	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "5000")
-	// A booking can be deleted only before 24 hours
+	// Turning on the check and set a booking can be deleted only before 24 hours
+	GetSettingsRepository().Set(org.ID, SettingEnableMaxHourBeforeDelete.Name, "1")
 	GetSettingsRepository().Set(org.ID, SettingMaxHoursBeforeDelete.Name, "48")
 	GetSettingsRepository().Set(org.ID, SettingNoAdminRestrictions.Name, "0")
 
