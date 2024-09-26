@@ -13,6 +13,7 @@ interface State {
   allowAnyUser: boolean
   defaultTimezone: string
   confluenceServerSharedSecret: string
+  customLogoUrl: string
   maxBookingsPerUser: number
   maxConcurrentBookingsPerUser: number
   maxDaysInAdvance: number
@@ -52,6 +53,7 @@ class Settings extends React.Component<Props, State> {
       allowAnyUser: true,
       defaultTimezone: "",
       confluenceServerSharedSecret: "",
+      customLogoUrl: "",
       maxBookingsPerUser: 0,
       maxConcurrentBookingsPerUser: 0,
       maxBookingDurationHours: 0,
@@ -118,6 +120,7 @@ class Settings extends React.Component<Props, State> {
         if (s.name === "allow_any_user") state.allowAnyUser = (s.value === "1");
         if (s.name === "default_timezone") state.defaultTimezone = s.value;
         if (s.name === "confluence_server_shared_secret") state.confluenceServerSharedSecret = s.value;
+        if (s.name === "custom_logo_url") state.customLogoUrl = s.value;
         if (s.name === "max_bookings_per_user") state.maxBookingsPerUser = window.parseInt(s.value);
         if (s.name === "max_concurrent_bookings_per_user") state.maxConcurrentBookingsPerUser = window.parseInt(s.value);
         if (s.name === "max_days_in_advance") state.maxDaysInAdvance = window.parseInt(s.value);
@@ -157,6 +160,7 @@ class Settings extends React.Component<Props, State> {
       new OrgSettings("allow_any_user", this.state.allowAnyUser ? "1" : "0"),
       new OrgSettings("default_timezone", this.state.defaultTimezone),
       new OrgSettings("confluence_server_shared_secret", this.state.confluenceServerSharedSecret),
+      new OrgSettings("custom_logo_url", this.state.customLogoUrl),
       new OrgSettings("daily_basis_booking", this.state.dailyBasisBooking ? "1" : "0"),
       new OrgSettings("no_admin_restrictions", this.state.noAdminRestrictions  ? "1" : "0"),
       new OrgSettings("show_names", this.state.showNames ? "1" : "0"),
@@ -408,6 +412,12 @@ class Settings extends React.Component<Props, State> {
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
+            <Form.Label column sm="2">{this.props.t("customLogoUrl")}</Form.Label>
+            <Col sm="4">
+              <Form.Control type="url" value={this.state.customLogoUrl} onChange={(e: any) => this.setState({ customLogoUrl: e.target.value })} />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("maxBookingsPerUser")}</Form.Label>
             <Col sm="4">
               <Form.Control type="number" value={this.state.maxBookingsPerUser} onChange={(e: any) => this.setState({ maxBookingsPerUser: e.target.value })} min="1" max="9999" />
@@ -435,7 +445,7 @@ class Settings extends React.Component<Props, State> {
               <Form.Check type="checkbox" id="check-noAdminRestrictions" label={this.props.t("noAdminRestrictions")} checked={this.state.noAdminRestrictions} onChange={(e: any) => this.setState({ noAdminRestrictions: e.target.checked })} />
             </Col>
           </Form.Group>
-          
+
           <Form.Group as={Row}>
             <Col sm="6">
               <Form.Check type="checkbox" id="check-dailyBasisBooking" label={this.props.t("dailyBasisBooking")} checked={this.state.dailyBasisBooking} onChange={(e: any) => this.onDailyBasisBookingChange(e.target.checked)} />

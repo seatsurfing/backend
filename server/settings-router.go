@@ -188,6 +188,7 @@ func (router *SettingsRouter) isValidSettingNameReadPublic(name string) bool {
 		name == SettingAllowBookingsNonExistingUsers.Name ||
 		name == SettingDailyBasisBooking.Name ||
 		name == SettingNoAdminRestrictions.Name ||
+		name == SettingCustomLogoUrl.Name ||
 		name == SettingDefaultTimezone.Name ||
 		name == SysSettingVersion {
 		return true
@@ -217,6 +218,7 @@ func (router *SettingsRouter) isValidSettingNameWrite(name string) bool {
 		name == SettingMaxDaysInAdvance.Name ||
 		name == SettingDailyBasisBooking.Name ||
 		name == SettingNoAdminRestrictions.Name ||
+		name == SettingCustomLogoUrl.Name ||
 		name == SettingShowNames.Name ||
 		name == SettingAllowBookingsNonExistingUsers.Name ||
 		name == SettingMaxBookingDurationHours.Name ||
@@ -262,6 +264,9 @@ func (router *SettingsRouter) getSettingType(name string) SettingType {
 	}
 	if name == SettingDefaultTimezone.Name {
 		return SettingDefaultTimezone.Type
+	}
+	if name == SettingCustomLogoUrl.Name {
+		return SettingCustomLogoUrl.Type
 	}
 	return 0
 }

@@ -10,6 +10,7 @@ interface RuntimeUserInfos {
     dailyBasisBooking: boolean;
     noAdminRestrictions: boolean;
     showNames: boolean;
+    customLogoUrl: string;
     defaultTimezone: string;
 }
 
@@ -24,6 +25,7 @@ export default class RuntimeConfig {
         maxBookingDurationHours: 0,
         dailyBasisBooking: false,
         noAdminRestrictions: false,
+        customLogoUrl: '',
         showNames: false,
         defaultTimezone: "",
     };
@@ -69,6 +71,7 @@ export default class RuntimeConfig {
                     if (s.name === "daily_basis_booking") RuntimeConfig.INFOS.dailyBasisBooking = (s.value === "1");
                     if (s.name === "no_admin_restrictions") RuntimeConfig.INFOS.noAdminRestrictions = (s.value === "1");
                     if (s.name === "show_names") RuntimeConfig.INFOS.showNames = (s.value === "1");
+                    if (s.name === "custom_logo_url") RuntimeConfig.INFOS.customLogoUrl = s.value;
                     if (s.name === "default_timezone") RuntimeConfig.INFOS.defaultTimezone = s.value;
                 });
                 resolve();
