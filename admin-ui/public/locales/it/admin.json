@@ -131,6 +131,7 @@
     "all": "All",
     "confirmCancelBooking": "Annulla prenotazione ?",
     "bookingui": "Sito Prenotazioni",
+    "removeCheckForConflicts": "Rimuovi controllo per conflitti",
     "updateAvailable": "Please update Seatsurfing to the latest version {{version}}.",
     "tomorrow": "Domani",
     "inXdays": "In {{x}} giorni",

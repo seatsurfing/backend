@@ -133,6 +133,7 @@
     "analysis": "Analysis",
     "all": "All",
     "confirmCancelBooking": "Cancel booking?",
+    "removeCheckForConflicts": "Remove check for conflicts",
     "bookingui": "Booking Site",
     "updateAvailable": "Please update Seatsurfing to the latest version {{version}}.",
     "tomorrow": "Tomorrow",
