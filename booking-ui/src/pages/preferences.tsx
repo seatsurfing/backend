@@ -19,6 +19,7 @@ interface State {
   booked: string
   notBooked: string
   selfBooked: string
+  partiallyBooked: string
   buddyBooked: string
   locationId: string
   changePassword: boolean
@@ -47,6 +48,7 @@ class Preferences extends React.Component<Props, State> {
       booked: "#ff453a",
       notBooked: "#30d158",
       selfBooked: "#b825de",
+      partiallyBooked: "#ff9100",
       buddyBooked: "#2415c5",
       locationId: "",
       changePassword: false,
@@ -89,6 +91,7 @@ class Preferences extends React.Component<Props, State> {
           if (s.name === "booked_color") state.booked = s.value;
           if (s.name === "not_booked_color") state.notBooked = s.value;
           if (s.name === "self_booked_color") state.selfBooked = s.value;
+          if (s.name === "partially_booked_color") state.partiallyBooked = s.value;
           if (s.name === "buddy_booked_color") state.buddyBooked = s.value;
           if (s.name === "location_id") state.locationId = s.value;
         });
@@ -132,7 +135,8 @@ class Preferences extends React.Component<Props, State> {
       new UserPreference("booked_color", this.state.booked),
       new UserPreference("not_booked_color", this.state.notBooked),
       new UserPreference("self_booked_color", this.state.selfBooked),
-      new UserPreference("buddy_booked_color", this.state.buddyBooked) 
+      new UserPreference("partially_booked_color", this.state.partiallyBooked),
+      new UserPreference("buddy_booked_color", this.state.buddyBooked)
     ];
     UserPreference.setAll(payload).then(() => {
       let onSaveComplete = function(this: Preferences) {
@@ -182,7 +186,7 @@ class Preferences extends React.Component<Props, State> {
       <>
         <NavBar />
         <div className="container-center">
-          <Form className="container-center-inner" onSubmit={this.onSubmit}>
+          <Form className="container-center-inner-wide" onSubmit={this.onSubmit}>
             {hint}
             <Form.Group className="margin-top-15">
               <Form.Label>{this.props.t("notice")}</Form.Label>
@@ -230,11 +234,15 @@ class Preferences extends React.Component<Props, State> {
                   <Form.Control type="color" key={"selfBooked"} id={"selfBooked"} value={this.state.selfBooked} onChange={(e: any) => this.setState({ selfBooked: e.target.value })} />
                 </Col>
                 <Col>
+                  <p>Partially booked</p>
+                  <Form.Control type="color" key={"partiallyBooked"} id={"partiallyBooked"} value={this.state.partiallyBooked} onChange={(e: any) => this.setState({ partiallyBooked: e.target.value })} />
+                </Col>
+                <Col>
                   <p>Buddy booked</p>
                   <Form.Control type="color" key={"buddyBooked"} id={"buddyBooked"} value={this.state.buddyBooked} onChange={(e: any) => this.setState({ buddyBooked: e.target.value })} />
                 </Col>
               </Row>
-            
+
             </Form.Group>
             <Form.Group className="margin-top-15">
               <Form.Label>{this.props.t("preferredLocation")}</Form.Label>
