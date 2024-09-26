@@ -6,7 +6,7 @@ import { WithTranslation, withTranslation } from 'next-i18next';
 import { NextRouter } from 'next/router';
 import NavBar from '@/components/NavBar';
 import withReadyRouter from '@/components/withReadyRouter';
-import RuntimeConfig from '@/components/RuntimeConfig.js';
+import RuntimeConfig from '@/components/RuntimeConfig';
 
 interface State {
   loading: boolean
