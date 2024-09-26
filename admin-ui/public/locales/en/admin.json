@@ -63,6 +63,7 @@
     "showNames": "Show bookers' names (mind the privacy!)",
     "allowBookingNonExistUsers": "Allow bookings for non-existing users (create on booking, admins only)",
     "maxBookingDurationHours": "Max. booking duration",
+    "disableBuddies": "Disable buddies",
     "hours": "hours",
     "domains": "Domains",
     "addDomain": "Add domain",
