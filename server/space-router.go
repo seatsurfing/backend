@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 	"time"
-
+	"slices"
 	"github.com/gorilla/mux"
 )
 
@@ -388,13 +388,11 @@ func (router *SpaceRouter) copyToRestModel(e *Space) *GetSpaceResponse {
 func (router *SpaceRouter) filterBookings(array []*GetSpaceAvailabilityResponse, enterTime time.Time, leaveTime time.Time) []*GetSpaceAvailabilityResponse {
 	out := []*GetSpaceAvailabilityResponse{}
 	for _, availability := range array {
-		bookings := []*GetSpaceAvailabilityBookingsResponse{}
-		for _, booking := range availability.Bookings {
-			if booking.Enter.Equal(enterTime) && booking.Leave.Equal(leaveTime) {
-				bookings = append(bookings, booking)
-			}
-		}
+		bookings := slices.DeleteFunc(availability.Bookings, func(booking *GetSpaceAvailabilityBookingsResponse) bool {
+			return booking.Enter.Equal(leaveTime) || booking.Leave.Equal(enterTime)
+		})
 		availability.Bookings = bookings
+		availability.Available = len(bookings) == 0
 		out = append(out, availability)
 	}
 	return out
