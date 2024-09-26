@@ -37,6 +37,7 @@ var (
 	SettingMaxBookingsPerUser            SettingName = SettingName{Name: "max_bookings_per_user", Type: SettingTypeInt}
 	SettingMaxConcurrentBookingsPerUser  SettingName = SettingName{Name: "max_concurrent_bookings_per_user", Type: SettingTypeInt}
 	SettingMaxDaysInAdvance              SettingName = SettingName{Name: "max_days_in_advance", Type: SettingTypeInt}
+	SettingEnableMaxHourBeforeDelete     SettingName = SettingName{Name: "enable_max_hours_before_delete", Type: SettingTypeBool}
 	SettingMaxHoursBeforeDelete          SettingName = SettingName{Name: "max_hours_before_delete", Type: SettingTypeInt}
 	SettingMaxBookingDurationHours       SettingName = SettingName{Name: "max_booking_duration_hours", Type: SettingTypeInt}
 	SettingActiveSubscription            SettingName = SettingName{Name: "subscription_active", Type: SettingTypeBool}
@@ -191,6 +192,7 @@ func (r *SettingsRepository) InitDefaultSettingsForOrg(organizationID string) er
 		"($1, '"+SettingConfluenceAnonymous.Name+"', '0'), "+
 		"($1, '"+SettingMaxBookingsPerUser.Name+"', '10'), "+
 		"($1, '"+SettingMaxConcurrentBookingsPerUser.Name+"', '0'), "+
+		"($1, '"+SettingEnableMaxHourBeforeDelete.Name+"', '0'), "+
 		"($1, '"+SettingMaxHoursBeforeDelete.Name+"', '0'), "+
 		"($1, '"+SettingMaxDaysInAdvance.Name+"', '14'), "+
 		"($1, '"+SettingMaxBookingDurationHours.Name+"', '12'), "+

@@ -186,6 +186,7 @@ func (router *SettingsRouter) isValidSettingNameReadPublic(name string) bool {
 		name == SettingMaxBookingDurationHours.Name ||
 		name == SettingMaxHoursBeforeDelete.Name ||
 		name == SettingShowNames.Name ||
+		name == SettingEnableMaxHourBeforeDelete.Name ||
 		name == SettingAllowBookingsNonExistingUsers.Name ||
 		name == SettingDailyBasisBooking.Name ||
 		name == SettingNoAdminRestrictions.Name ||
@@ -201,6 +202,7 @@ func (router *SettingsRouter) isValidSettingNameReadAdmin(name string) bool {
 		name == SettingAllowAnyUser.Name ||
 		name == SettingMaxHoursBeforeDelete.Name ||
 		name == SettingActiveSubscription.Name ||
+		name == SettingEnableMaxHourBeforeDelete.Name ||
 		name == SettingSubscriptionMaxUsers.Name ||
 		name == SettingConfluenceServerSharedSecret.Name ||
 		name == SettingConfluenceAnonymous.Name ||
@@ -214,6 +216,7 @@ func (router *SettingsRouter) isValidSettingNameWrite(name string) bool {
 	if name == SettingAllowAnyUser.Name ||
 		name == SettingConfluenceServerSharedSecret.Name ||
 		name == SettingConfluenceAnonymous.Name ||
+		name == SettingEnableMaxHourBeforeDelete.Name ||
 		name == SettingMaxBookingsPerUser.Name ||
 		name == SettingMaxConcurrentBookingsPerUser.Name ||
 		name == SettingMaxDaysInAdvance.Name ||
@@ -268,6 +271,9 @@ func (router *SettingsRouter) getSettingType(name string) SettingType {
 	}
 	if name == SettingMaxHoursBeforeDelete.Name {
 		return SettingMaxHoursBeforeDelete.Type
+	}
+	if name == SettingEnableMaxHourBeforeDelete.Name {
+		return SettingEnableMaxHourBeforeDelete.Type
 	}
 	return 0
 }
