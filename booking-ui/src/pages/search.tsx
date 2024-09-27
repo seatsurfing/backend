@@ -462,9 +462,24 @@ class Search extends React.Component<Props, State> {
     }
 
     if (RuntimeConfig.INFOS.maxHoursPartiallyBookedEnabled && bookings.length > 0) {
-      let leastEnterTimestamp = bookings.reduce((a, b) => a.enter.getTime() < b.enter.getTime() ? a : b).enter.getTime();
-      let maxLeaveTimestamp = bookings.reduce((a, b) => a.leave.getTime() > b.leave.getTime() ? a : b).leave.getTime();
-      const hours = (maxLeaveTimestamp - leastEnterTimestamp) / 1000 / 60 / 60;
+      let leastEnter = bookings.reduce((a, b) => a.enter < b.enter ? a : b).enter;
+      // Compare only the day
+      if (new Date(leastEnter).setHours(0, 0, 0) < new Date(this.state.enter).setHours(0, 0, 0)) {
+        // If the least enter time is in the previous days, set leastEnter to the same date as search but with prefWorkdayStart
+        const date = new Date(this.state.enter);
+        date.setHours(this.state.prefWorkdayStart, 0, 0);
+        leastEnter = date;
+      }
+
+      let maxLeaveTimestamp = bookings.reduce((a, b) => a.leave > b.leave ? a : b).leave;
+      // Compare only the day
+      if (new Date(maxLeaveTimestamp).setHours(0, 0, 0) > new Date(this.state.leave).setHours(0, 0, 0)) {
+        // If the max leave time is in the next days, set maxLeaveTimestamp to the same date as search but with prefWorkdayEnd
+        const date = new Date(this.state.leave);
+        date.setHours(this.state.prefWorkdayEnd, 0, 0);
+        maxLeaveTimestamp = date;
+      }
+      const hours = (maxLeaveTimestamp.getTime() - leastEnter.getTime()) / 1000 / 60 / 60;
 
       if (hours < RuntimeConfig.INFOS.maxHoursPartiallyBooked) {
         return this.state.prefPartiallyBookedColor;
