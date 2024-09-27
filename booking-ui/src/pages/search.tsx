@@ -462,10 +462,12 @@ class Search extends React.Component<Props, State> {
     }
 
     if (RuntimeConfig.INFOS.maxHoursPartiallyBookedEnabled && bookings.length > 0) {
-      const prefWorkdayStartDate = new Date(this.state.enter);
+      let prefWorkdayStartDate = new Date(this.state.enter);
       prefWorkdayStartDate.setHours(this.state.prefWorkdayStart, 0, 0);
-      const prefWorkdayEndDate = new Date(this.state.leave);
+      prefWorkdayStartDate = Formatting.convertToFakeUTCDate(prefWorkdayStartDate);
+      let prefWorkdayEndDate = new Date(this.state.leave);
       prefWorkdayEndDate.setHours(this.state.prefWorkdayEnd, 0, 0);
+      prefWorkdayEndDate = Formatting.convertToFakeUTCDate(prefWorkdayEndDate);
 
       let leastEnter = bookings.reduce((a, b) => a.enter < b.enter ? a : b).enter;
       if (leastEnter < prefWorkdayStartDate) {
