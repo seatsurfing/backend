@@ -6,6 +6,7 @@ import { WithTranslation, withTranslation } from 'next-i18next';
 import { NextRouter } from 'next/router';
 import NavBar from '@/components/NavBar';
 import withReadyRouter from '@/components/withReadyRouter';
+import RuntimeConfig from '@/components/RuntimeConfig';
 
 interface State {
   loading: boolean
@@ -132,7 +133,7 @@ class Preferences extends React.Component<Props, State> {
       new UserPreference("booked_color", this.state.booked),
       new UserPreference("not_booked_color", this.state.notBooked),
       new UserPreference("self_booked_color", this.state.selfBooked),
-      new UserPreference("buddy_booked_color", this.state.buddyBooked) 
+      new UserPreference("buddy_booked_color", this.state.buddyBooked)
     ];
     UserPreference.setAll(payload).then(() => {
       let onSaveComplete = function(this: Preferences) {
@@ -229,12 +230,14 @@ class Preferences extends React.Component<Props, State> {
                   <p>Self booked</p>
                   <Form.Control type="color" key={"selfBooked"} id={"selfBooked"} value={this.state.selfBooked} onChange={(e: any) => this.setState({ selfBooked: e.target.value })} />
                 </Col>
+                {!RuntimeConfig.INFOS.disableBuddies &&
                 <Col>
                   <p>Buddy booked</p>
                   <Form.Control type="color" key={"buddyBooked"} id={"buddyBooked"} value={this.state.buddyBooked} onChange={(e: any) => this.setState({ buddyBooked: e.target.value })} />
                 </Col>
+                }
               </Row>
-            
+
             </Form.Group>
             <Form.Group className="margin-top-15">
               <Form.Label>{this.props.t("preferredLocation")}</Form.Label>
