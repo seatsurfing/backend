@@ -461,13 +461,12 @@ class Search extends React.Component<Props, State> {
       return this.state.prefSelfBookedColor;
     }
 
-    if (RuntimeConfig.INFOS.maxHoursPartiallyBookedEnabled) {
-      const partiallyBooked = bookings.length > 0 && bookings.every(b => {
-        const hours = Math.abs(b.leave.getTime() - b.enter.getTime()) / 36e5;
-        return hours > 0 && hours < RuntimeConfig.INFOS.maxHoursPartiallyBooked
-      });
+    if (RuntimeConfig.INFOS.maxHoursPartiallyBookedEnabled && bookings.length > 0) {
+      let leastEnterTimestamp = bookings.reduce((a, b) => a.enter.getTime() < b.enter.getTime() ? a : b).enter.getTime();
+      let maxLeaveTimestamp = bookings.reduce((a, b) => a.leave.getTime() > b.leave.getTime() ? a : b).leave.getTime();
+      const hours = (maxLeaveTimestamp - leastEnterTimestamp) / 1000 / 60 / 60;
 
-      if (partiallyBooked) {
+      if (hours < RuntimeConfig.INFOS.maxHoursPartiallyBooked) {
         return this.state.prefPartiallyBookedColor;
       }
     }
