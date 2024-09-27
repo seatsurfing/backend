@@ -8,6 +8,7 @@ import { NextRouter } from 'next/router';
 import NavBar from '@/components/NavBar';
 import withReadyRouter from '@/components/withReadyRouter';
 import RuntimeConfig from '@/components/RuntimeConfig';
+import ErrorText from '@/types/ErrorText';
 
 interface State {
   loading: boolean
@@ -58,10 +59,8 @@ class Bookings extends React.Component<Props, State> {
         selectedItem: null,
       }, this.loadData);
     }, (reason: any) => {
-      if (reason instanceof AjaxError && reason.httpStatusCode === 403 && reason.appErrorCode === 1007) {
-          window.alert(this.props.t("errorDeleteBookingBeforeMaxCancel", {
-            num: RuntimeConfig.INFOS.maxHoursBeforeDelete
-          }));
+      if (reason instanceof AjaxError && reason.httpStatusCode === 403) {
+          window.alert(ErrorText.getTextForAppCode(reason.appErrorCode, this.props.t));
         } else {
           window.alert(this.props.t("errorDeleteBooking"));
         }
