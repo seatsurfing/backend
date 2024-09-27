@@ -6,7 +6,7 @@
     "getStarted": "Get started",
     "back": "Back",
     "errorDeleteBooking": "An error occurred while deleting your booking.",
-    "errorDeleteBookingBeforeMaxCancel": "You can only cancel up to {{num}} hours in advance. Contact an admin.",
+    "errorDeleteBookingBeforeMaxCancel": "You cannot cancel a booking less than {{num}} hours before. Contact an admin.",
     "errorInvalidEmail": "Invalid email address.",
     "errorLogin": "An error occurred while signing you in. Your email address might not be associated with an organization.",
     "errorNoAuthProviders": "No authentication providers for your user.",

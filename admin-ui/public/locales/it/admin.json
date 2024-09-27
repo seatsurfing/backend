@@ -132,7 +132,7 @@
     "all": "All",
     "confirmCancelBooking": "Annulla prenotazione ?",
     "errorDeleteBooking": "Annullamento prenotazione non riuscito a causa di un errore.",
-    "errorDeleteBookingBeforeMaxCancel": "Puoi annullare una prenotazione fino a {{num}} ore in anticipo.",
+    "errorDeleteBookingBeforeMaxCancel": "Non puoi annullare una prenotazione con meno di {{num}} ore di anticipo.",
     "bookingui": "Sito Prenotazioni",
     "updateAvailable": "Please update Seatsurfing to the latest version {{version}}.",
     "tomorrow": "Domani",

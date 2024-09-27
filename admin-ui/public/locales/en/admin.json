@@ -135,7 +135,7 @@
     "all": "All",
     "confirmCancelBooking": "Cancel booking?",
     "errorDeleteBooking": "Could not cancel booking due to an error.",
-    "errorDeleteBookingBeforeMaxCancel": "You can only cancel up to {{num}} hours in advance.",
+    "errorDeleteBookingBeforeMaxCancel": "You cannot cancel a booking less than {{num}} hours before.",
     "bookingui": "Booking Site",
     "updateAvailable": "Please update Seatsurfing to the latest version {{version}}.",
     "tomorrow": "Tomorrow",
