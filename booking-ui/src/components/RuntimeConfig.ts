@@ -7,6 +7,7 @@ interface RuntimeUserInfos {
     maxConcurrentBookingsPerUser: number;
     maxDaysInAdvance: number;
     maxBookingDurationHours: number;
+    minBookingDurationHours: number;
     dailyBasisBooking: boolean;
     noAdminRestrictions: boolean;
     showNames: boolean;
@@ -23,6 +24,7 @@ export default class RuntimeConfig {
         maxConcurrentBookingsPerUser: 0,
         maxDaysInAdvance: 0,
         maxBookingDurationHours: 0,
+        minBookingDurationHours: 0,
         dailyBasisBooking: false,
         noAdminRestrictions: false,
         customLogoUrl: '',
@@ -67,6 +69,7 @@ export default class RuntimeConfig {
                         if (s.name === "max_concurrent_bookings_per_user") RuntimeConfig.INFOS.maxConcurrentBookingsPerUser = window.parseInt(s.value);
                         if (s.name === "max_days_in_advance") RuntimeConfig.INFOS.maxDaysInAdvance = window.parseInt(s.value);
                         if (s.name === "max_booking_duration_hours") RuntimeConfig.INFOS.maxBookingDurationHours = window.parseInt(s.value);
+                        if (s.name === "min_booking_duration_hours") RuntimeConfig.INFOS.minBookingDurationHours = window.parseInt(s.value);
                     }
                     if (s.name === "daily_basis_booking") RuntimeConfig.INFOS.dailyBasisBooking = (s.value === "1");
                     if (s.name === "no_admin_restrictions") RuntimeConfig.INFOS.noAdminRestrictions = (s.value === "1");

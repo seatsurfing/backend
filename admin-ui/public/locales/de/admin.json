@@ -144,7 +144,7 @@
     "errorLeavePast": "Das Ende darf nicht in der Vergangenheit liegen.",
     "errorLeaveAfterEnter": "Das Ende muss nach dem Beginn liegen.",
     "errorDaysAdvance": "Die Buchung darf maximal {{num}} Tage in der Zukunft liegen.",
-    "errorBookingDuration": "Die maximale Buchungsdauer beträgt {{num}} Stunden.",
+    "errorMaxBookingDuration": "Die maximale Buchungsdauer beträgt {{num}} Stunden.",
     "errorTooManyConcurrent": "Kapazitätsgrenze des gewählten Bereichs ist erreicht.",
     "errorUnknown": "Unbekannter Fehler, bitte versuche es später erneut.",
     "administration": "Administration",

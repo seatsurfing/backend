@@ -5,15 +5,18 @@ import { TFunction } from "i18next";
 var ResponseCodeBookingLocationMaxConcurrent: number = 1002;
 var ResponseCodeBookingTooManyUpcomingBookings: number = 1003;
 var ResponseCodeBookingTooManyDaysInAdvance: number = 1004;
-var ResponseCodeBookingInvalidBookingDuration: number = 1005;
+var ResponseCodeBookingInvalidMaxBookingDuration: number = 1005;
 var ResponseCodeBookingMaxConcurrentForUser: number = 1006;
+var ResponseCodeBookingInvalidMinBookingDuration: number = 1007;
 
 export default class ErrorText {
     static getTextForAppCode(code: number, t: TFunction): string {
         if (code === ResponseCodeBookingLocationMaxConcurrent) {
             return t("errorTooManyConcurrent");
-        } else if (code === ResponseCodeBookingInvalidBookingDuration) {
-            return t("errorBookingDuration", { "num": RuntimeConfig.INFOS.maxBookingDurationHours });
+        } else if (code === ResponseCodeBookingInvalidMaxBookingDuration) {
+            return t("errorMaxBookingDuration", { "num": RuntimeConfig.INFOS.maxBookingDurationHours });
+        } else if (code === ResponseCodeBookingInvalidMinBookingDuration) {
+            return t("errorMinBookingDuration", { "num": RuntimeConfig.INFOS.minBookingDurationHours });
         } else if (code === ResponseCodeBookingTooManyDaysInAdvance) {
             return t("errorDaysAdvance", { "num": RuntimeConfig.INFOS.maxDaysInAdvance });
         } else if (code === ResponseCodeBookingTooManyUpcomingBookings) {

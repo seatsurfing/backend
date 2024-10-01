@@ -22,7 +22,7 @@
     "errorEnterFuture": "Data de intrare trebuie să fie în viitor.",
     "errorLeaveAfterEnter": "Data de plecare trebuie să fie după data de intrare.",
     "errorDaysAdvance": "Rezervarea ta nu trebuie să fie cu mai mult de {{num}} zile în avans.",
-    "errorBookingDuration": "Durata maximă a rezervării este de {{num}} ore.",
+    "errorMaxBookingDuration": "Durata maximă a rezervării este de {{num}} ore.",
     "errorTooManyConcurrent": "Limita de capacitate a fost atinsă în zona selectată.",
     "errorUnknown": "Eroare necunoscută, te rog să încerci din nou mai târziu.",
     "searchSpace": "Găsește un spațiu",

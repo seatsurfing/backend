@@ -143,7 +143,7 @@
     "errorLeavePast": "Verlofdatum mag niet in het verleden liggen",
     "errorLeaveAfterEnter": "De verlofdatum moet na de ingangsdatum liggen.",
     "errorDaysAdvance": "Je mag niet meer dan {{num}} dagen van tevoren boeken.",
-    "errorBookingDuration": "De maximale boekingsduur is {{num}} uur.",
+    "errorMaxBookingDuration": "De maximale boekingsduur is {{num}} uur.",
     "errorTooManyConcurrent": "Capaciteitslimiet bereikt in geselecteerd gebied.",
     "errorUnknown": "Onbekende fout, probeer het later nog eens.",
     "datePickerFormat": "y-MM-dd HH:mm",
