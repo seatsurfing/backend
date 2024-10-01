@@ -52,6 +52,7 @@ func TestSettingsReadPublic(t *testing.T) {
 		SettingShowNames.Name,
 		SettingAllowBookingsNonExistingUsers.Name,
 		SettingDefaultTimezone.Name,
+		SettingCustomLogoUrl.Name,
 		SysSettingVersion,
 	}
 	forbiddenSettings := []string{
@@ -113,6 +114,7 @@ func TestSettingsReadAdmin(t *testing.T) {
 		SettingActiveSubscription.Name,
 		SettingSubscriptionMaxUsers.Name,
 		SettingDefaultTimezone.Name,
+		SettingCustomLogoUrl.Name,
 		SysSettingOrgSignupDelete,
 		SysSettingVersion,
 	}
