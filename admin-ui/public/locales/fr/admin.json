@@ -144,7 +144,7 @@
     "errorLeavePast": "La date du congé ne doit pas se situer dans le passé.",
     "errorLeaveAfterEnter": "La date de congé doit être postérieure à la date d'entrée.",
     "errorDaysAdvance": "Votre réservation ne doit pas être faite plus de {{num}} jours à l'avance.",
-    "errorBookingDuration": "La durée maximale de réservation est de {{num}} heures.",
+    "errorMaxBookingDuration": "La durée maximale de réservation est de {{num}} heures.",
     "errorTooManyConcurrent": "Limite de capacité atteinte dans la zone sélectionnée.",
     "errorUnknown": "Erreur inconnue, veuillez réessayer plus tard.",
     "datePickerFormat": "y-MM-dd HH:mm",

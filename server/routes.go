@@ -32,12 +32,13 @@ var (
 )
 
 var (
-	ResponseCodeBookingSlotConflict            = 1001
-	ResponseCodeBookingLocationMaxConcurrent   = 1002
-	ResponseCodeBookingTooManyUpcomingBookings = 1003
-	ResponseCodeBookingTooManyDaysInAdvance    = 1004
-	ResponseCodeBookingInvalidBookingDuration  = 1005
-	ResponseCodeBookingMaxConcurrentForUser    = 1006
+	ResponseCodeBookingSlotConflict              = 1001
+	ResponseCodeBookingLocationMaxConcurrent     = 1002
+	ResponseCodeBookingTooManyUpcomingBookings   = 1003
+	ResponseCodeBookingTooManyDaysInAdvance      = 1004
+	ResponseCodeBookingInvalidBookingDuration    = 1005
+	ResponseCodeBookingMaxConcurrentForUser      = 1006
+	ResponseCodeBookingInvalidMinBookingDuration = 1007
 )
 
 type Route interface {
