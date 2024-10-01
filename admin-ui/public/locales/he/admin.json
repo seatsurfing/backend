@@ -144,7 +144,7 @@
     "errorLeavePast": "תאריך העזיבה לא יכול להיות בעבר",
     "errorLeaveAfterEnter": "תאריך העזיבה חייב להיות אחרי תאריך הכניסה.",
     "errorDaysAdvance": "ההזמנה שלך לא יכולה להיות יותר מ־{{num}} ימים מראש.",
-    "errorBookingDuration": "משך ההזמנה המרבי הוא {{num}} שעות.",
+    "errorMaxBookingDuration": "משך ההזמנה המרבי הוא {{num}} שעות.",
     "errorTooManyConcurrent": "הגעת למגבלת הקיבולת באזור הנבחר.",
     "errorUnknown": "שגיאה לא ידועה, נא לנסות שוב מאוחר יותר.",
     "datePickerFormat": "y-MM-dd HH:mm",
