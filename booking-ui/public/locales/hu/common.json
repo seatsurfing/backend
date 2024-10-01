@@ -22,7 +22,7 @@
   "errorEnterFuture": "Az érkezés időpontja nem lehet a múltban.",
   "errorLeaveAfterEnter": "A távozás időpontja az érkezés után kell legyen.",
   "errorDaysAdvance": "Nem foglalhatsz {{num}} napra előre.",
-  "errorBookingDuration": "A megengedett maximális foglalás időtartama {{num}} óra.",
+  "errorMaxBookingDuration": "A megengedett maximális foglalás időtartama {{num}} óra.",
   "errorTooManyConcurrent": "A választott térben nincs szabad hely.",
   "errorUnknown": "Ismeretlen hiba, kérjük próbáld meg újra.",
   "searchSpace": "Hely keresése",
