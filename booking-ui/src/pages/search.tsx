@@ -43,6 +43,7 @@ interface State {
   prefBookedColor: string
   prefNotBookedColor: string
   prefSelfBookedColor: string
+  prefPartiallyBookedColor: string
   prefBuddyBookedColor: string
 }
 
@@ -98,6 +99,7 @@ class Search extends React.Component<Props, State> {
       prefBookedColor: "#ff453a",
       prefNotBookedColor: "#30d158",
       prefSelfBookedColor: "#b825de",
+      prefPartiallyBookedColor: "#ff9100",
       prefBuddyBookedColor: "#2415c5",
     };
   }
@@ -160,6 +162,7 @@ class Search extends React.Component<Props, State> {
           if (s.name === "booked_color") state.prefBookedColor = s.value;
           if (s.name === "not_booked_color") state.prefNotBookedColor = s.value;
           if (s.name === "self_booked_color") state.prefSelfBookedColor = s.value;
+          if (s.name === "partially_booked_color") state.prefPartiallyBookedColor = s.value;
           if (s.name === "buddy_booked_color") state.prefBuddyBookedColor = s.value;
         });
         if (RuntimeConfig.INFOS.dailyBasisBooking) {
@@ -460,6 +463,30 @@ class Search extends React.Component<Props, State> {
 
     if (mydesk) {
       return this.state.prefSelfBookedColor;
+    }
+
+    if (RuntimeConfig.INFOS.maxHoursPartiallyBookedEnabled && bookings.length > 0) {
+      let prefWorkdayStartDate = new Date(this.state.enter);
+      prefWorkdayStartDate.setHours(this.state.prefWorkdayStart, 0, 0);
+      prefWorkdayStartDate = Formatting.convertToFakeUTCDate(prefWorkdayStartDate);
+      let prefWorkdayEndDate = new Date(this.state.leave);
+      prefWorkdayEndDate.setHours(this.state.prefWorkdayEnd, 0, 0);
+      prefWorkdayEndDate = Formatting.convertToFakeUTCDate(prefWorkdayEndDate);
+
+      let leastEnter = bookings.reduce((a, b) => a.enter < b.enter ? a : b).enter;
+      if (leastEnter < prefWorkdayStartDate) {
+        leastEnter = prefWorkdayStartDate;
+      }
+
+      let maxLeave = bookings.reduce((a, b) => a.leave > b.leave ? a : b).leave;
+      if (maxLeave > prefWorkdayEndDate) {
+        maxLeave = prefWorkdayEndDate;
+      }
+      const hours = (maxLeave.getTime() - leastEnter.getTime()) / 1000 / 60 / 60;
+
+      if (hours < RuntimeConfig.INFOS.maxHoursPartiallyBooked) {
+        return this.state.prefPartiallyBookedColor;
+      }
     }
 
     return (item.available ? this.state.prefNotBookedColor : this.state.prefBookedColor);

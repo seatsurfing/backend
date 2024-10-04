@@ -62,6 +62,7 @@
     "noAdminRestrictions": "Don't restrict admins (bookings per user, duration, in advance)",
     "showNames": "Show bookers' names (mind the privacy!)",
     "allowBookingNonExistUsers": "Allow bookings for non-existing users (create on booking, admins only)",
+    "customLogoUrl": "Custom logo URL (leave empty to use the default logo)",
     "maxBookingDurationHours": "Max. booking duration",
     "disableBuddies": "Disable buddies",
     "minBookingDurationHours": "Min. booking duration",
@@ -153,5 +154,6 @@
     "errorTooManyConcurrent": "Capacity limit reached in selected area.",
     "errorUnknown": "Unknown error, please try again later.",
     "datePickerFormat": "y-MM-dd HH:mm",
-    "datePickerFormatDailyBasisBooking": "y-MM-dd"
+    "datePickerFormatDailyBasisBooking": "y-MM-dd",
+    "maxHoursPartiallyBooked": "Max. hours partially booked"
 }

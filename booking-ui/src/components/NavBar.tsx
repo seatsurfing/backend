@@ -185,11 +185,14 @@ class NavBar extends React.Component<Props, State> {
             );
         }
 
+
+        const logoUrl = RuntimeConfig.INFOS.customLogoUrl || "/ui/seatsurfing.svg";
+
         return (
             <>
                 <Navbar bg="light" variant="light" fixed="top" expand={RuntimeConfig.EMBEDDED ? true : "xl"}>
                     <Container fluid={true}>
-                        <Navbar.Brand as={NavLink} to="/search"><img src="/ui/seatsurfing.svg" alt="Seatsurfing" /></Navbar.Brand>
+                        <Navbar.Brand as={NavLink} to="/search"><img src={logoUrl} alt="Seatsurfing" /></Navbar.Brand>
                         {collapsable}
                     </Container>
                 </Navbar>

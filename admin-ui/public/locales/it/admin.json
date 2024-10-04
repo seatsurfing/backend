@@ -63,6 +63,7 @@
     "allowBookingNonExistUsers": "Consenti prenotazioni per utent inesistenti (creazione su prenotazione, solo amministratori)",
     "maxBookingDurationHours": "Durata massima prenotazione",
     "disableBuddies": "Disabilita amici",
+    "customLogoUrl": "URL del logo personalizzato (lasciare vuoto per usare il logo predefinito)",
     "minBookingDurationHours": "Durata minima prenotazione",
     "hours": "ore",
     "domains": "Domini",
@@ -150,5 +151,6 @@
     "errorTooManyConcurrent": "Limite di capacità raggiunto nell'area selezionata.",
     "errorUnknown": "Errore sconosciuto, riprovare più tardi.",
     "datePickerFormat": "y-MM-dd HH:mm",
-    "datePickerFormatDailyBasisBooking": "y-MM-dd"
+    "datePickerFormatDailyBasisBooking": "y-MM-dd",
+    "maxHoursPartiallyBooked": "Ore massime prenotazione parziale"
 }

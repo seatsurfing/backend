@@ -52,9 +52,12 @@ func TestSettingsReadPublic(t *testing.T) {
 		SettingDailyBasisBooking.Name,
 		SettingNoAdminRestrictions.Name,
 		SettingShowNames.Name,
+		SettingMaxHoursPartiallyBooked.Name,
+		SettingMaxHoursPartiallyBookedEnabled.Name,
 		SettingMinBookingDurationHours.Name,
 		SettingAllowBookingsNonExistingUsers.Name,
 		SettingDefaultTimezone.Name,
+		SettingCustomLogoUrl.Name,
 		SysSettingVersion,
 	}
 	forbiddenSettings := []string{
@@ -111,6 +114,8 @@ func TestSettingsReadAdmin(t *testing.T) {
 		SettingMinBookingDurationHours.Name,
 		SettingNoAdminRestrictions.Name,
 		SettingShowNames.Name,
+		SettingMaxHoursPartiallyBooked.Name,
+		SettingMaxHoursPartiallyBookedEnabled.Name,
 		SettingAllowBookingsNonExistingUsers.Name,
 		SettingAllowAnyUser.Name,
 		SettingConfluenceServerSharedSecret.Name,
@@ -118,6 +123,7 @@ func TestSettingsReadAdmin(t *testing.T) {
 		SettingActiveSubscription.Name,
 		SettingSubscriptionMaxUsers.Name,
 		SettingDefaultTimezone.Name,
+		SettingCustomLogoUrl.Name,
 		SysSettingOrgSignupDelete,
 		SysSettingVersion,
 	}

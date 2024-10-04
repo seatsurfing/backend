@@ -189,6 +189,9 @@ func (router *SettingsRouter) isValidSettingNameReadPublic(name string) bool {
 		name == SettingAllowBookingsNonExistingUsers.Name ||
 		name == SettingDailyBasisBooking.Name ||
 		name == SettingNoAdminRestrictions.Name ||
+		name == SettingCustomLogoUrl.Name ||
+		name == SettingMaxHoursPartiallyBooked.Name ||
+		name == SettingMaxHoursPartiallyBookedEnabled.Name ||
 		name == SettingDefaultTimezone.Name ||
 		name == SettingDisableBuddies.Name ||
 		name == SysSettingVersion {
@@ -202,6 +205,8 @@ func (router *SettingsRouter) isValidSettingNameReadAdmin(name string) bool {
 		name == SettingAllowAnyUser.Name ||
 		name == SettingMinBookingDurationHours.Name ||
 		name == SettingActiveSubscription.Name ||
+		name == SettingMaxHoursPartiallyBooked.Name ||
+		name == SettingMaxHoursPartiallyBookedEnabled.Name ||
 		name == SettingSubscriptionMaxUsers.Name ||
 		name == SettingConfluenceServerSharedSecret.Name ||
 		name == SettingConfluenceAnonymous.Name ||
@@ -221,7 +226,10 @@ func (router *SettingsRouter) isValidSettingNameWrite(name string) bool {
 		name == SettingMinBookingDurationHours.Name ||
 		name == SettingDailyBasisBooking.Name ||
 		name == SettingNoAdminRestrictions.Name ||
+		name == SettingCustomLogoUrl.Name ||
 		name == SettingShowNames.Name ||
+		name == SettingMaxHoursPartiallyBooked.Name ||
+		name == SettingMaxHoursPartiallyBookedEnabled.Name ||
 		name == SettingAllowBookingsNonExistingUsers.Name ||
 		name == SettingMaxBookingDurationHours.Name ||
 		name == SettingDisableBuddies.Name ||
@@ -269,7 +277,16 @@ func (router *SettingsRouter) getSettingType(name string) SettingType {
 		return SettingDefaultTimezone.Type
 	}
 	if name == SettingDisableBuddies.Name {
-		return SettingDefaultTimezone.Type
+		return SettingDisableBuddies.Type
+  }
+	if name == SettingCustomLogoUrl.Name {
+		return SettingCustomLogoUrl.Type
+	}
+	if name == SettingMaxHoursPartiallyBooked.Name {
+		return SettingMaxHoursPartiallyBooked.Type
+	}
+	if name == SettingMaxHoursPartiallyBookedEnabled.Name {
+		return SettingMaxHoursPartiallyBookedEnabled.Type
   }
 	if name == SettingMinBookingDurationHours.Name {
 		return SettingMinBookingDurationHours.Type
