@@ -124,6 +124,7 @@ func (router *UserPreferencesRouter) isValidPreferenceName(name string) bool {
 		name == PreferenceBookedColor.Name ||
 		name == PreferenceBuddyBookedColor.Name ||
 		name == PreferenceSelfBookedColor.Name ||
+		name == PreferencePartiallyBookedColor.Name ||
 		name == PreferenceNotBookedColor.Name ||
 		name == PreferenceLocation.Name {
 		return true
@@ -149,6 +150,9 @@ func (router *UserPreferencesRouter) getPreferenceType(name string) SettingType 
 	}
 	if name == PreferenceSelfBookedColor.Name {
 		return PreferenceSelfBookedColor.Type
+	}
+	if name == PreferencePartiallyBookedColor.Name {
+		return PreferencePartiallyBookedColor.Type
 	}
 	if name == PreferenceNotBookedColor.Name {
 		return PreferenceNotBookedColor.Type

@@ -190,6 +190,8 @@ func (router *SettingsRouter) isValidSettingNameReadPublic(name string) bool {
 		name == SettingDailyBasisBooking.Name ||
 		name == SettingNoAdminRestrictions.Name ||
 		name == SettingCustomLogoUrl.Name ||
+		name == SettingMaxHoursPartiallyBooked.Name ||
+		name == SettingMaxHoursPartiallyBookedEnabled.Name ||
 		name == SettingDefaultTimezone.Name ||
 		name == SysSettingVersion {
 		return true
@@ -202,6 +204,8 @@ func (router *SettingsRouter) isValidSettingNameReadAdmin(name string) bool {
 		name == SettingAllowAnyUser.Name ||
 		name == SettingMinBookingDurationHours.Name ||
 		name == SettingActiveSubscription.Name ||
+		name == SettingMaxHoursPartiallyBooked.Name ||
+		name == SettingMaxHoursPartiallyBookedEnabled.Name ||
 		name == SettingSubscriptionMaxUsers.Name ||
 		name == SettingConfluenceServerSharedSecret.Name ||
 		name == SettingConfluenceAnonymous.Name ||
@@ -223,6 +227,8 @@ func (router *SettingsRouter) isValidSettingNameWrite(name string) bool {
 		name == SettingNoAdminRestrictions.Name ||
 		name == SettingCustomLogoUrl.Name ||
 		name == SettingShowNames.Name ||
+		name == SettingMaxHoursPartiallyBooked.Name ||
+		name == SettingMaxHoursPartiallyBookedEnabled.Name ||
 		name == SettingAllowBookingsNonExistingUsers.Name ||
 		name == SettingMaxBookingDurationHours.Name ||
 		name == SettingDefaultTimezone.Name {
@@ -270,6 +276,11 @@ func (router *SettingsRouter) getSettingType(name string) SettingType {
 	}
 	if name == SettingCustomLogoUrl.Name {
 		return SettingCustomLogoUrl.Type
+	if name == SettingMaxHoursPartiallyBooked.Name {
+		return SettingMaxHoursPartiallyBooked.Type
+	}
+	if name == SettingMaxHoursPartiallyBookedEnabled.Name {
+		return SettingMaxHoursPartiallyBookedEnabled.Type
   }
 	if name == SettingMinBookingDurationHours.Name {
 		return SettingMinBookingDurationHours.Type
