@@ -138,7 +138,7 @@ class NavBar extends React.Component<Props, State> {
         let mergeRequestsButton = <></>;
         let collapsable = <></>;
         let buddies = <></>;
-        
+
         if (!RuntimeConfig.EMBEDDED) {
             if (this.state.allowAdmin) {
                 adminButton = <Nav.Link onClick={this.gotoAdmin}>{this.props.t("administration")}</Nav.Link>;
@@ -185,11 +185,14 @@ class NavBar extends React.Component<Props, State> {
             );
         }
 
+
+        const logoUrl = RuntimeConfig.INFOS.customLogoUrl || "/ui/seatsurfing.svg";
+
         return (
             <>
                 <Navbar bg="light" variant="light" fixed="top" expand={RuntimeConfig.EMBEDDED ? true : "xl"}>
                     <Container fluid={true}>
-                        <Navbar.Brand as={NavLink} to="/search"><img src="/ui/seatsurfing.svg" alt="Seatsurfing" /></Navbar.Brand>
+                        <Navbar.Brand as={NavLink} to="/search"><img src={logoUrl} alt="Seatsurfing" /></Navbar.Brand>
                         {collapsable}
                     </Container>
                 </Navbar>

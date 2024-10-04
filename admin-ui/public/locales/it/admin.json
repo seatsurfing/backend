@@ -62,6 +62,7 @@
     "showNames": "Msotra nomi degli utenti che prenotano (attenzione alla privacy !)",
     "allowBookingNonExistUsers": "Consenti prenotazioni per utent inesistenti (creazione su prenotazione, solo amministratori)",
     "maxBookingDurationHours": "Durata massima prenotazione",
+    "customLogoUrl": "URL del logo personalizzato (lasciare vuoto per usare il logo predefinito)",
     "minBookingDurationHours": "Durata minima prenotazione",
     "hours": "ore",
     "domains": "Domini",

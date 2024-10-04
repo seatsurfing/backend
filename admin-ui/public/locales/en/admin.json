@@ -62,6 +62,7 @@
     "noAdminRestrictions": "Don't restrict admins (bookings per user, duration, in advance)",
     "showNames": "Show bookers' names (mind the privacy!)",
     "allowBookingNonExistUsers": "Allow bookings for non-existing users (create on booking, admins only)",
+    "customLogoUrl": "Custom logo URL (leave empty to use the default logo)",
     "maxBookingDurationHours": "Max. booking duration",
     "minBookingDurationHours": "Min. booking duration",
     "hours": "hours",
