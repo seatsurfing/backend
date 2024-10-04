@@ -29,6 +29,7 @@ interface State {
   subscriptionMaxUsers: number
   allowOrgDelete: boolean
   selectedAuthProvider: string
+  disableBuddies: boolean
   loading: boolean
   submitting: boolean
   saved: boolean
@@ -72,6 +73,7 @@ class Settings extends React.Component<Props, State> {
       subscriptionMaxUsers: 0,
       allowOrgDelete: false,
       selectedAuthProvider: "",
+      disableBuddies: false,
       loading: true,
       submitting: false,
       saved: false,
@@ -138,6 +140,7 @@ class Settings extends React.Component<Props, State> {
         if (s.name === "allow_booking_nonexist_users") state.allowBookingNonExistUsers = (s.value === "1");
         if (s.name === "subscription_active") state.subscriptionActive = (s.value === "1");
         if (s.name === "subscription_max_users") state.subscriptionMaxUsers = window.parseInt(s.value);
+        if (s.name === "disable_buddies") state.disableBuddies = (s.value === "1");
         if (s.name === "max_hours_partially_booked_enabled") state.maxHoursPartiallyBookedEnabled = (s.value === "1");
         if (s.name === "max_hours_partially_booked") state.maxHoursPartiallyBooked = window.parseInt(s.value);
         if (s.name === "_sys_org_signup_delete") state.allowOrgDelete = (s.value === "1");
@@ -174,6 +177,7 @@ class Settings extends React.Component<Props, State> {
       new OrgSettings("no_admin_restrictions", this.state.noAdminRestrictions  ? "1" : "0"),
       new OrgSettings("show_names", this.state.showNames ? "1" : "0"),
       new OrgSettings("allow_booking_nonexist_users", this.state.allowBookingNonExistUsers ? "1" : "0"),
+      new OrgSettings("disable_buddies", this.state.disableBuddies ? "1" : "0"),
       new OrgSettings("max_bookings_per_user", this.state.maxBookingsPerUser.toString()),
       new OrgSettings("max_concurrent_bookings_per_user", this.state.maxConcurrentBookingsPerUser.toString()),
       new OrgSettings("max_days_in_advance", this.state.maxDaysInAdvance.toString()),
@@ -464,6 +468,11 @@ class Settings extends React.Component<Props, State> {
           <Form.Group as={Row}>
             <Col sm="6">
               <Form.Check type="checkbox" id="check-noAdminRestrictions" label={this.props.t("noAdminRestrictions")} checked={this.state.noAdminRestrictions} onChange={(e: any) => this.setState({ noAdminRestrictions: e.target.checked })} />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row}>
+            <Col sm="6">
+              <Form.Check type="checkbox" id="check-disableBuddies" label={this.props.t("disableBuddies")} checked={this.state.disableBuddies} onChange={(e: any) => this.setState({ disableBuddies: e.target.checked })} />
             </Col>
           </Form.Group>
 

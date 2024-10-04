@@ -13,6 +13,7 @@ interface RuntimeUserInfos {
     showNames: boolean;
     customLogoUrl: string;
     defaultTimezone: string;
+    disableBuddies: boolean;
     maxHoursPartiallyBooked: number;
     maxHoursPartiallyBookedEnabled: boolean;
 }
@@ -29,6 +30,7 @@ export default class RuntimeConfig {
         minBookingDurationHours: 0,
         dailyBasisBooking: false,
         noAdminRestrictions: false,
+        disableBuddies: false,
         customLogoUrl: '',
         maxHoursPartiallyBooked: 0,
         maxHoursPartiallyBookedEnabled: false,
@@ -80,6 +82,7 @@ export default class RuntimeConfig {
                     if (s.name === "no_admin_restrictions") RuntimeConfig.INFOS.noAdminRestrictions = (s.value === "1");
                     if (s.name === "max_hours_partially_booked_enabled") RuntimeConfig.INFOS.maxHoursPartiallyBookedEnabled = (s.value === "1");
                     if (s.name === "show_names") RuntimeConfig.INFOS.showNames = (s.value === "1");
+                    if (s.name === "disable_buddies") RuntimeConfig.INFOS.disableBuddies = (s.value === "1");
                     if (s.name === "custom_logo_url") RuntimeConfig.INFOS.customLogoUrl = s.value;
                     if (s.name === "default_timezone") RuntimeConfig.INFOS.defaultTimezone = s.value;
                 });

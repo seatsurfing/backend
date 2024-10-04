@@ -64,6 +64,7 @@
     "allowBookingNonExistUsers": "Allow bookings for non-existing users (create on booking, admins only)",
     "customLogoUrl": "Custom logo URL (leave empty to use the default logo)",
     "maxBookingDurationHours": "Max. booking duration",
+    "disableBuddies": "Disable buddies",
     "minBookingDurationHours": "Min. booking duration",
     "hours": "hours",
     "domains": "Domains",

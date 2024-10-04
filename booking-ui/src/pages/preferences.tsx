@@ -240,10 +240,12 @@ class Preferences extends React.Component<Props, State> {
                   <Form.Control type="color" key={"partiallyBooked"} id={"partiallyBooked"} value={this.state.partiallyBooked} onChange={(e: any) => this.setState({ partiallyBooked: e.target.value })} />
                 </Col>
                 }
+                {!RuntimeConfig.INFOS.disableBuddies &&
                 <Col>
                   <p>Buddy booked</p>
                   <Form.Control type="color" key={"buddyBooked"} id={"buddyBooked"} value={this.state.buddyBooked} onChange={(e: any) => this.setState({ buddyBooked: e.target.value })} />
                 </Col>
+                }
               </Row>
 
             </Form.Group>

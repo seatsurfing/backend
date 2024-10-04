@@ -153,7 +153,7 @@ class NavBar extends React.Component<Props, State> {
             }
         }
 
-        if (RuntimeConfig.INFOS.showNames) {
+        if (RuntimeConfig.INFOS.showNames && !RuntimeConfig.INFOS.disableBuddies) {
             buddies = <Nav.Link as={Link} eventKey="/buddies" href="/buddies">{RuntimeConfig.EMBEDDED ? <IconCalendar className="feather feather-lg" /> : this.props.t("myBuddies")}</Nav.Link>
         }
 

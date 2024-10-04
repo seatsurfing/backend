@@ -565,7 +565,7 @@ class Search extends React.Component<Props, State> {
         {Formatting.getFormatterShort().format(new Date(booking.enter))}
         &nbsp;&mdash;&nbsp;
         {Formatting.getFormatterShort().format(new Date(booking.leave))}
-        {RuntimeConfig.INFOS.showNames && booking.user.email !== RuntimeConfig.INFOS.username && !buddiesEmails.includes(booking.user.email) && (
+        {RuntimeConfig.INFOS.showNames && !RuntimeConfig.INFOS.disableBuddies && booking.user.email !== RuntimeConfig.INFOS.username && !buddiesEmails.includes(booking.user.email) && (
           <Button variant="primary" onClick={(e) => { e.preventDefault(); this.onAddBuddy(booking.user); }} style={{ marginLeft: '10px' }}>
             {this.props.t("addBuddy")}
           </Button>
