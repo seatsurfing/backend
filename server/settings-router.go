@@ -276,12 +276,13 @@ func (router *SettingsRouter) getSettingType(name string) SettingType {
 	}
 	if name == SettingCustomLogoUrl.Name {
 		return SettingCustomLogoUrl.Type
+	}
 	if name == SettingMaxHoursPartiallyBooked.Name {
 		return SettingMaxHoursPartiallyBooked.Type
 	}
 	if name == SettingMaxHoursPartiallyBookedEnabled.Name {
 		return SettingMaxHoursPartiallyBookedEnabled.Type
-  }
+  	}
 	if name == SettingMinBookingDurationHours.Name {
 		return SettingMinBookingDurationHours.Type
 	}
