@@ -432,7 +432,6 @@ func TestBookingsCreateForeign(t *testing.T) {
 	checkTestResponseCode(t, http.StatusForbidden, res.Code)
 }
 
-
 func TestBookingsConflictDeleteTooClose(t *testing.T) {
 	clearTestDB()
 	org := createTestOrg("test.com")
@@ -618,7 +617,6 @@ func TestBookingsDeleteToCloseBeeingAdmin(t *testing.T) {
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusNoContent, res.Code)
 }
-
 
 func TestBookingConflictDurationTooShort(t *testing.T) {
 	clearTestDB()
@@ -840,6 +838,40 @@ func TestBookingsConflictEnd(t *testing.T) {
 	req = newHTTPRequest("POST", "/booking/", loginResponse2.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusConflict, res.Code)
+}
+
+func TestBookingsConflictLeaveStartMatch(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	user2 := createTestUserOrgAdmin(org)
+	loginResponse2 := loginTestUser(user2.ID)
+	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "5000")
+
+	// Create location
+	payload := `{"name": "Location 1"}`
+	req := newHTTPRequest("POST", "/location/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	locationID := res.Header().Get("X-Object-Id")
+
+	// Create space
+	payload = `{"name": "H234", "x": 50, "y": 100, "width": 200, "height": 300, "rotation": 90}`
+	req = newHTTPRequest("POST", "/location/"+locationID+"/space/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	spaceID := res.Header().Get("X-Object-Id")
+
+	// Create #1
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-01T08:30:00+02:00\", \"leave\": \"2030-09-01T13:00:00+02:00\"}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+
+	// Create #2
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\": \"2030-09-01T13:00:00+02:00\", \"leave\": \"2030-09-01T17:00:00+02:00\"}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
 }
 
 func TestBookingsConflictStart(t *testing.T) {
