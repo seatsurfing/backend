@@ -189,7 +189,7 @@ class Settings extends React.Component<Props, State> {
       new OrgSettings("max_days_in_advance", this.state.maxDaysInAdvance.toString()),
       new OrgSettings("enable_max_hours_before_delete", this.state.enableMaxHoursBeforeDelete ? "1" : "0"),
       new OrgSettings("max_hours_before_delete", this.state.maxHoursBeforeDelete.toString()),
-      new OrgSettings("max_booking_duration_hours", this.state.maxBookingDurationHours.toString())
+      new OrgSettings("max_booking_duration_hours", this.state.maxBookingDurationHours.toString()),
       new OrgSettings("max_hours_partially_booked_enabled", this.state.maxHoursPartiallyBookedEnabled ? "1" : "0"),
       new OrgSettings("max_hours_partially_booked", this.state.maxHoursPartiallyBooked.toString()),
       new OrgSettings("min_booking_duration_hours", this.state.minBookingDurationHours.toString())
@@ -468,6 +468,10 @@ class Settings extends React.Component<Props, State> {
               <InputGroup>
                 <InputGroup.Checkbox id="check-maxHoursBeforeDelete" checked={this.state.enableMaxHoursBeforeDelete} onChange={(e: any) => this.setState({ enableMaxHoursBeforeDelete: e.target.checked })} />
                 <Form.Control type="number" value={this.state.maxHoursBeforeDelete} onChange={(e: any) => this.setState({ maxHoursBeforeDelete: e.target.value })} min="0" max="9999" disabled={!this.state.enableMaxHoursBeforeDelete} />
+              </InputGroup>
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("maxHoursPartiallyBooked")}</Form.Label>
             <Col sm="4">
               <InputGroup>
