@@ -260,10 +260,6 @@ func (r *BookingRepository) GetTimeRangeByUser(userID string, enter time.Time, l
 		"($2 <= enter_time AND $3 > enter_time) OR "+ // (overlap start, can end at same time as next start)
 		"($2 < leave_time AND $3 >= leave_time) OR "+ // (overlap end, start can equal previous leave time)
 		"($2 >= enter_time AND $3 <= leave_time)"+ // (within)
-		// "($2 BETWEEN enter_time AND leave_time) OR "+
-		// "($3 BETWEEN enter_time AND leave_time) OR "+
-		// "(enter_time BETWEEN $2 AND $3) OR "+
-		// "(leave_time BETWEEN $2 AND $3)"+
 		") "+
 		"ORDER BY enter_time", userID, enter, leave, excludeBookingID)
 	if err != nil {
@@ -288,10 +284,10 @@ func (r *BookingRepository) GetConflicts(spaceID string, enter time.Time, leave 
 	rows, err := GetDatabase().DB().Query("SELECT id, user_id, space_id, enter_time, leave_time "+
 		"FROM bookings "+
 		"WHERE id::text != $1 AND space_id = $2 AND ("+
-		"($3 BETWEEN enter_time AND leave_time) OR "+
-		"($4 BETWEEN enter_time AND leave_time) OR "+
-		"(enter_time BETWEEN $3 AND $4) OR "+
-		"(leave_time BETWEEN $3 AND $4)"+
+		"($3 > enter_time AND $3 < leave_time) OR "+
+		"($4 > enter_time AND $4 < leave_time) OR "+
+		"(enter_time > $3 AND enter_time < $4) OR "+
+		"(leave_time > $3 AND leave_time < $4)"+
 		") "+
 		"ORDER BY enter_time", excludeBookingID, spaceID, enter, leave)
 	if err != nil {
@@ -331,10 +327,10 @@ func (r *BookingRepository) GetConcurrent(location *Location, enter time.Time, l
 	rows, err := GetDatabase().DB().Query("SELECT id, user_id, space_id, enter_time, leave_time "+
 		"FROM bookings "+
 		"WHERE id::text != $1 AND space_id IN (SELECT id FROM spaces WHERE location_id = $2) AND ("+
-		"($3 BETWEEN enter_time AND leave_time) OR "+
-		"($4 BETWEEN enter_time AND leave_time) OR "+
-		"(enter_time BETWEEN $3 AND $4) OR "+
-		"(leave_time BETWEEN $3 AND $4)"+
+		"($3 >= enter_time AND $3 <= leave_time) OR "+
+		"($4 >= enter_time AND $4 <= leave_time) OR "+
+		"(enter_time >= $3 AND enter_time <= $4) OR "+
+		"(leave_time >= $3 AND leave_time <= $4)"+
 		") "+
 		"ORDER BY enter_time", excludeBookingID, location.ID, enter, leave)
 	if err == sql.ErrNoRows {
