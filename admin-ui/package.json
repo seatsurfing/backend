@@ -7,22 +7,22 @@
     "bootstrap": "^5.3.3",
     "excellentexport": "^3.9.7",
     "flexspace-commons": "file:../commons/ts",
-    "i18next": "^23.15.1",
+    "i18next": "^23.15.2",
     "i18next-browser-languagedetector": "^8.0.0",
     "i18next-chained-backend": "^4.6.2",
-    "i18next-http-backend": "^2.6.1",
+    "i18next-http-backend": "^2.6.2",
     "i18next-localstorage-backend": "^4.2.0",
-    "next": "^14.2.13",
+    "next": "^14.2.14",
     "next-i18next": "^15.3.1",
     "react": "^18.3.1",
     "react-autosuggest": "^10.1.0",
-    "react-bootstrap": "^2.10.4",
+    "react-bootstrap": "^2.10.5",
     "react-date-picker": "^11.0.0",
     "react-datetime-picker": "^6.0.1",
     "react-dom": "^18.3.1",
     "react-feather": "^2.0.10",
     "react-i18next": "^15.0.2",
-    "react-rnd": "^10.4.12",
+    "react-rnd": "^10.4.13",
     "react-router-dom": "^6.26.2",
     "typescript": "^5.6.2"
   },
@@ -47,9 +47,9 @@
   },
   "homepage": "/admin/",
   "devDependencies": {
-    "@types/node": "22.5.5",
+    "@types/node": "22.7.4",
     "@types/react-autosuggest": "^10.1.11",
     "eslint": "^8.57.1",
-    "eslint-config-next": "^14.2.13"
+    "eslint-config-next": "^14.2.14"
   }
 }
