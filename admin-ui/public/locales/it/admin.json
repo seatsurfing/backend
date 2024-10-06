@@ -63,6 +63,9 @@
     "showNames": "Msotra nomi degli utenti che prenotano (attenzione alla privacy !)",
     "allowBookingNonExistUsers": "Consenti prenotazioni per utent inesistenti (creazione su prenotazione, solo amministratori)",
     "maxBookingDurationHours": "Durata massima prenotazione",
+    "disableBuddies": "Disabilita amici",
+    "customLogoUrl": "URL del logo personalizzato (lasciare vuoto per usare il logo predefinito)",
+    "minBookingDurationHours": "Durata minima prenotazione",
     "hours": "ore",
     "domains": "Domini",
     "addDomain": "Aggungi dominio",
@@ -146,9 +149,11 @@
     "errorLeavePast": "La data di partenza non deve essere passata.",
     "errorLeaveAfterEnter": "La data di congedo deve essere successiva alla data di inserimento.",
     "errorDaysAdvance": "La prenotazione non deve essere effettuata con più di {{num}} giorni di anticipo.",
-    "errorBookingDuration": "La durata massima della prenotazione è di {{num}} ore.",
+    "errorMaxBookingDuration": "La durata massima della prenotazione è di {{num}} ore.",
+    "errorMinBookingDuration": "La durata minima della prenotazione è di {{num}} ore.",
     "errorTooManyConcurrent": "Limite di capacità raggiunto nell'area selezionata.",
     "errorUnknown": "Errore sconosciuto, riprovare più tardi.",
     "datePickerFormat": "y-MM-dd HH:mm",
-    "datePickerFormatDailyBasisBooking": "y-MM-dd"
+    "datePickerFormatDailyBasisBooking": "y-MM-dd",
+    "maxHoursPartiallyBooked": "Ore massime prenotazione parziale"
 }

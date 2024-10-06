@@ -96,6 +96,17 @@ func (c *Config) ReadConfig() {
 	c.LoginProtectionBanMinutes = c.getEnvInt("LOGIN_PROTECTION_BAN_MINUTES", 5)
 }
 
+func (c *Config) isValidLanguageCode(isoLanguageCode string) bool {
+	validLanguageCodes := []string{"de", "en"}
+	lc := strings.ToLower(isoLanguageCode)
+	for _, s := range validLanguageCodes {
+		if lc == s {
+			return true
+		}
+	}
+	return false
+}
+
 func (c *Config) Print() {
 	s, _ := json.MarshalIndent(c, "", "\t")
 	log.Println("Using config:\n" + string(s))

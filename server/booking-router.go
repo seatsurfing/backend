@@ -189,6 +189,7 @@ func (router *BookingRouter) getAll(w http.ResponseWriter, r *http.Request) {
 
 func (router *BookingRouter) update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+
 	e, err := GetBookingRepository().GetOne(vars["id"])
 	if err != nil {
 		SendNotFound(w)
@@ -236,6 +237,7 @@ func (router *BookingRouter) update(w http.ResponseWriter, r *http.Request) {
 		Enter: eNew.Enter,
 		Leave: eNew.Leave,
 	}
+
 	if valid, code := router.checkBookingCreateUpdate(bookingReq, location, requestUser, eNew.ID); !valid {
 		SendBadRequestCode(w, code)
 		return
@@ -385,6 +387,7 @@ func (router *BookingRouter) create(w http.ResponseWriter, r *http.Request) {
 		Enter: e.Enter,
 		Leave: e.Leave,
 	}
+
 	if valid, code := router.checkBookingCreateUpdate(bookingReq, location, requestUser, ""); !valid {
 		log.Println(err)
 		SendBadRequestCode(w, code)
@@ -606,7 +609,9 @@ func (router *BookingRouter) isValidBookingRequest(m *BookingRequest, user *User
 	if !router.isValidMaxConcurrentBookingsForUser(orgID, user, m, bookingID) {
 		return false, ResponseCodeBookingMaxConcurrentForUser
 	}
-
+	if !router.isValidMinHoursBooking(m, orgID, user) {
+		return false, ResponseCodeBookingInvalidMinBookingDuration
+	}
 	if !isUpdate {
 		if !router.isValidMaxUpcomingBookings(orgID, user) {
 			return false, ResponseCodeBookingTooManyUpcomingBookings
@@ -652,6 +657,22 @@ func (router *BookingRouter) isValidBookingHoursBeforeDelete(e *BookingDetails, 
 	now := time.Now().UTC()
 	difference_in_hours := int64(enterTime.Sub(now).Hours())
 	return difference_in_hours > int64(max_hours) || (max_hours == 0)
+}
+
+func (router *BookingRouter) isValidMinHoursBooking(e *BookingRequest, organizationID string, user *User) bool {
+	noAdminRestrictions, _ := GetSettingsRepository().GetBool(organizationID, SettingNoAdminRestrictions.Name)
+	if noAdminRestrictions && CanSpaceAdminOrg(user, organizationID) {
+		return true
+	}
+	min_hours, err := GetSettingsRepository().GetInt(organizationID, SettingMinBookingDurationHours.Name)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	enterTime := e.Enter
+	leaveTime := e.Leave
+	difference_in_hours := int64(leaveTime.Sub(enterTime).Hours())
+	return difference_in_hours >= int64(min_hours)
 }
 
 func (router *BookingRouter) copyFromRestModel(m *CreateBookingRequest, location *Location) (*Booking, error) {

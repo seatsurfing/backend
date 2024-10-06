@@ -22,7 +22,7 @@
     "errorEnterFuture": "Kies een datum in de toekomst.",
     "errorLeaveAfterEnter": "De vertrekdatum moet na de ingangsdatum liggen.",
     "errorDaysAdvance": "Uw boeking mag niet meer dan {{num}} dagen van tevoren plaatsvinden.",
-    "errorBookingDuration": "De maximale boekingsduur is {{num}} uur.",
+    "errorMaxBookingDuration": "De maximale boekingsduur is {{num}} uur.",
     "errorTooManyConcurrent": "Capaciteitslimiet bereikt in geselecteerd gebied.",
     "errorUnknown": "Onbekende fout, probeer het later opnieuw.",
     "searchSpace": "Zoek een ruimte",

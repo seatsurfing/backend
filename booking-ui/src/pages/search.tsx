@@ -43,6 +43,7 @@ interface State {
   prefBookedColor: string
   prefNotBookedColor: string
   prefSelfBookedColor: string
+  prefPartiallyBookedColor: string
   prefBuddyBookedColor: string
 }
 
@@ -98,6 +99,7 @@ class Search extends React.Component<Props, State> {
       prefBookedColor: "#ff453a",
       prefNotBookedColor: "#30d158",
       prefSelfBookedColor: "#b825de",
+      prefPartiallyBookedColor: "#ff9100",
       prefBuddyBookedColor: "#2415c5",
     };
   }
@@ -160,6 +162,7 @@ class Search extends React.Component<Props, State> {
           if (s.name === "booked_color") state.prefBookedColor = s.value;
           if (s.name === "not_booked_color") state.prefNotBookedColor = s.value;
           if (s.name === "self_booked_color") state.prefSelfBookedColor = s.value;
+          if (s.name === "partially_booked_color") state.prefPartiallyBookedColor = s.value;
           if (s.name === "buddy_booked_color") state.prefBuddyBookedColor = s.value;
         });
         if (RuntimeConfig.INFOS.dailyBasisBooking) {
@@ -311,7 +314,11 @@ class Search extends React.Component<Props, State> {
     let bookingDurationHours = Math.floor((this.state.leave.getTime() - this.state.enter.getTime()) / MS_PER_MINUTE) / 60;
     if (bookingDurationHours > RuntimeConfig.INFOS.maxBookingDurationHours && !isAdmin) {
       res = false;
-      hint = this.props.t("errorBookingDuration", { "num": RuntimeConfig.INFOS.maxBookingDurationHours });
+      hint = this.props.t("errorMaxBookingDuration", { "num": RuntimeConfig.INFOS.maxBookingDurationHours });
+    }
+    if (bookingDurationHours < RuntimeConfig.INFOS.minBookingDurationHours && !isAdmin) {
+      res = false;
+      hint = this.props.t("errorMinBookingDuration", { "num": RuntimeConfig.INFOS.minBookingDurationHours });
     }
     let self = this;
     return new Promise<void>(function (resolve, reject) {
@@ -458,6 +465,30 @@ class Search extends React.Component<Props, State> {
       return this.state.prefSelfBookedColor;
     }
 
+    if (RuntimeConfig.INFOS.maxHoursPartiallyBookedEnabled && bookings.length > 0) {
+      let prefWorkdayStartDate = new Date(this.state.enter);
+      prefWorkdayStartDate.setHours(this.state.prefWorkdayStart, 0, 0);
+      prefWorkdayStartDate = Formatting.convertToFakeUTCDate(prefWorkdayStartDate);
+      let prefWorkdayEndDate = new Date(this.state.leave);
+      prefWorkdayEndDate.setHours(this.state.prefWorkdayEnd, 0, 0);
+      prefWorkdayEndDate = Formatting.convertToFakeUTCDate(prefWorkdayEndDate);
+
+      let leastEnter = bookings.reduce((a, b) => a.enter < b.enter ? a : b).enter;
+      if (leastEnter < prefWorkdayStartDate) {
+        leastEnter = prefWorkdayStartDate;
+      }
+
+      let maxLeave = bookings.reduce((a, b) => a.leave > b.leave ? a : b).leave;
+      if (maxLeave > prefWorkdayEndDate) {
+        maxLeave = prefWorkdayEndDate;
+      }
+      const hours = (maxLeave.getTime() - leastEnter.getTime()) / 1000 / 60 / 60;
+
+      if (hours < RuntimeConfig.INFOS.maxHoursPartiallyBooked) {
+        return this.state.prefPartiallyBookedColor;
+      }
+    }
+
     return (item.available ? this.state.prefNotBookedColor : this.state.prefBookedColor);
   }
 
@@ -534,7 +565,7 @@ class Search extends React.Component<Props, State> {
         {Formatting.getFormatterShort().format(new Date(booking.enter))}
         &nbsp;&mdash;&nbsp;
         {Formatting.getFormatterShort().format(new Date(booking.leave))}
-        {RuntimeConfig.INFOS.showNames && booking.user.email !== RuntimeConfig.INFOS.username && !buddiesEmails.includes(booking.user.email) && (
+        {RuntimeConfig.INFOS.showNames && !RuntimeConfig.INFOS.disableBuddies && booking.user.email !== RuntimeConfig.INFOS.username && !buddiesEmails.includes(booking.user.email) && (
           <Button variant="primary" onClick={(e) => { e.preventDefault(); this.onAddBuddy(booking.user); }} style={{ marginLeft: '10px' }}>
             {this.props.t("addBuddy")}
           </Button>
