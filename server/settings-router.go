@@ -184,8 +184,10 @@ func (router *SettingsRouter) isValidSettingNameReadPublic(name string) bool {
 		name == SettingMaxConcurrentBookingsPerUser.Name ||
 		name == SettingMaxDaysInAdvance.Name ||
 		name == SettingMaxBookingDurationHours.Name ||
+		name == SettingMaxHoursBeforeDelete.Name ||
 		name == SettingMinBookingDurationHours.Name ||
 		name == SettingShowNames.Name ||
+		name == SettingEnableMaxHourBeforeDelete.Name ||
 		name == SettingAllowBookingsNonExistingUsers.Name ||
 		name == SettingDailyBasisBooking.Name ||
 		name == SettingNoAdminRestrictions.Name ||
@@ -203,6 +205,8 @@ func (router *SettingsRouter) isValidSettingNameReadPublic(name string) bool {
 func (router *SettingsRouter) isValidSettingNameReadAdmin(name string) bool {
 	if router.isValidSettingNameReadPublic(name) ||
 		name == SettingAllowAnyUser.Name ||
+		name == SettingMaxHoursBeforeDelete.Name ||
+		name == SettingEnableMaxHourBeforeDelete.Name ||
 		name == SettingMinBookingDurationHours.Name ||
 		name == SettingActiveSubscription.Name ||
 		name == SettingMaxHoursPartiallyBooked.Name ||
@@ -220,9 +224,11 @@ func (router *SettingsRouter) isValidSettingNameWrite(name string) bool {
 	if name == SettingAllowAnyUser.Name ||
 		name == SettingConfluenceServerSharedSecret.Name ||
 		name == SettingConfluenceAnonymous.Name ||
+		name == SettingEnableMaxHourBeforeDelete.Name ||
 		name == SettingMaxBookingsPerUser.Name ||
 		name == SettingMaxConcurrentBookingsPerUser.Name ||
 		name == SettingMaxDaysInAdvance.Name ||
+		name == SettingMaxHoursBeforeDelete.Name ||
 		name == SettingMinBookingDurationHours.Name ||
 		name == SettingDailyBasisBooking.Name ||
 		name == SettingNoAdminRestrictions.Name ||
@@ -276,9 +282,15 @@ func (router *SettingsRouter) getSettingType(name string) SettingType {
 	if name == SettingDefaultTimezone.Name {
 		return SettingDefaultTimezone.Type
 	}
+	if name == SettingMaxHoursBeforeDelete.Name {
+		return SettingMaxHoursBeforeDelete.Type
+	}
+	if name == SettingEnableMaxHourBeforeDelete.Name {
+		return SettingEnableMaxHourBeforeDelete.Type
+	}
 	if name == SettingDisableBuddies.Name {
 		return SettingDisableBuddies.Type
-  }
+	}
 	if name == SettingCustomLogoUrl.Name {
 		return SettingCustomLogoUrl.Type
 	}
@@ -287,7 +299,7 @@ func (router *SettingsRouter) getSettingType(name string) SettingType {
 	}
 	if name == SettingMaxHoursPartiallyBookedEnabled.Name {
 		return SettingMaxHoursPartiallyBookedEnabled.Type
-  }
+	}
 	if name == SettingMinBookingDurationHours.Name {
 		return SettingMinBookingDurationHours.Type
 	}

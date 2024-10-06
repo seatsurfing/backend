@@ -17,6 +17,8 @@ interface State {
   maxBookingsPerUser: number
   maxConcurrentBookingsPerUser: number
   maxDaysInAdvance: number
+  enableMaxHoursBeforeDelete: boolean
+  maxHoursBeforeDelete: number
   maxHoursPartiallyBooked: number
   maxHoursPartiallyBookedEnabled: boolean
   maxBookingDurationHours: number
@@ -63,6 +65,8 @@ class Settings extends React.Component<Props, State> {
       maxBookingDurationHours: 0,
       minBookingDurationHours: 0,
       maxDaysInAdvance: 0,
+      enableMaxHoursBeforeDelete: false,
+      maxHoursBeforeDelete: 0,
       maxHoursPartiallyBooked: 0,
       maxHoursPartiallyBookedEnabled: false,
       dailyBasisBooking: false,
@@ -132,6 +136,8 @@ class Settings extends React.Component<Props, State> {
         if (s.name === "max_bookings_per_user") state.maxBookingsPerUser = window.parseInt(s.value);
         if (s.name === "max_concurrent_bookings_per_user") state.maxConcurrentBookingsPerUser = window.parseInt(s.value);
         if (s.name === "max_days_in_advance") state.maxDaysInAdvance = window.parseInt(s.value);
+        if (s.name === "enable_max_hours_before_delete") state.enableMaxHoursBeforeDelete = window.parseInt(s.value);
+        if (s.name === "max_hours_before_delete") state.maxHoursBeforeDelete = window.parseInt(s.value);
         if (s.name === "max_booking_duration_hours") state.maxBookingDurationHours = window.parseInt(s.value);
         if (s.name === "min_booking_duration_hours") state.minBookingDurationHours = window.parseInt(s.value);
         if (s.name === "daily_basis_booking") state.dailyBasisBooking = (s.value === "1");
@@ -181,6 +187,8 @@ class Settings extends React.Component<Props, State> {
       new OrgSettings("max_bookings_per_user", this.state.maxBookingsPerUser.toString()),
       new OrgSettings("max_concurrent_bookings_per_user", this.state.maxConcurrentBookingsPerUser.toString()),
       new OrgSettings("max_days_in_advance", this.state.maxDaysInAdvance.toString()),
+      new OrgSettings("enable_max_hours_before_delete", this.state.enableMaxHoursBeforeDelete ? "1" : "0"),
+      new OrgSettings("max_hours_before_delete", this.state.maxHoursBeforeDelete.toString()),
       new OrgSettings("max_booking_duration_hours", this.state.maxBookingDurationHours.toString()),
       new OrgSettings("max_hours_partially_booked_enabled", this.state.maxHoursPartiallyBookedEnabled ? "1" : "0"),
       new OrgSettings("max_hours_partially_booked", this.state.maxHoursPartiallyBooked.toString()),
@@ -455,6 +463,15 @@ class Settings extends React.Component<Props, State> {
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
+            <Form.Label column sm="2">{this.props.t("maxHoursBeforeDelete")}</Form.Label>
+            <Col sm="4">
+              <InputGroup>
+                <InputGroup.Checkbox id="check-maxHoursBeforeDelete" checked={this.state.enableMaxHoursBeforeDelete} onChange={(e: any) => this.setState({ enableMaxHoursBeforeDelete: e.target.checked })} />
+                <Form.Control type="number" value={this.state.maxHoursBeforeDelete} onChange={(e: any) => this.setState({ maxHoursBeforeDelete: e.target.value })} min="0" max="9999" disabled={!this.state.enableMaxHoursBeforeDelete} />
+              </InputGroup>
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row}>
             <Form.Label column sm="2">{this.props.t("maxHoursPartiallyBooked")}</Form.Label>
             <Col sm="4">
               <InputGroup>
@@ -464,7 +481,6 @@ class Settings extends React.Component<Props, State> {
               </InputGroup>
             </Col>
           </Form.Group>
-
           <Form.Group as={Row}>
             <Col sm="6">
               <Form.Check type="checkbox" id="check-noAdminRestrictions" label={this.props.t("noAdminRestrictions")} checked={this.state.noAdminRestrictions} onChange={(e: any) => this.setState({ noAdminRestrictions: e.target.checked })} />
@@ -475,7 +491,6 @@ class Settings extends React.Component<Props, State> {
               <Form.Check type="checkbox" id="check-disableBuddies" label={this.props.t("disableBuddies")} checked={this.state.disableBuddies} onChange={(e: any) => this.setState({ disableBuddies: e.target.checked })} />
             </Col>
           </Form.Group>
-
           <Form.Group as={Row}>
             <Col sm="6">
               <Form.Check type="checkbox" id="check-dailyBasisBooking" label={this.props.t("dailyBasisBooking")} checked={this.state.dailyBasisBooking} onChange={(e: any) => this.onDailyBasisBookingChange(e.target.checked)} />

@@ -285,11 +285,17 @@ func (router *BookingRouter) delete(w http.ResponseWriter, r *http.Request) {
 		SendForbidden(w)
 		return
 	}
-	if err := GetBookingRepository().Delete(e); err != nil {
-		SendInternalServerError(w)
+	requestUser := GetRequestUser(r)
+	// Check for the date, If the BookingRequest is to close with SettingsMaxHoursBeforeDelete, the Delete can not be performed.
+	if router.isValidBookingHoursBeforeDelete(e, requestUser, location.OrganizationID) {
+		if err := GetBookingRepository().Delete(e); err != nil {
+			SendInternalServerError(w)
+			return
+		}
+		SendUpdated(w)
 		return
 	}
-	SendUpdated(w)
+	SendForbiddenCode(w, ResponseCodeBookingMaxHoursBeforeDelete)
 }
 
 func (router *BookingRouter) checkBookingCreateUpdate(m *BookingRequest, location *Location, requestUser *User, bookingID string) (bool, int) {
@@ -627,6 +633,30 @@ func (router *BookingRouter) isValidConcurrent(m *BookingRequest, location *Loca
 		return false
 	}
 	return true
+}
+
+func (router *BookingRouter) isValidBookingHoursBeforeDelete(e *BookingDetails, user *User, organizationID string) bool {
+	noAdminRestrictions, _ := GetSettingsRepository().GetBool(organizationID, SettingNoAdminRestrictions.Name)
+	if noAdminRestrictions && CanSpaceAdminOrg(user, organizationID) {
+		return true
+	}
+	enable_check, err := GetSettingsRepository().GetBool(organizationID, SettingEnableMaxHourBeforeDelete.Name)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	if !enable_check {
+		return true
+	}
+	max_hours, err := GetSettingsRepository().GetInt(organizationID, SettingMaxHoursBeforeDelete.Name)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+	enterTime := e.Enter
+	now := time.Now().UTC()
+	difference_in_hours := int64(enterTime.Sub(now).Hours())
+	return difference_in_hours > int64(max_hours) || (max_hours == 0)
 }
 
 func (router *BookingRouter) isValidMinHoursBooking(e *BookingRequest, organizationID string, user *User) bool {

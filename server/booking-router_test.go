@@ -432,6 +432,194 @@ func TestBookingsCreateForeign(t *testing.T) {
 	checkTestResponseCode(t, http.StatusForbidden, res.Code)
 }
 
+
+func TestBookingsConflictDeleteTooClose(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	user2 := createTestUserOrgAdmin(org)
+	loginResponse2 := loginTestUser(user2.ID)
+	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "5000")
+	// Turning on the check
+	GetSettingsRepository().Set(org.ID, SettingEnableMaxHourBeforeDelete.Name, "1")
+	// A booking can be deleted only before 24 hours
+	GetSettingsRepository().Set(org.ID, SettingMaxHoursBeforeDelete.Name, "24")
+
+	// Create location
+	payload := `{"name": "Location 1"}`
+	req := newHTTPRequest("POST", "/location/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	locationID := res.Header().Get("X-Object-Id")
+
+	// Create space
+	payload = `{"name": "H234", "x": 50, "y": 100, "width": 200, "height": 300, "rotation": 90}`
+	req = newHTTPRequest("POST", "/location/"+locationID+"/space/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	spaceID := res.Header().Get("X-Object-Id")
+
+	// Switch to non-admin user
+	user := createTestUserInOrg(org)
+	loginResponse := loginTestUser(user.ID)
+
+	// Create booking for tomorrow
+	tomorrow_enter := time.Now().UTC().Add(24 * time.Hour).Format("2006-01-02T15:04:05-07:00")
+	tomorrow_exit := time.Now().UTC().Add((24 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + tomorrow_enter + "\"" + ", \"leave\":" + "\"" + tomorrow_exit + "\"" + "}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id := res.Header().Get("X-Object-Id")
+
+	// Create another booking booking for the day after tomorrow
+	day_after_tomorrow_enter := time.Now().UTC().Add(24 * 2 * time.Hour).Format("2006-01-02T15:04:05-07:00")
+	day_after_tomorrow_exit := time.Now().UTC().Add(time.Minute*5 + (24 * 2 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + day_after_tomorrow_enter + "\"" + ", \"leave\":" + "\"" + day_after_tomorrow_exit + "\"" + "}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id2 := res.Header().Get("X-Object-Id")
+
+	// Delete with Error for tomorrow booking
+	req = newHTTPRequest("DELETE", "/booking/"+id, loginResponse.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusForbidden, res.Code)
+
+	// Delete without Error for next week booking
+	req = newHTTPRequest("DELETE", "/booking/"+id2, loginResponse.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+
+	// Change the Hours limit, add the possibility to delete a Booking at any moment.
+	GetSettingsRepository().Set(org.ID, SettingMaxHoursBeforeDelete.Name, "0")
+	// Create booking for now
+	now_en := time.Now().UTC().Format("2006-01-02T15:04:05-07:00")
+	now_ex := time.Now().UTC().Format("2006-01-02T15:04:05-07:00")
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + now_en + "\"" + ", \"leave\":" + "\"" + now_ex + "\"" + "}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id3 := res.Header().Get("X-Object-Id")
+
+	// The Booking done for tomorrow SHOULD BE deleted
+	req = newHTTPRequest("DELETE", "/booking/"+id, loginResponse.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+
+	// The Booking for now SHOULD BE deleted
+	req = newHTTPRequest("DELETE", "/booking/"+id3, loginResponse.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+
+	// Change the Hours limit, the delete can be done before one hour from the beginning of the booking.
+	GetSettingsRepository().Set(org.ID, SettingMaxHoursBeforeDelete.Name, "1")
+
+	// Create booking for today plus 1 hour, this SHOULD NOT BE deleted
+	today_en := time.Now().UTC().Add((2 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
+	today_ex := time.Now().UTC().Add((2 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + today_en + "\"" + ", \"leave\":" + "\"" + today_ex + "\"" + "}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id4 := res.Header().Get("X-Object-Id")
+
+	// Create booking for today plus 2 hours, this SHOULD BE deleted
+	today_next_en := time.Now().UTC().Add(3 * time.Hour).Format("2006-01-02T15:04:05-07:00")
+	today_next_ex := time.Now().UTC().Add(3 * time.Hour).Format("2006-01-02T15:04:05-07:00")
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + today_next_en + "\"" + ", \"leave\":" + "\"" + today_next_ex + "\"" + "}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id5 := res.Header().Get("X-Object-Id")
+
+	// Create the request to delete the booking that
+	req = newHTTPRequest("DELETE", "/booking/"+id4, loginResponse.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusForbidden, res.Code)
+
+	// Create the request to delete the booking that, for today + 1 hour
+	req = newHTTPRequest("DELETE", "/booking/"+id5, loginResponse.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+
+	// Turning the check off but the max hours before delete still remain at 24 hours.
+	GetSettingsRepository().Set(org.ID, SettingEnableMaxHourBeforeDelete.Name, "0")
+
+	// Create booking for tomorrow
+	tomorrow_enter = time.Now().UTC().Add(24 * time.Hour).Format("2006-01-02T15:04:05-07:00")
+	tomorrow_exit = time.Now().UTC().Add((24 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + tomorrow_enter + "\"" + ", \"leave\":" + "\"" + tomorrow_exit + "\"" + "}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id = res.Header().Get("X-Object-Id")
+	// Delete with Error for tomorrow booking
+	req = newHTTPRequest("DELETE", "/booking/"+id, loginResponse.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+}
+
+func TestBookingsDeleteToCloseBeeingAdmin(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	user2 := createTestUserOrgAdmin(org)
+	loginResponse2 := loginTestUser(user2.ID)
+	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "5000")
+	// Turning on the check and set a booking can be deleted only before 24 hours
+	GetSettingsRepository().Set(org.ID, SettingEnableMaxHourBeforeDelete.Name, "1")
+	GetSettingsRepository().Set(org.ID, SettingMaxHoursBeforeDelete.Name, "48")
+	GetSettingsRepository().Set(org.ID, SettingNoAdminRestrictions.Name, "0")
+
+	// Create location
+	payload := `{"name": "Location 1"}`
+	req := newHTTPRequest("POST", "/location/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	locationID := res.Header().Get("X-Object-Id")
+
+	// Create space
+	payload = `{"name": "H234", "x": 50, "y": 100, "width": 200, "height": 300, "rotation": 90}`
+	req = newHTTPRequest("POST", "/location/"+locationID+"/space/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	spaceID := res.Header().Get("X-Object-Id")
+
+	// Create booking for tomorrow
+	tomorrow_enter := time.Now().UTC().Add(24 * time.Hour).Format("2006-01-02T15:04:05-07:00")
+	tomorrow_exit := time.Now().UTC().Add((24 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + tomorrow_enter + "\"" + ", \"leave\":" + "\"" + tomorrow_exit + "\"" + "}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id := res.Header().Get("X-Object-Id")
+
+	// Create another booking booking for the day after tomorrow
+	day_after_tomorrow_enter := time.Now().UTC().Add(24 * 2 * time.Hour).Format("2006-01-02T15:04:05-07:00")
+	day_after_tomorrow_exit := time.Now().UTC().Add(time.Minute*5 + (24 * 2 * time.Hour)).Format("2006-01-02T15:04:05-07:00")
+	payload = "{\"spaceId\": \"" + spaceID + "\", \"enter\":" + "\"" + day_after_tomorrow_enter + "\"" + ", \"leave\":" + "\"" + day_after_tomorrow_exit + "\"" + "}"
+	req = newHTTPRequest("POST", "/booking/", loginResponse2.UserID, bytes.NewBufferString(payload))
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusCreated, res.Code)
+	id2 := res.Header().Get("X-Object-Id")
+
+	// Delete Error for tomorrow booking
+	req = newHTTPRequest("DELETE", "/booking/"+id, loginResponse2.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusForbidden, res.Code)
+
+	GetSettingsRepository().Set(org.ID, SettingNoAdminRestrictions.Name, "1")
+	// Delete without Error for tomorrow booking
+	req = newHTTPRequest("DELETE", "/booking/"+id, loginResponse2.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+
+	// Delete without Error for next week booking
+	req = newHTTPRequest("DELETE", "/booking/"+id2, loginResponse2.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+}
+
+
 func TestBookingConflictDurationTooShort(t *testing.T) {
 	clearTestDB()
 	org := createTestOrg("test.com")
@@ -534,7 +722,6 @@ func TestBookingUpdateConflictDurationTooShort(t *testing.T) {
 	req = newHTTPRequest("POST", "/booking/", loginResponse.UserID, bytes.NewBufferString(payload))
 	res = executeTestRequest(req)
 	checkTestResponseCode(t, http.StatusCreated, res.Code)
-
 }
 
 func TestBookingsDeleteForeign(t *testing.T) {
@@ -1120,6 +1307,7 @@ func TestBookingsInvalidBorderAdvanceDate(t *testing.T) {
 
 func TestBookingsInvalidFutureAdvanceDate(t *testing.T) {
 	clearTestDB()
+	// TBD
 	org := createTestOrg("test.com")
 	GetSettingsRepository().Set(org.ID, SettingNoAdminRestrictions.Name, "1")
 	GetSettingsRepository().Set(org.ID, SettingMaxDaysInAdvance.Name, "5")

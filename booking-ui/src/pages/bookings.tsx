@@ -1,5 +1,5 @@
 import React from 'react';
-import { Ajax, Booking, Formatting } from 'flexspace-commons';
+import {Ajax, AjaxError, Booking, Formatting} from 'flexspace-commons';
 import Loading from '../components/Loading';
 import { Button, Form, ListGroup, Modal } from 'react-bootstrap';
 import { LogIn as IconEnter, LogOut as IconLeave, MapPin as IconLocation } from 'react-feather';
@@ -8,6 +8,7 @@ import { NextRouter } from 'next/router';
 import NavBar from '@/components/NavBar';
 import withReadyRouter from '@/components/withReadyRouter';
 import RuntimeConfig from '@/components/RuntimeConfig';
+import ErrorText from '@/types/ErrorText';
 
 interface State {
   loading: boolean
@@ -54,6 +55,15 @@ class Bookings extends React.Component<Props, State> {
       loading: true
     });
     this.state.selectedItem?.delete().then(() => {
+      this.setState({
+        selectedItem: null,
+      }, this.loadData);
+    }, (reason: any) => {
+      if (reason instanceof AjaxError && reason.httpStatusCode === 403) {
+          window.alert(ErrorText.getTextForAppCode(reason.appErrorCode, this.props.t));
+        } else {
+          window.alert(this.props.t("errorDeleteBooking"));
+        }
       this.setState({
         selectedItem: null,
       }, this.loadData);

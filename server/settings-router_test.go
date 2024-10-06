@@ -49,6 +49,8 @@ func TestSettingsReadPublic(t *testing.T) {
 		SettingMaxConcurrentBookingsPerUser.Name,
 		SettingMaxDaysInAdvance.Name,
 		SettingMaxBookingDurationHours.Name,
+		SettingMaxHoursBeforeDelete.Name,
+		SettingEnableMaxHourBeforeDelete.Name,
 		SettingDailyBasisBooking.Name,
 		SettingNoAdminRestrictions.Name,
 		SettingShowNames.Name,
@@ -110,10 +112,12 @@ func TestSettingsReadAdmin(t *testing.T) {
 		SettingMaxConcurrentBookingsPerUser.Name,
 		SettingMaxDaysInAdvance.Name,
 		SettingMaxBookingDurationHours.Name,
+		SettingMaxHoursBeforeDelete.Name,
 		SettingDailyBasisBooking.Name,
 		SettingMinBookingDurationHours.Name,
 		SettingNoAdminRestrictions.Name,
 		SettingShowNames.Name,
+		SettingEnableMaxHourBeforeDelete.Name,
 		SettingMaxHoursPartiallyBooked.Name,
 		SettingMaxHoursPartiallyBookedEnabled.Name,
 		SettingAllowBookingsNonExistingUsers.Name,
@@ -235,6 +239,31 @@ func TestSettingsCRUDMany(t *testing.T) {
 	checkTestString(t, "0", resBody2[0].Value)
 	checkTestString(t, "3", resBody2[1].Value)
 
+}
+
+func TestSettingsMaxHoursBeforeDelete(t *testing.T) {
+	clearTestDB()
+	org := createTestOrg("test.com")
+	user := createTestUserOrgAdmin(org)
+	loginResponse := loginTestUser(user.ID)
+	GetDatabase().DB().Exec("TRUNCATE settings")
+
+	payload := `[{"name": "max_hours_before_delete", "value": "2"}]`
+	req := newHTTPRequest("PUT", "/setting/", loginResponse.UserID, bytes.NewBufferString(payload))
+	res := executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusNoContent, res.Code)
+
+	req = newHTTPRequest("GET", "/setting/", loginResponse.UserID, nil)
+	res = executeTestRequest(req)
+	checkTestResponseCode(t, http.StatusOK, res.Code)
+	var resBody3 []GetSettingsResponse
+	json.Unmarshal(res.Body.Bytes(), &resBody3)
+	log.Println(resBody3)
+	checkTestInt(t, 3, len(resBody3))
+	checkTestString(t, SettingMaxHoursBeforeDelete.Name, resBody3[0].Name)
+	checkTestString(t, SysSettingOrgSignupDelete, resBody3[1].Name)
+	checkTestString(t, SysSettingVersion, resBody3[2].Name)
+	checkTestString(t, "2", resBody3[0].Value)
 }
 
 func TestSettingsMinHoursBookingDuration(t *testing.T) {
