@@ -206,7 +206,6 @@ func (router *SettingsRouter) isValidSettingNameReadAdmin(name string) bool {
 	if router.isValidSettingNameReadPublic(name) ||
 		name == SettingAllowAnyUser.Name ||
 		name == SettingMaxHoursBeforeDelete.Name ||
-		name == SettingActiveSubscription.Name ||
 		name == SettingEnableMaxHourBeforeDelete.Name ||
 		name == SettingMinBookingDurationHours.Name ||
 		name == SettingActiveSubscription.Name ||
@@ -288,10 +287,10 @@ func (router *SettingsRouter) getSettingType(name string) SettingType {
 	}
 	if name == SettingEnableMaxHourBeforeDelete.Name {
 		return SettingEnableMaxHourBeforeDelete.Type
-  }
+	}
 	if name == SettingDisableBuddies.Name {
 		return SettingDisableBuddies.Type
-  }
+	}
 	if name == SettingCustomLogoUrl.Name {
 		return SettingCustomLogoUrl.Type
 	}
@@ -300,7 +299,7 @@ func (router *SettingsRouter) getSettingType(name string) SettingType {
 	}
 	if name == SettingMaxHoursPartiallyBookedEnabled.Name {
 		return SettingMaxHoursPartiallyBookedEnabled.Type
-  }
+	}
 	if name == SettingMinBookingDurationHours.Name {
 		return SettingMinBookingDurationHours.Type
 	}
