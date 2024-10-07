@@ -62,6 +62,8 @@
     "noAdminRestrictions": "Keine Beschränkungen für Administratoren (Buchungen pro Benutzer, Dauer, im Voraus)",
     "showNames": "Namen der Buchenden anzeigen (Datenschutz beachten!)",
     "allowBookingNonExistUsers": "Buchungen für nicht existierende Benutzer zulassen (Erstellen beim Buchen, Admins Only)",
+    "customLogoUrl": "Logo URL",
+    "customLogoUrlHint": "Leer lassen, um das Standard-Logo zu nutzen",
     "maxBookingDurationHours": "Max. Buchungs-Dauer",
     "hours": "Stunden",
     "domains": "Domains",

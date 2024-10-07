@@ -439,6 +439,7 @@ class Settings extends React.Component<Props, State> {
             <Form.Label column sm="2">{this.props.t("customLogoUrl")}</Form.Label>
             <Col sm="4">
               <Form.Control type="url" value={this.state.customLogoUrl} onChange={(e: any) => this.setState({ customLogoUrl: e.target.value })} />
+              <Form.Text className="text-muted">{this.props.t("customLogoUrlHint")}</Form.Text>
             </Col>
           </Form.Group>
           <Form.Group as={Row}>
