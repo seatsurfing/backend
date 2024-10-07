@@ -273,7 +273,11 @@ class Search extends React.Component<Props, State> {
 
   loadSpaces = async (locationId: string) => {
     this.setState({ loading: true });
-    return Space.listAvailability(locationId, this.state.enter, this.state.leave).then(list => {
+    let leave = new Date(this.state.leave);
+    if (!RuntimeConfig.INFOS.dailyBasisBooking) {
+      leave.setSeconds(leave.getSeconds() - 1);
+    }
+    return Space.listAvailability(locationId, this.state.enter, leave).then(list => {
       this.data = list;
     });
   }
@@ -585,6 +589,9 @@ class Search extends React.Component<Props, State> {
     let booking: Booking = new Booking();
     booking.enter = new Date(this.state.enter);
     booking.leave = new Date(this.state.leave);
+    if (!RuntimeConfig.INFOS.dailyBasisBooking) {
+      booking.leave.setSeconds(booking.leave.getSeconds() - 1);
+    }
     booking.space = this.state.selectedSpace;
     booking.save().then(() => {
       this.setState({

@@ -101,10 +101,10 @@ func (r *SpaceRepository) GetOne(id string) (*Space, error) {
 func (r *SpaceRepository) GetAllInTime(locationID string, enter, leave time.Time) ([]*SpaceAvailability, error) {
 	var result []*SpaceAvailability
 	subQueryWhere := "bookings.space_id = spaces.id AND (" +
-		"($1 BETWEEN bookings.enter_time AND bookings.leave_time) OR " +
-		"($2 BETWEEN bookings.enter_time AND bookings.leave_time) OR " +
-		"(bookings.enter_time BETWEEN $1 AND $2) OR " +
-		"(bookings.leave_time BETWEEN $1 AND $2)" +
+		"($1 >= bookings.enter_time AND $1 <= bookings.leave_time) OR " +
+		"($2 >= bookings.enter_time AND $2 <= bookings.leave_time) OR " +
+		"(bookings.enter_time >= $1 AND bookings.enter_time <= $2) OR " +
+		"(bookings.leave_time >= $1 AND bookings.leave_time <= $2)" +
 		")"
 	rows, err := GetDatabase().DB().Query("SELECT id, location_id, name, x, y, width, height, rotation, "+
 		"NOT EXISTS(SELECT id FROM bookings WHERE "+subQueryWhere+"), "+
