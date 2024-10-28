@@ -1,8 +1,6 @@
 .react-date-picker,
 .react-datetime-picker {
-    padding: 10px;
-    padding-top: 5px;
-    padding-bottom: 4px;
+    padding: 5px 10px 4px;
     display: block;
     font-size: 16px;
     font-weight: 400;
@@ -28,10 +26,10 @@
 .container-map {
     margin-left: auto;
     margin-right: auto;
-    padding-top: 100px;
-    padding-left: 50px;
-    padding-right: 50px;
-    padding-bottom: 50px;
+    padding-top: 70px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 270px;
 }
 
 .mapScrollContainer {
@@ -75,19 +73,24 @@
 }
 
 .container-search-config {
-    border-radius: 10px;
-    box-shadow: 0px 0px 3px #555;
-    width: 350px;
     position: fixed;
-    top: 80px;
-    left: 30px;
-    background-color: white;
+    top: auto;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    height: 250px;
     padding: 20px;
     padding-top: 0px;
-    transition: all .2s;
+    border-radius: 10px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+    box-shadow: 0px 0px 3px #555;
+    background-color: white;
     opacity: 0.95;
     z-index: 100;
+    transition: all .2s;
 }
+
 .container-search-config .content-minimized {
     display: none;
 }
@@ -97,9 +100,10 @@
 }
 
 .container-search-config.minimized {
-    width: 48px;
-    height: 48px;
-    padding: 0px;
+    width: 100%;
+    height: 130px;
+    padding: 20px;
+    padding-top: 0px;
     transition: all .2s;
 }
 
@@ -108,43 +112,41 @@
 }
 
 .container-search-config .collapse-bar {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
     text-align: right;
-    margin-bottom: 20px;
     cursor: pointer;
 }
 
 .container-search-config.minimized .collapse-bar {
     text-align: center;
-    padding-top: 11px;
-    padding-bottom: 11px;
+    padding-top: 0px;
+    padding-bottom: 0px;
 }
 
-.container-search-config .collapse-bar .expand-icon {
-    display: none;
-}
-
-.container-search-config .collapse-bar .expand-icon-bigscreen {
-    display: none;
-}
-
-.container-search-config .collapse-bar .expand-icon-smallscreen {
-    display: none;
-}
-
-.container-search-config.minimized .collapse-bar .expand-icon-bigscreen {
-    display: inline;
-}
-
-.container-search-config .collapse-bar .collapse-icon-smallscreen {
-    display: none;
-}
-
+.container-search-config .collapse-bar .expand-icon,
+.container-search-config .collapse-bar .expand-icon-bigscreen,
+.container-search-config .collapse-bar .expand-icon-smallscreen,
+.container-search-config .collapse-bar .collapse-icon-bigscreen,
+.container-search-config.minimized .collapse-bar .expand-icon-bigscreen,
 .container-search-config.minimized .collapse-bar .collapse-icon {
     display: none;
 }
 
+.container-search-config.minimized .content-minimized,
+.container-search-config .collapse-bar .collapse-icon-smallscreen {
+    display: block;
+}
+
+.container-search-config.minimized .collapse-bar .expand-icon-smallscreen {
+    display: inline;
+}
+
 .space-list {
     text-align: left;
+    padding-bottom: 250px;
 }
 
 .space {
@@ -175,39 +177,16 @@
 
 .invalid-search-config {
     width: 100%;
-
     font-size: .875em;
     color: #dc3545;
 }
 
-.space-list {
-    padding-bottom: 250px;
-}
 .space-list.maximized {
     padding-bottom: 130px;
 }
 
-.container-map {
-    margin-left: auto;
-    margin-right: auto;
-    padding-top: 70px;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-bottom: 270px;
-}
 .container-map.maximized {
     padding-bottom: 150px;
-}
-
-.container-search-config {
-    width: 100%;
-    bottom: 0px;
-    top: auto;
-    left: 0px;
-    height: 250px;
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px;
-    transition: height .2s;
 }
 
 @media only screen and (min-width: 440px) {
@@ -216,44 +195,4 @@
         max-width: 420px;
         left: 10px;
     }
-}
-
-.container-search-config.minimized {
-    width: 100%;
-    height: 130px;
-    transition: height .2s;
-    padding: 20px;
-    padding-top: 0px;
-}
-
-.container-search-config.minimized .content-minimized {
-    display: block;
-}
-
-.container-search-config .collapse-bar {
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-
-.container-search-config.minimized .collapse-bar {
-    padding-top: 0px;
-    padding-bottom: 0px;
-}
-
-.container-search-config .collapse-bar .collapse-icon-smallscreen {
-    display: block;
-}
-
-.container-search-config .collapse-bar .collapse-icon-bigscreen {
-    display: none;
-}
-
-.container-search-config.minimized .collapse-bar .expand-icon-bigscreen {
-    display: none;
-}
-
-.container-search-config.minimized .collapse-bar .expand-icon-smallscreen {
-    display: inline;
 }
