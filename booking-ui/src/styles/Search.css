@@ -193,10 +193,10 @@
     padding-top: 70px;
     padding-left: 10px;
     padding-right: 10px;
-    padding-bottom: 250px;
+    padding-bottom: 270px;
 }
 .container-map.maximized {
-    padding-bottom: 130px;
+    padding-bottom: 150px;
 }
 
 .container-search-config {
@@ -208,6 +208,14 @@
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px;
     transition: height .2s;
+}
+
+@media only screen and (min-width: 440px) {
+    .container-search-config {
+        width: calc(100% - 20px);
+        max-width: 420px;
+        left: 10px;
+    }
 }
 
 .container-search-config.minimized {
