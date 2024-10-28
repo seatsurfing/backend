@@ -728,53 +728,53 @@ class Search extends React.Component<Props, State> {
           <CollapseIcon color={'#555'} height="20px" width="20px" cssClasses="expand-icon expand-icon-smallscreen" />
         </div>
         <div className="content-minimized">
-          <Row>
-            <Col xs="2"><LocationIcon title={this.props.t("area")} color={'#555'} height="20px" width="20px" /></Col>
-            <Col xs="10">{this.getLocationName()}</Col>
-          </Row>
-          <Row>
-            <Col xs="2"><EnterIcon title={this.props.t("enter")} color={'#555'} height="20px" width="20px" /></Col>
-            <Col xs="10">{Formatting.getFormatterShort().format(Formatting.convertToFakeUTCDate(new Date(this.state.enter)))}</Col>
-          </Row>
-          <Row>
-            <Col xs="2"><ExitIcon title={this.props.t("leave")} color={'#555'} height="20px" width="20px" /></Col>
-            <Col xs="10">{Formatting.getFormatterShort().format(Formatting.convertToFakeUTCDate(new Date(this.state.leave)))}</Col>
-          </Row>
+          <div className='d-flex'>
+            <div className='me-2'><LocationIcon title={this.props.t("area")} color={'#555'} height="20px" width="20px" /></div>
+            <div className='ms-2 w-100'>{this.getLocationName()}</div>
+          </div>
+          <div className='d-flex'>
+            <div className='me-2'><EnterIcon title={this.props.t("enter")} color={'#555'} height="20px" width="20px" /></div>
+            <div className='ms-2 w-100'>{Formatting.getFormatterShort().format(Formatting.convertToFakeUTCDate(new Date(this.state.enter)))}</div>
+          </div>
+          <div className='d-flex'>
+            <div className='me-2'><ExitIcon title={this.props.t("leave")} color={'#555'} height="20px" width="20px" /></div>
+            <div className='ms-2 w-100'>{Formatting.getFormatterShort().format(Formatting.convertToFakeUTCDate(new Date(this.state.leave)))}</div>
+          </div>
         </div>
         <div className="content">
           <Form>
-            <Form.Group as={Row}>
-              <Col xs="2" className='pt-1'><LocationIcon title={this.props.t("area")} color={'#555'} height="20px" width="20px" /></Col>
-              <Col xs="10">
+            <Form.Group className="d-flex">
+              <div className='pt-1 me-2'><LocationIcon title={this.props.t("area")} color={'#555'} height="20px" width="20px" /></div>
+              <div className='ms-2 w-100'>
                 <Form.Select required={true} value={this.state.locationId} onChange={(e) => this.changeLocation(e.target.value)}>
                   {this.renderLocations()}
                 </Form.Select>
-              </Col>
+              </div>
             </Form.Group>
-            <Form.Group as={Row} className="margin-top-10">
-              <Col xs="2"  className='pt-1'><EnterIcon title={this.props.t("enter")} color={'#555'} height="20px" width="20px" /></Col>
-              <Col xs="10">
+            <Form.Group className="d-flex margin-top-10">
+              <div className='pt-1 me-2'><EnterIcon title={this.props.t("enter")} color={'#555'} height="20px" width="20px" /></div>
+              <div className='ms-2 w-100'>
                 {enterDatePicker}
-              </Col>
+              </div>
             </Form.Group>
-            <Form.Group as={Row} className="margin-top-10">
-              <Col xs="2" className='pt-1'><ExitIcon title={this.props.t("leave")} color={'#555'} height="20px" width="20px" /></Col>
-              <Col xs="10">
+            <Form.Group className="d-flex margin-top-10">
+              <div className='pt-1 me-2'><ExitIcon title={this.props.t("leave")} color={'#555'} height="20px" width="20px" /></div>
+              <div className='ms-2 w-100'>
                 {leaveDatePicker}
-              </Col>
+              </div>
             </Form.Group>
             {hint}
-            <Form.Group as={Row} className="margin-top-10">
-              <Col xs="2"><WeekIcon title={this.props.t("week")} color={'#555'} height="20px" width="20px" /></Col>
-              <Col xs="10">
+            <Form.Group className="d-flex margin-top-10">
+              <div className='me-2'><WeekIcon title={this.props.t("week")} color={'#555'} height="20px" width="20px" /></div>
+              <div className='ms-2 w-100'>
                 <Form.Range disabled={this.state.daySliderDisabled} list="weekDays" min={0} max={RuntimeConfig.INFOS.maxDaysInAdvance} step="1" value={this.state.daySlider} onChange={(event) => this.changeEnterDay(window.parseInt(event.target.value))} />
-              </Col>
+              </div>
             </Form.Group>
-            <Form.Group as={Row} className="margin-top-10">
-              <Col xs="2"><MapIcon title={this.props.t("map")} color={'#555'} height="20px" width="20px" /></Col>
-              <Col xs="10">
+            <Form.Group className="d-flex margin-top-10">
+              <div className='me-2'><MapIcon title={this.props.t("map")} color={'#555'} height="20px" width="20px" /></div>
+              <div className='ms-2 w-100'>
                 <Form.Check type="switch" checked={!this.state.listView} onChange={() => this.toggleListView()} label={this.state.listView ? this.props.t("showList") : this.props.t("showMap")} />
-              </Col>
+              </div>
             </Form.Group>
           </Form>
         </div>
