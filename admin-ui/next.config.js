@@ -15,6 +15,10 @@ const nextConfig = {
       },
     ]
   },
+  experimental: {
+    bundlePagesExternals: true,
+    esmExternals: "loose",
+  },
 }
 
 module.exports = nextConfig

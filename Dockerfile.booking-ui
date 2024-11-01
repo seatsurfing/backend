@@ -1,11 +1,11 @@
-FROM node:20-alpine AS commons-builder
+FROM node:22-alpine AS commons-builder
 WORKDIR /app
 WORKDIR /app/commons/ts
 ADD ./commons/ /app/commons
 RUN npm install
 RUN npm run build
 
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 ARG CI_VERSION
 ENV NEXT_PUBLIC_PRODUCT_VERSION=$CI_VERSION
 ENV NODE_ENV=production

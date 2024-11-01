@@ -2,4 +2,6 @@ commons/ts/dist/
 commons/ts/node_modules/
 commons/ts/*.tgz
 admin-ui/node_modules/
+admin-ui/build/
 booking-ui/node_modules/
+booking-ui/build/
