@@ -12,7 +12,7 @@
     "i18next-chained-backend": "^4.6.2",
     "i18next-http-backend": "^2.6.2",
     "i18next-localstorage-backend": "^4.2.0",
-    "next": "^14.2.16",
+    "next": "^15.0.2",
     "next-i18next": "^15.3.1",
     "react": "^18.3.1",
     "react-autosuggest": "^10.1.0",
@@ -47,9 +47,9 @@
   },
   "homepage": "/admin/",
   "devDependencies": {
-    "@types/node": "22.8.6",
+    "@types/node": "22.8.7",
     "@types/react-autosuggest": "^10.1.11",
-    "eslint": "^8.57.1",
-    "eslint-config-next": "^14.2.16"
+    "eslint": "^9.14.0",
+    "eslint-config-next": "^15.0.2"
   }
 }

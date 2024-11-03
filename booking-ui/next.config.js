@@ -15,10 +15,7 @@ const nextConfig = {
       },
     ]
   },
-  experimental: {
-    bundlePagesExternals: true,
-    esmExternals: "loose",
-  },
+  bundlePagesRouterDependencies: true,
 }
 
 module.exports = nextConfig
