@@ -22,9 +22,8 @@ jobs:
           --health-retries 5
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
+    - name: Install Node
+      run: apk add --update nodejs npm
 
     - name: Install server dependencies
       working-directory: ./server
