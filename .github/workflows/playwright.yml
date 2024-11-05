@@ -31,8 +31,8 @@ jobs:
       run: go get -d -v ./...
     - name: Run server in background
       working-directory: ./server
-      with: |
-        run: ./run.sh &
+      run: |
+        ./run.sh &
         sleep 5
 
     - name: Build TypeScript commons
