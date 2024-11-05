@@ -48,8 +48,11 @@ jobs:
         sleep 5
 
     - name: Install dependencies
+      working-directory: ./e2e
       run: npm ci
     - name: Install Playwright Browsers
+      working-directory: ./e2e
       run: npx playwright install --with-deps
     - name: Run Playwright tests
+      working-directory: ./e2e
       run: npx playwright test
