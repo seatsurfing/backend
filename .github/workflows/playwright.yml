@@ -29,12 +29,11 @@ jobs:
     - name: Install server dependencies
       working-directory: ./server
       run: go get -d -v ./...
-    - uses: JarvusInnovations/background-action@v1
-      name: Run server in background
-      with:
-        working-directory: ./server
-        run: ./run.sh
-        wait-on: http-get://localhost:8080/organization/domain/seatsurfing.local
+    - name: Run server in background
+      working-directory: ./server
+      with: |
+        run: ./run.sh &
+        sleep 5
 
     - name: Build TypeScript commons
       working-directory: ./commons/ts
@@ -43,12 +42,11 @@ jobs:
     - name: Install Admin UI dependencies
       working-directory: ./admin-ui
       run: npm install
-    - uses: JarvusInnovations/background-action@v1
-      name: Run Admin UI in background
-      with:
-        working-directory: ./admin-ui
-        run: npm run dev
-        wait-on: http://localhost:3000/
+    - name: Run Admin UI in background
+      working-directory: ./admin-ui
+      run: \
+        npm run dev &
+        sleep 5
 
     - name: Install dependencies
       run: npm ci
