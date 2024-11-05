@@ -1,0 +1,60 @@
+name: Playwright Tests
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+jobs:
+  container-job:
+    runs-on: ubuntu-latest
+    container: golang:1.23-alpine
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: seatsurfing_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+
+    - name: Install server dependencies
+      working-directory: ./server
+      run: go get -d -v ./...
+    - uses: JarvusInnovations/background-action@v1
+      name: Run server in background
+      working-directory: ./server
+      with:
+        run: ./run.sh
+      wait-on: |
+        http-get://localhost:8080/organization/domain/seatsurfing.local
+
+    - name: Build TypeScript commons
+      working-directory: ./commons/ts
+      run: npm install && npm run build
+
+    - name: Install Admin UI dependencies
+      working-directory: ./admin-ui
+      run: npm install
+    - uses: JarvusInnovations/background-action@v1
+      name: Run Admin UI in background
+      working-directory: ./admin-ui
+      with:
+        run: npm run dev
+      wait-on: |
+        http://localhost:3000/
+
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Run Playwright tests
+      run: npx playwright test
