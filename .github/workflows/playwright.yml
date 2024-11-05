@@ -23,7 +23,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install Node
-      run: apk add --update nodejs npm
+      run: apt-get update && apt-get install npm nodejs
 
     - name: Install server dependencies
       working-directory: ./server
