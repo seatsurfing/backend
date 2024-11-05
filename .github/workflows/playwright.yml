@@ -31,7 +31,7 @@ jobs:
     - name: Run server in background
       working-directory: ./server
       run: |
-        ./run.sh &
+        DEV=1 PUBLIC_LISTEN_ADDR=0.0.0.0:8080 POSTGRES_URL=postgres://postgres:root@localhost/seatsurfing_test?sslmode=disable go run `ls *.go | grep -v _test.go` &
         sleep 5
 
     - name: Build TypeScript commons
