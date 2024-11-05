@@ -44,7 +44,7 @@ jobs:
       run: npm install
     - name: Run Admin UI in background
       working-directory: ./admin-ui
-      run: \
+      run: |
         npm run dev &
         sleep 5
 
