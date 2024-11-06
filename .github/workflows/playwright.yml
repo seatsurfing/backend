@@ -47,7 +47,7 @@ jobs:
       with:
         working-directory: ./admin-ui/build/standalone
         run: node server.js
-        wait-on: http://localhost:3000/admin/login
+        wait-on: http-get://localhost:3000/admin/login
 
     - name: Install dependencies
       working-directory: ./e2e
