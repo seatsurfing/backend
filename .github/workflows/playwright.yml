@@ -7,7 +7,7 @@ on:
 jobs:
   container-job:
     runs-on: ubuntu-latest
-    container: golang:1.23-alpine
+    container: golang:1.23-bookworm
 
     services:
       postgres:
@@ -22,39 +22,74 @@ jobs:
           --health-retries 5
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
+    - name: Install Node
+      run: apt-get update && apt-get install -y npm nodejs
+
+
+    - name: Build TypeScript commons
+      working-directory: ./commons/ts
+      run: npm install && npm run build
+
+    - name: Build Admin UI
+      working-directory: ./admin-ui
+      run: npm install && npm run install-commons && npm run build && sed -i "s/const hostname = /const hostname = process.env.LISTEN_ADDR || /g" build/standalone/server.js
+    - name: Copy Admin UI
+      working-directory: ./admin-ui
+      run: |
+        mkdir -p /tmp/admin-ui
+        mkdir -p /tmp/admin-ui/public
+        mkdir -p /tmp/admin-ui/build/static
+        cp -R build/standalone/. /tmp/admin-ui
+        cp -R public/. /tmp/admin-ui/public
+        cp -R build/static/. /tmp/admin-ui/build/static
+    - uses: JarvusInnovations/background-action@v1
+      name: Run Admin UI in background
       with:
-        node-version: lts/*
+        working-directory: /tmp/admin-ui
+        run: LISTEN_ADDR=0.0.0.0 node server.js
+        wait-on: http-get://localhost:3000/admin/login
+
+    - name: Build Booking UI
+      working-directory: ./booking-ui
+      run: npm install && npm run install-commons && npm run build && sed -i "s/const hostname = /const hostname = process.env.LISTEN_ADDR || /g" build/standalone/server.js
+    - name: Copy Booking UI
+      working-directory: ./booking-ui
+      run: |
+        mkdir -p /tmp/booking-ui
+        mkdir -p /tmp/booking-ui/public
+        mkdir -p /tmp/booking-ui/build/static
+        cp -R build/standalone/. /tmp/booking-ui
+        cp -R public/. /tmp/booking-ui/public
+        cp -R build/static/. /tmp/booking-ui/build/static
+    - uses: JarvusInnovations/background-action@v1
+      name: Run Booking UI in background
+      with:
+        working-directory: /tmp/booking-ui
+        run: LISTEN_ADDR=0.0.0.0 PORT=3001 node server.js
+        wait-on: http-get://localhost:3001/ui/login
 
     - name: Install server dependencies
       working-directory: ./server
       run: go get -d -v ./...
     - uses: JarvusInnovations/background-action@v1
       name: Run server in background
-      working-directory: ./server
       with:
-        run: ./run.sh
-      wait-on: |
-        http-get://localhost:8080/organization/domain/seatsurfing.local
-
-    - name: Build TypeScript commons
-      working-directory: ./commons/ts
-      run: npm install && npm run build
-
-    - name: Install Admin UI dependencies
-      working-directory: ./admin-ui
-      run: npm install
-    - uses: JarvusInnovations/background-action@v1
-      name: Run Admin UI in background
-      working-directory: ./admin-ui
-      with:
-        run: npm run dev
-      wait-on: |
-        http://localhost:3000/
+        working-directory: ./server
+        run: DEV=1 PUBLIC_LISTEN_ADDR=0.0.0.0:8080 POSTGRES_URL=postgres://postgres:root@postgres/seatsurfing_test?sslmode=disable go run `ls *.go | grep -v _test.go`
+        wait-on: http-get://localhost:8080/organization/domain/seatsurfing.local
 
     - name: Install dependencies
+      working-directory: ./e2e
       run: npm ci
     - name: Install Playwright Browsers
+      working-directory: ./e2e
       run: npx playwright install --with-deps
     - name: Run Playwright tests
-      run: npx playwright test
+      working-directory: ./e2e
+      run: ADMIN_UI_URL="http://localhost:8080" BOOKING_UI_URL="http://localhost:8080" npx playwright test
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
