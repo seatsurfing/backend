@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
 
+const adminUiURL = process.env.ADMIN_UI_URL ? process.env.ADMIN_UI_URL : 'http://localhost:3000';
+
 test.beforeEach(async ({ page }) => {
-  await page.goto('http://localhost:3000/admin/login');
+  await page.goto(adminUiURL + '/admin/login');
   await expect(page).toHaveURL(/login$/);
   await page.getByPlaceholder('Email address').fill('admin@seatsurfing.local');
   await page.getByRole('button', { name: '➤' }).click();
