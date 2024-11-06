@@ -41,12 +41,12 @@ jobs:
 
     - name: Install Admin UI dependencies
       working-directory: ./admin-ui
-      run: npm install && npm run install-commons && npm run build
+      run: npm install && npm run install-commons && npm run build && sed -i "s/const hostname = /const hostname = process.env.LISTEN_ADDR || /g" build/standalone/server.js
     - uses: JarvusInnovations/background-action@v1
       name: Run Admin UI in background
       with:
         working-directory: ./admin-ui/build/standalone
-        run: node server.js
+        run: LISTEN_ADDR=0.0.0.0 node server.js
         wait-on: http-get://localhost:3000/admin/login
 
     - name: Install dependencies
