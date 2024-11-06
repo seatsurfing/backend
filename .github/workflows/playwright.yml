@@ -49,6 +49,25 @@ jobs:
         run: LISTEN_ADDR=0.0.0.0 node server.js
         wait-on: http-get://localhost:3000/admin/login
 
+    - name: Build Booking UI
+      working-directory: ./booking-ui
+      run: npm install && npm run install-commons && npm run build && sed -i "s/const hostname = /const hostname = process.env.LISTEN_ADDR || /g" build/standalone/server.js
+    - name: Copy Booking UI
+      working-directory: ./booking-ui
+      run: |
+        mkdir -p /tmp/booking-ui
+        mkdir -p /tmp/booking-ui/public
+        mkdir -p /tmp/booking-ui/build/static
+        cp -R build/standalone/. /tmp/booking-ui
+        cp -R public/. /tmp/booking-ui/public
+        cp -R build/static/. /tmp/booking-ui/build/static
+    - uses: JarvusInnovations/background-action@v1
+      name: Run Booking UI in background
+      with:
+        working-directory: /tmp/booking-ui
+        run: LISTEN_ADDR=0.0.0.0 node server.js
+        wait-on: http-get://localhost:3001/ui/login
+
     - name: Install server dependencies
       working-directory: ./server
       run: go get -d -v ./...
@@ -67,7 +86,7 @@ jobs:
       run: npx playwright install --with-deps
     - name: Run Playwright tests
       working-directory: ./e2e
-      run: ADMIN_UI_URL="http://localhost:8080" npx playwright test
+      run: ADMIN_UI_URL="http://localhost:8080" BOOKING_UI_URL="http://localhost:8080" npx playwright test
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
