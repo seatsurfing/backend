@@ -36,8 +36,10 @@ test('crud location', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Save' }).click();
   await page.getByRole('link', { name: 'Back' }).click();
-  await expect(page).toHaveURL(/locations\/.+/);
+  await expect(page).toHaveURL(/locations$/);
+
   await page.getByRole('cell', { name: name }).click();
+  await expect(page).toHaveURL(/locations\/.+$/);
 
   page.on('dialog', dialog => dialog.accept());
   await page.getByRole('button', { name: 'Delete' }).click();
