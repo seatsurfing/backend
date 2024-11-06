@@ -28,11 +28,12 @@ jobs:
     - name: Install server dependencies
       working-directory: ./server
       run: go get -d -v ./...
-    - name: Run server in background
-      working-directory: ./server
-      run: |
-        DEV=1 PUBLIC_LISTEN_ADDR=0.0.0.0:8080 POSTGRES_URL=postgres://postgres:root@postgres/seatsurfing_test?sslmode=disable go run `ls *.go | grep -v _test.go` &
-        sleep 5
+    - uses: JarvusInnovations/background-action@v1
+      name: Run server in background
+      with:
+        working-directory: ./server
+        run: DEV=1 PUBLIC_LISTEN_ADDR=0.0.0.0:8080 POSTGRES_URL=postgres://postgres:root@postgres/seatsurfing_test?sslmode=disable go run `ls *.go | grep -v _test.go`
+        wait-on: http-get://localhost:8080/organization/domain/seatsurfing.local
 
     - name: Build TypeScript commons
       working-directory: ./commons/ts
@@ -41,11 +42,12 @@ jobs:
     - name: Install Admin UI dependencies
       working-directory: ./admin-ui
       run: npm install
-    - name: Run Admin UI in background
-      working-directory: ./admin-ui
-      run: |
-        npm run dev &
-        sleep 5
+    - uses: JarvusInnovations/background-action@v1
+      name: Run Admin UI in background
+      with:
+        working-directory: ./admin-ui
+        run: npm run dev
+        wait-on: http://localhost:3000/
 
     - name: Install dependencies
       working-directory: ./e2e
