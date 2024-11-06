@@ -41,13 +41,13 @@ jobs:
 
     - name: Install Admin UI dependencies
       working-directory: ./admin-ui
-      run: npm install
+      run: npm install && npm run install-commons && npm run build
     - uses: JarvusInnovations/background-action@v1
       name: Run Admin UI in background
       with:
-        working-directory: ./admin-ui
-        run: npm run dev
-        wait-on: http://localhost:3000/
+        working-directory: ./admin-ui/build/standalone
+        run: node server.js
+        wait-on: http://localhost:3000/admin/login
 
     - name: Install dependencies
       working-directory: ./e2e
