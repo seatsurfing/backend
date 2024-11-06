@@ -65,7 +65,7 @@ jobs:
       name: Run Booking UI in background
       with:
         working-directory: /tmp/booking-ui
-        run: LISTEN_ADDR=0.0.0.0 node server.js
+        run: LISTEN_ADDR=0.0.0.0 PORT=3001 node server.js
         wait-on: http-get://localhost:3001/ui/login
 
     - name: Install server dependencies
