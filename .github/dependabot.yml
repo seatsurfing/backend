@@ -5,8 +5,7 @@ updates:
   schedule:
     interval: daily
   commit-message:
-    prefix: "build"
-    include: "scope"
+    prefix: "fix"
   open-pull-requests-limit: 10
 - package-ecosystem: npm
   directories:
@@ -15,8 +14,7 @@ updates:
   schedule:
     interval: daily
   commit-message:
-    prefix: "build"
-    include: "scope"
+    prefix: "fix"
   open-pull-requests-limit: 10
 - package-ecosystem: github-actions
   directory: "/"
