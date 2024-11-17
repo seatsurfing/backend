@@ -90,7 +90,7 @@ jobs:
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
     - name: Docker Hub Description
-      uses: peter-evans/dockerhub-description@v3
+      uses: peter-evans/dockerhub-description@v4
       with:
         username: seatsurfing
         password: ${{ secrets.CI_REGISTRY_PASSWORD }}
