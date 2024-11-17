@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set version env
       run: echo "CI_VERSION=$(cat server/res/version.txt | awk NF)" >> $GITHUB_ENV
     - name: Set date env
