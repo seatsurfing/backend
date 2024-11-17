@@ -2,7 +2,7 @@ name: Release
 
 on:
   workflow_dispatch:
-    branches: [ master ]
+    branches: [ main ]
 
 env:
   REGISTRY: ghcr.io

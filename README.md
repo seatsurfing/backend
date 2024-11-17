@@ -4,8 +4,8 @@
 [![](https://img.shields.io/github/release-date/seatsurfing/backend)](https://github.com/seatsurfing/backend/releases)
 [![](https://img.shields.io/docker/v/seatsurfing/backend)](https://hub.docker.com/r/seatsurfing/backend)
 [![](https://img.shields.io/docker/image-size/seatsurfing/backend)](https://hub.docker.com/r/seatsurfing/backend)
-[![](https://img.shields.io/github/actions/workflow/status/seatsurfing/backend/release.yml?branch=master)](https://github.com/seatsurfing/backend/actions)
-[![](https://img.shields.io/github/license/seatsurfing/backend)](https://github.com/seatsurfing/backend/blob/master/LICENSE)
+[![](https://img.shields.io/github/actions/workflow/status/seatsurfing/backend/release.yml?branch=main)](https://github.com/seatsurfing/backend/actions)
+[![](https://img.shields.io/github/license/seatsurfing/backend)](https://github.com/seatsurfing/backend/blob/main/LICENSE)
 
 Seatsurfing is a software which enables your organisation's employees to book seats, desks and rooms.
 
@@ -20,16 +20,16 @@ This repository contains the Backend, which consists of:
 ## Screenshots
 
 ### Web Admin UI
-![Seatsurfing Web Admin UI](https://raw.githubusercontent.com/seatsurfing/backend/master/.github/admin-ui.png)
+![Seatsurfing Web Admin UI](https://raw.githubusercontent.com/seatsurfing/backend/main/.github/admin-ui.png)
 
 ### Web Booking UI
-![Seatsurfing Web Booking UI](https://raw.githubusercontent.com/seatsurfing/backend/master/.github/booking-ui.png)
+![Seatsurfing Web Booking UI](https://raw.githubusercontent.com/seatsurfing/backend/main/.github/booking-ui.png)
 
 ## Quick reference
 * **Maintained by:** [Seatsurfing.app](https://seatsurfing.app/)
 * **Where to get help:** [Documentation](https://seatsurfing.app/docs/)
 * **Docker architectures:** [amd64, arm64](http://hub.docker.com/r/seatsurfing/backend)
-* **License:** [GPL 3.0](https://github.com/seatsurfing/backend/blob/master/LICENSE)
+* **License:** [GPL 3.0](https://github.com/seatsurfing/backend/blob/main/LICENSE)
 
 ## How to use the Docker image
 ### Start using Docker Compose

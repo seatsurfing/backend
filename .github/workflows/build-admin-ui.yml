@@ -2,9 +2,9 @@ name: Build Admin UI (dev)
 
 on:
   workflow_dispatch:
-    branches: [ master ]
+    branches: [ main ]
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 env:
   REGISTRY: ghcr.io

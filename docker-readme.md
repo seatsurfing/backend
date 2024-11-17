@@ -6,7 +6,7 @@ Seat booking server software which enables your organisation's employees to book
 * **Maintained by:** [Seatsurfing.app](https://seatsurfing.app/)
 * **Where to get help:** [Documentation](https://seatsurfing.app/docs/)
 * **Supported architectures:** amd64, arm64
-* **License:** [GPL 3.0](https://github.com/seatsurfing/backend/blob/master/LICENSE)
+* **License:** [GPL 3.0](https://github.com/seatsurfing/backend/blob/main/LICENSE)
 
 ## Supported tags
 * ```latest``` refers to Seatsurfing Backend {{version}} as of {{date}}

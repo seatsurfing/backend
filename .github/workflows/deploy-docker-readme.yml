@@ -2,7 +2,7 @@ name: Deploy Docker Readme
 
 on:
   workflow_dispatch:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
 
