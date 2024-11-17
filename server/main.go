@@ -10,7 +10,12 @@ var _productVersion = ""
 
 func GetProductVersion() string {
 	if _productVersion == "" {
-		path, _ := filepath.Abs("./res/version.txt")
+		var path string
+		if GetConfig().Development {
+			path, _ = filepath.Abs("../version.txt")
+		} else {
+			path, _ = filepath.Abs("./version.txt")
+		}
 		data, err := os.ReadFile(path)
 		if err != nil {
 			return "UNKNOWN"

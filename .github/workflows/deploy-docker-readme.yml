@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set version env
-      run: echo "CI_VERSION=$(cat server/res/version.txt | awk NF)" >> $GITHUB_ENV
+      run: echo "CI_VERSION=$(cat version.txt | awk NF)" >> $GITHUB_ENV
     - name: Set date env
       run: echo "TODAY=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
     - name: Prepare Docker Hub Readme

@@ -11,6 +11,7 @@ RUN CGO_ENABLED=0 go build -ldflags="-w -s" -o main .
 FROM gcr.io/distroless/static-debian12
 COPY --from=server-builder /go/src/app/server/main /app/
 COPY server/res/ /app/res
+ADD version.txt /app/
 WORKDIR /app
 EXPOSE 8080
 USER 65532:65532
