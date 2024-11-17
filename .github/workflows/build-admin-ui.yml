@@ -45,7 +45,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build and push
       id: push
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         build-args: CI_VERSION=${{ env.CI_VERSION }}-dev
         context: ./

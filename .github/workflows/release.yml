@@ -47,7 +47,7 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build and push booking ui
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         build-args: CI_VERSION=${{ env.CI_VERSION }}
         context: ./
@@ -62,7 +62,7 @@ jobs:
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
     - name: Build and push admin ui
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         build-args: CI_VERSION=${{ env.CI_VERSION }}
         context: ./
@@ -77,7 +77,7 @@ jobs:
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
     - name: Build and push backend
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         context: .
         platforms: linux/amd64,linux/arm64
