@@ -12,7 +12,14 @@ name: release-please
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
     steps:
       - uses: googleapis/release-please-action@v4
+        id: release
         with:
           release-type: simple
+  call-release-workflow:
+    if: ${{ needs.release-please.outputs.release_created }}
+    needs: release-please
+    uses: ./.github/workflows/release.yml
