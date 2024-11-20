@@ -5,7 +5,7 @@ updates:
   schedule:
     interval: daily
   commit-message:
-    prefix: "deps"
+    prefix: "fix(deps)"
   open-pull-requests-limit: 10
 - package-ecosystem: npm
   directories:
@@ -14,7 +14,7 @@ updates:
   schedule:
     interval: daily
   commit-message:
-    prefix: "deps"
+    prefix: "fix(deps)"
   open-pull-requests-limit: 10
 - package-ecosystem: github-actions
   directory: "/"
