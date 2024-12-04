@@ -21,6 +21,9 @@ RUN npm run build
 RUN sed -i "s/const hostname = /const hostname = process.env.LISTEN_ADDR || /g" /app/build/standalone/server.js
 
 FROM gcr.io/distroless/nodejs20-debian12
+LABEL org.opencontainers.image.source="https://github.com/seatsurfing/backend" \
+      org.opencontainers.image.url="https://seatsurfing.app" \
+      org.opencontainers.image.documentation="https://seatsurfing.app/docs/"
 ENV NODE_ENV=production
 ENV PORT=3000
 WORKDIR /app
