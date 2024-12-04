@@ -16,6 +16,13 @@ updates:
   commit-message:
     prefix: "fix(deps)"
   open-pull-requests-limit: 10
+- package-ecosystem: docker
+  directory: "/"
+  schedule:
+    interval: daily
+  commit-message:
+    prefix: "fix(deps)"
+  open-pull-requests-limit: 10
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
