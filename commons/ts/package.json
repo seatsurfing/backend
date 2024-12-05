@@ -10,7 +10,7 @@
     "i18next": "^23.14.0"
   },
   "devDependencies": {
-    "typescript": "~5.5.4"
+    "typescript": "~5.7.2"
   },
   "private": true,
   "files": [
