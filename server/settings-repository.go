@@ -37,7 +37,7 @@ var (
 	SettingMaxBookingsPerUser             SettingName = SettingName{Name: "max_bookings_per_user", Type: SettingTypeInt}
 	SettingMaxConcurrentBookingsPerUser   SettingName = SettingName{Name: "max_concurrent_bookings_per_user", Type: SettingTypeInt}
 	SettingMaxDaysInAdvance               SettingName = SettingName{Name: "max_days_in_advance", Type: SettingTypeInt}
-  SettingEnableMaxHourBeforeDelete      SettingName = SettingName{Name: "enable_max_hours_before_delete", Type: SettingTypeBool}
+	SettingEnableMaxHourBeforeDelete      SettingName = SettingName{Name: "enable_max_hours_before_delete", Type: SettingTypeBool}
 	SettingMaxHoursBeforeDelete           SettingName = SettingName{Name: "max_hours_before_delete", Type: SettingTypeInt}
 	SettingMinBookingDurationHours        SettingName = SettingName{Name: "min_booking_duration_hours", Type: SettingTypeInt}
 	SettingMaxBookingDurationHours        SettingName = SettingName{Name: "max_booking_duration_hours", Type: SettingTypeInt}
@@ -46,10 +46,10 @@ var (
 	SettingActiveSubscription             SettingName = SettingName{Name: "subscription_active", Type: SettingTypeBool}
 	SettingDailyBasisBooking              SettingName = SettingName{Name: "daily_basis_booking", Type: SettingTypeBool}
 	SettingNoAdminRestrictions            SettingName = SettingName{Name: "no_admin_restrictions", Type: SettingTypeBool}
-  SettingCustomLogoUrl                  SettingName = SettingName{Name: "custom_logo_url", Type: SettingTypeString}
+	SettingCustomLogoUrl                  SettingName = SettingName{Name: "custom_logo_url", Type: SettingTypeString}
 	SettingShowNames                      SettingName = SettingName{Name: "show_names", Type: SettingTypeBool}
 	SettingAllowBookingsNonExistingUsers  SettingName = SettingName{Name: "allow_booking_nonexist_users", Type: SettingTypeBool}
-  SettingDisableBuddies                 SettingName = SettingName{Name: "disable_buddies", Type: SettingTypeBool}
+	SettingDisableBuddies                 SettingName = SettingName{Name: "disable_buddies", Type: SettingTypeBool}
 	SettingSubscriptionMaxUsers           SettingName = SettingName{Name: "subscription_max_users", Type: SettingTypeInt}
 	SettingDefaultTimezone                SettingName = SettingName{Name: "default_timezone", Type: SettingTypeString}
 )

@@ -53,6 +53,7 @@ func (a *App) InitializeRouter() {
 	routers["/stats/"] = &StatsRouter{}
 	routers["/search/"] = &SearchRouter{}
 	routers["/setting/"] = &SettingsRouter{}
+	routers["/space-attribute/"] = &SpaceAttributeRouter{}
 	routers["/confluence/"] = &ConfluenceRouter{}
 	routers["/uc/"] = &CheckUpdateRouter{}
 	if config.OrgSignupEnabled {
