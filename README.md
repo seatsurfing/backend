@@ -2,8 +2,6 @@
 
 [![](https://img.shields.io/github/v/release/seatsurfing/seatsurfing)](https://github.com/seatsurfing/seatsurfing/releases)
 [![](https://img.shields.io/github/release-date/seatsurfing/seatsurfing)](https://github.com/seatsurfing/seatsurfing/releases)
-[![](https://img.shields.io/docker/v/seatsurfing/seatsurfing)](https://hub.docker.com/r/seatsurfing/seatsurfing)
-[![](https://img.shields.io/docker/image-size/seatsurfing/seatsurfing)](https://hub.docker.com/r/seatsurfing/seatsurfing)
 [![](https://img.shields.io/github/actions/workflow/status/seatsurfing/seatsurfing/release.yml?branch=main)](https://github.com/seatsurfing/seatsurfing/actions)
 [![](https://img.shields.io/github/license/seatsurfing/seatsurfing)](https://github.com/seatsurfing/seatsurfing/blob/main/LICENSE)
 
@@ -93,7 +91,7 @@ This starts...
 * a Seatsurfing Admin UI instance which is accessible through the Backend instance at: :8080/admin/
 
 ### Running on Kubernetes
-Please refer to our [Kubernetes documentation](https://docs.seatsurfing.app/kubernetes/).
+Please refer to our [Kubernetes documentation](https://seatsurfing.app/docs/kubernetes/).
 
 ## Environment variables
 Please check out the [documentation](https://seatsurfing.app/docs/config) for information on available environment variables and further guidance.
