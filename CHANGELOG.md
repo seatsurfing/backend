@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.20.4](https://github.com/seatsurfing/seatsurfing/compare/v1.20.3...v1.20.4) (2024-12-07)
+
+
+### Bug Fixes
+
+* **deps:** bump @playwright/test from 1.48.2 to 1.49.0 in /e2e ([#383](https://github.com/seatsurfing/seatsurfing/issues/383)) ([00a162b](https://github.com/seatsurfing/seatsurfing/commit/00a162b65b47c2edd25028a109bccf7479ea611b))
+* **deps:** bump @types/node from 22.9.0 to 22.10.1 in /e2e ([#382](https://github.com/seatsurfing/seatsurfing/issues/382)) ([27c016a](https://github.com/seatsurfing/seatsurfing/commit/27c016a4273fb70a1553160e670ce23c392533f8))
+* **deps:** bump eslint-config-next from 15.0.3 to 15.0.4 in /admin-ui ([#397](https://github.com/seatsurfing/seatsurfing/issues/397)) ([9d4d373](https://github.com/seatsurfing/seatsurfing/commit/9d4d373e5a365b4e2357aa549f5e0a9fc7e45b94))
+* **deps:** bump eslint-config-next from 15.0.3 to 15.0.4 in /booking-ui ([#398](https://github.com/seatsurfing/seatsurfing/issues/398)) ([d03a2be](https://github.com/seatsurfing/seatsurfing/commit/d03a2bea57c8ba14da69ebfe9a40eaa7e466170f))
+* **deps:** bump i18next from 23.14.0 to 24.0.5 in /commons/ts ([#380](https://github.com/seatsurfing/seatsurfing/issues/380)) ([8d454b6](https://github.com/seatsurfing/seatsurfing/commit/8d454b65b653e78c361b67a8b15104c904e9f26e))
+* **deps:** bump next from 15.0.3 to 15.0.4 in /admin-ui ([#396](https://github.com/seatsurfing/seatsurfing/issues/396)) ([3636644](https://github.com/seatsurfing/seatsurfing/commit/3636644e3e55e49f966b7d995998fb4cf393011a))
+* **deps:** bump next from 15.0.3 to 15.0.4 in /booking-ui ([#399](https://github.com/seatsurfing/seatsurfing/issues/399)) ([8646796](https://github.com/seatsurfing/seatsurfing/commit/8646796b2df5487d65e6878d334614eec3d9cc1c))
+* **deps:** bump typescript from 5.5.4 to 5.7.2 in /commons/ts ([#381](https://github.com/seatsurfing/seatsurfing/issues/381)) ([966f9a7](https://github.com/seatsurfing/seatsurfing/commit/966f9a7a70862ed3863b0b6900e76335fdbd1fba))
+
 ## [1.20.3](https://github.com/seatsurfing/backend/compare/1.20.2...v1.20.3) (2024-12-04)
 
 
