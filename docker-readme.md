@@ -76,7 +76,7 @@ This starts...
 * a Seatsurfing Admin UI instance which is accessible through the Backend instance at: :8080/admin/
 
 ### Running on Kubernetes
-Please refer to our [Kubernetes documentation](https://docs.seatsurfing.app/kubernetes/).
+Please refer to our [Kubernetes documentation](https://seatsurfing.app/docs/kubernetes/).
 
 ## Environment variables
 Please check out the [documentation](https://seatsurfing.app/docs/config) for information on available environment variables and further guidance.
