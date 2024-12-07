@@ -23,5 +23,5 @@ jobs:
       with:
         username: seatsurfing
         password: ${{ secrets.CI_REGISTRY_PASSWORD }}
-        repository: seatsurfing/backend
+        repository: seatsurfing/seatsurfing
         readme-filepath: ./docker-readme-modified.md
