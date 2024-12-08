@@ -84,3 +84,9 @@ func (r *SpaceAttributeValueRepository) GetAllForEntity(entityID string, entityT
 	}
 	return result, nil
 }
+
+func (r *SpaceAttributeValueRepository) Delete(attributeID string, entityID string, entityType SpaceAttributeValueEntityType) error {
+	_, err := GetDatabase().DB().Exec("DELETE FROM space_attribute_values WHERE attribute_id = $1 AND entity_id = $2 AND entity_type = $3",
+		attributeID, entityID, entityType)
+	return err
+}

@@ -5,10 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
 )
 
 type SpaceAttributeRouter struct {

@@ -102,6 +102,9 @@ func (r *SpaceAttributeRepository) Update(e *SpaceAttribute) error {
 }
 
 func (r *SpaceAttributeRepository) Delete(e *SpaceAttribute) error {
+	if _, err := GetDatabase().DB().Exec("DELETE FROM space_attribute_values WHERE attribute_id = $1", e.ID); err != nil {
+		return err
+	}
 	_, err := GetDatabase().DB().Exec("DELETE FROM space_attributes WHERE id = $1", e.ID)
 	return err
 }

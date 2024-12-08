@@ -159,5 +159,12 @@
     "errorUnknown": "Unknown error, please try again later.",
     "datePickerFormat": "y-MM-dd HH:mm",
     "datePickerFormatDailyBasisBooking": "y-MM-dd",
-    "maxHoursPartiallyBooked": "Max. hours partially booked"
+    "maxHoursPartiallyBooked": "Max. hours partially booked",
+    "attributes": "Attributes",
+    "number": "Number",
+    "boolean": "True / False",
+    "text": "Text",
+    "applicableTo": "Applicable to",
+    "editAttribute": "Edit Attribute",
+    "confirmDeleteAttribute": "Delete attribute and its values?"
 }

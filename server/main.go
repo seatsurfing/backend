@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var _productVersion = ""
@@ -20,7 +21,7 @@ func GetProductVersion() string {
 		if err != nil {
 			return "UNKNOWN"
 		}
-		_productVersion = string(data)
+		_productVersion = strings.TrimSpace(string(data))
 	}
 	return _productVersion
 }

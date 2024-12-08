@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table } from 'react-bootstrap';
 import { Plus as IconPlus, Download as IconDownload, Tag as IconTag } from 'react-feather';
-import { Ajax, Location } from 'flexspace-commons';
+import { Ajax, SpaceAttribute } from 'flexspace-commons';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import FullLayout from '@/components/FullLayout';
 import { NextRouter } from 'next/router';
@@ -18,8 +18,8 @@ interface Props extends WithTranslation {
   router: NextRouter
 }
 
-class Locations extends React.Component<Props, State> {
-  data: Location[] = [];
+class Attributes extends React.Component<Props, State> {
+  data: SpaceAttribute[] = [];
   ExcellentExport: any;
 
   constructor(props: any) {
@@ -40,52 +40,59 @@ class Locations extends React.Component<Props, State> {
   }
 
   loadItems = () => {
-    Location.list().then(list => {
+    SpaceAttribute.list().then(list => {
       this.data = list;
       this.setState({ loading: false });
     });
   }
 
-  onItemSelect = (location: Location) => {
-    this.setState({ selectedItem: location.id });
+  onItemSelect = (e: SpaceAttribute) => {
+    this.setState({ selectedItem: e.id });
   }
 
-  renderItem = (location: Location) => {
+  getTextForType = (type: Number) => {
+    if (type === 1) return this.props.t("number");
+    if (type === 2) return this.props.t("boolean");
+    if (type === 3) return this.props.t("text");
+    return "";
+  }
+
+  renderItem = (e: SpaceAttribute) => {
     return (
-      <tr key={location.id} onClick={() => this.onItemSelect(location)}>
-        <td>{location.name}</td>
-        <td>{location.mapWidth}x{location.mapHeight}</td>
-        <td>{window.location.origin}/ui/search?lid={location.id}</td>
+      <tr key={e.id} onClick={() => this.onItemSelect(e)}>
+        <td>{e.label}</td>
+        <td>{this.getTextForType(e.type)}</td>
+        <td>{e.locationApplicable ? this.props.t("yes") : ""}</td>
+        <td>{e.spaceApplicable ? this.props.t("yes") : ""}</td>
       </tr>
     );
   }
 
   exportTable = (e: any) => {
     return this.ExcellentExport.convert(
-      { anchor: e.target, filename: "seatsurfing-areas", format: "xlsx" },
-      [{ name: "Seatsurfing Areas", from: { table: "datatable" } }]
+      { anchor: e.target, filename: "seatsurfing-attributes", format: "xlsx" },
+      [{ name: "Seatsurfing Attributes", from: { table: "datatable" } }]
     );
   }
 
   render() {
     if (this.state.selectedItem) {
-      this.props.router.push(`/locations/${this.state.selectedItem}`);
+      this.props.router.push(`/attributes/${this.state.selectedItem}`);
       return <></>
     }
 
     // eslint-disable-next-line
-    let downloadButton = <a download="seatsurfing-areas.xlsx" href="#" className="btn btn-sm btn-outline-secondary" onClick={this.exportTable}><IconDownload className="feather" /> {this.props.t("download")}</a>;
+    let downloadButton = <a download="seatsurfing-attributes.xlsx" href="#" className="btn btn-sm btn-outline-secondary" onClick={this.exportTable}><IconDownload className="feather" /> {this.props.t("download")}</a>;
     let buttons = (
       <>
         {this.data && this.data.length > 0 ? downloadButton : <></>}
-        <Link href="/attributes" className="btn btn-sm btn-outline-secondary"><IconTag className="feather" /> {this.props.t("attributes")}</Link>
-        <Link href="/locations/add" className="btn btn-sm btn-outline-secondary"><IconPlus className="feather" /> {this.props.t("add")}</Link>
+        <Link href="/attributes/add" className="btn btn-sm btn-outline-secondary"><IconPlus className="feather" /> {this.props.t("add")}</Link>
       </>
     );
 
     if (this.state.loading) {
       return (
-        <FullLayout headline={this.props.t("areas")} buttons={buttons}>
+        <FullLayout headline={this.props.t("attributes")} buttons={buttons}>
           <Loading />
         </FullLayout>
       );
@@ -94,19 +101,20 @@ class Locations extends React.Component<Props, State> {
     let rows = this.data.map(item => this.renderItem(item));
     if (rows.length === 0) {
       return (
-        <FullLayout headline={this.props.t("areas")} buttons={buttons}>
+        <FullLayout headline={this.props.t("attributes")} buttons={buttons}>
           <p>{this.props.t("noRecords")}</p>
         </FullLayout>
       );
     }
     return (
-      <FullLayout headline={this.props.t("areas")} buttons={buttons}>
+      <FullLayout headline={this.props.t("attributes")} buttons={buttons}>
         <Table striped={true} hover={true} className="clickable-table" id="datatable">
           <thead>
             <tr>
               <th>{this.props.t("name")}</th>
-              <th>{this.props.t("map")}</th>
-              <th>{this.props.t("bookingLink")}</th>
+              <th>{this.props.t("type")}</th>
+              <th>{this.props.t("areas")}</th>
+              <th>{this.props.t("spaces")}</th>
             </tr>
           </thead>
           <tbody>
@@ -118,4 +126,4 @@ class Locations extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation(['admin'])(withReadyRouter(Locations as any));
+export default withTranslation(['admin'])(withReadyRouter(Attributes as any));
