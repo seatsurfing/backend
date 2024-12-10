@@ -1,9 +1,9 @@
 import React from 'react';
 import FullLayout from '../../components/FullLayout';
-import { Form, Col, Row, Button, Alert, InputGroup, Table } from 'react-bootstrap';
-import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete, MapPin as IconMap, Copy as IconCopy, Loader as IconLoad, Download as IconDownload } from 'react-feather';
+import { Form, Col, Row, Button, Alert, InputGroup, Table, Dropdown } from 'react-bootstrap';
+import { ChevronLeft as IconBack, Save as IconSave, Trash2 as IconDelete, MapPin as IconMap, Copy as IconCopy, Loader as IconLoad, Download as IconDownload, Tag as IconTag } from 'react-feather';
 import Loading from '../../components/Loading';
-import { Ajax, Location, Space } from 'flexspace-commons';
+import { Ajax, Location, Space, SpaceAttribute, SpaceAttributeValue } from 'flexspace-commons';
 import { Rnd } from 'react-rnd';
 import { WithTranslation, withTranslation } from 'next-i18next';
 import { NextRouter } from 'next/router';
@@ -37,6 +37,10 @@ interface State {
   selectedSpace: number | null
   deleteIds: string[]
   changed: boolean
+  attributeValues: SpaceAttributeValue[]
+  availableAttributes: SpaceAttribute[]
+  changedAttributeIds: string[]
+  deletedAttributeIds: string[]
 }
 
 interface Props extends WithTranslation {
@@ -67,7 +71,11 @@ class EditLocation extends React.Component<Props, State> {
       spaces: [],
       selectedSpace: null,
       deleteIds: [],
-      changed: false
+      changed: false,
+      attributeValues: [],
+      availableAttributes: [],
+      changedAttributeIds: [],
+      deletedAttributeIds: []
     };
   }
 
@@ -114,20 +122,43 @@ class EditLocation extends React.Component<Props, State> {
           });
           return this.entity.getMap().then(mapData => {
             this.mapData = mapData;
-            this.setState({
-              name: location.name,
-              description: location.description,
-              limitConcurrentBookings: (location.maxConcurrentBookings > 0),
-              maxConcurrentBookings: location.maxConcurrentBookings,
-              timezone: location.timezone,
-              loading: false
+            return SpaceAttribute.list().then(attributes => {
+              return this.entity.getAttributes().then(attributeValues => {
+                this.setState({
+                  name: location.name,
+                  description: location.description,
+                  limitConcurrentBookings: (location.maxConcurrentBookings > 0),
+                  maxConcurrentBookings: location.maxConcurrentBookings,
+                  timezone: location.timezone,
+                  attributeValues: attributeValues,
+                  availableAttributes: attributes,
+                  loading: false
+                });
+              });
             });
           });
         });
       });
     } else {
-      //return Promise.resolve();
     }
+  }
+
+  saveAttributes = async (): Promise<void> => {
+    new Promise<void>((resolve) => {
+      let promises: Promise<any>[] = [];
+      this.state.attributeValues.forEach(av => {
+        promises.push(this.entity.setAttribute(av.attributeId, av.value));
+      });
+      this.state.deletedAttributeIds.forEach(changedId => {
+        promises.push(this.entity.deleteAttribute(changedId));
+      });
+      Promise.all(promises).then(() => {
+        this.setState({
+          changedAttributeIds: [],
+          deletedAttributeIds: []
+        }, () => resolve());
+      });
+    });
   }
 
   saveSpaces = async () => {
@@ -173,37 +204,6 @@ class EditLocation extends React.Component<Props, State> {
       }
     }
     this.setState({ deleteIds: [] });
-
-    /*
-
-    // Fetch the latest list of spaces from the server to avoid overwriting
-    let spaces = await Space.list(this.entity.id);
-
-    // For spaces on the "to be deleted"-list, delete them and clear the list afterwards
-    for (let space of spaces) {
-      if (this.state.deleteIds.indexOf(space.id) > -1) {
-        await space.delete();
-      }
-    }
-    this.setState({ deleteIds: [] });
-
-    // Sync all other spaces to the server
-    for (let item of this.state.spaces) {
-      let space: Space = new Space();
-      if (item.id) {
-        space.id = item.id;
-      }
-      space.locationId = this.entity.id;
-      space.name = item.name;
-      space.x = item.x;
-      space.y = item.y;
-      space.width = parseInt(item.width.replace(/^\D+/g, ''));
-      space.height = parseInt(item.height.replace(/^\D+/g, ''));
-      space.rotation = item.rotation;
-      await space.save();
-      item.id = space.id; // Store id (if created)
-    }
-      */
   }
 
   onSubmit = (e: any) => {
@@ -214,25 +214,27 @@ class EditLocation extends React.Component<Props, State> {
     this.entity.maxConcurrentBookings = (this.state.limitConcurrentBookings ? this.state.maxConcurrentBookings : 0);
     this.entity.timezone = this.state.timezone;
     this.entity.save().then(() => {
-      this.saveSpaces().then(() => {
-        if (this.state.files && this.state.files.length > 0) {
-          this.entity.setMap(this.state.files.item(0) as File).then(() => {
-            this.loadData(this.entity.id);
-            this.props.router.push("/locations/" + this.entity.id);
+      this.saveAttributes().then(() => {
+        this.saveSpaces().then(() => {
+          if (this.state.files && this.state.files.length > 0) {
+            this.entity.setMap(this.state.files.item(0) as File).then(() => {
+              this.loadData(this.entity.id);
+              this.props.router.push("/locations/" + this.entity.id);
+              this.setState({
+                files: null,
+                saved: true,
+                changed: false,
+                submitting: false
+              });
+            });
+          } else {
             this.setState({
-              files: null,
               saved: true,
               changed: false,
               submitting: false
             });
-          });
-        } else {
-          this.setState({
-            saved: true,
-            changed: false,
-            submitting: false
-          });
-        }
+          }
+        });
       });
     });
   }
@@ -381,6 +383,106 @@ class EditLocation extends React.Component<Props, State> {
     );
   }
 
+  getAvailableAttributeOptions = () => {
+    let res: any[] = [];
+    this.state.availableAttributes.forEach(a => {
+      let ok = true;
+      this.state.attributeValues.forEach(av => {
+        if (av.attributeId === a.id) {
+          ok = false;
+        }
+      })
+      if (!ok) {
+        return;
+      }
+      let option = <Dropdown.Item key={a.id} onClick={e => this.setAttribute(a.id)}>{a.label}</Dropdown.Item>;
+      res.push(option);
+    });
+    return res;
+  }
+
+  setAttribute = (id: string, value?: string) => {
+    let newAttributeValues: SpaceAttributeValue[] = [];
+    let av = new SpaceAttributeValue();
+    av.attributeId = id;
+    av.value = value ? value : "";
+    let found = false;
+    this.state.attributeValues.forEach(e => {
+      if (e.attributeId !== id) {
+        newAttributeValues.push(e);
+      } else {
+        newAttributeValues.push(av);
+        found = true;
+      }
+    });
+    if (!found) {
+      newAttributeValues.push(av);
+    }
+    let changedAttributeIds: string[] = Object.assign([], this.state.changedAttributeIds);
+    if (changedAttributeIds.indexOf(id) === -1) {
+      changedAttributeIds.push(id);
+    }
+    this.setState({
+      attributeValues: newAttributeValues,
+      changedAttributeIds: changedAttributeIds
+    });
+  }
+
+  deleteAttribute = (id: string) => {
+    let newAttributeValues: SpaceAttributeValue[] = [];
+    this.state.attributeValues.forEach(e => {
+      if (e.attributeId !== id) {
+        newAttributeValues.push(e);
+      }
+    });
+    let deletedAttributeIds: string[] = Object.assign([], this.state.deletedAttributeIds);
+    if (deletedAttributeIds.indexOf(id) === -1) {
+      deletedAttributeIds.push(id);
+    }
+    this.setState({
+      attributeValues: newAttributeValues,
+      deletedAttributeIds: deletedAttributeIds
+    });
+  }
+
+  getAttributeById = (id: string): SpaceAttribute | null => {
+    let a: SpaceAttribute | null = null;
+    this.state.availableAttributes.forEach(cur => {
+      if (cur.id === id) {
+        a = cur;
+      }
+    });
+    return a;
+  }
+
+  getAttributeRows = () => {
+    let res: any = [];
+    this.state.attributeValues.forEach((av, idx) => {
+      let a = this.getAttributeById(av.attributeId);
+      if (a != null) {
+        let input = <></>;
+        if (a.type === 1) {
+          input = <Form.Control type="number" min={0} value={this.state.attributeValues[idx].value} onChange={(e: any) => this.setAttribute(av.attributeId, e.target.value)} />;
+        } else if (a.type === 2) {
+          input = <Form.Check type="checkbox" label={this.props.t("yes")} checked={this.state.attributeValues[idx].value === "1"} onChange={(e: any) => this.setAttribute(av.attributeId, e.target.checked ? "1" : "0")} />;
+        } else {
+          input = <Form.Control type="text" value={this.state.attributeValues[idx].value} onChange={(e: any) => this.setAttribute(av.attributeId, e.target.value)} />;
+        }
+        let row = (
+          <Form.Group as={Row} key={av.attributeId}>
+            <Form.Label column sm="2">{a.label}</Form.Label>
+            <Col sm="4">{input}</Col>
+            <Col sm="1" style={{"marginTop": "3px"}}>
+              <Button variant="outline-secondary" size="sm" onClick={e => this.deleteAttribute((av.attributeId))}>{this.props.t("X")}</Button>
+            </Col>
+          </Form.Group>
+        );
+        res.push(row);
+      }
+    });
+    return res;
+  }
+
   exportTable = (e: any) => {
     return this.ExcellentExport.convert(
       { anchor: e.target, filename: "seatsurfing-spaces", format: "xlsx" },
@@ -413,6 +515,7 @@ class EditLocation extends React.Component<Props, State> {
     let buttonDelete = <Button className="btn-sm" variant="outline-secondary" onClick={this.deleteItem}><IconDelete className="feather" /> {this.props.t("delete")}</Button>;
     let buttonSave = this.getSaveButton();
     let floorPlan = <></>
+    let attributeTable = <></>
     let spaceTable = <></>
     let rows = this.state.spaces.map((item) => this.renderRow(item));
     if (this.entity.id) {
@@ -434,8 +537,8 @@ class EditLocation extends React.Component<Props, State> {
       }
       floorPlan = (
         <>
-          <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 className="h2">{this.props.t("floorplan")}</h1>
+          <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom" style={{ "marginTop": "50px" }}>
+            <h4>{this.props.t("floorplan")}</h4>
             <div className="btn-toolbar mb-2 mb-md-0">
               <div className="btn-group me-2">
                 {buttonCopySpace} {buttonDeleteSpace}
@@ -450,11 +553,34 @@ class EditLocation extends React.Component<Props, State> {
           </div>
         </>
       );
+      let availableAttributeOptions = this.getAvailableAttributeOptions();
+      attributeTable = (
+        <>
+          <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom" style={{ "marginTop": "50px" }}>
+            <h4>{this.props.t("attributes")}</h4>
+            <div className="btn-toolbar mb-2 mb-md-0">
+              <div className="btn-group me-2">
+                <Dropdown>
+                  <Dropdown.Toggle className="btn-sm" variant="outline-secondary" id="dropdown-attributes" disabled={availableAttributeOptions.length === 0}>
+                    <IconTag className="feather" /> {this.props.t("add")}
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    {availableAttributeOptions}
+                  </Dropdown.Menu>
+                </Dropdown>
+              </div>
+            </div>
+          </div>
+          <Form>
+            {this.getAttributeRows()}
+          </Form>
+        </>
+      );
       let downloadButton = <a download={`seatsurfing-${this.state.name}-spaces.xlsx`} href="#" className="btn btn-sm btn-outline-secondary" onClick={this.exportTable}><IconDownload className="feather" /> {this.props.t("download")}</a>;
       spaceTable = (
         <>
-          <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 className="h2">{this.props.t("spaces")}</h1>
+          <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom" style={{ "marginTop": "50px" }}>
+            <h4>{this.props.t("spaces")}</h4>
             <div className="btn-toolbar mb-2 mb-md-0">
               <div className="btn-group me-2">
                 {downloadButton}
@@ -519,6 +645,7 @@ class EditLocation extends React.Component<Props, State> {
           </Form.Group>
         </Form>
         {floorPlan}
+        {attributeTable}
         {spaceTable}
       </FullLayout>
     );

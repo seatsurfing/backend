@@ -41,8 +41,20 @@ type GetMapResponse struct {
 	Data     string `json:"data"`
 }
 
+type SetSpaceAttributeValueRequest struct {
+	Value string `json:"value"`
+}
+
+type GetSpaceAttributeValueResponse struct {
+	AttributeID string `json:"attributeId"`
+	Value       string `json:"value"`
+}
+
 func (router *LocationRouter) setupRoutes(s *mux.Router) {
 	s.HandleFunc("/loadsampledata", router.loadSampleData).Methods("POST")
+	s.HandleFunc("/{id}/attribute", router.getAttributes).Methods("GET")
+	s.HandleFunc("/{id}/attribute/{attributeId}", router.setAttribute).Methods("POST")
+	s.HandleFunc("/{id}/attribute/{attributeId}", router.deleteAttribute).Methods("DELETE")
 	s.HandleFunc("/{id}/map", router.getMap).Methods("GET")
 	s.HandleFunc("/{id}/map", router.setMap).Methods("POST")
 	s.HandleFunc("/{id}", router.getOne).Methods("GET")
@@ -50,6 +62,84 @@ func (router *LocationRouter) setupRoutes(s *mux.Router) {
 	s.HandleFunc("/{id}", router.delete).Methods("DELETE")
 	s.HandleFunc("/", router.create).Methods("POST")
 	s.HandleFunc("/", router.getAll).Methods("GET")
+}
+
+func (router *LocationRouter) getAttributes(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	e, err := GetLocationRepository().GetOne(vars["id"])
+	if err != nil {
+		log.Println(err)
+		SendNotFound(w)
+		return
+	}
+	list, err := GetSpaceAttributeValueRepository().GetAllForEntity(e.ID, SpaceAttributeValueEntityTypeLocation)
+	if err != nil {
+		log.Println(err)
+		SendInternalServerError(w)
+		return
+	}
+	res := []*GetSpaceAttributeValueResponse{}
+	for _, val := range list {
+		m := &GetSpaceAttributeValueResponse{
+			AttributeID: val.AttributeID,
+			Value:       val.Value,
+		}
+		res = append(res, m)
+	}
+	SendJSON(w, res)
+}
+
+func (router *LocationRouter) setAttribute(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	e, err := GetLocationRepository().GetOne(vars["id"])
+	if err != nil {
+		log.Println(err)
+		SendNotFound(w)
+		return
+	}
+	user := GetRequestUser(r)
+	if !CanSpaceAdminOrg(user, e.OrganizationID) {
+		SendForbidden(w)
+		return
+	}
+	attribute, err := GetSpaceAttributeRepository().GetOne(vars["attributeId"])
+	if err != nil {
+		log.Println(err)
+		SendNotFound(w)
+		return
+	}
+	if !attribute.LocationApplicable {
+		SendBadRequest(w)
+		return
+	}
+	var m SetSpaceAttributeValueRequest
+	if UnmarshalValidateBody(r, &m) != nil {
+		SendBadRequest(w)
+		return
+	}
+	if err := GetSpaceAttributeValueRepository().Set(attribute.ID, e.ID, SpaceAttributeValueEntityTypeLocation, m.Value); err != nil {
+		log.Println(err)
+		SendInternalServerError(w)
+		return
+	}
+	SendUpdated(w)
+}
+
+func (router *LocationRouter) deleteAttribute(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	e, err := GetLocationRepository().GetOne(vars["id"])
+	if err != nil {
+		log.Println(err)
+		SendNotFound(w)
+		return
+	}
+	user := GetRequestUser(r)
+	if !CanSpaceAdminOrg(user, e.OrganizationID) {
+		SendForbidden(w)
+		return
+	}
+	GetSpaceAttributeValueRepository().Delete(vars["attributeId"], e.ID, SpaceAttributeValueEntityTypeLocation)
+	SendUpdated(w)
 }
 
 func (router *LocationRouter) getOne(w http.ResponseWriter, r *http.Request) {

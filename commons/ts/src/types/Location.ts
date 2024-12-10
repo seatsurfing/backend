@@ -1,5 +1,6 @@
 import { Entity } from "./Entity";
 import Ajax from "../util/Ajax";
+import SpaceAttributeValue from "./SpaceAttributeValue";
 
 export default class Location extends Entity {
     name: string;
@@ -70,6 +71,29 @@ export default class Location extends Entity {
 
     async setMap(file: File): Promise<void> {
         return Ajax.postData(this.getBackendUrl() + this.id + "/map", file).then(() => undefined);
+    }
+
+    async getAttributes(): Promise<SpaceAttributeValue[]> {
+        return Ajax.get(this.getBackendUrl() + this.id + "/attribute").then(result => {
+            let list: SpaceAttributeValue[] = [];
+            (result.json as []).forEach(item => {
+                let e: SpaceAttributeValue = new SpaceAttributeValue();
+                e.deserialize(item);
+                list.push(e);
+            });
+            return list;
+        });
+    }
+
+    async setAttribute(attributeId: string, value: string): Promise<void> {
+        let payload = {
+            value: value
+        };
+        return Ajax.postData(this.getBackendUrl() + this.id + "/attribute/" + attributeId, payload).then(() => undefined);
+    }
+
+    async deleteAttribute(attributeId: string): Promise<void> {
+        return Ajax.delete(this.getBackendUrl() + this.id + "/attribute/" + attributeId).then(() => undefined);
     }
 
     static async get(id: string): Promise<Location> {
